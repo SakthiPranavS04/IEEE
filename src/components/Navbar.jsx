@@ -198,6 +198,26 @@ const Navbar = () => {
               />
             </a>
           </div>
+
+          {/* Admin Dashboard link on the far right */}
+          <Link
+            to="/admin"
+            style={{
+              border: '1.5px solid #ffffff',
+              backgroundColor: '#ffffff',
+              color: '#0a385b',
+              borderRadius: '20px',
+              padding: '6px 18px',
+              fontSize: '12px',
+              fontWeight: '700',
+              textDecoration: 'none',
+              transition: 'var(--transition-fast)',
+              whiteSpace: 'nowrap'
+            }}
+            className="admin-btn-hover"
+          >
+            Admin
+          </Link>
         </div>
 
         {/* Mobile Hamburger menu */}
@@ -331,6 +351,10 @@ const Navbar = () => {
         .rec-btn-hover:hover {
           background-color: #ffffff !important;
           color: #0a385b !important;
+        }
+        .admin-btn-hover:hover {
+          background-color: transparent !important;
+          color: #ffffff !important;
         }
         @media (max-width: 1200px) {
           .header-nav, .header-right {

@@ -5,7 +5,8 @@ import { Award, BookOpen, Calendar, Users, ArrowRight, ShieldCheck, Flame, Zap }
 const Home = () => {
   const [activeTab, setActiveTab] = useState('about');
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
-  const [memberCount, setMemberCount] = useState('480+');
+  const [memberCount, setMemberCount] = useState(() => localStorage.getItem('ieee_member_count') || '480+');
+  const [papersCount, setPapersCount] = useState(() => localStorage.getItem('ieee_papers_count') || '120+');
 
   // Google Sheet URL for Member Count
   // File > Share > Publish to web > Select Link, choose CSV from the dropdown list.
@@ -33,7 +34,8 @@ const Home = () => {
         console.warn("Could not load member count from Google Sheet, using default.", e);
       }
     };
-    if (GOOGLE_SHEET_CSV_URL && !GOOGLE_SHEET_CSV_URL.includes('_example')) {
+    // Only load from Google Sheet if there is no local override from the Admin
+    if (GOOGLE_SHEET_CSV_URL && !GOOGLE_SHEET_CSV_URL.includes('_example') && !localStorage.getItem('ieee_member_count')) {
       fetchMemberCount();
     }
   }, []);
@@ -62,7 +64,7 @@ const Home = () => {
     { icon: <Users size={32} style={{ color: 'var(--secondary)' }} />, value: memberCount, label: 'Active Members' },
     { icon: <Calendar size={32} style={{ color: 'var(--secondary)' }} />, value: '75+', label: 'Events Yearly' },
     { icon: <Award size={32} style={{ color: 'var(--secondary)' }} />, value: '18+', label: 'National Awards' },
-    { icon: <BookOpen size={32} style={{ color: 'var(--secondary)' }} />, value: '120+', label: 'Research Papers' },
+    { icon: <BookOpen size={32} style={{ color: 'var(--secondary)' }} />, value: papersCount, label: 'Research Papers' },
   ];
 
   const tabContent = {

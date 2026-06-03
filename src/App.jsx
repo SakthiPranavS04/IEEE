@@ -13,6 +13,7 @@ import Execomm from './pages/Execomm';
 import Committees from './pages/Committees';
 import Media from './pages/Media';
 import Contact from './pages/Contact';
+import Admin from './pages/Admin';
 
 // About Pages
 import {
@@ -89,6 +90,9 @@ function App() {
 
           {/* Contact Route */}
           <Route path="/contact" element={<Contact />} />
+
+          {/* Admin Dashboard Route */}
+          <Route path="/admin" element={<Admin />} />
 
           {/* Fallback to Home */}
           <Route path="*" element={<Navigate to="/" replace />} />

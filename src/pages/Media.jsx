@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Image, FileText, X, Maximize2 } from 'lucide-react';
 
 const PageHeader = ({ title, subtitle }) => (
@@ -19,8 +19,10 @@ const PageHeader = ({ title, subtitle }) => (
 const Media = () => {
   const [activeTab, setActiveTab] = useState('gallery'); // 'gallery' | 'news'
   const [selectedImage, setSelectedImage] = useState(null);
+  const [galleryItems, setGalleryItems] = useState([]);
 
-  const galleryItems = [
+  // Predefined default gallery fallback
+  const defaultGallery = [
     { id: 1, title: "Flutter Bootcamp 2026", cat: "Workshop", text: "Students developing cross-platform applications." },
     { id: 2, title: "National Expo Presentation", cat: "Exhibition", text: "KEC SRC teams displaying agricultural automation solutions." },
     { id: 3, title: "WIE Career Panel", cat: "Seminar", text: "Interactive panel discussion with tech industry experts." },
@@ -28,6 +30,16 @@ const Media = () => {
     { id: 5, title: "GreenTech Hackathon Pitching", cat: "Hackathon", text: "Teams presenting prototypes to judges." },
     { id: 6, title: "Branch Executive Committee Meet", cat: "Meeting", text: "Faculty advisor and branch officers discussing yearly plans." },
   ];
+
+  useEffect(() => {
+    const storedGallery = localStorage.getItem('ieee_gallery_items');
+    if (storedGallery) {
+      setGalleryItems(JSON.parse(storedGallery));
+    } else {
+      localStorage.setItem('ieee_gallery_items', JSON.stringify(defaultGallery));
+      setGalleryItems(defaultGallery);
+    }
+  }, []);
 
   const newsItems = [
     {

@@ -168,8 +168,8 @@ const Navbar = () => {
             style={{
               border: '1.5px solid #ffffff',
               borderRadius: '20px',
-              padding: '6px 14px',
-              fontSize: '11px',
+              padding: '8px 20px',
+              fontSize: '12px',
               fontWeight: '600',
               color: '#ffffff',
               textDecoration: 'none',
@@ -178,7 +178,7 @@ const Navbar = () => {
             }}
             className="rec-btn-hover"
           >
-            Recommendation
+            Recommendation Letter
           </Link>
 
           {/* KEC logo */}
@@ -355,47 +355,6 @@ const Navbar = () => {
                 }}
               >
                 Admin
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
-
-              return (
-                <NavLink
-                  key={idx}
-                  to={item.link}
-                  onClick={() => setIsOpen(false)}
-                  style={({ isActive }) => ({
-                    display: 'block',
-                    padding: '10px 0',
-                    fontSize: '15px',
-                    fontWeight: '600',
-                    color: isActive ? '#c9ebff' : '#ffffff',
-                    textDecoration: 'none',
-                    borderBottom: '1px solid #0f4875'
-                  })}
-                >
-                  {item.name}
-                </NavLink>
-              );
-            })}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
-              <Link
-                to="/contact"
-                onClick={() => setIsOpen(false)}
-                style={{
-                  border: '1.5px solid #ffffff',
-                  borderRadius: '20px',
-                  padding: '10px',
-                  textAlign: 'center',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  color: '#ffffff',
-                  textDecoration: 'none'
-                }}
-              >
-                Recommendation Letter
               </Link>
             </div>
           </div>

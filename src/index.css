@@ -58,6 +58,78 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--primary);
 }
 
+h1 {
+  font-size: 48px;
+}
+
+h2 {
+  font-size: 36px;
+}
+
+h3 {
+  font-size: 28px;
+}
+
+h4 {
+  font-size: 20px;
+}
+
+h5 {
+  font-size: 18px;
+}
+
+h6 {
+  font-size: 16px;
+}
+
+@media (max-width: 1024px) {
+  h1 {
+    font-size: 40px;
+  }
+  h2 {
+    font-size: 32px;
+  }
+  h3 {
+    font-size: 24px;
+  }
+  h4 {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 768px) {
+  h1 {
+    font-size: 32px;
+  }
+  h2 {
+    font-size: 26px;
+  }
+  h3 {
+    font-size: 20px;
+  }
+  h4 {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 24px;
+  }
+  h2 {
+    font-size: 20px;
+  }
+  h3 {
+    font-size: 18px;
+  }
+  h4 {
+    font-size: 14px;
+  }
+  body {
+    font-size: 14px;
+  }
+}
+
 .font-serif {
   font-family: var(--font-serif);
 }
@@ -70,13 +142,43 @@ h1, h2, h3, h4, h5, h6 {
   padding: 0 24px;
 }
 
+@media (max-width: 1024px) {
+  .container {
+    padding: 0 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 12px;
+  }
+}
+
 .section-padding {
   padding: 80px 0;
+}
+
+@media (max-width: 1024px) {
+  .section-padding {
+    padding: 60px 0;
+  }
 }
 
 @media (max-width: 768px) {
   .section-padding {
     padding: 48px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-padding {
+    padding: 32px 0;
   }
 }
 
@@ -93,6 +195,20 @@ h1, h2, h3, h4, h5, h6 {
   transition: var(--transition-normal);
   cursor: pointer;
   border: 1px solid transparent;
+}
+
+@media (max-width: 768px) {
+  .btn {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
 }
 
 .btn-primary {
@@ -139,6 +255,18 @@ h1, h2, h3, h4, h5, h6 {
   transition: var(--transition-normal);
 }
 
+@media (max-width: 768px) {
+  .card {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 16px;
+  }
+}
+
 .card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-md);
@@ -154,6 +282,12 @@ header {
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-subtle);
   transition: var(--transition-normal);
+}
+
+@media (max-width: 768px) {
+  header {
+    z-index: 1000;
+  }
 }
 
 /* Dropdown styling */
@@ -173,6 +307,12 @@ header {
   z-index: 10;
 }
 
+@media (max-width: 768px) {
+  .dropdown-menu {
+    min-width: 180px;
+  }
+}
+
 .dropdown-parent:hover .dropdown-menu {
   opacity: 1;
   visibility: visible;
@@ -188,6 +328,20 @@ header {
   padding: 8px 0;
   font-size: 14px;
   font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .ticker-wrap {
+    padding: 6px 0;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ticker-wrap {
+    padding: 4px 0;
+    font-size: 11px;
+  }
 }
 
 .ticker {
@@ -239,5 +393,47 @@ header {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Responsive flex layouts */
+@media (max-width: 768px) {
+  .flex-responsive {
+    flex-direction: column !important;
+  }
+}
+
+/* Ensure tables are responsive */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+@media (max-width: 768px) {
+  table {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  table {
+    font-size: 11px;
+  }
+}
+
+/* Responsive form elements */
+input, textarea, select {
+  width: 100%;
+  max-width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+}
+
+@media (max-width: 480px) {
+  input, textarea, select {
+    font-size: 16px; /* Prevent iOS zoom on input focus */
+    padding: 12px;
   }
 }

@@ -15,10 +15,10 @@ const Footer = () => {
       <div className="container">
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '40px',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+          gap: '32px',
           marginBottom: '50px'
-        }}>
+        }} className="footer-grid">
           {/* Brand/About Column */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
@@ -130,7 +130,7 @@ const Footer = () => {
           gap: '16px',
           fontSize: '13px',
           color: '#829ab9'
-        }}>
+        }} className="footer-copyright">
           <div>
             © {currentYear} IEEE KEC Student Branch. All rights reserved.
           </div>
@@ -167,6 +167,66 @@ const Footer = () => {
         .bottom-link-hover:hover {
           color: #fff !important;
           text-decoration: underline !important;
+        }
+
+        /* Responsive Footer */
+        @media (max-width: 1024px) {
+          .footer-grid {
+            gap: 28px !important;
+          }
+        }
+
+        @media (max-width: 768px) {
+          footer {
+            padding: 50px 0 20px !important;
+          }
+          .footer-grid {
+            gridTemplateColumns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+            gap: 24px !important;
+            marginBottom: 30px !important;
+          }
+          h4 {
+            fontSize: 14px !important;
+          }
+          p {
+            fontSize: 13px !important;
+          }
+          .footer-copyright {
+            flexDirection: column !important;
+            justifyContent: center !important;
+            textAlign: center !important;
+          }
+          .footer-copyright > div:last-child {
+            flexDirection: column !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          footer {
+            padding: 40px 0 16px !important;
+          }
+          .footer-grid {
+            gridTemplateColumns: 1fr !important;
+            gap: 20px !important;
+            marginBottom: 20px !important;
+          }
+          h3 {
+            fontSize: 16px !important;
+          }
+          h4 {
+            fontSize: 13px !important;
+            marginBottom: 16px !important;
+          }
+          p, ul li {
+            fontSize: 12px !important;
+          }
+          .footer-copyright {
+            fontSize: 11px !important;
+          }
+          .social-icon-btn {
+            width: 32px !important;
+            height: 32px !important;
+          }
         }
       `}</style>
     </footer>

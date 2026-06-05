@@ -140,6 +140,24 @@ function App() {
           transform: translateY(-3px);
           box-shadow: 0 6px 16px rgba(0,0,0,0.3) !important;
         }
+
+        @media (max-width: 768px) {
+          .scroll-top-btn {
+            width: 40px !important;
+            height: 40px !important;
+            bottom: 90px !important;
+            right: 20px !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .scroll-top-btn {
+            width: 36px !important;
+            height: 36px !important;
+            bottom: 80px !important;
+            right: 12px !important;
+          }
+        }
       `}</style>
     </div>
   );

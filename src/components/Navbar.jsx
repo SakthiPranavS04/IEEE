@@ -69,24 +69,24 @@ const Navbar = () => {
       position: 'sticky',
       top: 0,
       zIndex: 1000,
-      height: '80px',
+      minHeight: '80px',
       display: 'flex',
       alignItems: 'center',
       color: '#ffffff'
     }}>
-      <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '100%', padding: '0 20px' }}>
+      <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '0 16px' }}>
         
         {/* Left Side: Transparent Logo Banner */}
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', flexShrink: 0 }}>
           <img 
             src="/assets/ieee_logo_white.png" 
             alt="IEEE Logo" 
-            style={{ height: '52px', display: 'block' }} 
+            style={{ height: '52px', display: 'block', maxWidth: '100%' }} 
           />
         </Link>
 
         {/* Center: Navigation Menu */}
-        <nav className="header-nav" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+        <nav className="header-nav" style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1, justifyContent: 'center', marginRight: '16px' }}>
           {menuItems.map((item, idx) => {
             if (item.items) {
               return (
@@ -98,14 +98,15 @@ const Navbar = () => {
                       alignItems: 'center',
                       gap: '4px',
                       padding: '8px 12px',
-                      fontSize: '14px',
+                      fontSize: '13px',
                       fontWeight: '600',
                       color: 'rgba(255, 255, 255, 0.9)',
                       background: 'transparent',
                       border: 'none',
                       cursor: 'pointer',
                       borderRadius: '4px',
-                      transition: 'var(--transition-fast)'
+                      transition: 'var(--transition-fast)',
+                      whiteSpace: 'nowrap'
                     }}
                     className="nav-link-hover"
                   >
@@ -142,14 +143,15 @@ const Navbar = () => {
                 key={idx}
                 to={item.link}
                 style={({ isActive }) => ({
-                  padding: '6px 14px',
-                  fontSize: '14px',
+                  padding: '6px 12px',
+                  fontSize: '13px',
                   fontWeight: '600',
                   color: isActive ? '#0a385b' : 'rgba(255, 255, 255, 0.9)',
                   backgroundColor: isActive ? '#ffffff' : 'transparent',
                   borderRadius: isActive ? '20px' : '4px',
                   textDecoration: 'none',
-                  transition: 'var(--transition-fast)'
+                  transition: 'var(--transition-fast)',
+                  whiteSpace: 'nowrap'
                 })}
                 className={({ isActive }) => isActive ? '' : 'nav-link-hover'}
               >
@@ -160,14 +162,14 @@ const Navbar = () => {
         </nav>
 
         {/* Right Side: Recommendation button & Logos */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }} className="header-right">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }} className="header-right">
           <Link
             to="/contact"
             style={{
               border: '1.5px solid #ffffff',
               borderRadius: '20px',
-              padding: '6px 18px',
-              fontSize: '12px',
+              padding: '6px 14px',
+              fontSize: '11px',
               fontWeight: '600',
               color: '#ffffff',
               textDecoration: 'none',
@@ -176,10 +178,10 @@ const Navbar = () => {
             }}
             className="rec-btn-hover"
           >
-            Recommendation Letter
+            Recommendation
           </Link>
 
-          {/* Logos Emblems (KVITT and SRC removed, KEC logo in original horizontal format) */}
+          {/* KEC logo */}
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <a 
               href="https://kongu.ac.in/aboutkec" 
@@ -191,7 +193,7 @@ const Navbar = () => {
                 src="/assets/kec_logo.png" 
                 alt="Kongu Engineering College Logo" 
                 style={{ 
-                  height: '36px', 
+                  height: '32px', 
                   display: 'block',
                   cursor: 'pointer'
                 }} 
@@ -199,7 +201,7 @@ const Navbar = () => {
             </a>
           </div>
 
-          {/* Admin Dashboard link on the far right */}
+          {/* Admin Dashboard link */}
           <Link
             to="/admin"
             style={{
@@ -207,8 +209,8 @@ const Navbar = () => {
               backgroundColor: '#ffffff',
               color: '#0a385b',
               borderRadius: '20px',
-              padding: '6px 18px',
-              fontSize: '12px',
+              padding: '6px 14px',
+              fontSize: '11px',
               fontWeight: '700',
               textDecoration: 'none',
               transition: 'var(--transition-fast)',
@@ -229,10 +231,12 @@ const Navbar = () => {
             background: 'transparent',
             border: 'none',
             color: '#ffffff',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            padding: '8px',
+            flexShrink: 0
           }}
         >
-          {isOpen ? <X size={26} /> : <Menu size={26} />}
+          {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
@@ -245,10 +249,11 @@ const Navbar = () => {
           right: 0,
           backgroundColor: '#0a385b',
           borderBottom: '1px solid #0f4875',
-          padding: '16px 20px',
+          padding: '16px',
           maxHeight: 'calc(100vh - 80px)',
           overflowY: 'auto',
-          zIndex: 999
+          zIndex: 999,
+          width: '100%'
         }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {menuItems.map((item, idx) => {
@@ -263,19 +268,20 @@ const Navbar = () => {
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         width: '100%',
-                        padding: '10px 0',
-                        fontSize: '15px',
+                        padding: '12px 0',
+                        fontSize: '14px',
                         fontWeight: '600',
                         color: '#ffffff',
                         background: 'transparent',
-                        border: 'none'
+                        border: 'none',
+                        cursor: 'pointer'
                       }}
                     >
                       {item.name}
                       <ChevronDown size={16} style={{ transform: isDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'var(--transition-fast)' }} />
                     </button>
                     {isDropdownOpen && (
-                      <div style={{ paddingLeft: '12px', display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '10px' }}>
+                      <div style={{ paddingLeft: '16px', display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
                         {item.items.map((subItem, sIdx) => (
                           <NavLink
                             key={sIdx}
@@ -297,6 +303,63 @@ const Navbar = () => {
                   </div>
                 );
               }
+
+              return (
+                <NavLink
+                  key={idx}
+                  to={item.link}
+                  onClick={() => setIsOpen(false)}
+                  style={({ isActive }) => ({
+                    display: 'block',
+                    padding: '12px 0',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: isActive ? '#c9ebff' : '#ffffff',
+                    textDecoration: 'none',
+                    borderBottom: '1px solid #0f4875'
+                  })}
+                >
+                  {item.name}
+                </NavLink>
+              );
+            })}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #0f4875' }}>
+              <Link
+                to="/contact"
+                onClick={() => setIsOpen(false)}
+                style={{
+                  border: '1.5px solid #ffffff',
+                  borderRadius: '20px',
+                  padding: '12px',
+                  textAlign: 'center',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  color: '#ffffff',
+                  textDecoration: 'none'
+                }}
+              >
+                Recommendation Letter
+              </Link>
+              <Link
+                to="/admin"
+                onClick={() => setIsOpen(false)}
+                style={{
+                  backgroundColor: '#ffffff',
+                  color: '#0a385b',
+                  borderRadius: '20px',
+                  padding: '12px',
+                  textAlign: 'center',
+                  fontSize: '13px',
+                  fontWeight: '700',
+                  textDecoration: 'none'
+                }}
+              >
+                Admin
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
               return (
                 <NavLink
@@ -355,13 +418,23 @@ const Navbar = () => {
         .admin-btn-hover:hover {
           background-color: transparent !important;
           color: #ffffff !important;
+          border-color: #ffffff !important;
         }
-        @media (max-width: 1200px) {
+
+        /* Tablet and below */
+        @media (max-width: 1024px) {
           .header-nav, .header-right {
             display: none !important;
           }
           .menu-hamburger-btn {
             display: block !important;
+          }
+        }
+
+        /* Small screens */
+        @media (max-width: 480px) {
+          header {
+            padding: 8px 0 !important;
           }
         }
       `}</style>

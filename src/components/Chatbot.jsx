@@ -122,7 +122,7 @@ const Chatbot = () => {
           flexDirection: 'column',
           overflow: 'hidden',
           animation: 'chat-slide-up 0.30s cubic-bezier(0.165, 0.84, 0.44, 1) forwards'
-        }}>
+        }} className="chatbot-window">
           {/* Header Panel */}
           <div style={{
             padding: '16px 20px',
@@ -444,6 +444,34 @@ const Chatbot = () => {
         }
         .chat-chips-container::-webkit-scrollbar {
           height: 0px;
+        }
+
+        /* Responsive Chatbot */
+        @media (max-width: 768px) {
+          .chatbot-window {
+            width: calc(100vw - 80px) !important;
+            height: 60vh !important;
+            bottom: 90px !important;
+            right: 16px !important;
+            left: 16px !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .chatbot-trigger {
+            width: 48px !important;
+            height: 48px !important;
+            bottom: 20px !important;
+            right: 12px !important;
+          }
+          .chatbot-window {
+            width: calc(100vw - 32px) !important;
+            height: 70vh !important;
+            bottom: 80px !important;
+            right: 8px !important;
+            left: 8px !important;
+            borderRadius: 12px !important;
+          }
         }
       `}</style>
     </div>

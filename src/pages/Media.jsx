@@ -19,6 +19,7 @@ const PageHeader = ({ title, subtitle }) => (
 const Media = () => {
   const [activeTab, setActiveTab] = useState('gallery'); // 'gallery' | 'news'
   const [selectedImage, setSelectedImage] = useState(null);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
   const [galleryItems, setGalleryItems] = useState([]);
 
   // Predefined default gallery fallback
@@ -115,19 +116,51 @@ const Media = () => {
           }}>
             {galleryItems.map(item => (
               <div key={item.id} className="card" style={{ padding: '0', overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%' }}>
-                {/* SVG Visual Placeholder representation of event image */}
+                {/* Event Image or Placeholder */}
                 <div style={{
                   height: '200px',
-                  background: 'linear-gradient(135deg, #072a44 0%, #02619a 100%)',
+                  backgroundColor: '#0a385b',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   position: 'relative',
+                  overflow: 'hidden',
                   color: 'rgba(255,255,255,0.85)'
                 }}>
-                  <Image size={40} style={{ opacity: 0.8 }} />
+                  {item.images && item.images.length > 0 ? (
+                    <img 
+                      src={item.images[0]} 
+                      alt={item.title} 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                    />
+                  ) : (
+                    <Image size={40} style={{ opacity: 0.8 }} />
+                  )}
+
+                  {/* Multi-image count badge */}
+                  {item.images && item.images.length > 1 && (
+                    <span style={{
+                      position: 'absolute',
+                      bottom: '12px',
+                      left: '12px',
+                      backgroundColor: 'rgba(10, 56, 91, 0.85)',
+                      color: '#ffffff',
+                      fontSize: '11px',
+                      fontWeight: '700',
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      pointerEvents: 'none',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
+                    }}>
+                      📁 {item.images.length} Photos
+                    </span>
+                  )}
+
                   <button
-                    onClick={() => setSelectedImage(item)}
+                    onClick={() => {
+                      setSelectedImage(item);
+                      setLightboxIndex(0);
+                    }}
                     style={{
                       position: 'absolute',
                       top: '12px',
@@ -240,14 +273,97 @@ const Media = () => {
             boxShadow: 'var(--shadow-lg)'
           }}>
             <div style={{
-              height: '350px',
-              background: 'linear-gradient(135deg, #0a385b 0%, #02619a 100%)',
+              height: '380px',
+              backgroundColor: '#051726',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#ffffff'
+              color: '#ffffff',
+              position: 'relative',
+              overflow: 'hidden'
             }}>
-              <Image size={80} style={{ opacity: 0.5 }} />
+              {selectedImage.images && selectedImage.images.length > 0 ? (
+                <img 
+                  src={selectedImage.images[lightboxIndex]} 
+                  alt={selectedImage.title} 
+                  style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
+                />
+              ) : (
+                <Image size={80} style={{ opacity: 0.5 }} />
+              )}
+
+              {/* Slider Navigation arrows */}
+              {selectedImage.images && selectedImage.images.length > 1 && (
+                <>
+                  <button
+                    onClick={() => setLightboxIndex((prev) => (prev === 0 ? selectedImage.images.length - 1 : prev - 1))}
+                    style={{
+                      position: 'absolute',
+                      left: '16px',
+                      backgroundColor: 'rgba(10,56,91,0.85)',
+                      border: 'none',
+                      color: '#ffffff',
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '50%',
+                      cursor: 'pointer',
+                      fontSize: '20px',
+                      fontWeight: 'bold',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.2s',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                    }}
+                  >
+                    ‹
+                  </button>
+                  <button
+                    onClick={() => setLightboxIndex((prev) => (prev === selectedImage.images.length - 1 ? 0 : prev + 1))}
+                    style={{
+                      position: 'absolute',
+                      right: '16px',
+                      backgroundColor: 'rgba(10,56,91,0.85)',
+                      border: 'none',
+                      color: '#ffffff',
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '50%',
+                      cursor: 'pointer',
+                      fontSize: '20px',
+                      fontWeight: 'bold',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.2s',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                    }}
+                  >
+                    ›
+                  </button>
+
+                  {/* Bullet slide indicators */}
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '12px',
+                    display: 'flex',
+                    gap: '6px'
+                  }}>
+                    {selectedImage.images.map((_, i) => (
+                      <div
+                        key={i}
+                        style={{
+                          width: '8px',
+                          height: '8px',
+                          borderRadius: '50%',
+                          backgroundColor: lightboxIndex === i ? '#ffffff' : 'rgba(255,255,255,0.4)',
+                          transition: 'background-color 0.2s'
+                        }}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
             <div style={{ padding: '32px' }}>
               <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--secondary)', textTransform: 'uppercase' }}>

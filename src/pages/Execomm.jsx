@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Mail, Users, Award, BookOpen } from 'lucide-react';
 
 const PageHeader = ({ title, subtitle }) => (
@@ -18,101 +18,148 @@ const PageHeader = ({ title, subtitle }) => (
 
 const Execomm = () => {
   const [activeSub, setActiveSub] = useState('main'); // 'main' | 'sps' | 'wie'
-
-  const counselor = {
+  const [counselor, setCounselor] = useState({
     name: "Dr. A. Sheela",
     role: "IEEE KEC Student Branch Counselor",
     college: "Kongu Engineering College",
     desc: "Professor & Head, Department of Electrical & Electronics Engineering. Dr. Sheela guides the overall strategic direction of the IEEE Student Branch and operational societies.",
     email: "sheela.eee@kongu.ac.in",
     linkedin: "https://linkedin.com"
-  };
+  });
+  const [members, setMembers] = useState([]);
 
-  const mainOfficeBearers = [
-    {
-      name: "Abhishek M.",
-      role: "Student Branch Chair",
-      desc: "Steers KEC Student Branch activities, ensuring technical exposure and volunteer training for all members.",
-      email: "abhishek.ieee@kec.ac.in",
+  useEffect(() => {
+    const defaultCounselor = {
+      name: "Dr. A. Sheela",
+      role: "IEEE KEC Student Branch Counselor",
+      college: "Kongu Engineering College",
+      desc: "Professor & Head, Department of Electrical & Electronics Engineering. Dr. Sheela guides the overall strategic direction of the IEEE Student Branch and operational societies.",
+      email: "sheela.eee@kongu.ac.in",
       linkedin: "https://linkedin.com"
-    },
-    {
-      name: "Sneha R.",
-      role: "Student Branch Vice Chair",
-      desc: "Coordinates inter-departmental collaborations and manages event execution operations.",
-      email: "sneha.ieee@kec.ac.in",
-      linkedin: "https://linkedin.com"
-    },
-    {
-      name: "Harish K.",
-      role: "Student Secretary",
-      desc: "Manages correspondence, documents meetings, and oversees the branch documentation archive.",
-      email: "harish.ieee@kec.ac.in",
-      linkedin: "https://linkedin.com"
-    },
-    {
-      name: "Naveen S.",
-      role: "Student Treasurer",
-      desc: "Handles financial planning, seed funding requests, and audits event budgets.",
-      email: "naveen.ieee@kec.ac.in",
-      linkedin: "https://linkedin.com"
-    },
-    {
-      name: "Dharini P.",
-      role: "Student Webmaster",
-      desc: "Maintains digital branch platforms, handles portals, and manages online publications.",
-      email: "dharini.ieee@kec.ac.in",
-      linkedin: "https://linkedin.com"
-    }
-  ];
+    };
 
-  const spsOfficeBearers = [
-    {
-      name: "Karthik Raja V.",
-      role: "SPS Student Chapter Chair",
-      desc: "Organizes training programs and lectures on digital signal, speech, and image processing.",
-      email: "karthik.sps@kec.ac.in",
-      linkedin: "https://linkedin.com"
-    },
-    {
-      name: "Priyanka S.",
-      role: "SPS Vice Chair",
-      desc: "Coordinates labs and design reviews for signal processing projects under KEC SRC.",
-      email: "priyanka.sps@kec.ac.in",
-      linkedin: "https://linkedin.com"
-    },
-    {
-      name: "Anand M.",
-      role: "SPS Secretary",
-      desc: "Handles documentation and communication for all Signal Processing Society events.",
-      email: "anand.sps@kec.ac.in",
-      linkedin: "https://linkedin.com"
-    }
-  ];
+    const defaultMembers = [
+      {
+        id: 1,
+        name: "Abhishek M.",
+        role: "Student Branch Chair",
+        category: "main",
+        desc: "Steers KEC Student Branch activities, ensuring technical exposure and volunteer training for all members.",
+        email: "abhishek.ieee@kec.ac.in",
+        linkedin: "https://linkedin.com"
+      },
+      {
+        id: 2,
+        name: "Sneha R.",
+        role: "Student Branch Vice Chair",
+        category: "main",
+        desc: "Coordinates inter-departmental collaborations and manages event execution operations.",
+        email: "sneha.ieee@kec.ac.in",
+        linkedin: "https://linkedin.com"
+      },
+      {
+        id: 3,
+        name: "Harish K.",
+        role: "Student Secretary",
+        category: "main",
+        desc: "Manages correspondence, documents meetings, and oversees the branch documentation archive.",
+        email: "harish.ieee@kec.ac.in",
+        linkedin: "https://linkedin.com"
+      },
+      {
+        id: 4,
+        name: "Naveen S.",
+        role: "Student Treasurer",
+        category: "main",
+        desc: "Handles financial planning, seed funding requests, and audits event budgets.",
+        email: "naveen.ieee@kec.ac.in",
+        linkedin: "https://linkedin.com"
+      },
+      {
+        id: 5,
+        name: "Dharini P.",
+        role: "Student Webmaster",
+        category: "main",
+        desc: "Maintains digital branch platforms, handles portals, and manages online publications.",
+        email: "dharini.ieee@kec.ac.in",
+        linkedin: "https://linkedin.com"
+      },
+      {
+        id: 6,
+        name: "Karthik Raja V.",
+        role: "SPS Student Chapter Chair",
+        category: "sps",
+        desc: "Organizes training programs and lectures on digital signal, speech, and image processing.",
+        email: "karthik.sps@kec.ac.in",
+        linkedin: "https://linkedin.com"
+      },
+      {
+        id: 7,
+        name: "Priyanka S.",
+        role: "SPS Vice Chair",
+        category: "sps",
+        desc: "Coordinates labs and design reviews for signal processing projects under KEC SRC.",
+        email: "priyanka.sps@kec.ac.in",
+        linkedin: "https://linkedin.com"
+      },
+      {
+        id: 8,
+        name: "Anand M.",
+        role: "SPS Secretary",
+        category: "sps",
+        desc: "Handles documentation and communication for all Signal Processing Society events.",
+        email: "anand.sps@kec.ac.in",
+        linkedin: "https://linkedin.com"
+      },
+      {
+        id: 9,
+        name: "Shruthi G.",
+        role: "WIE Affinity Group Chair",
+        category: "wie",
+        desc: "Leads mentorship and development programs for female students, promoting STEM pathways.",
+        email: "shruthi.wie@kec.ac.in",
+        linkedin: "https://linkedin.com"
+      },
+      {
+        id: 10,
+        name: "Divya K.",
+        role: "WIE Vice Chair",
+        category: "wie",
+        desc: "Coordinates programming workshops, leadership meetups, and community coding sessions.",
+        email: "divya.wie@kec.ac.in",
+        linkedin: "https://linkedin.com"
+      },
+      {
+        id: 11,
+        name: "Kavya R.",
+        role: "WIE Secretary",
+        category: "wie",
+        desc: "Maintains student branch WIE records and manages publicity for gender empowerment events.",
+        email: "kavya.wie@kec.ac.in",
+        linkedin: "https://linkedin.com"
+      }
+    ];
 
-  const wieOfficeBearers = [
-    {
-      name: "Shruthi G.",
-      role: "WIE Affinity Group Chair",
-      desc: "Leads mentorship and development programs for female students, promoting STEM pathways.",
-      email: "shruthi.wie@kec.ac.in",
-      linkedin: "https://linkedin.com"
-    },
-    {
-      name: "Divya K.",
-      role: "WIE Vice Chair",
-      desc: "Coordinates programming workshops, leadership meetups, and community coding sessions.",
-      email: "divya.wie@kec.ac.in",
-      linkedin: "https://linkedin.com"
-    },
-    {
-      name: "Kavya R.",
-      role: "WIE Secretary",
-      desc: "Maintains student branch WIE records and manages publicity for gender empowerment events.",
-      email: "kavya.wie@kec.ac.in",
-      linkedin: "https://linkedin.com"
+    const storedCounselor = localStorage.getItem('ieee_execomm_counselor');
+    if (storedCounselor) {
+      setCounselor(JSON.parse(storedCounselor));
+    } else {
+      localStorage.setItem('ieee_execomm_counselor', JSON.stringify(defaultCounselor));
+      setCounselor(defaultCounselor);
     }
-  ];
+
+    const storedMembers = localStorage.getItem('ieee_execomm_members');
+    if (storedMembers) {
+      setMembers(JSON.parse(storedMembers));
+    } else {
+      localStorage.setItem('ieee_execomm_members', JSON.stringify(defaultMembers));
+      setMembers(defaultMembers);
+    }
+  }, []);
+
+  const mainOfficeBearers = members.filter(m => m.category === 'main');
+  const spsOfficeBearers = members.filter(m => m.category === 'sps');
+  const wieOfficeBearers = members.filter(m => m.category === 'wie');
 
   const getCommitteeList = () => {
     switch (activeSub) {
@@ -150,7 +197,7 @@ const Execomm = () => {
           boxShadow: 'var(--shadow-sm)',
           border: '3px solid #ffffff'
         }}>
-          {member.name.charAt(0)}
+          {member.name ? member.name.charAt(0) : '?'}
         </div>
         <h3 style={{ fontSize: isLarge ? '22px' : '18px', color: 'var(--primary)', marginBottom: '4px' }}>{member.name}</h3>
         <div style={{
@@ -236,8 +283,8 @@ const Execomm = () => {
           gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
           gap: '30px'
         }}>
-          {getCommitteeList().map((member, idx) => (
-            <div key={idx}>
+          {getCommitteeList().map((member) => (
+            <div key={member.id}>
               <MemberCard member={member} />
             </div>
           ))}

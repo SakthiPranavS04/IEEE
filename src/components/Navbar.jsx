@@ -79,9 +79,9 @@ const Navbar = () => {
         {/* Left Side: Transparent Logo Banner */}
         <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
           <img 
-            src="/assets/ieee_kec_logo.png" 
-            alt="IEEE Kongu Engineering College Students Branch Logo" 
-            style={{ height: '44px', display: 'block' }} 
+            src="/assets/ieee_logo_white.png" 
+            alt="IEEE Logo" 
+            style={{ height: '52px', display: 'block' }} 
           />
         </Link>
 

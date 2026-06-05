@@ -3,10 +3,12 @@ import { Link as RouterLink } from 'react-router-dom';
 import { Award, BookOpen, Calendar, Users, ArrowRight, ShieldCheck, Flame, Zap } from 'lucide-react';
 
 const Home = () => {
-  const [activeTab, setActiveTab] = useState('about');
+  const [activeTab, setActiveTab] = useState('mission');
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
-  const [memberCount, setMemberCount] = useState(() => localStorage.getItem('ieee_member_count') || '480+');
-  const [papersCount, setPapersCount] = useState(() => localStorage.getItem('ieee_papers_count') || '120+');
+  const [memberCount, setMemberCount] = useState(() => localStorage.getItem('ieee_member_count') || '45');
+  const [eventsCount, setEventsCount] = useState(() => localStorage.getItem('ieee_events_count') || '75+');
+  const [awardsCount, setAwardsCount] = useState(() => localStorage.getItem('ieee_awards_count') || '18+');
+  const [papersCount, setPapersCount] = useState(() => localStorage.getItem('ieee_papers_count') || '15');
 
   // Google Sheet URL for Member Count
   // File > Share > Publish to web > Select Link, choose CSV from the dropdown list.
@@ -53,100 +55,121 @@ const Home = () => {
     return () => clearInterval(timer);
   }, [heroImages.length]);
 
-  const tickerNotices = [
-    "🌿 IEEE KEC Student Branch membership drive 2026 is now live! Sign up today.",
-    "🏆 KEC Student Branch recognized as one of the most active branches in the Madras Section.",
-    "🚀 Register for 'CodeSprint 2026' - National level Hackathon organized by KEC IEEE Computer Society.",
-    "📢 Guest Lecture on 'AI & Edge Computing' scheduled for June 15, 2026."
-  ];
+  const [mission, setMission] = useState(() => localStorage.getItem('ieee_mission') || "To cultivate a culture of innovation, foster teamwork, and enhance student capability in research and design through seminars, hands-on workshops, student-led projects, and professional networking.");
+  const [vision, setVision] = useState(() => localStorage.getItem('ieee_vision') || "To build a world-class center of technical learning and professional excellence that empowers young minds to create engineering solutions for a sustainable and technologically advanced society.");
+  const [tickerNotices, setTickerNotices] = useState(() => {
+    const stored = localStorage.getItem('ieee_ticker_notices');
+    return stored ? JSON.parse(stored) : [
+      "🌿 IEEE KEC Student Branch membership drive 2026 is now live! Sign up today.",
+      "🏆 KEC Student Branch recognized as one of the most active branches in the Madras Section.",
+      "🚀 Register for 'CodeSprint 2026' - National level Hackathon organized by KEC IEEE Computer Society.",
+      "📢 Guest Lecture on 'AI & Edge Computing' scheduled for June 15, 2026."
+    ];
+  });
 
   const stats = [
     { icon: <Users size={32} style={{ color: 'var(--secondary)' }} />, value: memberCount, label: 'Active Members' },
-    { icon: <Calendar size={32} style={{ color: 'var(--secondary)' }} />, value: '75+', label: 'Events Yearly' },
-    { icon: <Award size={32} style={{ color: 'var(--secondary)' }} />, value: '18+', label: 'National Awards' },
+    { icon: <Calendar size={32} style={{ color: 'var(--secondary)' }} />, value: eventsCount, label: 'Events Yearly' },
+    { icon: <Award size={32} style={{ color: 'var(--secondary)' }} />, value: awardsCount, label: 'National Awards' },
     { icon: <BookOpen size={32} style={{ color: 'var(--secondary)' }} />, value: papersCount, label: 'Research Papers' },
   ];
 
   const tabContent = {
-    about: {
-      title: "Advancing Technology for Humanity",
+    mission: {
+      title: "Our Mission",
       content: (
         <>
-          <p style={{ marginBottom: '16px', fontSize: '16px', lineHeight: '1.7', color: 'var(--text-muted)' }}>
-            The **IEEE Student Branch of Kongu Engineering College (KEC)** is a vibrant student-run community of technology enthusiasts, engineers, and researchers. Established to provide students with opportunities for professional growth, technical skill enhancement, and leadership training.
-          </p>
           <p style={{ fontSize: '16px', lineHeight: '1.7', color: 'var(--text-muted)' }}>
-            Through workshops, symposia, research groups, and community outreach programs, we bridge the gap between academic theory and industry applications, aligning with the global mission of the Institute of Electrical and Electronics Engineers (IEEE).
+            {mission}
           </p>
         </>
       )
     },
     vision: {
-      title: "Our Mission & Vision",
+      title: "Our Vision",
       content: (
         <>
-          <h4 style={{ color: 'var(--primary)', marginBottom: '8px', fontSize: '18px' }}>Vision</h4>
-          <p style={{ marginBottom: '20px', fontSize: '16px', lineHeight: '1.7', color: 'var(--text-muted)' }}>
-            To build a world-class center of technical learning and professional excellence that empowers young minds to create engineering solutions for a sustainable and technologically advanced society.
-          </p>
-          <h4 style={{ color: 'var(--primary)', marginBottom: '8px', fontSize: '18px' }}>Mission</h4>
           <p style={{ fontSize: '16px', lineHeight: '1.7', color: 'var(--text-muted)' }}>
-            To cultivate a culture of innovation, foster teamwork, and enhance student capability in research and design through seminars, hands-on workshops, student-led projects, and professional networking.
-          </p>
-        </>
-      )
-    },
-    madras: {
-      title: "IEEE Madras Section",
-      content: (
-        <>
-          <p style={{ marginBottom: '16px', fontSize: '16px', lineHeight: '1.7', color: 'var(--text-muted)' }}>
-            The **IEEE Madras Section** represents IEEE in the state of Tamil Nadu and Union Territory of Puducherry. It is one of the oldest and most active sections in Region 10 (Asia-Pacific). It plays a crucial role in disseminating knowledge and supporting engineering colleges through student branch congresses, funding support, and project contests.
-          </p>
-          <p style={{ fontSize: '16px', lineHeight: '1.7', color: 'var(--text-muted)' }}>
-            Under the mentorship of the Madras Section, IEEE KEC SB has grown to become a premium student branch, regularly hosting section-level workshops, faculty development programs, and leadership training sessions.
-          </p>
-        </>
-      )
-    },
-    research: {
-      title: "KEC Students Research Cell (KEC SRC)",
-      content: (
-        <>
-          <p style={{ marginBottom: '16px', fontSize: '16px', lineHeight: '1.7', color: 'var(--text-muted)' }}>
-            The **KEC Students Research Cell (KEC SRC)** is an institutional body dedicated to encouraging, mentoring, and funding research and development initiatives amongst undergraduate and postgraduate students. 
-          </p>
-          <p style={{ fontSize: '16px', lineHeight: '1.7', color: 'var(--text-muted)' }}>
-            The cell operates in close integration with the IEEE Student Branch to support student-driven hardware and software development projects, hackathon prototypes, and peer-reviewed conference papers. KEC SRC provides seed funding, laboratory resources, and mentor pairing to transform ideas into working models.
+            {vision}
           </p>
         </>
       )
     }
   };
 
-  const highlights = [
-    {
-      title: "TechSummit 2026",
-      desc: "Annual flagship symposium featuring papers, project displays, and tech talks from industry experts.",
-      tag: "Technical",
-      date: "March 2026",
-      link: "/events/past"
-    },
-    {
-      title: "Women in Data Science",
-      desc: "WIE organized panel discussion and training session on Big Data and Analytics for rural development.",
-      tag: "WIE Affinity",
-      date: "April 2026",
-      link: "/events/past"
-    },
-    {
-      title: "DSP & IoT Bootcamp",
-      desc: "Hands-on workshop organized by the IEEE KEC SPS Chapter on building smart signal analysis systems.",
-      tag: "Signal Processing",
-      date: "May 2026",
-      link: "/events/past"
+  const isEventCompleted = (dateStr) => {
+    try {
+      const today = new Date("2026-06-04");
+      let normalized = dateStr;
+      if (normalized.includes('-')) {
+        const parts = normalized.split('-');
+        const yearMatch = normalized.match(/\d{4}/);
+        const year = yearMatch ? yearMatch[0] : "2026";
+        const dayMatch = parts[1].match(/\d+/);
+        const monthMatch = normalized.match(/[a-zA-Z]+/);
+        if (dayMatch && monthMatch) {
+          normalized = `${monthMatch[0]} ${dayMatch[0]}, ${year}`;
+        }
+      } else {
+        const words = normalized.trim().split(/\s+/);
+        if (words.length === 2) {
+          normalized = `${words[0]} 28, ${words[1]}`;
+        }
+      }
+      const parsedDate = new Date(normalized);
+      return parsedDate < today;
+    } catch (e) {
+      return false;
     }
-  ];
+  };
+
+  const [highlights, setHighlights] = useState([]);
+
+  useEffect(() => {
+    const defaultPast = [
+      {
+        title: "Workshop on Digital Signal Processing & IoT",
+        desc: "A 3-day practical bootcamp focusing on capturing and processing real-time sensor waveforms using ESP32 and DSP filtering algorithms.",
+        date: "May 18, 2026",
+        venue: "DSP Lab, ECE Dept, KEC",
+        tag: "SPS Chapter",
+        highlights: "50+ participants built smart ECG filter prototypes."
+      },
+      {
+        title: "WIE CodeQuest: Coding Bootcamp for Girls",
+        desc: "A bootcamp dedicated to teaching web building, database structure, and frontend hosting to young female engineers.",
+        date: "April 24, 2026",
+        venue: "Internet Lab, KEC",
+        tag: "WIE Group",
+        highlights: "Participated by 80 girls, 5 projects were selected for incubation support."
+      },
+      {
+        title: "National Conference on Computing & Communication (NCCC 2026)",
+        desc: "Flagship paper presentation event featuring research papers from student groups across the region, judged by Anna University faculty.",
+        date: "March 15, 2026",
+        venue: "Maharaja Auditorium, KEC",
+        tag: "Conference",
+        highlights: "30+ research papers published in local IEEE digital archives."
+      }
+    ];
+
+    const storedPast = localStorage.getItem('ieee_events_past');
+    let pastList = [];
+    if (storedPast) {
+      pastList = JSON.parse(storedPast);
+    } else {
+      pastList = defaultPast;
+    }
+
+    const formatted = pastList.slice(0, 3).map(evt => ({
+      title: evt.title,
+      desc: evt.desc,
+      tag: evt.tag,
+      date: evt.date,
+      link: "/events/past"
+    }));
+    setHighlights(formatted);
+  }, []);
 
   return (
     <div className="animate-fade-in">
@@ -204,41 +227,18 @@ const Home = () => {
 
         <div className="container" style={{ position: 'relative', zIndex: 2 }}>
           
-          {/* Centered Row with Shield, IEEE Brand Block, and SRC seal */}
+          {/* Centered Row with IEEE Logo */}
           <div className="hero-emblems-row" style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '24px',
-            marginBottom: '36px',
-            flexWrap: 'wrap'
+            marginBottom: '36px'
           }}>
-            {/* Left: KEC horizontal Logo */}
-            <a 
-              href="https://kongu.ac.in/aboutkec" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              style={{ display: 'block' }}
-            >
-              <img 
-                src="/assets/kec_logo.png" 
-                alt="Kongu Engineering College Logo" 
-                style={{ 
-                  height: '70px', 
-                  display: 'block',
-                  cursor: 'pointer'
-                }} 
-              />
-            </a>
-
-            {/* Right: IEEE Student Branch Banner */}
-            <div style={{ display: 'flex', alignItems: 'center', height: '70px' }}>
-              <img 
-                src="/assets/ieee_kec_logo.png" 
-                alt="IEEE Kongu Engineering College Students Branch Logo" 
-                style={{ height: '50px', display: 'block' }} 
-              />
-            </div>
+            <img 
+              src="/assets/ieee_logo_white.png" 
+              alt="IEEE Logo" 
+              style={{ height: '110px', display: 'block' }} 
+            />
           </div>
 
           {/* Centered Large Bold Title */}
@@ -408,10 +408,8 @@ const Home = () => {
               paddingBottom: '16px'
             }}>
               {[
-                { id: 'about', label: 'IEEE KEC Student Branch' },
-                { id: 'vision', label: 'Mission & Vision' },
-                { id: 'madras', label: 'IEEE Madras Section' },
-                { id: 'research', label: 'KEC Research Cell (SRC)' },
+                { id: 'mission', label: 'Mission' },
+                { id: 'vision', label: 'Vision' },
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -466,33 +464,65 @@ const Home = () => {
             gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
             gap: '30px'
           }}>
-            {highlights.map((hl, idx) => (
-              <div key={idx} className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
-                <div>
-                  <span style={{
-                    display: 'inline-block',
-                    backgroundColor: 'var(--accent-light)',
-                    color: 'var(--primary)',
-                    padding: '4px 12px',
-                    borderRadius: '4px',
-                    fontSize: '12px',
-                    fontWeight: '700',
-                    textTransform: 'uppercase',
-                    marginBottom: '16px'
-                  }}>
-                    {hl.tag}
-                  </span>
-                  <h3 style={{ fontSize: '20px', marginBottom: '12px', fontWeight: '700' }}>{hl.title}</h3>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '24px', lineHeight: '1.6' }}>{hl.desc}</p>
+            {highlights.map((hl, idx) => {
+              const isPast = isEventCompleted(hl.date);
+              return (
+                <div 
+                  key={idx} 
+                  className="card" 
+                  style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    justifyContent: 'space-between', 
+                    height: '100%',
+                    filter: isPast ? 'grayscale(45%) opacity(0.85)' : 'none',
+                    backgroundColor: isPast ? '#f8fafc' : '#ffffff',
+                    border: isPast ? '1px solid #cbd5e1' : '1px solid var(--border-subtle)',
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                      <span style={{
+                        display: 'inline-block',
+                        backgroundColor: isPast ? '#e2e8f0' : 'var(--accent-light)',
+                        color: isPast ? '#64748b' : 'var(--primary)',
+                        padding: '4px 12px',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        fontWeight: '700',
+                        textTransform: 'uppercase'
+                      }}>
+                        {hl.tag}
+                      </span>
+                      {isPast && (
+                        <span style={{
+                          fontSize: '11px',
+                          fontWeight: '750',
+                          color: '#64748b',
+                          backgroundColor: '#f1f5f9',
+                          padding: '4px 10px',
+                          borderRadius: '20px',
+                          border: '1px solid #cbd5e1',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px'
+                        }}>
+                          Completed
+                        </span>
+                      )}
+                    </div>
+                    <h3 style={{ fontSize: '20px', marginBottom: '12px', fontWeight: '700', color: isPast ? '#475569' : 'inherit' }}>{hl.title}</h3>
+                    <p style={{ color: isPast ? '#64748b' : 'var(--text-muted)', fontSize: '14px', marginBottom: '24px', lineHeight: '1.6' }}>{hl.desc}</p>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-subtle)', paddingTop: '16px' }}>
+                    <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: '500' }}>{hl.date}</span>
+                    <RouterLink to={hl.link} style={{ color: isPast ? '#64748b' : 'var(--primary)', textDecoration: 'none', fontWeight: '600', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      Details →
+                    </RouterLink>
+                  </div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-subtle)', paddingTop: '16px' }}>
-                  <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: '500' }}>{hl.date}</span>
-                  <RouterLink to={hl.link} style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: '600', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    Details →
-                  </RouterLink>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>

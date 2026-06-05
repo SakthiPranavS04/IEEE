@@ -91,21 +91,6 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* College Details Column */}
-          <div>
-            <h4 style={{ color: '#fff', fontSize: '16px', fontWeight: '700', marginBottom: '24px', borderBottom: '2px solid #10344d', paddingBottom: '10px' }}>
-              Affiliation
-            </h4>
-            <p style={{ fontSize: '14px', color: '#a6bac5', marginBottom: '16px', lineHeight: '1.6' }}>
-              <strong>Kongu Engineering College (Autonomous)</strong><br />
-              Approved by AICTE, Accredited by NAAC with 'A++' Grade, Affiliated to Anna University, Chennai.
-            </p>
-            <p style={{ fontSize: '14px', color: '#a6bac5', lineHeight: '1.6' }}>
-              <strong>IEEE Madras Section</strong><br />
-              Region 10 - Asia Pacific Section. Providing global outreach and networking opportunities.
-            </p>
-          </div>
-
           {/* Contact Us Column */}
           <div>
             <h4 style={{ color: '#fff', fontSize: '16px', fontWeight: '700', marginBottom: '24px', borderBottom: '2px solid #10344d', paddingBottom: '10px' }}>

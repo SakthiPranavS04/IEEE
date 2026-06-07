@@ -148,6 +148,7 @@ const Admin = () => {
   const [newsSnippet, setNewsSnippet] = useState('');
   const [newsColor, setNewsColor] = useState('#f59e0b');
   const [newsImage, setNewsImage] = useState(null);
+  const [newsCoverType, setNewsCoverType] = useState('color'); // 'color' | 'image'
 
   // News CRUD State
   const [newsItems, setNewsItems] = useState([]);
@@ -717,6 +718,17 @@ const Admin = () => {
     setFormImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleNewsImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const compressed = await compressImage(file);
+      setNewsImage(compressed);
+    } catch (err) {
+      console.error("Error compressing news image:", err);
+    }
+  };
+
   // Generic Open Add Modals
   const openAddModal = (type) => {
     setModalType(type);
@@ -770,6 +782,7 @@ const Admin = () => {
       setNewsSnippet('');
       setNewsColor('#f59e0b');
       setNewsImage(null);
+      setNewsCoverType('color');
     }
     setIsModalOpen(true);
   };
@@ -827,6 +840,8 @@ const Admin = () => {
       setNewsDate(item.date);
       setNewsSnippet(item.snippet);
       setNewsColor(item.color);
+      setNewsImage(item.image || null);
+      setNewsCoverType(item.image ? 'image' : 'color');
     }
     setIsModalOpen(true);
   };
@@ -1064,13 +1079,14 @@ const Admin = () => {
           source: newsSource,
           date: newsDate,
           snippet: newsSnippet,
-          color: newsColor
+          color: newsColor,
+          image: newsCoverType === 'image' ? newsImage : null
         };
         updated = [...newsItems, newItem];
       } else {
         updated = newsItems.map(item =>
           item.id === currentItemId
-            ? { ...item, title: newsTitle, source: newsSource, date: newsDate, snippet: newsSnippet, color: newsColor }
+            ? { ...item, title: newsTitle, source: newsSource, date: newsDate, snippet: newsSnippet, color: newsColor, image: newsCoverType === 'image' ? newsImage : null }
             : item
         );
       }
@@ -2178,9 +2194,15 @@ const Admin = () => {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '24px' }}>
               {newsItems.map(news => (
                 <div key={news.id} className="card" style={{ padding: '0', display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: '#ffffff', borderRadius: '14px', border: '1px solid #e2e8f0', boxShadow: '0 4px 15px rgba(10, 56, 91, 0.1)', overflow: 'hidden', transition: 'all 0.3s ease' }}>
-                  <div style={{ height: '100px', background: `linear-gradient(135deg, ${news.color} 0%, ${news.color}dd 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
-                    <div style={{ width: '70px', height: '70px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.15)', position: 'absolute', right: '-15px', top: '-15px' }} />
-                    <FileText size={40} color="#ffffff" style={{ opacity: 0.9 }} />
+                  <div style={{ height: '100px', background: news.image ? 'none' : `linear-gradient(135deg, ${news.color} 0%, ${news.color}dd 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+                    {news.image ? (
+                      <img src={news.image} alt={news.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <>
+                        <div style={{ width: '70px', height: '70px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.15)', position: 'absolute', right: '-15px', top: '-15px' }} />
+                        <FileText size={40} color="#ffffff" style={{ opacity: 0.9 }} />
+                      </>
+                    )}
                   </div>
                   <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                     <div style={{ marginBottom: '10px' }}>
@@ -2900,26 +2922,72 @@ const Admin = () => {
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '10px', textTransform: 'uppercase' }}>Card Color Theme</label>
-                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                      {['#f59e0b', '#8b5cf6', '#10b981', '#ef4444', '#06b6d4', '#ec4899', '#3b82f6', '#f97316'].map(color => (
-                        <button
-                          key={color}
-                          type="button"
-                          onClick={() => setNewsColor(color)}
-                          style={{
-                            width: '40px',
-                            height: '40px',
-                            borderRadius: '8px',
-                            backgroundColor: color,
-                            border: newsColor === color ? '3px solid #0a385b' : '2px solid #e2e8f0',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s ease'
-                          }}
-                          title={`Select color ${color}`}
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '8px', textTransform: 'uppercase' }}>Cover Image Options</label>
+                    <div style={{ display: 'flex', gap: '16px', marginBottom: '12px' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', cursor: 'pointer', fontWeight: '600', color: '#475569' }}>
+                        <input
+                          type="radio"
+                          name="newsCoverStyle"
+                          checked={newsCoverType === 'color'}
+                          onChange={() => setNewsCoverType('color')}
                         />
-                      ))}
+                        Use Color Theme
+                      </label>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', cursor: 'pointer', fontWeight: '600', color: '#475569' }}>
+                        <input
+                          type="radio"
+                          name="newsCoverStyle"
+                          checked={newsCoverType === 'image'}
+                          onChange={() => setNewsCoverType('image')}
+                        />
+                        Upload Custom Image
+                      </label>
                     </div>
+
+                    {newsCoverType === 'color' ? (
+                      <div>
+                        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                          {['#f59e0b', '#8b5cf6', '#10b981', '#ef4444', '#06b6d4', '#ec4899', '#3b82f6', '#f97316'].map(color => (
+                            <button
+                              key={color}
+                              type="button"
+                              onClick={() => setNewsColor(color)}
+                              style={{
+                                width: '40px',
+                                height: '40px',
+                                borderRadius: '8px',
+                                backgroundColor: color,
+                                border: newsColor === color ? '3px solid #0a385b' : '2px solid #e2e8f0',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease'
+                              }}
+                              title={`Select color ${color}`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleNewsImageUpload}
+                          style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none', backgroundColor: '#ffffff' }}
+                        />
+                        {newsImage && (
+                          <div style={{ position: 'relative', width: '150px', height: '90px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #cbd5e1', marginTop: '4px' }}>
+                            <img src={newsImage} alt="News Cover Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <button
+                              type="button"
+                              onClick={() => setNewsImage(null)}
+                              style={{ position: 'absolute', top: '4px', right: '4px', backgroundColor: 'rgba(239, 68, 68, 0.9)', color: '#ffffff', border: 'none', borderRadius: '50%', width: '20px', height: '20px', fontSize: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </>
               )}

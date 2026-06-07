@@ -495,11 +495,11 @@ const Media = () => {
                     e.currentTarget.style.transform = 'translateY(0)';
                   }}
                 >
-                  {/* Color Header */}
+                  {/* Color Header / Cover Image */}
                   <div
                     style={{
-                      height: '120px',
-                      background: `linear-gradient(135deg, ${news.color} 0%, ${news.color}dd 100%)`,
+                      height: '140px',
+                      background: news.image ? 'none' : `linear-gradient(135deg, ${news.color} 0%, ${news.color}dd 100%)`,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -507,18 +507,24 @@ const Media = () => {
                       overflow: 'hidden'
                     }}
                   >
-                    <div
-                      style={{
-                        width: '80px',
-                        height: '80px',
-                        borderRadius: '50%',
-                        backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                        position: 'absolute',
-                        right: '-20px',
-                        top: '-20px'
-                      }}
-                    />
-                    <FileText size={48} color="#ffffff" style={{ opacity: 0.9 }} />
+                    {news.image ? (
+                      <img src={news.image} alt={news.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <>
+                        <div
+                          style={{
+                            width: '80px',
+                            height: '80px',
+                            borderRadius: '50%',
+                            backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                            position: 'absolute',
+                            right: '-20px',
+                            top: '-20px'
+                          }}
+                        />
+                        <FileText size={48} color="#ffffff" style={{ opacity: 0.9 }} />
+                      </>
+                    )}
                   </div>
 
                   {/* Content */}

@@ -1,21 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Calendar, MapPin, Clock, ExternalLink, ChevronRight } from 'lucide-react';
+import { Calendar, MapPin, Clock, ExternalLink, CheckCircle2, Sparkles } from 'lucide-react';
 
 const PageHeader = ({ title, subtitle }) => (
   <div style={{
     background: 'linear-gradient(135deg, #0a385b 0%, #02619a 100%)',
     color: '#ffffff',
-    padding: '50px 0',
+    padding: '60px 0',
     textAlign: 'center',
-    marginBottom: '40px'
+    marginBottom: '40px',
+    position: 'relative',
+    overflow: 'hidden'
   }}>
-    <div className="container">
-      <h1 className="font-serif" style={{ fontSize: '32px', color: '#ffffff', marginBottom: '8px' }}>{title}</h1>
-      {subtitle && <p style={{ fontSize: '15px', color: '#d0e4f2' }}>{subtitle}</p>}
+    {/* Decorative orbs */}
+    <div style={{
+      position: 'absolute', top: '-10%', right: '-8%',
+      width: '320px', height: '320px', borderRadius: '50%',
+      background: 'rgba(255,255,255,0.03)', pointerEvents: 'none'
+    }} />
+    <div style={{
+      position: 'absolute', bottom: '-20%', left: '-5%',
+      width: '260px', height: '260px', borderRadius: '50%',
+      background: 'rgba(255,255,255,0.02)', pointerEvents: 'none'
+    }} />
+    <div className="container" style={{ position: 'relative', zIndex: 1 }}>
+      <h1 className="font-serif" style={{ fontSize: '38px', color: '#ffffff', marginBottom: '12px', fontWeight: '800' }}>
+        {title}
+      </h1>
+      {subtitle && (
+        <p style={{ fontSize: '16px', color: '#d0e4f2', maxWidth: '580px', margin: '0 auto' }}>
+          {subtitle}
+        </p>
+      )}
     </div>
   </div>
 );
+
+const TAG_COLORS = {
+  'Workshop':      { bg: '#eff6ff', color: '#1d4ed8', border: '#bfdbfe' },
+  'Hackathon':     { bg: '#fefce8', color: '#854d0e', border: '#fde68a' },
+  'Seminar':       { bg: '#f0fdf4', color: '#166534', border: '#bbf7d0' },
+  'Conference':    { bg: '#fdf4ff', color: '#7e22ce', border: '#e9d5ff' },
+  'Guest Lecture': { bg: '#fff7ed', color: '#9a3412', border: '#fed7aa' },
+  'SPS Chapter':   { bg: '#eff6ff', color: '#1e40af', border: '#bfdbfe' },
+  'WIE Group':     { bg: '#fdf2f8', color: '#9d174d', border: '#fbcfe8' },
+};
+
+const getTagStyle = (tag) => TAG_COLORS[tag] || { bg: 'var(--accent-light)', color: 'var(--primary)', border: '#c3d9ea' };
 
 const Events = () => {
   const isEventCompleted = (dateStr) => {
@@ -143,116 +174,213 @@ const Events = () => {
   const currentEvents = isUpcoming ? upcomingEvents : pastEvents;
 
   return (
-    <div className="animate-fade-in" style={{ backgroundColor: 'var(--bg-light)', paddingBottom: '80px', minHeight: '60vh' }}>
+    <div className="animate-fade-in" style={{ backgroundColor: 'var(--bg-light)', paddingBottom: '90px', minHeight: '60vh' }}>
       <PageHeader
         title={isUpcoming ? "Upcoming Events" : "Past Events"}
-        subtitle={isUpcoming ? "Register and participate in our upcoming programs" : "Review our past workshops, guest lectures, and hackathons"}
+        subtitle={
+          isUpcoming
+            ? "Register and participate in our upcoming programs"
+            : "A record of our past workshops, guest lectures, and hackathons"
+        }
       />
 
       <div className="container">
-        <div style={{ display: 'flex', gap: '16px', marginBottom: '32px', justifyContent: 'center' }}>
-          <Link to="/events/upcoming" className={`btn ${isUpcoming ? 'btn-primary' : 'btn-secondary'}`} style={{ padding: '10px 24px', fontSize: '14px', borderRadius: '30px' }}>
-            Upcoming
-          </Link>
-          <Link to="/events/past" className={`btn ${!isUpcoming ? 'btn-primary' : 'btn-secondary'}`} style={{ padding: '10px 24px', fontSize: '14px', borderRadius: '30px' }}>
-            Past Events
-          </Link>
+
+        {/* Toggle Tabs */}
+        <div style={{ display: 'flex', gap: '12px', marginBottom: '40px', justifyContent: 'center' }}>
+          {[
+            { to: '/events/upcoming', label: 'Upcoming Events', active: isUpcoming },
+            { to: '/events/past',     label: 'Past Events',     active: !isUpcoming },
+          ].map(({ to, label, active }) => (
+            <Link
+              key={to}
+              to={to}
+              style={{
+                padding: '10px 28px',
+                fontSize: '14px',
+                fontWeight: '700',
+                borderRadius: '30px',
+                textDecoration: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                letterSpacing: '0.3px',
+                transition: 'all 0.25s ease',
+                backgroundColor: active ? '#0a385b' : '#ffffff',
+                color: active ? '#ffffff' : '#64748b',
+                boxShadow: active
+                  ? '0 4px 14px rgba(10,56,91,0.25)'
+                  : '0 2px 6px rgba(0,0,0,0.06)',
+              }}
+            >
+              {label}
+            </Link>
+          ))}
         </div>
 
+        {/* Section intro label */}
+        <div style={{ marginBottom: '28px' }}>
+          <span style={{
+            padding: '4px 14px',
+            backgroundColor: 'var(--accent-light)',
+            color: 'var(--primary)',
+            borderRadius: '20px',
+            fontSize: '12px',
+            fontWeight: '700',
+            textTransform: 'uppercase',
+            letterSpacing: '1px'
+          }}>
+            <Sparkles size={10} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+            {isUpcoming ? 'Upcoming Programs' : 'Completed Programs'}
+          </span>
+          <h2 className="font-serif" style={{ fontSize: '24px', color: '#0a385b', marginTop: '10px', fontWeight: '800' }}>
+            {isUpcoming ? 'Programs Open for Registration' : 'Historical Event Archive'}
+          </h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '4px' }}>
+            {isUpcoming
+              ? 'Browse and register for our upcoming technical events and seminars.'
+              : 'A comprehensive log of events completed by KEC IEEE Student Branch.'}
+          </p>
+        </div>
+
+        {/* Event Cards Grid */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: '30px'
+          gap: '28px'
         }}>
           {currentEvents.map((evt, idx) => {
             const isPast = isEventCompleted(evt.date);
+            const tagStyle = getTagStyle(evt.tag);
             return (
-              <div 
-                key={idx} 
-                className="card" 
-                style={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  justifyContent: 'space-between', 
+              <div
+                key={idx}
+                className="card event-card"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
                   height: '100%',
-                  filter: isPast ? 'grayscale(45%) opacity(0.85)' : 'none',
-                  backgroundColor: isPast ? '#f8fafc' : '#ffffff',
-                  border: isPast ? '1px solid #cbd5e1' : '1px solid var(--border-subtle)',
-                  transition: 'all 0.3s ease'
+                  opacity: isPast ? 0.82 : 1,
+                  backgroundColor: '#ffffff',
+                  border: '1px solid var(--border-subtle)',
+                  transition: 'all 0.3s ease',
+                  overflow: 'hidden',
+                  padding: 0,
                 }}
               >
-                <div>
+                {/* Card Top Accent Bar */}
+                <div style={{
+                  height: '4px',
+                  background: isPast
+                    ? 'linear-gradient(90deg, #cbd5e1 0%, #94a3b8 100%)'
+                    : 'linear-gradient(90deg, #0a385b 0%, #02619a 100%)'
+                }} />
+
+                <div style={{ padding: '28px', display: 'flex', flexDirection: 'column', flex: 1, gap: '0' }}>
+                  {/* Tag + Status Row */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                     <span style={{
-                      backgroundColor: isPast ? '#e2e8f0' : 'var(--accent-light)',
-                      color: isPast ? '#64748b' : 'var(--primary)',
+                      backgroundColor: tagStyle.bg,
+                      color: tagStyle.color,
+                      border: `1px solid ${tagStyle.border}`,
                       padding: '4px 12px',
-                      borderRadius: '4px',
+                      borderRadius: '20px',
                       fontSize: '11px',
                       fontWeight: '700',
-                      textTransform: 'uppercase'
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
                     }}>
                       {evt.tag}
                     </span>
                     {isPast && (
                       <span style={{
-                        fontSize: '11px',
-                        fontWeight: '750',
-                        color: '#64748b',
-                        backgroundColor: '#f1f5f9',
-                        padding: '4px 10px',
-                        borderRadius: '20px',
-                        border: '1px solid #cbd5e1',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
+                        display: 'flex', alignItems: 'center', gap: '4px',
+                        fontSize: '11px', fontWeight: '700',
+                        color: '#64748b', backgroundColor: '#f1f5f9',
+                        padding: '4px 10px', borderRadius: '20px',
+                        border: '1px solid #e2e8f0',
+                        textTransform: 'uppercase', letterSpacing: '0.5px'
                       }}>
+                        <CheckCircle2 size={11} />
                         Completed
                       </span>
                     )}
                   </div>
-                  <h3 style={{ fontSize: '18px', marginBottom: '12px', color: isPast ? '#475569' : 'var(--primary)', lineHeight: '1.4' }}>{evt.title}</h3>
-                  <p style={{ color: isPast ? '#64748b' : 'var(--text-muted)', fontSize: '14px', marginBottom: '20px', lineHeight: '1.6' }}>{evt.desc}</p>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px', borderTop: '1px solid var(--border-subtle)', paddingTop: '16px' }}>
+                  {/* Title */}
+                  <h3 style={{
+                    fontSize: '17px',
+                    marginBottom: '10px',
+                    color: isPast ? '#475569' : '#0a385b',
+                    lineHeight: '1.45',
+                    fontWeight: '750'
+                  }}>
+                    {evt.title}
+                  </h3>
+
+                  {/* Description */}
+                  <p style={{
+                    color: 'var(--text-muted)',
+                    fontSize: '13.5px',
+                    marginBottom: '20px',
+                    lineHeight: '1.65',
+                    flex: 1
+                  }}>
+                    {evt.desc}
+                  </p>
+
+                  {/* Meta Info */}
+                  <div style={{
+                    display: 'flex', flexDirection: 'column', gap: '8px',
+                    borderTop: '1px solid var(--border-subtle)', paddingTop: '16px',
+                    marginBottom: '20px'
+                  }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-muted)' }}>
-                      <Calendar size={14} style={{ color: isPast ? '#64748b' : 'var(--secondary)' }} />
+                      <Calendar size={13} style={{ color: isPast ? '#94a3b8' : '#02619a', flexShrink: 0 }} />
                       <span>{evt.date}</span>
                     </div>
                     {evt.time && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-muted)' }}>
-                        <Clock size={14} style={{ color: isPast ? '#64748b' : 'var(--secondary)' }} />
+                        <Clock size={13} style={{ color: isPast ? '#94a3b8' : '#02619a', flexShrink: 0 }} />
                         <span>{evt.time}</span>
                       </div>
                     )}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-muted)' }}>
-                      <MapPin size={14} style={{ color: isPast ? '#64748b' : 'var(--secondary)' }} />
+                      <MapPin size={13} style={{ color: isPast ? '#94a3b8' : '#02619a', flexShrink: 0 }} />
                       <span>{evt.venue}</span>
                     </div>
                   </div>
-                </div>
 
-                <div>
+                  {/* CTA or Highlight */}
                   {isUpcoming ? (
                     <a
                       href={evt.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="btn btn-primary"
-                      style={{ width: '100%', padding: '10px', fontSize: '14px', borderRadius: '6px', display: 'flex', gap: '6px' }}
+                      style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                        backgroundColor: '#0a385b', color: '#ffffff',
+                        padding: '11px 20px', borderRadius: '8px',
+                        fontSize: '14px', fontWeight: '700',
+                        textDecoration: 'none',
+                        transition: 'all 0.25s ease',
+                        letterSpacing: '0.3px'
+                      }}
+                      className="event-register-btn"
                     >
                       Register Now <ExternalLink size={14} />
                     </a>
                   ) : (
                     <div style={{
-                      backgroundColor: 'rgba(2, 97, 154, 0.03)',
-                      borderLeft: '3px solid #64748b',
-                      padding: '12px',
-                      borderRadius: '0 4px 4px 0',
-                      fontSize: '13px',
-                      color: '#475569',
-                      fontWeight: '550'
+                      backgroundColor: '#f8fafc',
+                      borderLeft: '3px solid #94a3b8',
+                      padding: '12px 14px',
+                      borderRadius: '0 6px 6px 0',
+                      fontSize: '13px', color: '#475569', fontWeight: '500',
+                      lineHeight: '1.55'
                     }}>
-                      <strong>Highlight:</strong> {evt.highlights}
+                      <strong style={{ color: '#334155', display: 'block', marginBottom: '2px', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Event Highlight</strong>
+                      {evt.highlights}
                     </div>
                   )}
                 </div>
@@ -261,6 +389,21 @@ const Events = () => {
           })}
         </div>
       </div>
+
+      <style>{`
+        .event-card {
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .event-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 12px 28px rgba(10,56,91,0.10) !important;
+        }
+        .event-register-btn:hover {
+          background-color: #02619a !important;
+          box-shadow: 0 6px 16px rgba(2,97,154,0.28);
+          transform: translateY(-1px);
+        }
+      `}</style>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, LogOut, Check, Trash2, Edit3, Plus, Image as ImageIcon, BarChart3, Database, X, Calendar, Award, Users, Target, Settings, Link as LinkIcon, AlertCircle } from 'lucide-react';
+import { Lock, LogOut, Check, Trash2, Edit3, Plus, Image as ImageIcon, BarChart3, Database, X, Calendar, Award, Users, Target, Settings, Link as LinkIcon, AlertCircle, FileText } from 'lucide-react';
 
 const compressImage = (file) => {
   return new Promise((resolve, reject) => {
@@ -46,7 +46,7 @@ const Admin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [activeTab, setActiveTab] = useState('stats'); // 'stats' | 'events' | 'achievements' | 'execomm' | 'committees' | 'gallery'
+  const [activeTab, setActiveTab] = useState('stats'); // 'stats' | 'events' | 'achievements' | 'execomm' | 'committees' | 'gallery' | 'researchpapers' | 'news'
 
   // Registration States
   const [isRegistering, setIsRegistering] = useState(false);
@@ -86,10 +86,13 @@ const Admin = () => {
   // Committees CRUD State
   const [committees, setCommittees] = useState([]);
 
+  // Research Papers CRUD State
+  const [researchPapers, setResearchPapers] = useState([]);
+
   // Modal Control States
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('add'); // 'add' | 'edit'
-  const [modalType, setModalType] = useState('gallery'); // 'gallery' | 'event' | 'achievement' | 'member' | 'committee'
+  const [modalType, setModalType] = useState('gallery'); // 'gallery' | 'event' | 'achievement' | 'member' | 'committee' | 'researchpaper' | 'news'
   const [currentItemId, setCurrentItemId] = useState(null);
 
   // Modal Form Inputs: Gallery
@@ -129,6 +132,25 @@ const Admin = () => {
   const [commLead, setCommLead] = useState('');
   const [commCoLead, setCommCoLead] = useState('');
   const [commTeamCount, setCommTeamCount] = useState(10);
+
+  // Modal Form Inputs: Research Papers
+  const [paperTitle, setPaperTitle] = useState('');
+  const [paperAuthors, setPaperAuthors] = useState('');
+  const [paperCategory, setPaperCategory] = useState('IEEE');
+  const [paperDesc, setPaperDesc] = useState('');
+  const [paperYear, setPaperYear] = useState(new Date().getFullYear().toString());
+  const [paperFile, setPaperFile] = useState(null);
+
+  // Modal Form Inputs: News Items
+  const [newsTitle, setNewsTitle] = useState('');
+  const [newsSource, setNewsSource] = useState('');
+  const [newsDate, setNewsDate] = useState('');
+  const [newsSnippet, setNewsSnippet] = useState('');
+  const [newsColor, setNewsColor] = useState('#f59e0b');
+  const [newsImage, setNewsImage] = useState(null);
+
+  // News CRUD State
+  const [newsItems, setNewsItems] = useState([]);
 
   // Predefined defaults
   const defaultAdmins = [
@@ -402,6 +424,63 @@ const Admin = () => {
     }
   ];
 
+  const defaultResearchPapers = [
+    {
+      id: 1,
+      title: "Smart Assistive Glove for Quadriplegic Patients using IoT",
+      authors: "Abhishek M., Sneha R.",
+      category: "IEEE",
+      desc: "A voice-controlled assistive glove prototype using IoT sensors and machine learning for rehabilitation.",
+      year: "2026",
+      fileUrl: "paper_001.pdf"
+    },
+    {
+      id: 2,
+      title: "Edge Computing for Real-Time ECG Processing",
+      authors: "Karthik Raja, Harish K.",
+      category: "IEEE",
+      desc: "Implementation of digital signal processing algorithms on microcontrollers for cardiac monitoring.",
+      year: "2025",
+      fileUrl: "paper_002.pdf"
+    },
+    {
+      id: 3,
+      title: "GreenTech Solutions for Sustainable Agriculture Automation",
+      authors: "Dharini P., Naveen S.",
+      category: "Conference",
+      desc: "Solar-powered smart irrigation system with AI-based crop monitoring.",
+      year: "2025",
+      fileUrl: "paper_003.pdf"
+    }
+  ];
+
+  const defaultNews = [
+    {
+      id: 1,
+      title: "IEEE Student Branch KEC wins Best Branch Laurels",
+      source: "Erode Daily",
+      date: "Oct 14, 2025",
+      snippet: "Kongu Engineering College student branch recognized under Madras Section for outstanding technical contributions and volunteering.",
+      color: "#f59e0b"
+    },
+    {
+      id: 2,
+      title: "Students showcase Smart Assistive Device at State Expo",
+      source: "Tech Journal",
+      date: "Nov 02, 2025",
+      snippet: "Sponsored by IEEE SPS and KEC SRC, a student team built a voice-assisted glove prototype for quadriplegic rehabilitation.",
+      color: "#8b5cf6"
+    },
+    {
+      id: 3,
+      title: "National Hackathon on Green Energy hosted by KEC IEEE SB",
+      source: "The Campus News",
+      date: "Jan 18, 2026",
+      snippet: "More than 50 teams from across Southern India participated to pitch solar tracking and smart grid distribution prototypes.",
+      color: "#10b981"
+    }
+  ];
+
   const defaultMission = "To cultivate a culture of innovation, foster teamwork, and enhance student capability in research and design through seminars, hands-on workshops, student-led projects, and professional networking.";
   const defaultVision = "To build a world-class center of technical learning and professional excellence that empowers young minds to create engineering solutions for a sustainable and technologically advanced society.";
   const defaultTicker = [
@@ -493,6 +572,27 @@ const Admin = () => {
     } else {
       localStorage.setItem('ieee_operational_committees', JSON.stringify(defaultCommittees));
       setCommittees(defaultCommittees);
+    }
+
+    // Load Research Papers
+    const storedPapers = localStorage.getItem('ieee_research_papers');
+    if (storedPapers) {
+      setResearchPapers(JSON.parse(storedPapers));
+    } else {
+      localStorage.setItem('ieee_research_papers', JSON.stringify(defaultResearchPapers));
+      setResearchPapers(defaultResearchPapers);
+      // Set initial papers count
+      localStorage.setItem('ieee_papers_count', defaultResearchPapers.length.toString());
+      setPapersCount(defaultResearchPapers.length.toString());
+    }
+
+    // Load News Items
+    const storedNews = localStorage.getItem('ieee_news_items');
+    if (storedNews) {
+      setNewsItems(JSON.parse(storedNews));
+    } else {
+      localStorage.setItem('ieee_news_items', JSON.stringify(defaultNews));
+      setNewsItems(defaultNews);
     }
   }, []);
 
@@ -656,6 +756,20 @@ const Admin = () => {
       setCommLead('');
       setCommCoLead('');
       setCommTeamCount(10);
+    } else if (type === 'researchpaper') {
+      setPaperTitle('');
+      setPaperAuthors('');
+      setPaperCategory('IEEE');
+      setPaperDesc('');
+      setPaperYear(new Date().getFullYear().toString());
+      setPaperFile(null);
+    } else if (type === 'news') {
+      setNewsTitle('');
+      setNewsSource('');
+      setNewsDate('');
+      setNewsSnippet('');
+      setNewsColor('#f59e0b');
+      setNewsImage(null);
     }
     setIsModalOpen(true);
   };
@@ -700,6 +814,19 @@ const Admin = () => {
       setCommLead(item.lead);
       setCommCoLead(item.coLead);
       setCommTeamCount(item.teamCount);
+    } else if (type === 'researchpaper') {
+      setPaperTitle(item.title);
+      setPaperAuthors(item.authors);
+      setPaperCategory(item.category);
+      setPaperDesc(item.desc);
+      setPaperYear(item.year);
+      setPaperFile(item.fileUrl);
+    } else if (type === 'news') {
+      setNewsTitle(item.title);
+      setNewsSource(item.source);
+      setNewsDate(item.date);
+      setNewsSnippet(item.snippet);
+      setNewsColor(item.color);
     }
     setIsModalOpen(true);
   };
@@ -727,10 +854,30 @@ const Admin = () => {
       const updated = execommMembers.filter(item => item.id !== id);
       setExecommMembers(updated);
       localStorage.setItem('ieee_execomm_members', JSON.stringify(updated));
+      
+      // Decrement member count when a member is deleted
+      const currentCount = parseInt(memberCount) || 0;
+      const newCount = Math.max(currentCount - 1, 0);
+      setMemberCount(newCount.toString());
+      localStorage.setItem('ieee_member_count', newCount.toString());
     } else if (type === 'committee') {
       const updated = committees.filter(item => item.id !== id);
       setCommittees(updated);
       localStorage.setItem('ieee_operational_committees', JSON.stringify(updated));
+    } else if (type === 'researchpaper') {
+      const updated = researchPapers.filter(item => item.id !== id);
+      setResearchPapers(updated);
+      localStorage.setItem('ieee_research_papers', JSON.stringify(updated));
+      
+      // Decrement papers count when a paper is deleted
+      const currentCount = parseInt(papersCount) || 0;
+      const newCount = Math.max(currentCount - 1, 0);
+      setPapersCount(newCount.toString());
+      localStorage.setItem('ieee_papers_count', newCount.toString());
+    } else if (type === 'news') {
+      const updated = newsItems.filter(item => item.id !== id);
+      setNewsItems(updated);
+      localStorage.setItem('ieee_news_items', JSON.stringify(updated));
     }
   };
 
@@ -839,6 +986,12 @@ const Admin = () => {
           linkedin: memberLinkedin
         };
         updated = [...execommMembers, newItem];
+        
+        // Increment member count when a new member is added
+        const currentCount = parseInt(memberCount) || 0;
+        const newCount = currentCount + 1;
+        setMemberCount(newCount.toString());
+        localStorage.setItem('ieee_member_count', newCount.toString());
       } else {
         updated = execommMembers.map(item =>
           item.id === currentItemId
@@ -871,6 +1024,58 @@ const Admin = () => {
       }
       setCommittees(updated);
       localStorage.setItem('ieee_operational_committees', JSON.stringify(updated));
+
+    } else if (modalType === 'researchpaper') {
+      if (!paperTitle.trim() || !paperAuthors.trim() || !paperDesc.trim()) return;
+      let updated = [];
+      if (modalMode === 'add') {
+        const newItem = {
+          id: researchPapers.length > 0 ? Math.max(...researchPapers.map(i => i.id)) + 1 : 1,
+          title: paperTitle,
+          authors: paperAuthors,
+          category: paperCategory,
+          desc: paperDesc,
+          year: paperYear,
+          fileUrl: paperFile || `paper_${Date.now()}.pdf`
+        };
+        updated = [...researchPapers, newItem];
+        
+        // Increment papers count when a new paper is added
+        const currentCount = parseInt(papersCount) || 0;
+        const newCount = currentCount + 1;
+        setPapersCount(newCount.toString());
+        localStorage.setItem('ieee_papers_count', newCount.toString());
+      } else {
+        updated = researchPapers.map(item =>
+          item.id === currentItemId
+            ? { ...item, title: paperTitle, authors: paperAuthors, category: paperCategory, desc: paperDesc, year: paperYear, fileUrl: paperFile || item.fileUrl }
+            : item
+        );
+      }
+      setResearchPapers(updated);
+      localStorage.setItem('ieee_research_papers', JSON.stringify(updated));
+    } else if (modalType === 'news') {
+      if (!newsTitle.trim() || !newsSource.trim() || !newsDate.trim() || !newsSnippet.trim()) return;
+      let updated = [];
+      if (modalMode === 'add') {
+        const newItem = {
+          id: newsItems.length > 0 ? Math.max(...newsItems.map(i => i.id)) + 1 : 1,
+          title: newsTitle,
+          source: newsSource,
+          date: newsDate,
+          snippet: newsSnippet,
+          color: newsColor
+        };
+        updated = [...newsItems, newItem];
+      } else {
+        updated = newsItems.map(item =>
+          item.id === currentItemId
+            ? { ...item, title: newsTitle, source: newsSource, date: newsDate, snippet: newsSnippet, color: newsColor }
+            : item
+        );
+      }
+      setNewsItems(updated);
+      localStorage.setItem('ieee_news_items', JSON.stringify(updated));
     }
 
     setIsModalOpen(false);
@@ -1215,7 +1420,9 @@ const Admin = () => {
             { id: 'events', label: 'Events List', icon: <Calendar size={16} /> },
             { id: 'achievements', label: 'Achievements', icon: <Award size={16} /> },
             { id: 'execomm', label: 'Execomm SB Leaders', icon: <Users size={16} /> },
-            { id: 'committees', label: 'Committees', icon: <Target size={16} /> }
+            { id: 'committees', label: 'Committees', icon: <Target size={16} /> },
+            { id: 'news', label: 'News Clippings', icon: <FileText size={16} /> },
+            { id: 'researchpapers', label: 'Research Papers', icon: <FileText size={16} /> }
           ].map(tab => (
             <button
               key={tab.id}
@@ -1937,6 +2144,189 @@ const Admin = () => {
             </div>
           </div>
         )}
+
+        {/* Tab 6: News Clippings Management */}
+        {activeTab === 'news' && (
+          <div className="animate-fade-in">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+              <div>
+                <h2 style={{ fontSize: '20px', color: '#0a385b', fontWeight: '800' }}>News Clippings Manager</h2>
+                <p style={{ color: '#64748b', fontSize: '13px', marginTop: '2px' }}>Manage and publish news updates and announcements (Total: {newsItems.length})</p>
+              </div>
+              <button
+                onClick={() => openAddModal('news')}
+                style={{
+                  backgroundColor: '#02619a',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '30px',
+                  padding: '10px 20px',
+                  fontSize: '13.5px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  boxShadow: '0 4px 12px rgba(2,97,154,0.2)'
+                }}
+                className="admin-add-btn"
+              >
+                <Plus size={16} /> Add News
+              </button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '24px' }}>
+              {newsItems.map(news => (
+                <div key={news.id} className="card" style={{ padding: '0', display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: '#ffffff', borderRadius: '14px', border: '1px solid #e2e8f0', boxShadow: '0 4px 15px rgba(10, 56, 91, 0.1)', overflow: 'hidden', transition: 'all 0.3s ease' }}>
+                  <div style={{ height: '100px', background: `linear-gradient(135deg, ${news.color} 0%, ${news.color}dd 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+                    <div style={{ width: '70px', height: '70px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.15)', position: 'absolute', right: '-15px', top: '-15px' }} />
+                    <FileText size={40} color="#ffffff" style={{ opacity: 0.9 }} />
+                  </div>
+                  <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <div style={{ marginBottom: '10px' }}>
+                      <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: '11px', fontWeight: '700', color: '#ffffff', backgroundColor: news.color, padding: '4px 10px', borderRadius: '18px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{news.source}</span>
+                        <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '500' }}>{news.date}</span>
+                      </div>
+                      <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#0a385b', marginBottom: '8px', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{news.title}</h3>
+                    </div>
+                    <p style={{ fontSize: '12.5px', color: '#64748b', lineHeight: '1.5', marginBottom: '12px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{news.snippet}</p>
+                    <div style={{ display: 'flex', gap: '8px', borderTop: '1px solid #e2e8f0', paddingTop: '12px' }}>
+                      <button onClick={() => openEditModal('news', news)} style={{ flex: 1, backgroundColor: '#f0f4f8', color: '#02619a', border: 'none', borderRadius: '6px', padding: '8px 12px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }} className="action-btn-hover-edit"><Edit3 size={14} /> Edit</button>
+                      <button onClick={() => handleDeleteItem('news', news.id)} style={{ flex: 1, backgroundColor: '#fef2f2', color: '#ef4444', border: 'none', borderRadius: '6px', padding: '8px 12px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }} className="action-btn-hover-delete"><Trash2 size={14} /> Delete</button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {newsItems.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b' }}>
+                <FileText size={48} style={{ opacity: 0.4, marginBottom: '16px' }} />
+                <p style={{ fontSize: '15px', fontWeight: '600' }}>No news items added yet</p>
+                <p style={{ fontSize: '13px', marginTop: '8px' }}>Click "Add News" to publish news updates and announcements</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab 7: Research Papers Management */}
+        {activeTab === 'researchpapers' && (
+          <div className="animate-fade-in">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+              <div>
+                <h2 style={{ fontSize: '20px', color: '#0a385b', fontWeight: '800' }}>Research Papers Repository</h2>
+                <p style={{ color: '#64748b', fontSize: '13px', marginTop: '2px' }}>Student research work submissions and publications (Total: {researchPapers.length})</p>
+              </div>
+              <button
+                onClick={() => openAddModal('researchpaper')}
+                style={{
+                  backgroundColor: '#02619a',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '30px',
+                  padding: '10px 20px',
+                  fontSize: '13.5px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  boxShadow: '0 4px 12px rgba(2,97,154,0.2)'
+                }}
+                className="admin-add-btn"
+              >
+                <Plus size={16} /> Add Paper
+              </button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
+              {researchPapers.map(paper => (
+                <div key={paper.id} className="card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: 'var(--shadow-sm)' }}>
+                  <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+                      <div style={{
+                        width: '48px',
+                        height: '48px',
+                        borderRadius: '8px',
+                        backgroundColor: '#f0f4f8',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#02619a'
+                      }}>
+                        <FileText size={24} />
+                      </div>
+                      <div>
+                        <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--secondary)', textTransform: 'uppercase' }}>{paper.category}</span>
+                        <p style={{ fontSize: '12px', color: '#64748b', margin: '2px 0 0 0' }}>📅 {paper.year}</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <h3 style={{ fontSize: '15px', color: '#0a385b', fontWeight: '700', marginBottom: '8px', lineHeight: '1.4' }}>{paper.title}</h3>
+                  
+                  <p style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '12px', lineHeight: '1.4' }}>👥 {paper.authors}</p>
+                  
+                  <p style={{ fontSize: '13px', color: '#475569', lineHeight: '1.5', marginBottom: '16px', flex: 1 }}>{paper.desc}</p>
+                  
+                  <div style={{ display: 'flex', gap: '8px', borderTop: '1px solid #e2e8f0', paddingTop: '16px' }}>
+                    <button
+                      onClick={() => openEditModal('researchpaper', paper)}
+                      style={{
+                        flex: 1,
+                        backgroundColor: '#f0f4f8',
+                        color: '#02619a',
+                        border: 'none',
+                        borderRadius: '6px',
+                        padding: '8px 12px',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px'
+                      }}
+                      className="action-btn-hover-edit"
+                    >
+                      <Edit3 size={14} /> Edit
+                    </button>
+                    <button
+                      onClick={() => handleDeleteItem('researchpaper', paper.id)}
+                      style={{
+                        flex: 1,
+                        backgroundColor: '#fef2f2',
+                        color: '#ef4444',
+                        border: 'none',
+                        borderRadius: '6px',
+                        padding: '8px 12px',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px'
+                      }}
+                      className="action-btn-hover-delete"
+                    >
+                      <Trash2 size={14} /> Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {researchPapers.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b' }}>
+                <FileText size={48} style={{ opacity: 0.4, marginBottom: '16px' }} />
+                <p style={{ fontSize: '15px', fontWeight: '600' }}>No research papers added yet</p>
+                <p style={{ fontSize: '13px', marginTop: '8px' }}>Click "Add Paper" to submit student research work</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* CRUD Add/Edit Overlay Modal */}
@@ -2375,6 +2765,160 @@ const Admin = () => {
                         onChange={(e) => setCommCoLead(e.target.value)}
                         style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
                       />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {modalType === 'researchpaper' && (
+                <>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Paper Title</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Smart Assistive Glove for Quadriplegic Patients"
+                      value={paperTitle}
+                      onChange={(e) => setPaperTitle(e.target.value)}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Authors / Student Names</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Abhishek M., Sneha R."
+                      value={paperAuthors}
+                      onChange={(e) => setPaperAuthors(e.target.value)}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Category</label>
+                      <select
+                        value={paperCategory}
+                        onChange={(e) => setPaperCategory(e.target.value)}
+                        style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                      >
+                        <option value="IEEE">IEEE</option>
+                        <option value="Conference">Conference</option>
+                        <option value="Journal">Journal</option>
+                        <option value="Thesis">Thesis</option>
+                        <option value="Workshop">Workshop</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Year</label>
+                      <input
+                        type="number"
+                        value={paperYear}
+                        onChange={(e) => setPaperYear(e.target.value)}
+                        style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Abstract / Description</label>
+                    <textarea
+                      required
+                      rows="3"
+                      placeholder="Brief summary of the research paper..."
+                      value={paperDesc}
+                      onChange={(e) => setPaperDesc(e.target.value)}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px', resize: 'none', fontFamily: 'inherit' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Paper File (Optional)</label>
+                    <input
+                      type="text"
+                      placeholder="paper_filename.pdf or URL"
+                      value={paperFile || ''}
+                      onChange={(e) => setPaperFile(e.target.value)}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                    />
+                    <p style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>📎 Provide file name or download link</p>
+                  </div>
+                </>
+              )}
+
+              {modalType === 'news' && (
+                <>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>News Title</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. IEEE KEC wins Best Branch Award"
+                      value={newsTitle}
+                      onChange={(e) => setNewsTitle(e.target.value)}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>News Source / Publication</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Erode Daily, Tech Journal"
+                        value={newsSource}
+                        onChange={(e) => setNewsSource(e.target.value)}
+                        style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Date</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Oct 14, 2025"
+                        value={newsDate}
+                        onChange={(e) => setNewsDate(e.target.value)}
+                        style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>News Summary / Snippet</label>
+                    <textarea
+                      required
+                      rows="3"
+                      placeholder="Brief description of the news..."
+                      value={newsSnippet}
+                      onChange={(e) => setNewsSnippet(e.target.value)}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px', resize: 'none', fontFamily: 'inherit' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '10px', textTransform: 'uppercase' }}>Card Color Theme</label>
+                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                      {['#f59e0b', '#8b5cf6', '#10b981', '#ef4444', '#06b6d4', '#ec4899', '#3b82f6', '#f97316'].map(color => (
+                        <button
+                          key={color}
+                          type="button"
+                          onClick={() => setNewsColor(color)}
+                          style={{
+                            width: '40px',
+                            height: '40px',
+                            borderRadius: '8px',
+                            backgroundColor: color,
+                            border: newsColor === color ? '3px solid #0a385b' : '2px solid #e2e8f0',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease'
+                          }}
+                          title={`Select color ${color}`}
+                        />
+                      ))}
                     </div>
                   </div>
                 </>

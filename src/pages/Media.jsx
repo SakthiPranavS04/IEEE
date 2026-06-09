@@ -1,5 +1,585 @@
 import React, { useState, useEffect } from 'react';
-import { Image, FileText, X, Maximize2 } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+import { Image, FileText, X } from 'lucide-react';
+
+const carouselArrowStyle = {
+  position: 'absolute',
+  top: '50%',
+  transform: 'translateY(-50%)',
+  backgroundColor: 'rgba(2, 97, 154, 0.1)',
+  border: '2px solid #02619a',
+  color: '#02619a',
+  borderRadius: '50%',
+  width: '48px',
+  height: '48px',
+  cursor: 'pointer',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: '24px',
+  fontWeight: 'bold',
+  transition: 'all 0.3s ease',
+  zIndex: 10,
+};
+
+const handleCarouselArrowHover = (e, active) => {
+  e.currentTarget.style.backgroundColor = active ? '#02619a' : 'rgba(2, 97, 154, 0.1)';
+  e.currentTarget.style.color = active ? '#ffffff' : '#02619a';
+};
+
+const getGalleryLayoutClass = (index) => {
+  const position = index % 10;
+  return position === 4 ? 'gallery-masonry-card--wide' : 'gallery-masonry-card--standard';
+};
+
+const PhotoGalleryGrid = ({ items, onViewItem }) => (
+  <>
+    <div className="photo-gallery-masonry">
+      {items.map((item, index) => {
+        const hasImages = item.images?.length > 0;
+        return (
+          <article
+            key={item.id}
+            className={`gallery-masonry-card ${getGalleryLayoutClass(index)}`}
+            onClick={() => hasImages && onViewItem(item)}
+            onKeyDown={(e) => {
+              if (hasImages && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                onViewItem(item);
+              }
+            }}
+            role={hasImages ? 'button' : 'article'}
+            tabIndex={hasImages ? 0 : -1}
+            aria-label={hasImages ? `View photos: ${item.title}` : item.title}
+          >
+            <div className="gallery-masonry-card__media">
+              {hasImages ? (
+                <img
+                  src={item.images[0]}
+                  alt={item.title}
+                  className="gallery-masonry-card__img"
+                  loading="lazy"
+                />
+              ) : (
+                <div className="gallery-masonry-card__placeholder">
+                  <Image size={52} strokeWidth={1.25} />
+                </div>
+              )}
+            </div>
+
+            <div className="gallery-masonry-card__overlay" aria-hidden="true" />
+            <div className="gallery-masonry-card__shine" aria-hidden="true" />
+
+            <div className="gallery-masonry-card__content">
+              <span className="gallery-masonry-card__category">{item.cat}</span>
+              <h3 className="gallery-masonry-card__title">{item.title}</h3>
+              <p className="gallery-masonry-card__desc">{item.text}</p>
+            </div>
+
+            {hasImages && item.images.length > 1 && (
+              <span className="gallery-masonry-card__count" aria-hidden="true">
+                {item.images.length} photos
+              </span>
+            )}
+          </article>
+        );
+      })}
+    </div>
+
+    <style>{`
+      .photo-gallery-masonry {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+        width: 100%;
+      }
+
+      .gallery-masonry-card {
+        position: relative;
+        border-radius: 18px;
+        overflow: hidden;
+        cursor: pointer;
+        min-height: 280px;
+        background-color: #0a385b;
+        box-shadow: 0 6px 24px rgba(10, 56, 91, 0.1);
+        transition:
+          transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+          box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        outline: none;
+      }
+
+      .gallery-masonry-card--wide {
+        grid-column: span 3;
+        min-height: 240px;
+      }
+
+      .gallery-masonry-card:focus-visible {
+        box-shadow: 0 0 0 3px #ffffff, 0 0 0 6px #02619a;
+      }
+
+      .gallery-masonry-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 28px 56px rgba(10, 56, 91, 0.24);
+      }
+
+      .gallery-masonry-card__media {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+      }
+
+      .gallery-masonry-card__img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform: scale(1);
+        transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        will-change: transform;
+      }
+
+      .gallery-masonry-card:hover .gallery-masonry-card__img {
+        transform: scale(1.1);
+      }
+
+      .gallery-masonry-card__placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(145deg, #0a385b 0%, #02619a 55%, #00629b 100%);
+        color: rgba(255, 255, 255, 0.45);
+        transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .gallery-masonry-card:hover .gallery-masonry-card__placeholder {
+        transform: scale(1.06);
+      }
+
+      .gallery-masonry-card__overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          to top,
+          rgba(5, 23, 38, 0.92) 0%,
+          rgba(5, 23, 38, 0.45) 38%,
+          rgba(5, 23, 38, 0.08) 68%,
+          transparent 100%
+        );
+        transition: background 0.5s ease;
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      .gallery-masonry-card:hover .gallery-masonry-card__overlay {
+        background: linear-gradient(
+          to top,
+          rgba(5, 23, 38, 0.97) 0%,
+          rgba(5, 23, 38, 0.62) 48%,
+          rgba(2, 97, 154, 0.2) 100%
+        );
+      }
+
+      .gallery-masonry-card__shine {
+        position: absolute;
+        inset: 0;
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        opacity: 0;
+        transition: opacity 0.45s ease;
+        z-index: 3;
+        pointer-events: none;
+      }
+
+      .gallery-masonry-card:hover .gallery-masonry-card__shine {
+        opacity: 1;
+      }
+
+      .gallery-masonry-card__content {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 22px 22px 20px;
+        z-index: 2;
+        transform: translateY(0);
+        transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .gallery-masonry-card:hover .gallery-masonry-card__content {
+        transform: translateY(-8px);
+      }
+
+      .gallery-masonry-card__category {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #90caf9;
+        margin-bottom: 8px;
+        opacity: 0.9;
+        transition: color 0.3s ease, opacity 0.3s ease;
+      }
+
+      .gallery-masonry-card:hover .gallery-masonry-card__category {
+        color: #d5efff;
+        opacity: 1;
+      }
+
+      .gallery-masonry-card__title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #ffffff;
+        line-height: 1.35;
+        margin: 0;
+        text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+      }
+
+      .gallery-masonry-card--wide .gallery-masonry-card__title {
+        font-size: 22px;
+      }
+
+      .gallery-masonry-card__desc {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.82);
+        line-height: 1.55;
+        margin: 0;
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition:
+          max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+          opacity 0.4s ease,
+          margin-top 0.4s ease;
+      }
+
+      .gallery-masonry-card:hover .gallery-masonry-card__desc {
+        max-height: 72px;
+        opacity: 1;
+        margin-top: 8px;
+      }
+
+      .gallery-masonry-card__count {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        z-index: 2;
+        background: rgba(10, 56, 91, 0.82);
+        backdrop-filter: blur(8px);
+        color: #ffffff;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 6px 12px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        transition: transform 0.4s ease, background 0.3s ease;
+      }
+
+      .gallery-masonry-card:hover .gallery-masonry-card__count {
+        transform: translateY(-2px);
+        background: rgba(2, 97, 154, 0.9);
+      }
+
+      @media (max-width: 1024px) {
+        .photo-gallery-masonry {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 14px;
+        }
+
+        .gallery-masonry-card--wide {
+          grid-column: span 2;
+        }
+
+        .gallery-masonry-card {
+          min-height: 240px;
+        }
+
+        .gallery-masonry-card__title {
+          font-size: 16px;
+        }
+
+        .gallery-masonry-card--wide .gallery-masonry-card__title {
+          font-size: 18px;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .photo-gallery-masonry {
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+
+        .gallery-masonry-card--wide {
+          grid-column: span 1;
+        }
+
+        .gallery-masonry-card {
+          min-height: 220px;
+        }
+
+        .gallery-masonry-card__desc {
+          max-height: 60px;
+          opacity: 1;
+          margin-top: 6px;
+        }
+      }
+    `}</style>
+  </>
+);
+
+const SlideCarousel = ({ items, currentIndex, onIndexChange, variant = 'gallery', onViewItem }) => {
+  if (items.length === 0) return null;
+
+  const goPrev = () => onIndexChange(currentIndex === 0 ? items.length - 1 : currentIndex - 1);
+  const goNext = () => onIndexChange((currentIndex + 1) % items.length);
+
+  return (
+    <div style={{ position: 'relative', width: '100%', margin: '0 auto', paddingBottom: '20px' }}>
+      <button
+        onClick={goPrev}
+        style={{ ...carouselArrowStyle, left: '0' }}
+        onMouseEnter={(e) => handleCarouselArrowHover(e, true)}
+        onMouseLeave={(e) => handleCarouselArrowHover(e, false)}
+        aria-label="Previous slide"
+      >
+        ‹
+      </button>
+
+      <button
+        onClick={goNext}
+        style={{ ...carouselArrowStyle, right: '0' }}
+        onMouseEnter={(e) => handleCarouselArrowHover(e, true)}
+        onMouseLeave={(e) => handleCarouselArrowHover(e, false)}
+        aria-label="Next slide"
+      >
+        ›
+      </button>
+
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: '20px',
+        padding: '0 60px',
+        minHeight: '400px',
+      }}>
+        {[...Array(Math.min(3, items.length))].map((_, offset) => {
+          const itemIndex = (currentIndex + offset - 1 + items.length) % items.length;
+          const item = items[itemIndex];
+          const isCenter = offset === 1;
+
+          if (!item) return null;
+
+          const coverImage = variant === 'gallery'
+            ? item.images?.[0]
+            : item.image;
+
+          const badge = variant === 'gallery' ? item.cat : item.source;
+          const title = item.title;
+          const description = variant === 'gallery' ? item.text : item.snippet;
+
+          return (
+            <div
+              key={`${item.id}-${offset}`}
+              style={{
+                flex: isCenter ? '0 0 380px' : '0 0 280px',
+                height: isCenter ? '420px' : '320px',
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                opacity: isCenter ? 1 : 0.6,
+                transform: `scale(${isCenter ? 1 : 0.85})`,
+                cursor: 'pointer',
+              }}
+              onClick={() => {
+                if (!isCenter) onIndexChange(itemIndex);
+              }}
+            >
+              <div
+                className="card"
+                style={{
+                  padding: 0,
+                  overflow: 'hidden',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  height: '100%',
+                  borderRadius: '16px',
+                  boxShadow: isCenter
+                    ? '0 20px 40px rgba(10, 56, 91, 0.25)'
+                    : '0 8px 16px rgba(10, 56, 91, 0.12)',
+                  border: isCenter ? '2px solid #e2e8f0' : '1px solid #e2e8f0',
+                  backgroundColor: '#ffffff',
+                  position: 'relative',
+                }}
+              >
+                <div
+                  style={{
+                    height: isCenter ? '260px' : '200px',
+                    backgroundColor: variant === 'news' && !coverImage && item.color
+                      ? undefined
+                      : '#0a385b',
+                    background: variant === 'news' && !coverImage && item.color
+                      ? `linear-gradient(135deg, ${item.color} 0%, ${item.color}dd 100%)`
+                      : undefined,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    color: 'rgba(255,255,255,0.85)',
+                    flexShrink: 0,
+                  }}
+                >
+                  {coverImage ? (
+                    <img
+                      src={coverImage}
+                      alt={title}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  ) : variant === 'gallery' ? (
+                    <Image size={isCenter ? 60 : 40} style={{ opacity: 0.6 }} />
+                  ) : (
+                    <FileText size={isCenter ? 60 : 40} style={{ opacity: 0.6 }} />
+                  )}
+
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: '12px',
+                      right: '12px',
+                      backgroundColor: 'rgba(2, 97, 154, 0.9)',
+                      color: '#ffffff',
+                      fontSize: '11px',
+                      fontWeight: '700',
+                      padding: '6px 12px',
+                      borderRadius: '20px',
+                      pointerEvents: 'none',
+                      maxWidth: '70%',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {badge}
+                  </span>
+
+                  {variant === 'gallery' && item.images?.length > 1 && (
+                    <span
+                      style={{
+                        position: 'absolute',
+                        bottom: '12px',
+                        left: '12px',
+                        backgroundColor: 'rgba(10, 56, 91, 0.85)',
+                        color: '#ffffff',
+                        fontSize: '11px',
+                        fontWeight: '700',
+                        padding: '6px 10px',
+                        borderRadius: '6px',
+                        pointerEvents: 'none',
+                      }}
+                    >
+                      📁 {item.images.length}
+                    </span>
+                  )}
+                </div>
+
+                <div
+                  style={{
+                    padding: isCenter ? '24px' : '18px',
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <div>
+                    {variant === 'news' && isCenter && item.date && (
+                      <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '500', display: 'block', marginBottom: '6px' }}>
+                        {item.date}
+                      </span>
+                    )}
+                    <h3
+                      style={{
+                        fontSize: isCenter ? '17px' : '15px',
+                        color: '#0a385b',
+                        marginBottom: '8px',
+                        fontWeight: '700',
+                        lineHeight: '1.4',
+                      }}
+                    >
+                      {title}
+                    </h3>
+                    {isCenter && (
+                      <p
+                        style={{
+                          fontSize: '13px',
+                          color: '#64748b',
+                          lineHeight: '1.5',
+                          margin: 0,
+                        }}
+                      >
+                        {description}
+                      </p>
+                    )}
+                  </div>
+
+                  {isCenter && variant === 'gallery' && item.images?.length > 0 && onViewItem && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onViewItem(item);
+                      }}
+                      style={{
+                        marginTop: '12px',
+                        padding: '8px 16px',
+                        backgroundColor: '#f0f4f8',
+                        color: '#02619a',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: '6px',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#02619a';
+                        e.currentTarget.style.color = '#ffffff';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = '#f0f4f8';
+                        e.currentTarget.style.color = '#02619a';
+                      }}
+                    >
+                      View Photos
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '32px' }}>
+        {items.map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => onIndexChange(idx)}
+            style={{
+              width: currentIndex === idx ? '28px' : '8px',
+              height: '8px',
+              borderRadius: '4px',
+              backgroundColor: currentIndex === idx ? '#02619a' : '#cbd5e1',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+            }}
+            aria-label={`Go to slide ${idx + 1}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const PageHeader = ({ title, subtitle }) => (
   <div style={{
@@ -17,13 +597,18 @@ const PageHeader = ({ title, subtitle }) => (
 );
 
 const Media = () => {
-  const [activeTab, setActiveTab] = useState('gallery'); // 'gallery' | 'news' | 'research'
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState(() => {
+    if (location.pathname.includes('/news')) return 'news';
+    if (location.pathname.includes('/gallery')) return 'gallery';
+    return 'gallery';
+  });
   const [selectedImage, setSelectedImage] = useState(null);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [galleryItems, setGalleryItems] = useState([]);
   const [researchPapers, setResearchPapers] = useState([]);
   const [newsItems, setNewsItems] = useState([]);
-  const [carouselIndex, setCarouselIndex] = useState(0);
+  const [newsCarouselIndex, setNewsCarouselIndex] = useState(0);
 
   // Predefined default gallery fallback
   const defaultGallery = [
@@ -90,7 +675,14 @@ const Media = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (location.pathname.includes('/news')) setActiveTab('news');
+    else if (location.pathname.includes('/gallery')) setActiveTab('gallery');
+  }, [location.pathname]);
 
+  useEffect(() => {
+    setNewsCarouselIndex(0);
+  }, [activeTab]);
 
   return (
     <div className="animate-fade-in" style={{ backgroundColor: 'var(--bg-light)', paddingBottom: '80px', minHeight: '70vh' }}>
@@ -152,303 +744,17 @@ const Media = () => {
           </button>
         </div>
 
-        {/* Gallery tab view - Carousel */}
+        {/* Gallery tab view - Masonry grid */}
         {activeTab === 'gallery' && (
           <>
             {galleryItems.length > 0 ? (
-              <div style={{
-                position: 'relative',
-                width: '100%',
-                margin: '0 auto',
-                paddingBottom: '20px'
-              }}>
-                {/* Navigation Arrows */}
-                <button
-                  onClick={() => setCarouselIndex(carouselIndex === 0 ? galleryItems.length - 1 : carouselIndex - 1)}
-                  style={{
-                    position: 'absolute',
-                    left: '0',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    backgroundColor: 'rgba(2, 97, 154, 0.1)',
-                    border: '2px solid #02619a',
-                    color: '#02619a',
-                    borderRadius: '50%',
-                    width: '48px',
-                    height: '48px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    transition: 'all 0.3s ease',
-                    zIndex: 10
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = '#02619a';
-                    e.target.style.color = '#ffffff';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = 'rgba(2, 97, 154, 0.1)';
-                    e.target.style.color = '#02619a';
-                  }}
-                >
-                  ‹
-                </button>
-
-                <button
-                  onClick={() => setCarouselIndex((carouselIndex + 1) % galleryItems.length)}
-                  style={{
-                    position: 'absolute',
-                    right: '0',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    backgroundColor: 'rgba(2, 97, 154, 0.1)',
-                    border: '2px solid #02619a',
-                    color: '#02619a',
-                    borderRadius: '50%',
-                    width: '48px',
-                    height: '48px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    transition: 'all 0.3s ease',
-                    zIndex: 10
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = '#02619a';
-                    e.target.style.color = '#ffffff';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = 'rgba(2, 97, 154, 0.1)';
-                    e.target.style.color = '#02619a';
-                  }}
-                >
-                  ›
-                </button>
-
-                {/* Carousel Container */}
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  gap: '20px',
-                  padding: '0 60px',
-                  minHeight: '400px'
-                }}>
-                  {[...Array(Math.min(3, galleryItems.length))].map((_, offset) => {
-                    if (galleryItems.length === 0) return null;
-                    const itemIndex = (carouselIndex + offset - 1 + galleryItems.length) % galleryItems.length;
-                    const item = galleryItems[itemIndex];
-                    const isCenter = offset === 1;
-                    
-                    if (!item) return null;
-                    
-                    return (
-                      <div
-                        key={`${item.id}-${offset}`}
-                        style={{
-                          flex: isCenter ? '0 0 380px' : '0 0 280px',
-                          height: isCenter ? '420px' : '320px',
-                          transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                          opacity: isCenter ? 1 : 0.6,
-                          transform: `scale(${isCenter ? 1 : 0.85})`,
-                          cursor: 'pointer'
-                        }}
-                        onClick={() => {
-                          if (!isCenter) {
-                            setCarouselIndex(itemIndex);
-                          }
-                        }}
-                      >
-                        <div
-                          className="card"
-                          style={{
-                            padding: '0',
-                            overflow: 'hidden',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            height: '100%',
-                            borderRadius: '16px',
-                            boxShadow: isCenter 
-                              ? '0 20px 40px rgba(10, 56, 91, 0.25)' 
-                              : '0 8px 16px rgba(10, 56, 91, 0.12)',
-                            border: isCenter ? '2px solid #e2e8f0' : '1px solid #e2e8f0',
-                            backgroundColor: '#ffffff',
-                            position: 'relative'
-                          }}
-                        >
-                          {/* Image Section */}
-                          <div
-                            style={{
-                              height: isCenter ? '260px' : '200px',
-                              backgroundColor: '#0a385b',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              position: 'relative',
-                              overflow: 'hidden',
-                              color: 'rgba(255,255,255,0.85)',
-                              flexShrink: 0
-                            }}
-                          >
-                            {item.images && item.images.length > 0 ? (
-                              <img
-                                src={item.images[0]}
-                                alt={item.title}
-                                style={{
-                                  width: '100%',
-                                  height: '100%',
-                                  objectFit: 'cover'
-                                }}
-                              />
-                            ) : (
-                              <Image size={isCenter ? 60 : 40} style={{ opacity: 0.6 }} />
-                            )}
-
-                            {/* Category Badge */}
-                            <span
-                              style={{
-                                position: 'absolute',
-                                top: '12px',
-                                right: '12px',
-                                backgroundColor: 'rgba(2, 97, 154, 0.9)',
-                                color: '#ffffff',
-                                fontSize: '11px',
-                                fontWeight: '700',
-                                padding: '6px 12px',
-                                borderRadius: '20px',
-                                pointerEvents: 'none'
-                              }}
-                            >
-                              {item.cat}
-                            </span>
-
-                            {/* Image Count Badge */}
-                            {item.images && item.images.length > 1 && (
-                              <span
-                                style={{
-                                  position: 'absolute',
-                                  bottom: '12px',
-                                  left: '12px',
-                                  backgroundColor: 'rgba(10, 56, 91, 0.85)',
-                                  color: '#ffffff',
-                                  fontSize: '11px',
-                                  fontWeight: '700',
-                                  padding: '6px 10px',
-                                  borderRadius: '6px',
-                                  pointerEvents: 'none'
-                                }}
-                              >
-                                📁 {item.images.length}
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Text Section */}
-                          <div
-                            style={{
-                              padding: isCenter ? '24px' : '18px',
-                              flex: 1,
-                              display: 'flex',
-                              flexDirection: 'column',
-                              justifyContent: 'space-between'
-                            }}
-                          >
-                            <div>
-                              <h3
-                                style={{
-                                  fontSize: isCenter ? '17px' : '15px',
-                                  color: '#0a385b',
-                                  marginBottom: '8px',
-                                  fontWeight: '700',
-                                  lineHeight: '1.4'
-                                }}
-                              >
-                                {item.title}
-                              </h3>
-                              {isCenter && (
-                                <p
-                                  style={{
-                                    fontSize: '13px',
-                                    color: '#64748b',
-                                    lineHeight: '1.5',
-                                    margin: 0
-                                  }}
-                                >
-                                  {item.text}
-                                </p>
-                              )}
-                            </div>
-
-                            {isCenter && item.images && item.images.length > 0 && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedImage(item);
-                                  setLightboxIndex(0);
-                                }}
-                                style={{
-                                  marginTop: '12px',
-                                  padding: '8px 16px',
-                                  backgroundColor: '#f0f4f8',
-                                  color: '#02619a',
-                                  border: '1px solid #cbd5e1',
-                                  borderRadius: '6px',
-                                  fontSize: '12px',
-                                  fontWeight: '600',
-                                  cursor: 'pointer',
-                                  transition: 'all 0.2s'
-                                }}
-                                onMouseEnter={(e) => {
-                                  e.target.style.backgroundColor = '#02619a';
-                                  e.target.style.color = '#ffffff';
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.target.style.backgroundColor = '#f0f4f8';
-                                  e.target.style.color = '#02619a';
-                                }}
-                              >
-                                View Photos
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Carousel Indicators */}
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    marginTop: '32px'
-                  }}
-                >
-                  {galleryItems.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setCarouselIndex(idx)}
-                      style={{
-                        width: carouselIndex === idx ? '28px' : '8px',
-                        height: '8px',
-                        borderRadius: '4px',
-                        backgroundColor: carouselIndex === idx ? '#02619a' : '#cbd5e1',
-                        border: 'none',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s ease'
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
+              <PhotoGalleryGrid
+                items={galleryItems}
+                onViewItem={(item) => {
+                  setSelectedImage(item);
+                  setLightboxIndex(0);
+                }}
+              />
             ) : (
               <div style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b' }}>
                 <Image size={48} style={{ opacity: 0.4, marginBottom: '16px' }} />
@@ -459,160 +765,24 @@ const Media = () => {
           </>
         )}
 
-        {/* News tab view - 3 Column Grid */}
+        {/* News tab view - Sliding Carousel */}
         {activeTab === 'news' && (
-          <div style={{
-            display: newsItems.length > 0 ? 'grid' : 'flex',
-            gridTemplateColumns: newsItems.length > 0 ? 'repeat(auto-fill, minmax(330px, 1fr))' : '1fr',
-            gap: '28px',
-            alignItems: newsItems.length > 0 ? 'start' : 'center',
-            justifyContent: newsItems.length > 0 ? 'auto' : 'center',
-            minHeight: newsItems.length === 0 ? '400px' : 'auto'
-          }}>
+          <>
             {newsItems.length > 0 ? (
-              newsItems.map((news) => (
-                <div
-                  key={news.id}
-                  className="card"
-                  style={{
-                    overflow: 'hidden',
-                    borderRadius: '14px',
-                    boxShadow: '0 4px 15px rgba(10, 56, 91, 0.1)',
-                    backgroundColor: '#ffffff',
-                    border: '1px solid #e2e8f0',
-                    transition: 'all 0.3s ease',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: '100%',
-                    cursor: 'pointer'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.boxShadow = '0 12px 28px rgba(10, 56, 91, 0.15)';
-                    e.currentTarget.style.transform = 'translateY(-4px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.boxShadow = '0 4px 15px rgba(10, 56, 91, 0.1)';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                  }}
-                >
-                  {/* Color Header / Cover Image */}
-                  <div
-                    style={{
-                      height: '140px',
-                      background: news.image ? 'none' : `linear-gradient(135deg, ${news.color} 0%, ${news.color}dd 100%)`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      position: 'relative',
-                      overflow: 'hidden'
-                    }}
-                  >
-                    {news.image ? (
-                      <img src={news.image} alt={news.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    ) : (
-                      <>
-                        <div
-                          style={{
-                            width: '80px',
-                            height: '80px',
-                            borderRadius: '50%',
-                            backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                            position: 'absolute',
-                            right: '-20px',
-                            top: '-20px'
-                          }}
-                        />
-                        <FileText size={48} color="#ffffff" style={{ opacity: 0.9 }} />
-                      </>
-                    )}
-                  </div>
-
-                  {/* Content */}
-                  <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                    {/* Metadata */}
-                    <div style={{ marginBottom: '12px' }}>
-                      <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '10px' }}>
-                        <span
-                          style={{
-                            fontSize: '11px',
-                            fontWeight: '700',
-                            color: '#ffffff',
-                            backgroundColor: news.color,
-                            padding: '4px 12px',
-                            borderRadius: '20px',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.5px'
-                          }}
-                        >
-                          {news.source}
-                        </span>
-                        <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '500' }}>{news.date}</span>
-                      </div>
-
-                      {/* Title */}
-                      <h3
-                        style={{
-                          fontSize: '16px',
-                          fontWeight: '700',
-                          color: '#0a385b',
-                          marginBottom: '10px',
-                          lineHeight: '1.5',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden'
-                        }}
-                      >
-                        {news.title}
-                      </h3>
-                    </div>
-
-                    {/* Description */}
-                    <p
-                      style={{
-                        fontSize: '13px',
-                        color: '#64748b',
-                        lineHeight: '1.6',
-                        marginBottom: '12px',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden'
-                      }}
-                    >
-                      {news.snippet}
-                    </p>
-
-                    {/* Read More Link */}
-                    <div
-                      style={{
-                        color: news.color,
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        marginTop: 'auto'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.gap = '8px';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.gap = '4px';
-                      }}
-                    >
-                      Learn more →
-                    </div>
-                  </div>
-                </div>
-              ))
+              <SlideCarousel
+                items={newsItems}
+                currentIndex={newsCarouselIndex}
+                onIndexChange={setNewsCarouselIndex}
+                variant="news"
+              />
             ) : (
-              <div style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b', flexDirection: 'column', display: 'flex', alignItems: 'center' }}>
+              <div style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b' }}>
                 <FileText size={48} style={{ opacity: 0.4, marginBottom: '16px' }} />
                 <p style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>No news updates yet</p>
                 <p style={{ fontSize: '14px' }}>Check back soon for the latest news and announcements</p>
               </div>
             )}
-          </div>
+          </>
         )}
 
         {/* Research Papers tab view */}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Linkedin, Users, Sparkles, ChevronRight } from 'lucide-react';
+import { Mail, Users, Sparkles, ChevronRight } from 'lucide-react';
 
 // ─── Page Header ──────────────────────────────────────────────────────────────
 const PageHeader = ({ title, subtitle }) => (

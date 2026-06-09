@@ -75,6 +75,8 @@ function App() {
           {/* Committee Routes */}
           <Route path="/faculties" element={<Execomm />} />
           <Route path="/execomm" element={<Execomm />} />
+          <Route path="/execomm/faculties" element={<Execomm />} />
+          <Route path="/execomm/students" element={<Execomm />} />
           <Route path="/committee" element={<Committees />} />
 
           {/* Events Routes */}

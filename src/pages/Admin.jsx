@@ -77,11 +77,30 @@ const Admin = () => {
   const [achievements, setAchievements] = useState([]);
 
   // Execomm CRUD State
-  const [counselor, setCounselor] = useState({
-    name: '', role: '', college: '', desc: '', email: '', linkedin: ''
-  });
-  const [execommMembers, setExecommMembers] = useState([]);
-  const [counselorSaved, setCounselorSaved] = useState(false);
+  // Execomm CRUD State
+  const [societies, setSocieties] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [execommSubTab, setExecommSubTab] = useState('faculties'); // 'faculties' | 'students'
+
+  // Modal Form Inputs: Societies (Faculties)
+  const [societyName, setSocietyName] = useState('');
+  const [fac1Name, setFac1Name] = useState('');
+  const [fac1Position, setFac1Position] = useState('');
+  const [fac1Phone, setFac1Phone] = useState('');
+  const [fac2Name, setFac2Name] = useState('');
+  const [fac2Position, setFac2Position] = useState('');
+  const [fac2Phone, setFac2Phone] = useState('');
+
+  // Modal Form Inputs: Students
+  const [studentName, setStudentName] = useState('');
+  const [studentDept, setStudentDept] = useState('');
+  const [studentYear, setStudentYear] = useState('');
+  const [studentIeeeNumber, setStudentIeeeNumber] = useState('');
+  const [studentPosition, setStudentPosition] = useState('');
+  const [studentSociety, setStudentSociety] = useState('IEEE KEC SB');
+  const [fac1Image, setFac1Image] = useState('');
+  const [fac2Image, setFac2Image] = useState('');
+  const [studentImage, setStudentImage] = useState('');
 
   // Committees CRUD State
   const [committees, setCommittees] = useState([]);
@@ -118,13 +137,7 @@ const Admin = () => {
   const [achDesc, setAchDesc] = useState('');
   const [achIconType, setAchIconType] = useState('trophy');
 
-  // Modal Form Inputs: Execomm Members
-  const [memberName, setMemberName] = useState('');
-  const [memberRole, setMemberRole] = useState('');
-  const [memberCategory, setMemberCategory] = useState('main');
-  const [memberDesc, setMemberDesc] = useState('');
-  const [memberEmail, setMemberEmail] = useState('');
-  const [memberLinkedin, setMemberLinkedin] = useState('');
+
 
   // Modal Form Inputs: Committees
   const [commName, setCommName] = useState('');
@@ -271,114 +284,135 @@ const Admin = () => {
     }
   ];
 
-  const defaultCounselor = {
-    name: "Dr. A. Sheela",
-    role: "IEEE KEC Student Branch Counselor",
-    college: "Kongu Engineering College",
-    desc: "Professor & Head, Department of Electrical & Electronics Engineering. Dr. Sheela guides the overall strategic direction of the IEEE Student Branch and operational societies.",
-    email: "sheela.eee@kongu.ac.in",
-    linkedin: "https://linkedin.com"
-  };
+  const defaultSocieties = [
+    {
+      id: 1,
+      name: "Computer Society (CS Society)",
+      faculty1: { name: "Dr. S. Varadhaganapathy", position: "Society Chairman", phone: "+91 98427 21111" },
+      faculty2: { name: "Dr. P. Natesan", position: "Society Vice Chairman", phone: "+91 98427 22222" }
+    },
+    {
+      id: 2,
+      name: "Robotics and Automation Society (RAS)",
+      faculty1: { name: "Dr. R. Murugesan", position: "Society Chairman", phone: "+91 98427 23333" },
+      faculty2: { name: "Mr. S. Albert Alexander", position: "Society Vice Chairman", phone: "+91 98427 24444" }
+    },
+    {
+      id: 3,
+      name: "Women in Engineering (WIE)",
+      faculty1: { name: "Dr. J. Premalatha", position: "Society Chairman", phone: "+91 98427 25555" },
+      faculty2: { name: "Dr. S. Kalaiselvi", position: "Society Vice Chairman", phone: "+91 98427 26666" }
+    },
+    {
+      id: 4,
+      name: "Power & Energy Society (PES)",
+      faculty1: { name: "Dr. N. Nithyadevi", position: "Society Chairman", phone: "+91 98427 27777" },
+      faculty2: { name: "Dr. A. Sheela", position: "Society Vice Chairman", phone: "+91 98427 28888" }
+    },
+    {
+      id: 5,
+      name: "Communications Society (ComSoc)",
+      faculty1: { name: "Dr. K. Senthil Kumar", position: "Society Chairman", phone: "+91 98427 29999" },
+      faculty2: { name: "Dr. G. Murugesan", position: "Society Vice Chairman", phone: "+91 98427 20000" }
+    },
+    {
+      id: 6,
+      name: "AP-S (Antennas and Propagation Society)",
+      faculty1: { name: "Dr. T. Meeradevi", position: "Society Chairman", phone: "+91 98427 21122" },
+      faculty2: { name: "Dr. K. Albert", position: "Society Vice Chairman", phone: "+91 98427 33344" }
+    }
+  ];
 
-  const defaultMembers = [
+  const defaultStudents = [
     {
       id: 1,
       name: "Abhishek M.",
-      role: "Student Branch Chair",
-      category: "main",
-      desc: "Steers KEC Student Branch activities, ensuring technical exposure and volunteer training for all members.",
-      email: "abhishek.ieee@kec.ac.in",
-      linkedin: "https://linkedin.com"
+      department: "Computer Science and Engineering",
+      yearOfStudy: "IV",
+      ieeeNumber: "92837482",
+      position: "Chairman",
+      society: "IEEE KEC SB"
     },
     {
       id: 2,
       name: "Sneha R.",
-      role: "Student Branch Vice Chair",
-      category: "main",
-      desc: "Coordinates inter-departmental collaborations and manages event execution operations.",
-      email: "sneha.ieee@kec.ac.in",
-      linkedin: "https://linkedin.com"
+      department: "Electronics and Communication Engineering",
+      yearOfStudy: "IV",
+      ieeeNumber: "92837483",
+      position: "Vice Chairman",
+      society: "IEEE KEC SB"
     },
     {
       id: 3,
-      name: "Harish K.",
-      role: "Student Secretary",
-      category: "main",
-      desc: "Manages correspondence, documents meetings, and oversees the branch documentation archive.",
-      email: "harish.ieee@kec.ac.in",
-      linkedin: "https://linkedin.com"
+      name: "Karthik Raja V.",
+      department: "Electrical and Electronics Engineering",
+      yearOfStudy: "IV",
+      ieeeNumber: "92837484",
+      position: "Society Chairman",
+      society: "Computer Society (CS Society)"
     },
     {
       id: 4,
-      name: "Naveen S.",
-      role: "Student Treasurer",
-      category: "main",
-      desc: "Handles financial planning, seed funding requests, and audits event budgets.",
-      email: "naveen.ieee@kec.ac.in",
-      linkedin: "https://linkedin.com"
+      name: "Priyanka S.",
+      department: "Information Technology",
+      yearOfStudy: "IV",
+      ieeeNumber: "92837485",
+      position: "Society Vice Chairman",
+      society: "Women in Engineering (WIE)"
     },
     {
       id: 5,
-      name: "Dharini P.",
-      role: "Student Webmaster",
-      category: "main",
-      desc: "Maintains digital branch platforms, handles portals, and manages online publications.",
-      email: "dharini.ieee@kec.ac.in",
-      linkedin: "https://linkedin.com"
+      name: "Harish K.",
+      department: "Electronics and Instrumentation Engineering",
+      yearOfStudy: "III",
+      ieeeNumber: "92837486",
+      position: "Additional Secretary",
+      society: "IEEE KEC SB"
     },
     {
       id: 6,
-      name: "Karthik Raja V.",
-      role: "SPS Student Chapter Chair",
-      category: "sps",
-      desc: "Organizes training programs and lectures on digital signal, speech, and image processing.",
-      email: "karthik.sps@kec.ac.in",
-      linkedin: "https://linkedin.com"
+      name: "Naveen S.",
+      department: "Mechanical Engineering",
+      yearOfStudy: "III",
+      ieeeNumber: "92837487",
+      position: "Joint Secretary",
+      society: "IEEE KEC SB"
     },
     {
       id: 7,
-      name: "Priyanka S.",
-      role: "SPS Vice Chair",
-      category: "sps",
-      desc: "Coordinates labs and design reviews for signal processing projects under KEC SRC.",
-      email: "priyanka.sps@kec.ac.in",
-      linkedin: "https://linkedin.com"
+      name: "Dharini P.",
+      department: "Computer Science and Engineering",
+      yearOfStudy: "III",
+      ieeeNumber: "92837488",
+      position: "Web Team Chairman",
+      society: "IEEE KEC SB"
     },
     {
       id: 8,
-      name: "Anand M.",
-      role: "SPS Secretary",
-      category: "sps",
-      desc: "Handles documentation and communication for all Signal Processing Society events.",
-      email: "anand.sps@kec.ac.in",
-      linkedin: "https://linkedin.com"
+      name: "Arun Kumar S.",
+      department: "Chemical Engineering",
+      yearOfStudy: "III",
+      ieeeNumber: "92837489",
+      position: "Event Team Chairman",
+      society: "IEEE KEC SB"
     },
     {
       id: 9,
-      name: "Shruthi G.",
-      role: "WIE Affinity Group Chair",
-      category: "wie",
-      desc: "Leads mentorship and development programs for female students, promoting STEM pathways.",
-      email: "shruthi.wie@kec.ac.in",
-      linkedin: "https://linkedin.com"
+      name: "Divya K.",
+      department: "Food Technology",
+      yearOfStudy: "II",
+      ieeeNumber: "92837490",
+      position: "Office Bearer",
+      society: "Women in Engineering (WIE)"
     },
     {
       id: 10,
-      name: "Divya K.",
-      role: "WIE Vice Chair",
-      category: "wie",
-      desc: "Coordinates programming workshops, leadership meetups, and community coding sessions.",
-      email: "divya.wie@kec.ac.in",
-      linkedin: "https://linkedin.com"
-    },
-    {
-      id: 11,
       name: "Kavya R.",
-      role: "WIE Secretary",
-      category: "wie",
-      desc: "Maintains student branch WIE records and manages publicity for gender empowerment events.",
-      email: "kavya.wie@kec.ac.in",
-      linkedin: "https://linkedin.com"
+      department: "Electronics and Communication Engineering",
+      yearOfStudy: "II",
+      ieeeNumber: "92837491",
+      position: "Member",
+      society: "Robotics and Automation Society (RAS)"
     }
   ];
 
@@ -548,22 +582,22 @@ const Admin = () => {
       setAchievements(defaultAchievements);
     }
 
-    // Load Execomm Counselor
-    const storedCounselor = localStorage.getItem('ieee_execomm_counselor');
-    if (storedCounselor) {
-      setCounselor(JSON.parse(storedCounselor));
+    // Load Execomm Societies
+    const storedSocieties = localStorage.getItem('ieee_execomm_societies');
+    if (storedSocieties) {
+      setSocieties(JSON.parse(storedSocieties));
     } else {
-      localStorage.setItem('ieee_execomm_counselor', JSON.stringify(defaultCounselor));
-      setCounselor(defaultCounselor);
+      localStorage.setItem('ieee_execomm_societies', JSON.stringify(defaultSocieties));
+      setSocieties(defaultSocieties);
     }
 
-    // Load Execomm Members
-    const storedMembers = localStorage.getItem('ieee_execomm_members');
-    if (storedMembers) {
-      setExecommMembers(JSON.parse(storedMembers));
+    // Load Execomm Students
+    const storedStudents = localStorage.getItem('ieee_execomm_students');
+    if (storedStudents) {
+      setStudents(JSON.parse(storedStudents));
     } else {
-      localStorage.setItem('ieee_execomm_members', JSON.stringify(defaultMembers));
-      setExecommMembers(defaultMembers);
+      localStorage.setItem('ieee_execomm_students', JSON.stringify(defaultStudents));
+      setStudents(defaultStudents);
     }
 
     // Load Committees
@@ -691,13 +725,7 @@ const Admin = () => {
     setTimeout(() => setStatsSaved(false), 3000);
   };
 
-  // Counselor Save
-  const handleSaveCounselor = (e) => {
-    e.preventDefault();
-    localStorage.setItem('ieee_execomm_counselor', JSON.stringify(counselor));
-    setCounselorSaved(true);
-    setTimeout(() => setCounselorSaved(false), 3000);
-  };
+
 
   // Images upload compression
   const handleImagesUpload = async (e) => {
@@ -755,13 +783,24 @@ const Admin = () => {
       setAchCategory('');
       setAchDesc('');
       setAchIconType('trophy');
-    } else if (type === 'member') {
-      setMemberName('');
-      setMemberRole('');
-      setMemberCategory('main');
-      setMemberDesc('');
-      setMemberEmail('');
-      setMemberLinkedin('https://linkedin.com');
+    } else if (type === 'society') {
+      setSocietyName('');
+      setFac1Name('');
+      setFac1Position('');
+      setFac1Phone('');
+      setFac1Image('');
+      setFac2Name('');
+      setFac2Position('');
+      setFac2Phone('');
+      setFac2Image('');
+    } else if (type === 'student') {
+      setStudentName('');
+      setStudentDept('');
+      setStudentYear('III');
+      setStudentIeeeNumber('');
+      setStudentPosition('Member');
+      setStudentSociety('IEEE KEC SB');
+      setStudentImage('');
     } else if (type === 'committee') {
       setCommName('');
       setCommDesc('');
@@ -814,13 +853,24 @@ const Admin = () => {
       setAchCategory(item.category);
       setAchDesc(item.desc);
       setAchIconType(item.iconType);
-    } else if (type === 'member') {
-      setMemberName(item.name);
-      setMemberRole(item.role);
-      setMemberCategory(item.category);
-      setMemberDesc(item.desc);
-      setMemberEmail(item.email);
-      setMemberLinkedin(item.linkedin);
+    } else if (type === 'society') {
+      setSocietyName(item.name || '');
+      setFac1Name(item.faculty1?.name || '');
+      setFac1Position(item.faculty1?.position || '');
+      setFac1Phone(item.faculty1?.phone || '');
+      setFac1Image(item.faculty1?.image || '');
+      setFac2Name(item.faculty2?.name || '');
+      setFac2Position(item.faculty2?.position || '');
+      setFac2Phone(item.faculty2?.phone || '');
+      setFac2Image(item.faculty2?.image || '');
+    } else if (type === 'student') {
+      setStudentName(item.name || '');
+      setStudentDept(item.department || '');
+      setStudentYear(item.yearOfStudy || '');
+      setStudentIeeeNumber(item.ieeeNumber || '');
+      setStudentPosition(item.position || '');
+      setStudentSociety(item.society || 'IEEE KEC SB');
+      setStudentImage(item.image || '');
     } else if (type === 'committee') {
       setCommName(item.name);
       setCommDesc(item.desc);
@@ -865,16 +915,14 @@ const Admin = () => {
       const updated = achievements.filter(item => item.id !== id);
       setAchievements(updated);
       localStorage.setItem('ieee_achievements', JSON.stringify(updated));
-    } else if (type === 'member') {
-      const updated = execommMembers.filter(item => item.id !== id);
-      setExecommMembers(updated);
-      localStorage.setItem('ieee_execomm_members', JSON.stringify(updated));
-      
-      // Decrement member count when a member is deleted
-      const currentCount = parseInt(memberCount) || 0;
-      const newCount = Math.max(currentCount - 1, 0);
-      setMemberCount(newCount.toString());
-      localStorage.setItem('ieee_member_count', newCount.toString());
+    } else if (type === 'society') {
+      const updated = societies.filter(item => item.id !== id);
+      setSocieties(updated);
+      localStorage.setItem('ieee_execomm_societies', JSON.stringify(updated));
+    } else if (type === 'student') {
+      const updated = students.filter(item => item.id !== id);
+      setStudents(updated);
+      localStorage.setItem('ieee_execomm_students', JSON.stringify(updated));
     } else if (type === 'committee') {
       const updated = committees.filter(item => item.id !== id);
       setCommittees(updated);
@@ -987,35 +1035,65 @@ const Admin = () => {
       setAchievements(updated);
       localStorage.setItem('ieee_achievements', JSON.stringify(updated));
 
-    } else if (modalType === 'member') {
-      if (!memberName.trim() || !memberRole.trim() || !memberDesc.trim()) return;
+    } else if (modalType === 'society') {
+      if (!societyName.trim()) return;
       let updated = [];
       if (modalMode === 'add') {
         const newItem = {
-          id: execommMembers.length > 0 ? Math.max(...execommMembers.map(i => i.id)) + 1 : 1,
-          name: memberName,
-          role: memberRole,
-          category: memberCategory,
-          desc: memberDesc,
-          email: memberEmail,
-          linkedin: memberLinkedin
+          id: societies.length > 0 ? Math.max(...societies.map(i => i.id)) + 1 : 1,
+          name: societyName,
+          faculty1: { name: fac1Name, position: fac1Position, phone: fac1Phone, image: fac1Image },
+          faculty2: { name: fac2Name, position: fac2Position, phone: fac2Phone, image: fac2Image }
         };
-        updated = [...execommMembers, newItem];
-        
-        // Increment member count when a new member is added
-        const currentCount = parseInt(memberCount) || 0;
-        const newCount = currentCount + 1;
-        setMemberCount(newCount.toString());
-        localStorage.setItem('ieee_member_count', newCount.toString());
+        updated = [...societies, newItem];
       } else {
-        updated = execommMembers.map(item =>
+        updated = societies.map(item =>
           item.id === currentItemId
-            ? { ...item, name: memberName, role: memberRole, category: memberCategory, desc: memberDesc, email: memberEmail, linkedin: memberLinkedin }
+            ? {
+                ...item,
+                name: societyName,
+                faculty1: { name: fac1Name, position: fac1Position, phone: fac1Phone, image: fac1Image },
+                faculty2: { name: fac2Name, position: fac2Position, phone: fac2Phone, image: fac2Image }
+              }
             : item
         );
       }
-      setExecommMembers(updated);
-      localStorage.setItem('ieee_execomm_members', JSON.stringify(updated));
+      setSocieties(updated);
+      localStorage.setItem('ieee_execomm_societies', JSON.stringify(updated));
+
+    } else if (modalType === 'student') {
+      if (!studentName.trim() || !studentDept.trim() || !studentYear.trim() || !studentIeeeNumber.trim() || !studentPosition.trim()) return;
+      let updated = [];
+      if (modalMode === 'add') {
+        const newItem = {
+          id: students.length > 0 ? Math.max(...students.map(i => i.id)) + 1 : 1,
+          name: studentName,
+          department: studentDept,
+          yearOfStudy: studentYear,
+          ieeeNumber: studentIeeeNumber,
+          position: studentPosition,
+          society: studentSociety,
+          image: studentImage
+        };
+        updated = [...students, newItem];
+      } else {
+        updated = students.map(item =>
+          item.id === currentItemId
+            ? {
+                ...item,
+                name: studentName,
+                department: studentDept,
+                yearOfStudy: studentYear,
+                ieeeNumber: studentIeeeNumber,
+                position: studentPosition,
+                society: studentSociety,
+                image: studentImage
+              }
+            : item
+        );
+      }
+      setStudents(updated);
+      localStorage.setItem('ieee_execomm_students', JSON.stringify(updated));
 
     } else if (modalType === 'committee') {
       if (!commName.trim() || !commDesc.trim() || !commLead.trim() || !commCoLead.trim()) return;
@@ -1895,185 +1973,262 @@ const Admin = () => {
           </div>
         )}
 
-        {/* Tab 5: Execomm (Counselor Profile & Student Leaders list) */}
+        {/* Tab 5: Execomm (Societies & Students Management) */}
         {activeTab === 'execomm' && (
-          <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
-            {/* Counselor Edit Form Card */}
-            <div className="card" style={{ padding: '30px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-              <h2 style={{ fontSize: '18px', color: '#0a385b', fontWeight: '800', marginBottom: '6px' }}>Manage Branch Counselor</h2>
-              <p style={{ color: '#64748b', fontSize: '13px', marginBottom: '20px' }}>Updates the faculty details featured under the Counselor spotlight segment.</p>
-              
-              {counselorSaved && (
-                <div style={{ padding: '10px 14px', backgroundColor: '#dcfce7', color: '#15803d', borderRadius: '8px', fontSize: '13.5px', fontWeight: '600', marginBottom: '16px', border: '1px solid #bbf7d0' }}>
-                  ✅ Counselor profile updated successfully!
-                </div>
-              )}
+          <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+            {/* Sub-tab selection */}
+            <div style={{ display: 'flex', gap: '10px', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px' }}>
+              <button
+                onClick={() => setExecommSubTab('faculties')}
+                style={{
+                  padding: '8px 16px',
+                  fontSize: '13.5px',
+                  fontWeight: '700',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  backgroundColor: execommSubTab === 'faculties' ? '#0a385b' : '#f1f5f9',
+                  color: execommSubTab === 'faculties' ? '#ffffff' : '#475569',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                Faculties (Societies)
+              </button>
+              <button
+                onClick={() => setExecommSubTab('students')}
+                style={{
+                  padding: '8px 16px',
+                  fontSize: '13.5px',
+                  fontWeight: '700',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  backgroundColor: execommSubTab === 'students' ? '#0a385b' : '#f1f5f9',
+                  color: execommSubTab === 'students' ? '#ffffff' : '#475569',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                Students
+              </button>
+            </div>
 
-              <form onSubmit={handleSaveCounselor} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '4px' }}>Counselor Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={counselor.name}
-                    onChange={(e) => setCounselor({ ...counselor, name: e.target.value })}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '4px' }}>Role / Designation</label>
-                  <input
-                    type="text"
-                    required
-                    value={counselor.role}
-                    onChange={(e) => setCounselor({ ...counselor, role: e.target.value })}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '4px' }}>College</label>
-                  <input
-                    type="text"
-                    required
-                    value={counselor.college}
-                    onChange={(e) => setCounselor({ ...counselor, college: e.target.value })}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '4px' }}>Email</label>
-                  <input
-                    type="email"
-                    required
-                    value={counselor.email}
-                    onChange={(e) => setCounselor({ ...counselor, email: e.target.value })}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '4px' }}>Linkedin Handle</label>
-                  <input
-                    type="text"
-                    required
-                    value={counselor.linkedin}
-                    onChange={(e) => setCounselor({ ...counselor, linkedin: e.target.value })}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }}
-                  />
-                </div>
-                <div style={{ gridColumn: 'span 2' }}>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '4px' }}>Bio / Description</label>
-                  <textarea
-                    required
-                    rows="3"
-                    value={counselor.desc}
-                    onChange={(e) => setCounselor({ ...counselor, desc: e.target.value })}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px', resize: 'none', fontFamily: 'inherit' }}
-                  />
-                </div>
-                <div>
+            {execommSubTab === 'faculties' && (
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '16px' }}>
+                  <div>
+                    <h2 style={{ fontSize: '18px', color: '#0a385b', fontWeight: '800' }}>Manage Societies (Faculties)</h2>
+                    <p style={{ color: '#64748b', fontSize: '13px', marginTop: '2px' }}>List of operational IEEE societies and their faculty in-charges (Total: {societies.length})</p>
+                  </div>
                   <button
-                    type="submit"
-                    style={{ backgroundColor: '#02619a', color: '#ffffff', border: 'none', borderRadius: '6px', padding: '10px 24px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}
-                    className="admin-save-btn"
+                    onClick={() => openAddModal('society')}
+                    style={{
+                      backgroundColor: '#02619a',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '30px',
+                      padding: '8px 18px',
+                      fontSize: '13px',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      boxShadow: '0 4px 12px rgba(2,97,154,0.15)'
+                    }}
+                    className="admin-add-btn"
                   >
-                    Save Counselor Profile
+                    <Plus size={14} /> Add Society
                   </button>
                 </div>
-              </form>
-            </div>
 
-            {/* Execomm Members Table CRUD */}
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '16px' }}>
-                <div>
-                  <h2 style={{ fontSize: '18px', color: '#0a385b', fontWeight: '800' }}>Manage Student Office Bearers</h2>
-                  <p style={{ color: '#64748b', fontSize: '13px', marginTop: '2px' }}>List of branch and society student leaders (Total: {execommMembers.length})</p>
-                </div>
-                <button
-                  onClick={() => openAddModal('member')}
-                  style={{
-                    backgroundColor: '#02619a',
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: '30px',
-                    padding: '8px 18px',
-                    fontSize: '13px',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    boxShadow: '0 4px 12px rgba(2,97,154,0.15)'
-                  }}
-                  className="admin-add-btn"
-                >
-                  <Plus size={14} /> Add Leader Profile
-                </button>
-              </div>
-
-              <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
-                    <thead>
-                      <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '1px solid #cbd5e1' }}>
-                        <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Society Category</th>
-                        <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Name</th>
-                        <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Role / Designation</th>
-                        <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Email & Socials</th>
-                        <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', textAlign: 'center' }}>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {execommMembers.map((item, idx) => (
-                        <tr key={item.id} style={{ borderBottom: idx < execommMembers.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
-                          <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
-                            <span style={{
-                              padding: '4px 10px',
-                              backgroundColor: item.category === 'main' ? '#eff6ff' : item.category === 'sps' ? '#f0fdf4' : '#fdf2f8',
-                              color: item.category === 'main' ? '#1d4ed8' : item.category === 'sps' ? '#15803d' : '#be185d',
-                              borderRadius: '4px',
-                              fontSize: '11px',
-                              fontWeight: '800',
-                              textTransform: 'uppercase'
-                            }}>
-                              {item.category === 'main' ? 'Branch SB' : item.category === 'sps' ? 'SPS Chapter' : 'WIE Affinity'}
-                            </span>
-                          </td>
-                          <td style={{ padding: '16px 20px', fontWeight: '600', color: '#0a385b', verticalAlign: 'middle' }}>
-                            {item.name}
-                          </td>
-                          <td style={{ padding: '16px 20px', color: '#475569', fontWeight: '500', verticalAlign: 'middle' }}>
-                            {item.role}
-                          </td>
-                          <td style={{ padding: '16px 20px', color: '#64748b', fontSize: '13px', verticalAlign: 'middle' }}>
-                            <div>📧 {item.email}</div>
-                            <div>🔗 <a href={item.linkedin} target="_blank" rel="noopener noreferrer" style={{ color: '#02619a', textDecoration: 'none' }}>LinkedIn Profile</a></div>
-                          </td>
-                          <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center', width: '130px' }}>
-                            <div style={{ display: 'inline-flex', gap: '8px' }}>
-                              <button
-                                onClick={() => openEditModal('member', item)}
-                                style={{ color: '#02619a', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
-                                className="action-btn-hover-edit"
-                              >
-                                <Edit3 size={15} />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteItem('member', item.id)}
-                                style={{ color: '#ef4444', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
-                                className="action-btn-hover-delete"
-                              >
-                                <Trash2 size={15} />
-                              </button>
-                            </div>
-                          </td>
+                <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+                      <thead>
+                        <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '1px solid #cbd5e1' }}>
+                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Society Name</th>
+                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Faculty In-Charge 1</th>
+                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Faculty In-Charge 2</th>
+                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', textAlign: 'center' }}>Actions</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {societies.map((item, idx) => (
+                          <tr key={item.id} style={{ borderBottom: idx < societies.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
+                            <td style={{ padding: '16px 20px', fontWeight: '600', color: '#0a385b', verticalAlign: 'middle', minWidth: '180px' }}>
+                              {item.name}
+                            </td>
+                            <td style={{ padding: '16px 20px', color: '#475569', fontSize: '13px', verticalAlign: 'middle' }}>
+                              {item.faculty1 ? (
+                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                  {item.faculty1.image ? (
+                                    <img src={item.faculty1.image} alt={item.faculty1.name} style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover' }} />
+                                  ) : (
+                                    <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1e40af', fontWeight: 'bold', fontSize: '12px', flexShrink: 0 }}>
+                                      {item.faculty1.name ? item.faculty1.name.charAt(0) : '?'}
+                                    </div>
+                                  )}
+                                  <div>
+                                    <div style={{ fontWeight: '700', color: '#0f172a' }}>{item.faculty1.name}</div>
+                                    <div style={{ color: '#02619a', fontWeight: '600', fontSize: '11px', textTransform: 'uppercase' }}>{item.faculty1.position}</div>
+                                    <div style={{ color: '#64748b' }}>📞 {item.faculty1.phone}</div>
+                                  </div>
+                                </div>
+                              ) : 'N/A'}
+                            </td>
+                            <td style={{ padding: '16px 20px', color: '#475569', fontSize: '13px', verticalAlign: 'middle' }}>
+                              {item.faculty2 ? (
+                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                  {item.faculty2.image ? (
+                                    <img src={item.faculty2.image} alt={item.faculty2.name} style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover' }} />
+                                  ) : (
+                                    <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1e40af', fontWeight: 'bold', fontSize: '12px', flexShrink: 0 }}>
+                                      {item.faculty2.name ? item.faculty2.name.charAt(0) : '?'}
+                                    </div>
+                                  )}
+                                  <div>
+                                    <div style={{ fontWeight: '700', color: '#0f172a' }}>{item.faculty2.name}</div>
+                                    <div style={{ color: '#02619a', fontWeight: '600', fontSize: '11px', textTransform: 'uppercase' }}>{item.faculty2.position}</div>
+                                    <div style={{ color: '#64748b' }}>📞 {item.faculty2.phone}</div>
+                                  </div>
+                                </div>
+                              ) : 'N/A'}
+                            </td>
+                            <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center', width: '130px' }}>
+                              <div style={{ display: 'inline-flex', gap: '8px' }}>
+                                <button
+                                  onClick={() => openEditModal('society', item)}
+                                  style={{ color: '#02619a', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
+                                  className="action-btn-hover-edit"
+                                >
+                                  <Edit3 size={15} />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteItem('society', item.id)}
+                                  style={{ color: '#ef4444', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
+                                  className="action-btn-hover-delete"
+                                >
+                                  <Trash2 size={15} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
+
+            {execommSubTab === 'students' && (
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '16px' }}>
+                  <div>
+                    <h2 style={{ fontSize: '18px', color: '#0a385b', fontWeight: '800' }}>Manage Student Records</h2>
+                    <p style={{ color: '#64748b', fontSize: '13px', marginTop: '2px' }}>List of student members and officers (Total: {students.length})</p>
+                  </div>
+                  <button
+                    onClick={() => openAddModal('student')}
+                    style={{
+                      backgroundColor: '#02619a',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '30px',
+                      padding: '8px 18px',
+                      fontSize: '13px',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      boxShadow: '0 4px 12px rgba(2,97,154,0.15)'
+                    }}
+                    className="admin-add-btn"
+                  >
+                    <Plus size={14} /> Add Student Record
+                  </button>
+                </div>
+
+                <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+                      <thead>
+                        <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '1px solid #cbd5e1' }}>
+                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Name</th>
+                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Department</th>
+                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', textAlign: 'center' }}>Year of Study</th>
+                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>IEEE Membership Number</th>
+                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Position</th>
+                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Society</th>
+                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', textAlign: 'center' }}>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {students.map((item, idx) => (
+                          <tr key={item.id} style={{ borderBottom: idx < students.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
+                            <td style={{ padding: '16px 20px', fontWeight: '600', color: '#0a385b', verticalAlign: 'middle' }}>
+                              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                {item.image ? (
+                                  <img src={item.image} alt={item.name} style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover' }} />
+                                ) : (
+                                  <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1e40af', fontWeight: 'bold', fontSize: '12px', flexShrink: 0 }}>
+                                    {item.name ? item.name.charAt(0) : '?'}
+                                  </div>
+                                )}
+                                <span>{item.name}</span>
+                              </div>
+                            </td>
+                            <td style={{ padding: '16px 20px', color: '#475569', verticalAlign: 'middle' }}>
+                              {item.department}
+                            </td>
+                            <td style={{ padding: '16px 20px', color: '#475569', verticalAlign: 'middle', textAlign: 'center' }}>
+                              {item.yearOfStudy}
+                            </td>
+                            <td style={{ padding: '16px 20px', color: '#475569', verticalAlign: 'middle' }}>
+                              {item.ieeeNumber}
+                            </td>
+                            <td style={{ padding: '16px 20px', color: '#02619a', fontWeight: '600', verticalAlign: 'middle' }}>
+                              {item.position}
+                            </td>
+                            <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                              <span style={{
+                                padding: '4px 10px',
+                                backgroundColor: '#eff6ff',
+                                color: '#1e40af',
+                                borderRadius: '4px',
+                                fontSize: '11px',
+                                fontWeight: '800'
+                              }}>
+                                {item.society}
+                              </span>
+                            </td>
+                            <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center', width: '130px' }}>
+                              <div style={{ display: 'inline-flex', gap: '8px' }}>
+                                <button
+                                  onClick={() => openEditModal('student', item)}
+                                  style={{ color: '#02619a', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
+                                  className="action-btn-hover-edit"
+                                >
+                                  <Edit3 size={15} />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteItem('student', item.id)}
+                                  style={{ color: '#ef4444', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
+                                  className="action-btn-hover-delete"
+                                >
+                                  <Trash2 size={15} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -2646,84 +2801,232 @@ const Admin = () => {
                 </>
               )}
 
-              {/* Conditional Form: Execomm Members */}
-              {modalType === 'member' && (
-                <>
-                  <div style={{ display: 'flex', gap: '16px' }}>
-                    <div style={{ flex: 1 }}>
-                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Student Name</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. Sneha R."
-                        value={memberName}
-                        onChange={(e) => setMemberName(e.target.value)}
-                        style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
-                      />
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Committee Category</label>
-                      <select
-                        value={memberCategory}
-                        onChange={(e) => setMemberCategory(e.target.value)}
-                        style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px', backgroundColor: '#ffffff' }}
-                      >
-                        <option value="main">Main Branch SB</option>
-                        <option value="sps">SPS Student Chapter</option>
-                        <option value="wie">WIE Affinity Group</option>
-                      </select>
-                    </div>
-                  </div>
-
+              {/* Conditional Form: Societies (Faculties) */}
+              {modalType === 'society' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: '60vh', overflowY: 'auto', paddingRight: '4px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Role / Designation</label>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Society Name</label>
                     <input
                       type="text"
                       required
-                      placeholder="e.g. Student Branch Vice Chair"
-                      value={memberRole}
-                      onChange={(e) => setMemberRole(e.target.value)}
+                      placeholder="e.g. Computer Society (CS Society)"
+                      value={societyName}
+                      onChange={(e) => setSocietyName(e.target.value)}
                       style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
                     />
                   </div>
 
+                  <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px', backgroundColor: '#f8fafc' }}>
+                    <h4 style={{ fontSize: '13px', fontWeight: '800', color: '#0a385b', marginTop: 0, marginBottom: '10px', textTransform: 'uppercase' }}>Faculty In-Charge 1</h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Name"
+                        value={fac1Name}
+                        onChange={(e) => setFac1Name(e.target.value)}
+                        style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13.5px' }}
+                      />
+                      <input
+                        type="text"
+                        required
+                        placeholder="Position (e.g. Society Chairman)"
+                        value={fac1Position}
+                        onChange={(e) => setFac1Position(e.target.value)}
+                        style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13.5px' }}
+                      />
+                      <input
+                        type="text"
+                        required
+                        placeholder="Phone Number"
+                        value={fac1Phone}
+                        onChange={(e) => setFac1Phone(e.target.value)}
+                        style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13.5px' }}
+                      />
+                      <div>
+                        <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Profile Image</label>
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                          {fac1Image && <img src={fac1Image} alt="Fac 1 Preview" style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files[0];
+                              if (file) {
+                                try {
+                                  const base64 = await compressImage(file);
+                                  setFac1Image(base64);
+                                } catch (err) {
+                                  console.error("Compression error:", err);
+                                }
+                              }
+                            }}
+                            style={{ fontSize: '12px' }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px', backgroundColor: '#f8fafc' }}>
+                    <h4 style={{ fontSize: '13px', fontWeight: '800', color: '#0a385b', marginTop: 0, marginBottom: '10px', textTransform: 'uppercase' }}>Faculty In-Charge 2</h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Name"
+                        value={fac2Name}
+                        onChange={(e) => setFac2Name(e.target.value)}
+                        style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13.5px' }}
+                      />
+                      <input
+                        type="text"
+                        required
+                        placeholder="Position (e.g. Society Vice Chairman)"
+                        value={fac2Position}
+                        onChange={(e) => setFac2Position(e.target.value)}
+                        style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13.5px' }}
+                      />
+                      <input
+                        type="text"
+                        required
+                        placeholder="Phone Number"
+                        value={fac2Phone}
+                        onChange={(e) => setFac2Phone(e.target.value)}
+                        style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13.5px' }}
+                      />
+                      <div>
+                        <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Profile Image</label>
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                          {fac2Image && <img src={fac2Image} alt="Fac 2 Preview" style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files[0];
+                              if (file) {
+                                try {
+                                  const base64 = await compressImage(file);
+                                  setFac2Image(base64);
+                                } catch (err) {
+                                  console.error("Compression error:", err);
+                                }
+                              }
+                            }}
+                            style={{ fontSize: '12px' }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Conditional Form: Students */}
+              {modalType === 'student' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Role Description</label>
-                    <textarea
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Full Name</label>
+                    <input
+                      type="text"
                       required
-                      rows="3"
-                      placeholder="Detail their contributions, responsibilities, or bio..."
-                      value={memberDesc}
-                      onChange={(e) => setMemberDesc(e.target.value)}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px', resize: 'none', fontFamily: 'inherit' }}
+                      placeholder="e.g. Sneha R."
+                      value={studentName}
+                      onChange={(e) => setStudentName(e.target.value)}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
                     />
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <div>
-                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '4px', textTransform: 'uppercase' }}>Email</label>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Department</label>
                       <input
-                        type="email"
+                        type="text"
                         required
-                        placeholder="e.g. name.ieee@kec.ac.in"
-                        value={memberEmail}
-                        onChange={(e) => setMemberEmail(e.target.value)}
+                        placeholder="e.g. Computer Science"
+                        value={studentDept}
+                        onChange={(e) => setStudentDept(e.target.value)}
                         style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
                       />
                     </div>
                     <div>
-                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '4px', textTransform: 'uppercase' }}>LinkedIn URL</label>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Year of Study</label>
+                      <select
+                        value={studentYear}
+                        onChange={(e) => setStudentYear(e.target.value)}
+                        style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px', backgroundColor: '#ffffff' }}
+                      >
+                        <option value="">Select Year</option>
+                        <option value="I">I</option>
+                        <option value="II">II</option>
+                        <option value="III">III</option>
+                        <option value="IV">IV</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>IEEE Membership Number</label>
                       <input
                         type="text"
                         required
-                        placeholder="https://linkedin.com/..."
-                        value={memberLinkedin}
-                        onChange={(e) => setMemberLinkedin(e.target.value)}
+                        placeholder="e.g. 92837482"
+                        value={studentIeeeNumber}
+                        onChange={(e) => setStudentIeeeNumber(e.target.value)}
+                        style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Position</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Chairman, Society Chairman..."
+                        value={studentPosition}
+                        onChange={(e) => setStudentPosition(e.target.value)}
                         style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
                       />
                     </div>
                   </div>
-                </>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Society</label>
+                    <select
+                      value={studentSociety}
+                      onChange={(e) => setStudentSociety(e.target.value)}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px', backgroundColor: '#ffffff' }}
+                    >
+                      <option value="IEEE KEC SB">IEEE KEC SB</option>
+                      {societies.map((s) => (
+                        <option key={s.id} value={s.name}>{s.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Profile Image</label>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                      {studentImage && <img src={studentImage} alt="Student Preview" style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover' }} />}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={async (e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            try {
+                              const base64 = await compressImage(file);
+                              setStudentImage(base64);
+                            } catch (err) {
+                              console.error("Compression error:", err);
+                            }
+                          }
+                        }}
+                        style={{ width: '100%', fontSize: '13px' }}
+                      />
+                    </div>
+                  </div>
+                </div>
               )}
 
               {/* Conditional Form: Committees */}

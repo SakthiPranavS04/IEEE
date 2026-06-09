@@ -34,9 +34,8 @@ const Navbar = () => {
     {
       name: 'Execomm',
       items: [
-        { name: 'IEEE KEC SB', link: '/execomm' },
-        { name: 'IEEE KEC SPS Chapter', link: '/about/kec-sps' },
-        { name: 'IEEE KEC WIE Group', link: '/about/kec-wie' },
+        { name: 'Faculties', link: '/execomm/faculties' },
+        { name: 'Students', link: '/execomm/students' },
       ],
     },
     {

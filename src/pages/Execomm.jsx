@@ -92,61 +92,84 @@ const FacultyCard = ({ name, position, phone, image, societyName, onClick }) => 
         }
       }}
       style={{
+        padding: '32px 24px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        textAlign: 'center',
+        border: '1px solid #cbd5e1',
+        borderTop: '5px solid #0a385b',
+        borderRadius: '16px',
+        backgroundColor: '#ffffff',
         position: 'relative',
         overflow: 'hidden',
-        backgroundColor: '#ffffff',
-        borderRadius: '12px',
-        border: '1px solid #cbd5e1',
-        borderTop: '4px solid #0a385b',
-        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-        height: '120px',
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: '12px 16px',
-        textAlign: 'left',
-        gap: '16px',
-        boxSizing: 'border-box'
+        height: '100%',
+        justifyContent: 'space-between',
+        boxSizing: 'border-box',
+        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
       }}
     >
-      {/* Horizontal Landscape Profile Image (~25-30% of card width: 100px) with circular edge */}
-      {image ? (
-        <img 
-          src={image} 
-          alt={name} 
-          style={{
-            width: '100px', 
-            height: '75px', 
-            borderRadius: '16px',
-            objectFit: 'contain',
-            backgroundColor: '#f1f5f9',
-            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.05)',
-            flexShrink: 0
-          }} 
-        />
-      ) : (
-        <div 
-          style={{
-            width: '100px', 
-            height: '75px', 
-            borderRadius: '16px',
-            background: 'linear-gradient(135deg, #0a385b 0%, #02619a 100%)',
-            color: '#ffffff',
-            fontSize: '20px', 
-            fontWeight: '800',
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            flexShrink: 0
-          }}
-        >
-          {initials || <User size={24} />}
-        </div>
-      )}
+      {/* subtle background pattern */}
+      <div style={{
+        position: 'absolute', top: 0, right: 0,
+        width: '120px', height: '120px', borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(2,97,154,0.04) 0%, transparent 70%)',
+        pointerEvents: 'none'
+      }} />
 
-      {/* Text Details */}
-      <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0 }}>
-        <h3 style={{ fontSize: '15px', color: '#0a385b', margin: '0 0 2px 0', fontWeight: '800', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexGrow: 1, width: '100%' }}>
+        {/* Avatar */}
+        {image ? (
+          <img 
+            src={image} 
+            alt={name} 
+            style={{
+              width: '100px', 
+              height: '100px', 
+              borderRadius: '50%',
+              objectFit: 'cover',
+              border: '3px solid #ffffff',
+              boxShadow: '0 6px 16px rgba(10,56,91,0.12)',
+              marginBottom: '20px',
+              backgroundColor: '#f1f5f9',
+              flexShrink: 0
+            }} 
+          />
+        ) : (
+          <div 
+            style={{
+              width: '100px', 
+              height: '100px', 
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #0a385b 0%, #02619a 100%)',
+              color: '#ffffff',
+              fontSize: '32px', 
+              fontWeight: '800',
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              border: '3px solid #ffffff',
+              boxShadow: '0 6px 16px rgba(10,56,91,0.12)',
+              marginBottom: '20px',
+              flexShrink: 0
+            }}
+          >
+            {initials}
+          </div>
+        )}
+
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: '4px',
+          backgroundColor: '#eff6ff', color: '#1e40af',
+          padding: '3px 10px', borderRadius: '20px',
+          fontSize: '10px', fontWeight: '700',
+          textTransform: 'uppercase', letterSpacing: '0.5px',
+          marginBottom: '10px'
+        }}>
+          Faculty Coordinator
+        </div>
+
+        <h3 style={{ fontSize: '17px', color: '#0a385b', margin: '0 0 6px 0', fontWeight: '800', lineHeight: '1.4' }}>
           {name}
         </h3>
         <div style={{
@@ -154,17 +177,43 @@ const FacultyCard = ({ name, position, phone, image, societyName, onClick }) => 
           fontSize: '12px', 
           fontWeight: '700',
           textTransform: 'uppercase', 
-          letterSpacing: '0.5px',
-          margin: '0 0 2px 0',
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis'
+          letterSpacing: '0.8px',
+          marginBottom: '12px',
+          lineHeight: '1.4'
         }}>
           {position}
         </div>
-        <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '600' }}>
-          IEEE: N/A
-        </div>
+      </div>
+
+      <div style={{
+        display: 'flex', gap: '10px', width: '100%', justifyContent: 'center',
+        borderTop: '1px solid #f1f5f9', paddingTop: '16px', marginTop: '12px'
+      }}>
+        {phone && (
+          <a
+            href={`tel:${phone}`}
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 16px',
+              borderRadius: '8px',
+              backgroundColor: '#eff6ff',
+              color: '#1d4ed8',
+              fontSize: '12px',
+              fontWeight: '600',
+              textDecoration: 'none',
+              border: '1px solid #bfdbfe',
+              transition: 'all 0.2s ease',
+              width: '100%',
+              justifyContent: 'center'
+            }}
+            className="execomm-contact-btn"
+          >
+            <Phone size={14} /> Call Coordinator
+          </a>
+        )}
       </div>
     </div>
   );
@@ -190,78 +239,85 @@ const StudentCard = ({ student, onClick }) => {
         }
       }}
       style={{
-        position: 'relative',
-        overflow: 'hidden',
         backgroundColor: '#ffffff',
         borderRadius: '12px',
         border: '1px solid #cbd5e1',
         borderTop: '4px solid #02619a',
-        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-        height: '120px',
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: '12px 16px',
+        padding: '20px',
         textAlign: 'left',
-        gap: '16px',
+        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+        height: '100%',
         boxSizing: 'border-box'
       }}
     >
-      {/* Horizontal Landscape Profile Image (~25-30% of card width: 100px) with circular edge */}
-      {student.image ? (
-        <img 
-          src={student.image} 
-          alt={student.name} 
-          style={{
-            width: '100px', 
-            height: '75px', 
-            borderRadius: '16px',
-            objectFit: 'contain',
-            backgroundColor: '#f1f5f9',
-            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.05)',
-            flexShrink: 0
-          }} 
-        />
-      ) : (
-        <div 
-          style={{
-            width: '100px', 
-            height: '75px', 
-            borderRadius: '16px',
-            background: 'linear-gradient(135deg, #0a385b 0%, #02619a 100%)',
-            color: '#ffffff',
-            fontSize: '20px', 
-            fontWeight: '800',
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            flexShrink: 0
-          }}
-        >
-          {initials}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '14px', borderBottom: '1px solid #f1f5f9', paddingBottom: '12px' }}>
+        {student.image ? (
+          <img 
+            src={student.image} 
+            alt={student.name} 
+            style={{
+              width: '50px', 
+              height: '50px', 
+              borderRadius: '50%',
+              objectFit: 'cover',
+              backgroundColor: '#f1f5f9',
+              flexShrink: 0
+            }} 
+          />
+        ) : (
+          <div 
+            style={{
+              width: '50px', 
+              height: '50px', 
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #0a385b 0%, #02619a 100%)',
+              color: '#ffffff',
+              fontSize: '16px', 
+              fontWeight: '800',
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              flexShrink: 0
+            }}
+          >
+            {initials}
+          </div>
+        )}
+        <div style={{ minWidth: 0 }}>
+          <h3 style={{ fontSize: '16px', color: '#0a385b', margin: '0 0 2px 0', fontWeight: '800', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {student.name}
+          </h3>
+          <span style={{
+            fontSize: '11px',
+            fontWeight: '700',
+            color: '#02619a',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px'
+          }}>
+            {student.position}
+          </span>
         </div>
-      )}
+      </div>
 
-      {/* Text Details */}
-      <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0 }}>
-        <h3 style={{ fontSize: '15px', color: '#0a385b', margin: '0 0 2px 0', fontWeight: '800', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          {student.name}
-        </h3>
-        <div style={{
-          color: '#02619a',
-          fontSize: '12px', 
-          fontWeight: '700',
-          textTransform: 'uppercase', 
-          letterSpacing: '0.4px',
-          margin: '0 0 2px 0',
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis'
-        }}>
-          {student.position}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '13px', color: '#475569', flexGrow: 1 }}>
+        <div>
+          <span style={{ fontWeight: '750', color: '#0a385b' }}>Name: </span>
+          <span>{student.name}</span>
         </div>
-        <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '600' }}>
-          IEEE: {student.ieeeNumber}
+        <div>
+          <span style={{ fontWeight: '750', color: '#0a385b' }}>Department: </span>
+          <span>{student.department}</span>
+        </div>
+        <div>
+          <span style={{ fontWeight: '750', color: '#0a385b' }}>Year of Study: </span>
+          <span>{student.yearOfStudy}</span>
+        </div>
+        <div>
+          <span style={{ fontWeight: '750', color: '#0a385b' }}>IEEE Membership Number: </span>
+          <span>{student.ieeeNumber}</span>
         </div>
       </div>
     </div>
@@ -813,42 +869,87 @@ const Execomm = () => {
         )}
 
         {/* ── STUDENTS TAB CONTENT ─────────────────────────────────────── */}
-        {activeTab === 'students' && (
-          <div>
-            <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-              <SectionLabel text="Student Leadership" />
-              <h2 className="font-serif" style={{ fontSize: '28px', color: '#0a385b', fontWeight: '800', marginTop: '8px' }}>
-                Student Office Bearers
-              </h2>
-              <p style={{ color: 'var(--text-muted)', fontSize: '14px', maxWidth: '600px', margin: '0 auto' }}>
-                Active student coordinators managing chapter operations, workshops, project expos, and community outreach.
-              </p>
-            </div>
+        {activeTab === 'students' && (() => {
+          const HIERARCHY_LEVEL_LABELS = {
+            1: "Student Branch Chairpersons",
+            2: "Society Chairpersons",
+            3: "Additional Secretaries",
+            4: "Joint Secretaries",
+            5: "Committee Heads",
+            6: "Executive Members",
+            7: "Student Members"
+          };
+          const levels = [1, 2, 3, 4, 5, 6, 7];
+          
+          return (
+            <div>
+              <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+                <SectionLabel text="Student Leadership" />
+                <h2 className="font-serif" style={{ fontSize: '28px', color: '#0a385b', fontWeight: '800', marginTop: '8px' }}>
+                  Student Office Bearers
+                </h2>
+                <p style={{ color: 'var(--text-muted)', fontSize: '14px', maxWidth: '600px', margin: '0 auto' }}>
+                  Active student coordinators managing chapter operations, workshops, project expos, and community outreach.
+                </p>
+              </div>
 
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '24px'
-            }}>
-              {sortedStudents.map((stud) => (
-                <StudentCard 
-                  key={stud.id} 
-                  student={stud} 
-                  onClick={() => setSelectedMember({
-                    name: stud.name,
-                    position: stud.position,
-                    branch: stud.society || 'IEEE KEC SB',
-                    department: stud.department,
-                    ieeeNumber: stud.ieeeNumber,
-                    year: stud.yearOfStudy,
-                    image: stud.image,
-                    type: 'Student'
-                  })}
-                />
-              ))}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
+                {levels.map(level => {
+                  const levelStudents = sortedStudents.filter(stud => getHierarchyLevel(stud.position) === level);
+                  if (levelStudents.length === 0) return null;
+
+                  return (
+                    <div key={level} style={{
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '16px',
+                      padding: '32px',
+                      backgroundColor: '#ffffff',
+                      boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
+                    }}>
+                      <h3 style={{
+                        fontSize: '20px',
+                        color: '#0a385b',
+                        fontWeight: '800',
+                        marginBottom: '24px',
+                        textAlign: 'left',
+                        borderBottom: '2px solid #eff6ff',
+                        paddingBottom: '12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px'
+                      }}>
+                        <span style={{ fontSize: '24px' }}>🛡️</span> {HIERARCHY_LEVEL_LABELS[level]}
+                      </h3>
+                      
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                        gap: '24px'
+                      }}>
+                        {levelStudents.map((stud) => (
+                          <StudentCard 
+                            key={stud.id} 
+                            student={stud} 
+                            onClick={() => setSelectedMember({
+                              name: stud.name,
+                              position: stud.position,
+                              branch: stud.society || 'IEEE KEC SB',
+                              department: stud.department,
+                              ieeeNumber: stud.ieeeNumber,
+                              year: stud.yearOfStudy,
+                              image: stud.image,
+                              type: 'Student'
+                            })}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Modal Portal/Conditional rendering */}
         {selectedMember && (

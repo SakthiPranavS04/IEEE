@@ -37,6 +37,43 @@ function App() {
   }, [location.pathname]);
 
   useEffect(() => {
+    // Wait for page transition and render
+    const timer = setTimeout(() => {
+      const selectors = 'section, .card, .scroll-reveal, .execomm-clickable-card, .achievement-row, .event-card-container, .contact-container, .about-section, .operational-committees-section, .media-gallery-card, .news-card';
+      const elementsToReveal = document.querySelectorAll(selectors);
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('scroll-visible');
+            } else {
+              entry.target.classList.remove('scroll-visible');
+            }
+          });
+        },
+        {
+          threshold: 0.05,
+          rootMargin: '0px 0px -50px 0px'
+        }
+      );
+
+      elementsToReveal.forEach((el) => {
+        if (!el.classList.contains('scroll-reveal')) {
+          el.classList.add('scroll-reveal');
+        }
+        observer.observe(el);
+      });
+
+      return () => {
+        elementsToReveal.forEach((el) => observer.unobserve(el));
+      };
+    }, 150);
+
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
+
+  useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 300) {
         setShowScrollTop(true);

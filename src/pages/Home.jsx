@@ -342,25 +342,10 @@ const Home = () => {
       {/* Metrics Section */}
       <section style={{ backgroundColor: '#ffffff', padding: '50px 0', borderBottom: '1px solid var(--border-subtle)' }}>
         <div className="container">
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-            gap: '30px'
-          }}>
+          <div className="home-stats-grid">
             {stats.map((stat, idx) => (
-              <div key={idx} style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '20px',
-                padding: '24px 20px',
-                borderRadius: '16px',
-                backgroundColor: '#ffffff',
-                border: '1px solid var(--border-subtle)',
-                boxShadow: 'var(--shadow-sm)',
-                transition: 'all 0.3s ease',
-                cursor: 'pointer'
-              }} className="stat-card-hover">
-                <div style={{
+              <div key={idx} className="stat-card-hover home-stat-item">
+                <div className="home-stat-icon-wrapper" style={{
                   width: '60px',
                   height: '60px',
                   borderRadius: '12px',
@@ -373,8 +358,8 @@ const Home = () => {
                   {stat.icon}
                 </div>
                 <div>
-                  <div style={{ fontSize: '28px', fontWeight: '800', color: 'var(--primary)', lineHeight: '1.2' }}>{stat.value}</div>
-                  <div style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: '500' }}>{stat.label}</div>
+                  <div className="home-stat-value" style={{ fontSize: '28px', fontWeight: '800', color: 'var(--primary)', lineHeight: '1.2' }}>{stat.value}</div>
+                  <div className="home-stat-label" style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: '500' }}>{stat.label}</div>
                 </div>
               </div>
             ))}
@@ -570,6 +555,55 @@ const Home = () => {
           transform: translateY(-4px);
           border-color: rgba(79, 70, 229, 0.3) !important;
           box-shadow: var(--shadow-md) !important;
+        }
+        .home-stats-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 30px;
+        }
+        .home-stat-item {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          padding: 24px 20px;
+          border-radius: 16px;
+          background-color: #ffffff;
+          border: 1px solid var(--border-subtle);
+          box-shadow: var(--shadow-sm);
+          transition: all 0.3s ease;
+          cursor: pointer;
+        }
+        @media (max-width: 1024px) {
+          .home-stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+          }
+        }
+        @media (max-width: 480px) {
+          .home-stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+          }
+          .home-stat-item {
+            padding: 12px 10px;
+            gap: 8px;
+            border-radius: 12px;
+          }
+          .home-stat-icon-wrapper {
+            width: 40px !important;
+            height: 40px !important;
+            border-radius: 8px !important;
+          }
+          .home-stat-icon-wrapper svg {
+            width: 20px !important;
+            height: 20px !important;
+          }
+          .home-stat-value {
+            font-size: 20px !important;
+          }
+          .home-stat-label {
+            font-size: 11px !important;
+          }
         }
       `}</style>
     </div>

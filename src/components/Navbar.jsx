@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import { ChevronDown, Menu, X } from 'lucide-react';
+import { ChevronDown, ChevronRight, Menu, X } from 'lucide-react';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const [activeSubDropdown, setActiveSubDropdown] = useState(null);
 
-  const toggleMenu = () => setIsOpen(!isOpen);
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+    setActiveDropdown(null);
+    setActiveSubDropdown(null);
+  };
 
   const menuItems = [
     { name: 'Home', link: '/' },
@@ -34,45 +39,55 @@ const Navbar = () => {
     {
       name: 'Execomm',
       items: [
-        { 
-          name: 'Faculty Members', 
-          link: '/execomm/faculties',
-          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        {
+          name: 'Members & Coordinators',
+          subItems: [
+            { 
+              name: 'Faculty Members', 
+              link: '/execomm/faculties',
+              icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            },
+            { 
+              name: 'Student Members', 
+              link: '/execomm/students',
+              icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            }
+          ]
         },
-        { 
-          name: 'Student Members', 
-          link: '/execomm/students',
-          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        },
-        { 
-          name: 'IEEE Student Branch', 
-          link: '/execomm/student-branch',
-          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.9 19.1 14.2-14.2"/><path d="M12 2v20"/><path d="M20.2 6.8a10 10 0 0 0-16.4 0"/><path d="M3.8 17.2a10 10 0 0 0 16.4 0"/></svg>
-        },
-        { 
-          name: 'IEEE Computer Society', 
-          link: '/execomm/computer-society',
-          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="12" x2="12" y1="2" y2="22"/></svg>
-        },
-        { 
-          name: 'IEEE Women in Engineering (WIE)', 
-          link: '/execomm/wie',
-          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22a7 7 0 0 0 5-12h-1.65a4 4 0 1 0-6.7 0H7a7 7 0 0 0 5 12z"/><path d="M12 2v2"/><path d="M12 8v2"/></svg>
-        },
-        { 
-          name: 'IEEE Robotics & Automation Society (RAS)', 
-          link: '/execomm/ras',
-          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="12" x="3" y="8" rx="2" ry="2"/><path d="M12 2v6"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/><circle cx="8" cy="14" r="1"/><circle cx="16" cy="14" r="1"/></svg>
-        },
-        { 
-          name: 'IEEE Power & Energy Society (PES)', 
-          link: '/execomm/pes',
-          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-        },
-        { 
-          name: 'IEEE Communications Society (ComSoc)', 
-          link: '/execomm/comsoc',
-          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a10 10 0 0 1 10 10c0 2.4-1 4.7-2.6 6.4L18 16a6 6 0 0 0 0-8L16.4 6.4c2-2 4.6-3 6.6-3z"/><path d="M12 6a6 6 0 0 1 6 6c0 1.5-.6 3-1.6 4L15 14a3 3 0 0 0 0-4l-1.6-1.6c1.2-1.2 2.8-1.8 3.8-1.8z"/><circle cx="12" cy="12" r="2"/></svg>
+        {
+          name: 'Societies',
+          subItems: [
+            { 
+              name: 'IEEE Student Branch', 
+              link: '/execomm/student-branch',
+              icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.9 19.1 14.2-14.2"/><path d="M12 2v20"/><path d="M20.2 6.8a10 10 0 0 0-16.4 0"/><path d="M3.8 17.2a10 10 0 0 0 16.4 0"/></svg>
+            },
+            { 
+              name: 'IEEE Computer Society', 
+              link: '/execomm/computer-society',
+              icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="12" x2="12" y1="2" y2="22"/></svg>
+            },
+            { 
+              name: 'IEEE Women in Engineering (WIE)', 
+              link: '/execomm/wie',
+              icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22a7 7 0 0 0 5-12h-1.65a4 4 0 1 0-6.7 0H7a7 7 0 0 0 5 12z"/><path d="M12 2v2"/><path d="M12 8v2"/></svg>
+            },
+            { 
+              name: 'IEEE Robotics & Automation Society (RAS)', 
+              link: '/execomm/ras',
+              icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="12" x="3" y="8" rx="2" ry="2"/><path d="M12 2v6"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/><circle cx="8" cy="14" r="1"/><circle cx="16" cy="14" r="1"/></svg>
+            },
+            { 
+              name: 'IEEE Power & Energy Society (PES)', 
+              link: '/execomm/pes',
+              icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            },
+            { 
+              name: 'IEEE Communications Society (ComSoc)', 
+              link: '/execomm/comsoc',
+              icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a10 10 0 0 1 10 10c0 2.4-1 4.7-2.6 6.4L18 16a6 6 0 0 0 0-8L16.4 6.4c2-2 4.6-3 6.6-3z"/><path d="M12 6a6 6 0 0 1 6 6c0 1.5-.6 3-1.6 4L15 14a3 3 0 0 0 0-4l-1.6-1.6c1.2-1.2 2.8-1.8 3.8-1.8z"/><circle cx="12" cy="12" r="2"/></svg>
+            }
+          ]
         }
       ],
     },
@@ -96,6 +111,7 @@ const Navbar = () => {
     if (window.innerWidth <= 1200) {
       e.preventDefault();
       setActiveDropdown(activeDropdown === idx ? null : idx);
+      setActiveSubDropdown(null);
     }
   };
 
@@ -158,32 +174,106 @@ const Navbar = () => {
                     borderColor: 'var(--border-subtle)', 
                     borderRadius: '12px', 
                     boxShadow: 'var(--shadow-lg)', 
-                    overflow: 'hidden',
-                    minWidth: isExecomm ? '300px' : '220px'
+                    overflow: 'visible',
+                    minWidth: isExecomm ? '260px' : '220px'
                   }}>
-                    {item.items.map((subItem, sIdx) => (
-                      <NavLink
-                        key={sIdx}
-                        to={subItem.link}
-                        style={({ isActive }) => ({
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '10px',
-                          padding: '10px 20px',
-                          fontSize: '13px',
-                          fontWeight: '600',
-                          color: isActive ? 'var(--secondary)' : 'var(--text-dark)',
-                          backgroundColor: isActive ? 'rgba(79, 70, 229, 0.05)' : 'transparent',
-                          textDecoration: 'none',
-                          borderBottom: '1px solid var(--border-subtle)',
-                          borderLeft: isActive ? '3px solid var(--secondary)' : '3px solid transparent'
-                        })}
-                        className="dropdown-item-hover-light"
-                      >
-                        {subItem.icon && <span style={{ display: 'flex', alignItems: 'center', color: 'var(--secondary)' }}>{subItem.icon}</span>}
-                        <span>{subItem.name}</span>
-                      </NavLink>
-                    ))}
+                    {item.items.map((subItem, sIdx) => {
+                      if (subItem.subItems) {
+                        return (
+                          <div key={sIdx} className="submenu-parent">
+                            <button
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                width: '100%',
+                                padding: '10px 20px',
+                                fontSize: '13px',
+                                fontWeight: '600',
+                                color: 'var(--text-dark)',
+                                backgroundColor: 'transparent',
+                                border: 'none',
+                                cursor: 'pointer',
+                                textAlign: 'left',
+                                borderBottom: '1px solid var(--border-subtle)',
+                                borderLeft: '3px solid transparent'
+                              }}
+                              className="dropdown-item-hover-light"
+                            >
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                {subItem.name === 'Members & Coordinators' ? (
+                                  <span style={{ display: 'flex', alignItems: 'center', color: 'var(--secondary)' }}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                  </span>
+                                ) : (
+                                  <span style={{ display: 'flex', alignItems: 'center', color: 'var(--secondary)' }}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.9 19.1 14.2-14.2"/><path d="M12 2v20"/><path d="M20.2 6.8a10 10 0 0 0-16.4 0"/><path d="M3.8 17.2a10 10 0 0 0 16.4 0"/></svg>
+                                  </span>
+                                )}
+                                <span>{subItem.name}</span>
+                              </div>
+                              <ChevronRight size={12} style={{ opacity: 0.7 }} />
+                            </button>
+                            <div className="submenu-menu" style={{
+                              backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                              backdropFilter: 'blur(12px)',
+                              border: '1px solid var(--border-subtle)',
+                              borderRadius: '12px',
+                              boxShadow: 'var(--shadow-lg)',
+                              minWidth: '260px'
+                            }}>
+                              {subItem.subItems.map((nestedItem, nIdx) => (
+                                <NavLink
+                                  key={nIdx}
+                                  to={nestedItem.link}
+                                  style={({ isActive }) => ({
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '10px',
+                                    padding: '10px 20px',
+                                    fontSize: '13px',
+                                    fontWeight: '600',
+                                    color: isActive ? 'var(--secondary)' : 'var(--text-dark)',
+                                    backgroundColor: isActive ? 'rgba(79, 70, 229, 0.05)' : 'transparent',
+                                    textDecoration: 'none',
+                                    borderBottom: nIdx === subItem.subItems.length - 1 ? 'none' : '1px solid var(--border-subtle)',
+                                    borderLeft: isActive ? '3px solid var(--secondary)' : '3px solid transparent'
+                                  })}
+                                  className="dropdown-item-hover-light"
+                                >
+                                  {nestedItem.icon && <span style={{ display: 'flex', alignItems: 'center', color: 'var(--secondary)' }}>{nestedItem.icon}</span>}
+                                  <span>{nestedItem.name}</span>
+                                </NavLink>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <NavLink
+                          key={sIdx}
+                          to={subItem.link}
+                          style={({ isActive }) => ({
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            padding: '10px 20px',
+                            fontSize: '13px',
+                            fontWeight: '600',
+                            color: isActive ? 'var(--secondary)' : 'var(--text-dark)',
+                            backgroundColor: isActive ? 'rgba(79, 70, 229, 0.05)' : 'transparent',
+                            textDecoration: 'none',
+                            borderBottom: '1px solid var(--border-subtle)',
+                            borderLeft: isActive ? '3px solid var(--secondary)' : '3px solid transparent'
+                          })}
+                          className="dropdown-item-hover-light"
+                        >
+                          {subItem.icon && <span style={{ display: 'flex', alignItems: 'center', color: 'var(--secondary)' }}>{subItem.icon}</span>}
+                          <span>{subItem.name}</span>
+                        </NavLink>
+                      );
+                    })}
                   </div>
                 </div>
               );
@@ -336,35 +426,109 @@ const Navbar = () => {
                     </button>
                     {isDropdownOpen && (
                       <div style={{ paddingLeft: '16px', display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
-                        {item.items.map((subItem, sIdx) => (
-                          <NavLink
-                            key={sIdx}
-                            to={subItem.link}
-                            onClick={() => setIsOpen(false)}
-                            style={({ isActive }) => ({
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '8px',
-                              padding: '8px',
-                              fontSize: '13px',
-                              color: isActive ? '#c9ebff' : 'rgba(255,255,255,0.8)',
-                              textDecoration: 'none',
-                              borderLeft: isActive ? '2px solid #c9ebff' : '2px solid transparent',
-                              paddingLeft: '8px'
-                            })}
-                          >
-                            {({ isActive }) => (
-                              <>
-                                {subItem.icon && (
-                                  <span style={{ display: 'flex', alignItems: 'center', color: isActive ? '#c9ebff' : 'rgba(255,255,255,0.5)' }}>
-                                    {subItem.icon}
-                                  </span>
+                        {item.items.map((subItem, sIdx) => {
+                          if (subItem.subItems) {
+                            const isSubDropdownOpen = activeSubDropdown === sIdx;
+                            return (
+                              <div key={sIdx}>
+                                <button
+                                  onClick={() => setActiveSubDropdown(isSubDropdownOpen ? null : sIdx)}
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    width: '100%',
+                                    padding: '8px 0',
+                                    fontSize: '13px',
+                                    fontWeight: '600',
+                                    color: 'rgba(255, 255, 255, 0.9)',
+                                    background: 'transparent',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    textAlign: 'left'
+                                  }}
+                                >
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    {subItem.name === 'Members & Coordinators' ? (
+                                      <span style={{ display: 'flex', alignItems: 'center', color: 'rgba(255, 255, 255, 0.6)' }}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                      </span>
+                                    ) : (
+                                      <span style={{ display: 'flex', alignItems: 'center', color: 'rgba(255, 255, 255, 0.6)' }}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.9 19.1 14.2-14.2"/><path d="M12 2v20"/><path d="M20.2 6.8a10 10 0 0 0-16.4 0"/><path d="M3.8 17.2a10 10 0 0 0 16.4 0"/></svg>
+                                      </span>
+                                    )}
+                                    <span>{subItem.name}</span>
+                                  </div>
+                                  <ChevronDown size={14} style={{ transform: isSubDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'var(--transition-fast)', opacity: 0.7 }} />
+                                </button>
+                                {isSubDropdownOpen && (
+                                  <div style={{ paddingLeft: '16px', display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px', marginBottom: '8px' }}>
+                                    {subItem.subItems.map((nestedItem, nIdx) => (
+                                      <NavLink
+                                        key={nIdx}
+                                        to={nestedItem.link}
+                                        onClick={() => setIsOpen(false)}
+                                        style={({ isActive }) => ({
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          gap: '8px',
+                                          padding: '6px 8px',
+                                          fontSize: '12px',
+                                          color: isActive ? '#c9ebff' : 'rgba(255,255,255,0.7)',
+                                          textDecoration: 'none',
+                                          borderLeft: isActive ? '2px solid #c9ebff' : '2px solid transparent',
+                                          paddingLeft: '8px'
+                                        })}
+                                      >
+                                        {({ isActive }) => (
+                                          <>
+                                            {nestedItem.icon && (
+                                              <span style={{ display: 'flex', alignItems: 'center', color: isActive ? '#c9ebff' : 'rgba(255,255,255,0.5)' }}>
+                                                {nestedItem.icon}
+                                              </span>
+                                            )}
+                                            <span>{nestedItem.name}</span>
+                                          </>
+                                        )}
+                                      </NavLink>
+                                    ))}
+                                  </div>
                                 )}
-                                <span>{subItem.name}</span>
-                              </>
-                            )}
-                          </NavLink>
-                        ))}
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <NavLink
+                              key={sIdx}
+                              to={subItem.link}
+                              onClick={() => setIsOpen(false)}
+                              style={({ isActive }) => ({
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                padding: '8px',
+                                fontSize: '13px',
+                                color: isActive ? '#c9ebff' : 'rgba(255,255,255,0.8)',
+                                textDecoration: 'none',
+                                borderLeft: isActive ? '2px solid #c9ebff' : '2px solid transparent',
+                                paddingLeft: '8px'
+                              })}
+                            >
+                              {({ isActive }) => (
+                                <>
+                                  {subItem.icon && (
+                                    <span style={{ display: 'flex', alignItems: 'center', color: isActive ? '#c9ebff' : 'rgba(255,255,255,0.5)' }}>
+                                      {subItem.icon}
+                                    </span>
+                                  )}
+                                  <span>{subItem.name}</span>
+                                </>
+                              )}
+                            </NavLink>
+                          );
+                        })}
                       </div>
                     )}
                   </div>

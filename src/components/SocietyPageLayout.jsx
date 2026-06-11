@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, X } from 'lucide-react';
 import Breadcrumb from './Breadcrumb';
+import '../pages/SocietyPage.css';
 import HeroSection from './HeroSection';
 import SocietyOverview from './SocietyOverview';
 import StatisticsSection from './StatisticsSection';
@@ -81,6 +82,14 @@ const SocietyPageLayout = ({ data }) => {
     '--society-primary-rgb': hexToRgb(data.theme.primary),
   };
 
+  const repeatedMilestones = data.milestones ? (() => {
+    let repeated = [...data.milestones];
+    while (repeated.length < 10) {
+      repeated = [...repeated, ...data.milestones];
+    }
+    return [...repeated, ...repeated];
+  })() : [];
+
   if (isLoading) {
     return <LoadingSkeleton />;
   }
@@ -100,6 +109,39 @@ const SocietyPageLayout = ({ data }) => {
         heroVideo={data.heroVideo}
         logoText={data.logoText || data.name.split(" ").map(w => w[0]).join("")}
       />
+
+      {/* Milestones & Achievements Section */}
+      {data.milestones && data.milestones.length > 0 && (
+        <section className="society-section" style={{ paddingBottom: '30px', borderBottom: '1px solid var(--border-subtle)' }}>
+          <div style={{ width: '100%', overflow: 'hidden' }}>
+            <h2 className="committee-section-title font-serif scroll-reveal fade-up" style={{ textAlign: 'center', marginBottom: '8px' }}>Milestones & Achievements</h2>
+            <p className="committee-section-subtitle scroll-reveal fade-up" style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '36px' }}>Key breakthroughs and recognition earned by our society</p>
+            
+            <div className="milestones-marquee-container scroll-reveal fade-up">
+              <div className="milestones-marquee-track">
+                {repeatedMilestones.map((ms, idx) => (
+                  <div key={idx} className="milestone-marquee-card">
+                    <img 
+                      src={ms.image || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=800'} 
+                      alt={ms.title} 
+                      className="milestone-card-img"
+                    />
+                    <div className="milestone-card-overlay">
+                      {ms.date && (
+                        <span className="milestone-card-badge">{ms.date}</span>
+                      )}
+                      <h3 className="milestone-card-title">{ms.title}</h3>
+                      {ms.description && (
+                        <p className="milestone-card-desc">{ms.description}</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Overview mission/vision */}
       <SocietyOverview 

@@ -886,3 +886,57 @@ input, textarea, select {
     right: 10px;
   }
 }
+
+/* Submenu styling for nested dropdowns */
+.submenu-parent {
+  position: relative;
+}
+
+.submenu-menu {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  background-color: rgba(255, 255, 255, 0.95);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  min-width: 260px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(8px);
+  transition: var(--transition-fast);
+  z-index: 20;
+}
+
+.submenu-parent:hover .submenu-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
+}
+
+/* Ensure children elements respect the container's border radius since overflow: hidden is removed to show submenus */
+.dropdown-menu > *:first-child,
+.dropdown-menu > *:first-child > button,
+.dropdown-menu > *:first-child > a {
+  border-top-left-radius: 12px !important;
+  border-top-right-radius: 12px !important;
+}
+
+.dropdown-menu > *:last-child,
+.dropdown-menu > *:last-child > button,
+.dropdown-menu > *:last-child > a {
+  border-bottom-left-radius: 12px !important;
+  border-bottom-right-radius: 12px !important;
+}
+
+.submenu-menu > *:first-child,
+.submenu-menu > *:first-child > a {
+  border-top-left-radius: 12px !important;
+  border-top-right-radius: 12px !important;
+}
+
+.submenu-menu > *:last-child,
+.submenu-menu > *:last-child > a {
+  border-bottom-left-radius: 12px !important;
+  border-bottom-right-radius: 12px !important;
+}

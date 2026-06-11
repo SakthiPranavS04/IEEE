@@ -160,5 +160,13 @@ export const pesData = {
       facebook: "https://facebook.com",
       website: "https://ieee-pes.org"
     }
-  }
+  },
+  milestones: [
+    {
+      title: "Smart Grid Design Hackathon",
+      date: "2025",
+      description: "Students designed modular energy management systems for urban micro-grids, securing Anna University innovation grant.",
+      image: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?q=80&w=400"
+    }
+  ]
 };

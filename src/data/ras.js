@@ -160,5 +160,13 @@ export const rasData = {
       facebook: "https://facebook.com",
       website: "https://ieee-ras.org"
     }
-  }
+  },
+  milestones: [
+    {
+      title: "RoboFest Championship",
+      date: "2025",
+      description: "Students secured 1st prize in the national level automated line follower and rescue bot design competition.",
+      image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=400"
+    }
+  ]
 };

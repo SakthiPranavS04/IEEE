@@ -160,5 +160,19 @@ export const studentBranchData = {
       facebook: "https://facebook.com",
       website: "https://ieee.org"
     }
-  }
+  },
+  milestones: [
+    {
+      title: "Madras Section Best Branch Award",
+      date: "2025",
+      description: "Recognized as one of the most active and high-performing student branches under the Madras Section for technical and community contributions.",
+      image: "https://images.unsplash.com/photo-1531545514256-b1400bc00f31?q=80&w=400"
+    },
+    {
+      title: "All India Student Congress",
+      date: "2024",
+      description: "Successfully hosted delegation for the annual IEEE All India Student Congress with 200+ regional student leaders and guest speakers.",
+      image: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?q=80&w=400"
+    }
+  ]
 };

@@ -160,5 +160,13 @@ export const comsocData = {
       facebook: "https://facebook.com",
       website: "https://comsoc.org"
     }
-  }
+  },
+  milestones: [
+    {
+      title: "Telecommunication Prototype Grant",
+      date: "2025",
+      description: "Received research funding for building open-source LoRaWAN mesh communication systems for disaster rescue.",
+      image: "https://images.unsplash.com/photo-1544256718-3bcf237f3974?q=80&w=400"
+    }
+  ]
 };

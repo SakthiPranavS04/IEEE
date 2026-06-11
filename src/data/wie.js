@@ -160,5 +160,13 @@ export const wieData = {
       facebook: "https://facebook.com",
       website: "https://wie.ieee.org"
     }
-  }
+  },
+  milestones: [
+    {
+      title: "Inspiring Women Leaders Summit",
+      date: "2025",
+      description: "Hosted a regional symposium empowering female engineers with tech panels, workshops, and startup funding mentorship.",
+      image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=400"
+    }
+  ]
 };

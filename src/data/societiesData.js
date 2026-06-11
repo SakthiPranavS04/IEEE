@@ -150,7 +150,21 @@ export const societiesData = {
         facebook: "https://facebook.com",
         ieee: "https://ieee.org"
       }
-    }
+    },
+    milestones: [
+      {
+        title: "Madras Section Best Branch Award",
+        date: "2025",
+        description: "Recognized as one of the most active and high-performing student branches under the Madras Section for technical and community contributions.",
+        image: "https://images.unsplash.com/photo-1531545514256-b1400bc00f31?q=80&w=400"
+      },
+      {
+        title: "All India Student Congress",
+        date: "2024",
+        description: "Successfully hosted delegation for the annual IEEE All India Student Congress with 200+ regional student leaders and guest speakers.",
+        image: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?q=80&w=400"
+      }
+    ]
   },
   "computer-society": {
     name: "IEEE Computer Society",
@@ -302,7 +316,21 @@ export const societiesData = {
         facebook: "https://facebook.com",
         ieee: "https://computer.org"
       }
-    }
+    },
+    milestones: [
+      {
+        title: "Outstanding Chapter Award",
+        date: "2025",
+        description: "Honored with the Outstanding Student Chapter Award for exceptional technical workshops, research symposiums, and coding hackathons.",
+        image: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=400"
+      },
+      {
+        title: "Hackathon Excellence",
+        date: "2024",
+        description: "Ranked among the Top 5 regional student chapters for competitive coding achievements and student developer incubator programs.",
+        image: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?q=80&w=400"
+      }
+    ]
   },
   "wie": {
     name: "IEEE Women in Engineering (WIE)",
@@ -454,7 +482,15 @@ export const societiesData = {
         facebook: "https://facebook.com",
         ieee: "https://wie.ieee.org"
       }
-    }
+    },
+    milestones: [
+      {
+        title: "Inspiring Women Leaders Summit",
+        date: "2025",
+        description: "Hosted a regional symposium empowering female engineers with tech panels, workshops, and startup funding mentorship.",
+        image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=400"
+      }
+    ]
   },
   "ras": {
     name: "IEEE Robotics and Automation Society (RAS)",
@@ -606,7 +642,15 @@ export const societiesData = {
         facebook: "https://facebook.com",
         ieee: "https://ieee-ras.org"
       }
-    }
+    },
+    milestones: [
+      {
+        title: "RoboFest Championship",
+        date: "2025",
+        description: "Students secured 1st prize in the national level automated line follower and rescue bot design competition.",
+        image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=400"
+      }
+    ]
   },
   "pes": {
     name: "IEEE Power and Energy Society (PES)",
@@ -758,7 +802,15 @@ export const societiesData = {
         facebook: "https://facebook.com",
         ieee: "https://ieee-pes.org"
       }
-    }
+    },
+    milestones: [
+      {
+        title: "Smart Grid Design Hackathon",
+        date: "2025",
+        description: "Students designed modular energy management systems for urban micro-grids, securing Anna University innovation grant.",
+        image: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?q=80&w=400"
+      }
+    ]
   },
   "comsoc": {
     name: "IEEE Communications Society (ComSoc)",
@@ -910,6 +962,14 @@ export const societiesData = {
         facebook: "https://facebook.com",
         ieee: "https://comsoc.org"
       }
-    }
+    },
+    milestones: [
+      {
+        title: "Telecommunication Prototype Grant",
+        date: "2025",
+        description: "Received research funding for building open-source LoRaWAN mesh communication systems for disaster rescue.",
+        image: "https://images.unsplash.com/photo-1544256718-3bcf237f3974?q=80&w=400"
+      }
+    ]
   }
 };

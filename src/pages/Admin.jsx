@@ -3348,7 +3348,8 @@ const Admin = () => {
                 { id: 'about', label: 'About & Stats' },
                 { id: 'faculty-leadership', label: 'Faculty & Leaders' },
                 { id: 'rosters', label: 'Rosters & Members' },
-                { id: 'gallery-contact', label: 'Gallery & Contact' }
+                { id: 'gallery-contact', label: 'Gallery & Contact' },
+                { id: 'milestones', label: 'Milestones & Achievements' }
               ].map(subTab => (
                 <button
                   key={subTab.id}
@@ -4688,6 +4689,164 @@ const Admin = () => {
                   </div>
                 </div>
 
+              </div>
+            )}
+
+            {/* Sub-Tab 6: Milestones & Achievements */}
+            {branchSubTab === 'milestones' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                    <h3 style={{ fontSize: '15px', color: '#0a385b', fontWeight: '800', margin: 0 }}>
+                      Edit Milestones & Achievements ({branchData.milestones ? branchData.milestones.length : 0} items)
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const milestones = branchData.milestones ? [...branchData.milestones] : [];
+                        milestones.push({ title: 'New Milestone', date: '2026', description: 'Describe the milestone achievement here.', image: '' });
+                        setBranchData({ ...branchData, milestones });
+                      }}
+                      style={{
+                        backgroundColor: '#02619a',
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: '6px',
+                        padding: '6px 12px',
+                        fontSize: '12.5px',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        boxShadow: '0 2px 5px rgba(2,97,154,0.2)'
+                      }}
+                    >
+                      <Plus size={14} /> Add Milestone
+                    </button>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
+                    {branchData.milestones && branchData.milestones.map((ms, idx) => (
+                      <div key={idx} style={{ padding: '20px', backgroundColor: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                        <div style={{ width: '100px', height: '100px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#cbd5e1', borderRadius: '6px', overflow: 'hidden', flexShrink: 0 }}>
+                          {ms.image ? (
+                            <img src={ms.image} alt={`Milestone ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          ) : (
+                            <span style={{ fontSize: '11px', color: '#475569' }}>No Image</span>
+                          )}
+                        </div>
+                        <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '12px' }}>
+                            <div>
+                              <label style={{ display: 'block', fontSize: '11px', fontWeight: '750', color: '#475569', marginBottom: '4px' }}>Milestone Title:</label>
+                              <input
+                                type="text"
+                                placeholder="Milestone Title"
+                                value={ms.title || ''}
+                                onChange={(e) => {
+                                  const milestones = [...branchData.milestones];
+                                  milestones[idx].title = e.target.value;
+                                  setBranchData({ ...branchData, milestones });
+                                }}
+                                style={{ width: '100%', padding: '6px 10px', fontSize: '13px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                              />
+                            </div>
+                            <div>
+                              <label style={{ display: 'block', fontSize: '11px', fontWeight: '750', color: '#475569', marginBottom: '4px' }}>Date / Year:</label>
+                              <input
+                                type="text"
+                                placeholder="Date / Year (e.g. 2026)"
+                                value={ms.date || ''}
+                                onChange={(e) => {
+                                  const milestones = [...branchData.milestones];
+                                  milestones[idx].date = e.target.value;
+                                  setBranchData({ ...branchData, milestones });
+                                }}
+                                style={{ width: '100%', padding: '6px 10px', fontSize: '13px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                              />
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '12px' }}>
+                            <div>
+                              <label style={{ display: 'block', fontSize: '11px', fontWeight: '750', color: '#475569', marginBottom: '4px' }}>Upload Cover Image:</label>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={async (e) => {
+                                  const file = e.target.files[0];
+                                  if (file) {
+                                    try {
+                                      const base64 = await compressImage(file);
+                                      const milestones = [...branchData.milestones];
+                                      milestones[idx].image = base64;
+                                      setBranchData({ ...branchData, milestones });
+                                    } catch (err) {
+                                      console.error(err);
+                                    }
+                                  }
+                                }}
+                                style={{ fontSize: '11px', width: '100%' }}
+                              />
+                            </div>
+                            <div>
+                              <label style={{ display: 'block', fontSize: '11px', fontWeight: '750', color: '#475569', marginBottom: '4px' }}>Or Paste Image URL:</label>
+                              <input
+                                type="text"
+                                placeholder="Image URL"
+                                value={ms.image || ''}
+                                onChange={(e) => {
+                                  const milestones = [...branchData.milestones];
+                                  milestones[idx].image = e.target.value;
+                                  setBranchData({ ...branchData, milestones });
+                                }}
+                                style={{ width: '100%', padding: '6px 10px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label style={{ display: 'block', fontSize: '11px', fontWeight: '750', color: '#475569', marginBottom: '4px' }}>Description:</label>
+                            <textarea
+                              rows="2"
+                              placeholder="Description of the milestone..."
+                              value={ms.description || ''}
+                              onChange={(e) => {
+                                const milestones = [...branchData.milestones];
+                                milestones[idx].description = e.target.value;
+                                setBranchData({ ...branchData, milestones });
+                              }}
+                              style={{ width: '100%', padding: '8px 10px', fontSize: '13px', borderRadius: '4px', border: '1px solid #cbd5e1', resize: 'vertical' }}
+                            />
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const milestones = branchData.milestones.filter((_, i) => i !== idx);
+                            setBranchData({ ...branchData, milestones });
+                          }}
+                          style={{
+                            padding: '8px',
+                            border: 'none',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            backgroundColor: '#fee2e2',
+                            color: '#ef4444',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            alignSelf: 'center',
+                            flexShrink: 0
+                          }}
+                          title="Delete Milestone"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
           </div>

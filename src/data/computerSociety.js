@@ -160,5 +160,19 @@ export const computerSocietyData = {
       facebook: "https://facebook.com",
       website: "https://computer.org"
     }
-  }
+  },
+  milestones: [
+    {
+      title: "Outstanding Chapter Award",
+      date: "2025",
+      description: "Honored with the Outstanding Student Chapter Award for exceptional technical workshops, research symposiums, and coding hackathons.",
+      image: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=400"
+    },
+    {
+      title: "Hackathon Excellence",
+      date: "2024",
+      description: "Ranked among the Top 5 regional student chapters for competitive coding achievements and student developer incubator programs.",
+      image: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?q=80&w=400"
+    }
+  ]
 };

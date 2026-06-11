@@ -5,23 +5,33 @@ import { Users, Phone, User, Award, Shield, BookOpen, Layers } from 'lucide-reac
 // ─── Page Header ──────────────────────────────────────────────────────────────
 const PageHeader = ({ title, subtitle }) => (
   <div style={{
-    background: 'linear-gradient(135deg, #0a385b 0%, #02619a 100%)',
+    background: 'var(--gradient-primary)',
     color: '#ffffff',
-    padding: '60px 0',
+    padding: '70px 0',
     textAlign: 'center',
     marginBottom: '48px',
     position: 'relative',
     overflow: 'hidden'
   }}>
+    {/* Decorative top colored line */}
+    <div style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      height: '4px',
+      background: 'var(--gradient-colorful)',
+      zIndex: 2
+    }} />
     <div style={{
       position: 'absolute', top: '-10%', right: '-8%',
       width: '320px', height: '320px', borderRadius: '50%',
-      background: 'rgba(255,255,255,0.03)', pointerEvents: 'none'
+      background: 'radial-gradient(circle, rgba(79, 70, 229, 0.15) 0%, transparent 70%)', pointerEvents: 'none'
     }} />
     <div style={{
       position: 'absolute', bottom: '-20%', left: '-5%',
       width: '260px', height: '260px', borderRadius: '50%',
-      background: 'rgba(255,255,255,0.02)', pointerEvents: 'none'
+      background: 'radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 70%)', pointerEvents: 'none'
     }} />
     <div className="container" style={{ position: 'relative', zIndex: 1 }}>
       <h1 className="font-serif" style={{ fontSize: '38px', color: '#ffffff', marginBottom: '12px', fontWeight: '800' }}>
@@ -39,16 +49,17 @@ const PageHeader = ({ title, subtitle }) => (
 // ─── Section Label pill ───────────────────────────────────────────────────────
 const SectionLabel = ({ text }) => (
   <span style={{
-    padding: '4px 14px',
-    backgroundColor: 'var(--accent-light)',
-    color: 'var(--primary)',
+    padding: '6px 14px',
+    backgroundColor: 'rgba(79, 70, 229, 0.08)',
+    color: 'var(--secondary)',
+    border: '1px solid rgba(79, 70, 229, 0.15)',
     borderRadius: '20px',
     fontSize: '11px',
-    fontWeight: '700',
+    fontWeight: '750',
     textTransform: 'uppercase',
     letterSpacing: '1px',
     display: 'inline-block',
-    marginBottom: '10px'
+    marginBottom: '12px'
   }}>
     {text}
   </span>
@@ -97,8 +108,8 @@ const FacultyCard = ({ name, position, phone, image, societyName, onClick }) => 
         flexDirection: 'column',
         alignItems: 'center',
         textAlign: 'center',
-        border: '1px solid #cbd5e1',
-        borderTop: '5px solid #0a385b',
+        border: '1px solid var(--border-subtle)',
+        borderTop: '5px solid var(--secondary)',
         borderRadius: '16px',
         backgroundColor: '#ffffff',
         position: 'relative',
@@ -113,7 +124,7 @@ const FacultyCard = ({ name, position, phone, image, societyName, onClick }) => 
       <div style={{
         position: 'absolute', top: 0, right: 0,
         width: '120px', height: '120px', borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(2,97,154,0.04) 0%, transparent 70%)',
+        background: 'radial-gradient(circle, rgba(79,70,229,0.04) 0%, transparent 70%)',
         pointerEvents: 'none'
       }} />
 
@@ -129,7 +140,7 @@ const FacultyCard = ({ name, position, phone, image, societyName, onClick }) => 
               borderRadius: '50%',
               objectFit: 'cover',
               border: '3px solid #ffffff',
-              boxShadow: '0 6px 16px rgba(10,56,91,0.12)',
+              boxShadow: '0 6px 16px rgba(79,70,229,0.12)',
               marginBottom: '20px',
               backgroundColor: '#f1f5f9',
               flexShrink: 0
@@ -141,7 +152,7 @@ const FacultyCard = ({ name, position, phone, image, societyName, onClick }) => 
               width: '100px', 
               height: '100px', 
               borderRadius: '50%',
-              background: 'linear-gradient(135deg, #0a385b 0%, #02619a 100%)',
+              background: 'var(--gradient-cyber)',
               color: '#ffffff',
               fontSize: '32px', 
               fontWeight: '800',
@@ -149,7 +160,7 @@ const FacultyCard = ({ name, position, phone, image, societyName, onClick }) => 
               alignItems: 'center', 
               justifyContent: 'center',
               border: '3px solid #ffffff',
-              boxShadow: '0 6px 16px rgba(10,56,91,0.12)',
+              boxShadow: '0 6px 16px rgba(79,70,229,0.12)',
               marginBottom: '20px',
               flexShrink: 0
             }}
@@ -169,11 +180,11 @@ const FacultyCard = ({ name, position, phone, image, societyName, onClick }) => 
           Faculty Coordinator
         </div>
 
-        <h3 style={{ fontSize: '17px', color: '#0a385b', margin: '0 0 6px 0', fontWeight: '800', lineHeight: '1.4' }}>
+        <h3 style={{ fontSize: '17px', color: 'var(--primary)', margin: '0 0 6px 0', fontWeight: '800', lineHeight: '1.4' }}>
           {name}
         </h3>
         <div style={{
-          color: '#02619a',
+          color: 'var(--secondary)',
           fontSize: '12px', 
           fontWeight: '700',
           textTransform: 'uppercase', 
@@ -199,12 +210,12 @@ const FacultyCard = ({ name, position, phone, image, societyName, onClick }) => 
               gap: '8px',
               padding: '8px 16px',
               borderRadius: '8px',
-              backgroundColor: '#eff6ff',
-              color: '#1d4ed8',
+              backgroundColor: 'rgba(79, 70, 229, 0.05)',
+              color: 'var(--secondary)',
               fontSize: '12px',
               fontWeight: '600',
               textDecoration: 'none',
-              border: '1px solid #bfdbfe',
+              border: '1px solid var(--border-subtle)',
               transition: 'all 0.2s ease',
               width: '100%',
               justifyContent: 'center'
@@ -240,9 +251,9 @@ const StudentCard = ({ student, onClick }) => {
       }}
       style={{
         backgroundColor: '#ffffff',
-        borderRadius: '12px',
-        border: '1px solid #cbd5e1',
-        borderTop: '4px solid #02619a',
+        borderRadius: '16px',
+        border: '1px solid var(--border-subtle)',
+        borderTop: '4px solid var(--accent-cyan)',
         padding: '20px',
         textAlign: 'left',
         transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -273,7 +284,7 @@ const StudentCard = ({ student, onClick }) => {
               width: '50px', 
               height: '50px', 
               borderRadius: '50%',
-              background: 'linear-gradient(135deg, #0a385b 0%, #02619a 100%)',
+              background: 'var(--gradient-colorful)',
               color: '#ffffff',
               fontSize: '16px', 
               fontWeight: '800',
@@ -287,13 +298,13 @@ const StudentCard = ({ student, onClick }) => {
           </div>
         )}
         <div style={{ minWidth: 0 }}>
-          <h3 style={{ fontSize: '16px', color: '#0a385b', margin: '0 0 2px 0', fontWeight: '800', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <h3 style={{ fontSize: '16px', color: 'var(--primary)', margin: '0 0 2px 0', fontWeight: '800', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {student.name}
           </h3>
           <span style={{
             fontSize: '11px',
             fontWeight: '700',
-            color: '#02619a',
+            color: 'var(--secondary)',
             textTransform: 'uppercase',
             letterSpacing: '0.5px'
           }}>
@@ -304,19 +315,19 @@ const StudentCard = ({ student, onClick }) => {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '13px', color: '#475569', flexGrow: 1 }}>
         <div>
-          <span style={{ fontWeight: '750', color: '#0a385b' }}>Name: </span>
+          <span style={{ fontWeight: '750', color: 'var(--primary)' }}>Name: </span>
           <span>{student.name}</span>
         </div>
         <div>
-          <span style={{ fontWeight: '750', color: '#0a385b' }}>Department: </span>
+          <span style={{ fontWeight: '750', color: 'var(--primary)' }}>Department: </span>
           <span>{student.department}</span>
         </div>
         <div>
-          <span style={{ fontWeight: '750', color: '#0a385b' }}>Year of Study: </span>
+          <span style={{ fontWeight: '750', color: 'var(--primary)' }}>Year of Study: </span>
           <span>{student.yearOfStudy}</span>
         </div>
         <div>
-          <span style={{ fontWeight: '750', color: '#0a385b' }}>IEEE Membership Number: </span>
+          <span style={{ fontWeight: '750', color: 'var(--primary)' }}>IEEE Membership Number: </span>
           <span>{student.ieeeNumber}</span>
         </div>
       </div>
@@ -408,10 +419,10 @@ const MemberModal = ({ member, onClose }) => {
           width: '680px',
           maxWidth: '90%',
           maxHeight: '90vh',
-          backgroundColor: '#EAF6FF',
-          border: '1px solid #90CAF9',
+          backgroundColor: '#ffffff',
+          border: '1px solid var(--border-subtle)',
           borderRadius: '16px',
-          boxShadow: '0 20px 48px rgba(25, 118, 210, 0.15)',
+          boxShadow: 'var(--shadow-premium)',
           overflowY: 'auto',
           display: 'flex',
           flexDirection: 'column',
@@ -430,9 +441,9 @@ const MemberModal = ({ member, onClose }) => {
             width: '32px',
             height: '32px',
             borderRadius: '50%',
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            border: '1px solid #90CAF9',
-            color: '#1976D2',
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            border: '1px solid var(--border-subtle)',
+            color: 'var(--secondary)',
             fontSize: '20px',
             fontWeight: 'bold',
             display: 'flex',
@@ -451,7 +462,7 @@ const MemberModal = ({ member, onClose }) => {
         {/* Modal Side-by-Side Flex Layout */}
         <div className="execomm-modal-layout" style={{ display: 'flex', flexDirection: 'row', width: '100%', minHeight: '360px' }}>
           {/* Left Column: Profile Image Container (Fully visible original photo, no cropping) */}
-          <div className="modal-left-image-container" style={{ width: '280px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#d0e4f2', flexShrink: 0, overflow: 'hidden' }}>
+          <div className="modal-left-image-container" style={{ width: '280px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--accent-light)', flexShrink: 0, overflow: 'hidden' }}>
             {member.image ? (
               <img 
                 src={member.image} 
@@ -466,7 +477,7 @@ const MemberModal = ({ member, onClose }) => {
               <div style={{
                 width: '100%',
                 height: '100%',
-                background: 'linear-gradient(135deg, #1976D2 0%, #90CAF9 100%)',
+                background: 'var(--gradient-primary)',
                 color: '#ffffff',
                 fontSize: '48px',
                 fontWeight: '800',
@@ -481,13 +492,13 @@ const MemberModal = ({ member, onClose }) => {
 
           {/* Right Column: Details Section */}
           <div className="modal-right-details-container" style={{ flexGrow: 1, padding: '28px', textAlign: 'left', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <h2 style={{ fontSize: '24px', color: '#1976D2', fontWeight: '800', margin: '0 0 4px 0' }}>
+            <h2 style={{ fontSize: '24px', color: 'var(--secondary)', fontWeight: '800', margin: '0 0 4px 0' }}>
               {member.name}
             </h2>
             <div style={{ 
               fontSize: '14px', 
               fontWeight: '700', 
-              color: '#1976D2', 
+              color: 'var(--secondary)', 
               textTransform: 'uppercase', 
               letterSpacing: '0.5px',
               marginBottom: '20px'
@@ -499,36 +510,36 @@ const MemberModal = ({ member, onClose }) => {
               display: 'flex',
               flexDirection: 'column',
               gap: '12px',
-              borderTop: '1px solid #90CAF9',
+              borderTop: '1px solid var(--border-subtle)',
               paddingTop: '20px',
               fontSize: '15px',
               color: '#334155'
             }}>
               <div>
-                <span style={{ fontWeight: '750', color: '#1976D2', display: 'inline-block', width: '130px' }}>Branch:</span>
+                <span style={{ fontWeight: '750', color: 'var(--secondary)', display: 'inline-block', width: '130px' }}>Branch:</span>
                 <span style={{ fontWeight: '500' }}>{member.branch}</span>
               </div>
               {member.department && (
                 <div>
-                  <span style={{ fontWeight: '750', color: '#1976D2', display: 'inline-block', width: '130px' }}>Department:</span>
+                  <span style={{ fontWeight: '750', color: 'var(--secondary)', display: 'inline-block', width: '130px' }}>Department:</span>
                   <span style={{ fontWeight: '500' }}>{member.department}</span>
                 </div>
               )}
               <div>
-                <span style={{ fontWeight: '750', color: '#1976D2', display: 'inline-block', width: '130px' }}>IEEE Number:</span>
+                <span style={{ fontWeight: '750', color: 'var(--secondary)', display: 'inline-block', width: '130px' }}>IEEE Number:</span>
                 <span style={{ fontWeight: '600' }}>{member.ieeeNumber || 'N/A'}</span>
               </div>
               {member.year && (
                 <div>
-                  <span style={{ fontWeight: '750', color: '#1976D2', display: 'inline-block', width: '130px' }}>Year:</span>
+                  <span style={{ fontWeight: '750', color: 'var(--secondary)', display: 'inline-block', width: '130px' }}>Year:</span>
                   <span style={{ fontWeight: '500' }}>{member.year} Year</span>
                 </div>
               )}
               {member.phone && (
                 <div>
-                  <span style={{ fontWeight: '750', color: '#1976D2', display: 'inline-block', width: '130px' }}>Phone:</span>
+                  <span style={{ fontWeight: '750', color: 'var(--secondary)', display: 'inline-block', width: '130px' }}>Phone:</span>
                   <span style={{ fontWeight: '500' }}>
-                    <a href={`tel:${member.phone}`} style={{ color: '#1976D2', textDecoration: 'none', fontWeight: '600' }}>
+                    <a href={`tel:${member.phone}`} style={{ color: 'var(--secondary)', textDecoration: 'none', fontWeight: '600' }}>
                       {member.phone}
                     </a>
                   </span>
@@ -758,10 +769,10 @@ const Execomm = () => {
               borderRadius: '30px', border: 'none', cursor: 'pointer',
               letterSpacing: '0.5px',
               transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-              backgroundColor: activeTab === 'faculties' ? '#0a385b' : '#ffffff',
+              background: activeTab === 'faculties' ? 'var(--gradient-colorful)' : '#ffffff',
               color: activeTab === 'faculties' ? '#ffffff' : '#64748b',
               boxShadow: activeTab === 'faculties'
-                ? '0 6px 20px rgba(10,56,91,0.22)'
+                ? '0 6px 20px rgba(79,70,229,0.3)'
                 : '0 2px 8px rgba(0,0,0,0.06)',
               transform: activeTab === 'faculties' ? 'translateY(-1px)' : 'none'
             }}
@@ -776,10 +787,10 @@ const Execomm = () => {
               borderRadius: '30px', border: 'none', cursor: 'pointer',
               letterSpacing: '0.5px',
               transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-              backgroundColor: activeTab === 'students' ? '#0a385b' : '#ffffff',
+              background: activeTab === 'students' ? 'var(--gradient-colorful)' : '#ffffff',
               color: activeTab === 'students' ? '#ffffff' : '#64748b',
               boxShadow: activeTab === 'students'
-                ? '0 6px 20px rgba(10,56,91,0.22)'
+                ? '0 6px 20px rgba(79,70,229,0.3)'
                 : '0 2px 8px rgba(0,0,0,0.06)',
               transform: activeTab === 'students' ? 'translateY(-1px)' : 'none'
             }}
@@ -793,7 +804,7 @@ const Execomm = () => {
           <div>
             <div style={{ textAlign: 'center', marginBottom: '40px' }}>
               <SectionLabel text="Advisory Board" />
-              <h2 className="font-serif" style={{ fontSize: '28px', color: '#0a385b', fontWeight: '800', marginTop: '8px' }}>
+              <h2 className="font-serif" style={{ fontSize: '28px', color: 'var(--primary)', fontWeight: '800', marginTop: '8px' }}>
                 Faculty Coordinators
               </h2>
               <p style={{ color: 'var(--text-muted)', fontSize: '14px', maxWidth: '600px', margin: '0 auto' }}>
@@ -822,11 +833,11 @@ const Execomm = () => {
                   }}>
                     <h3 style={{
                       fontSize: '20px',
-                      color: '#0a385b',
+                      color: 'var(--primary)',
                       fontWeight: '800',
                       marginBottom: '24px',
                       textAlign: 'left',
-                      borderBottom: '2px solid #eff6ff',
+                      borderBottom: '2px solid var(--border-subtle)',
                       paddingBottom: '12px',
                       display: 'flex',
                       alignItems: 'center',
@@ -885,7 +896,7 @@ const Execomm = () => {
             <div>
               <div style={{ textAlign: 'center', marginBottom: '40px' }}>
                 <SectionLabel text="Student Leadership" />
-                <h2 className="font-serif" style={{ fontSize: '28px', color: '#0a385b', fontWeight: '800', marginTop: '8px' }}>
+                <h2 className="font-serif" style={{ fontSize: '28px', color: 'var(--primary)', fontWeight: '800', marginTop: '8px' }}>
                   Student Office Bearers
                 </h2>
                 <p style={{ color: 'var(--text-muted)', fontSize: '14px', maxWidth: '600px', margin: '0 auto' }}>
@@ -908,11 +919,11 @@ const Execomm = () => {
                     }}>
                       <h3 style={{
                         fontSize: '20px',
-                        color: '#0a385b',
+                        color: 'var(--primary)',
                         fontWeight: '800',
                         marginBottom: '24px',
                         textAlign: 'left',
-                        borderBottom: '2px solid #eff6ff',
+                        borderBottom: '2px solid var(--border-subtle)',
                         paddingBottom: '12px',
                         display: 'flex',
                         alignItems: 'center',
@@ -971,12 +982,12 @@ const Execomm = () => {
         .execomm-clickable-card:hover,
         .execomm-clickable-card:focus {
           transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(10, 56, 91, 0.1) !important;
-          border-color: #90CAF9 !important;
+          box-shadow: 0 8px 20px rgba(79, 70, 229, 0.15) !important;
+          border-color: var(--border-focus) !important;
         }
         .modal-close-btn:hover {
           background-color: #ffffff !important;
-          color: #1976D2 !important;
+          color: var(--secondary) !important;
           transform: scale(1.1);
         }
         @keyframes fadeIn {

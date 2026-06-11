@@ -69,9 +69,9 @@ const Home = () => {
 
   const stats = [
     { icon: <Users size={32} style={{ color: 'var(--secondary)' }} />, value: memberCount, label: 'Active Members' },
-    { icon: <Calendar size={32} style={{ color: 'var(--secondary)' }} />, value: eventsCount, label: 'Events Yearly' },
-    { icon: <Award size={32} style={{ color: 'var(--secondary)' }} />, value: awardsCount, label: 'National Awards' },
-    { icon: <BookOpen size={32} style={{ color: 'var(--secondary)' }} />, value: papersCount, label: 'Research Papers' },
+    { icon: <Calendar size={32} style={{ color: 'var(--accent-cyan)' }} />, value: eventsCount, label: 'Events Yearly' },
+    { icon: <Award size={32} style={{ color: '#f59e0b' }} />, value: awardsCount, label: 'National Awards' },
+    { icon: <BookOpen size={32} style={{ color: 'var(--accent)' }} />, value: papersCount, label: 'Research Papers' },
   ];
 
   const tabContent = {
@@ -214,17 +214,6 @@ const Home = () => {
           />
         ))}
 
-        {/* Subtle Dark Overlay to ensure text readability while keeping original image colors fully visible */}
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.3)',
-          zIndex: 1
-        }}></div>
-
         <div className="container" style={{ position: 'relative', zIndex: 2 }}>
           
           {/* Centered Row with IEEE Logo */}
@@ -237,7 +226,11 @@ const Home = () => {
             <img 
               src="/assets/ieee_logo_white.png" 
               alt="IEEE Logo" 
-              style={{ height: '110px', display: 'block' }} 
+              style={{ 
+                height: '110px', 
+                display: 'block',
+                filter: 'drop-shadow(0 4px 16px rgba(0, 0, 0, 0.75))'
+              }} 
             />
           </div>
 
@@ -252,7 +245,7 @@ const Home = () => {
             marginInline: 'auto',
             textTransform: 'uppercase',
             letterSpacing: '1px',
-            textShadow: '0 4px 12px rgba(0,0,0,0.5)',
+            textShadow: '0 2px 12px rgba(0, 0, 0, 0.95), 0 4px 30px rgba(0, 0, 0, 0.95)',
             fontFamily: 'var(--font-sans)'
           }}>
             IEEE Student Branch
@@ -265,16 +258,17 @@ const Home = () => {
             <RouterLink
               to="/contact"
               style={{
-                backgroundColor: 'rgba(10, 56, 91, 0.4)',
-                border: '1.5px solid #c9ebff',
+                backgroundColor: 'rgba(79, 70, 229, 0.25)',
+                backdropFilter: 'blur(12px)',
+                border: '1.5px solid rgba(255, 255, 255, 0.3)',
                 color: '#ffffff',
-                fontWeight: '600',
-                padding: '12px 32px',
+                fontWeight: '700',
+                padding: '14px 36px',
                 borderRadius: '30px',
                 fontSize: '15px',
                 textDecoration: 'none',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 4px 10px rgba(0,0,0,0.2)'
+                transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)'
               }}
               className="hero-btn-hover"
             >
@@ -285,16 +279,17 @@ const Home = () => {
               target="_blank"
               rel="noopener noreferrer"
               style={{
-                backgroundColor: 'rgba(10, 56, 91, 0.4)',
-                border: '1.5px solid #c9ebff',
+                backgroundColor: 'rgba(79, 70, 229, 0.25)',
+                backdropFilter: 'blur(12px)',
+                border: '1.5px solid rgba(255, 255, 255, 0.3)',
                 color: '#ffffff',
-                fontWeight: '600',
-                padding: '12px 32px',
+                fontWeight: '700',
+                padding: '14px 36px',
                 borderRadius: '30px',
                 fontSize: '15px',
                 textDecoration: 'none',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 4px 10px rgba(0,0,0,0.2)'
+                transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)'
               }}
               className="hero-btn-hover"
             >
@@ -327,9 +322,10 @@ const Home = () => {
 
         <style>{`
           .hero-btn-hover:hover {
-            background-color: #c9ebff !important;
-            color: #0a385b !important;
+            background-color: rgba(79, 70, 229, 0.45) !important;
+            border-color: rgba(255, 255, 255, 0.5) !important;
             transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35) !important;
           }
           .hero-dot:hover {
             background-color: #ffffff !important;
@@ -356,20 +352,23 @@ const Home = () => {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '20px',
-                padding: '20px',
-                borderRadius: '8px',
-                backgroundColor: 'var(--bg-light)',
-                border: '1px dashed var(--border-subtle)'
-              }}>
+                padding: '24px 20px',
+                borderRadius: '16px',
+                backgroundColor: '#ffffff',
+                border: '1px solid var(--border-subtle)',
+                boxShadow: 'var(--shadow-sm)',
+                transition: 'all 0.3s ease',
+                cursor: 'pointer'
+              }} className="stat-card-hover">
                 <div style={{
                   width: '60px',
                   height: '60px',
                   borderRadius: '12px',
-                  backgroundColor: '#ffffff',
+                  backgroundColor: 'rgba(79, 70, 229, 0.06)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: 'var(--shadow-sm)'
+                  boxShadow: 'inset 0 0 10px rgba(79, 70, 229, 0.02)'
                 }}>
                   {stat.icon}
                 </div>
@@ -415,15 +414,15 @@ const Home = () => {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   style={{
-                    padding: '12px 24px',
+                    padding: '12px 28px',
                     fontSize: '15px',
                     fontWeight: '600',
                     borderRadius: '30px',
                     border: 'none',
                     cursor: 'pointer',
-                    backgroundColor: activeTab === tab.id ? 'var(--primary)' : '#ffffff',
+                    background: activeTab === tab.id ? 'var(--gradient-colorful)' : '#ffffff',
                     color: activeTab === tab.id ? '#ffffff' : 'var(--text-muted)',
-                    boxShadow: 'var(--shadow-sm)',
+                    boxShadow: activeTab === tab.id ? '0 4px 15px rgba(79, 70, 229, 0.35)' : 'var(--shadow-sm)',
                     transition: 'var(--transition-fast)'
                   }}
                   className="tab-hover"
@@ -485,8 +484,8 @@ const Home = () => {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                       <span style={{
                         display: 'inline-block',
-                        backgroundColor: isPast ? '#e2e8f0' : 'var(--accent-light)',
-                        color: isPast ? '#64748b' : 'var(--primary)',
+                        backgroundColor: isPast ? '#e2e8f0' : 'rgba(79, 70, 229, 0.1)',
+                        color: isPast ? '#64748b' : 'var(--secondary)',
                         padding: '4px 12px',
                         borderRadius: '4px',
                         fontSize: '12px',
@@ -516,7 +515,7 @@ const Home = () => {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-subtle)', paddingTop: '16px' }}>
                     <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: '500' }}>{hl.date}</span>
-                    <RouterLink to={hl.link} style={{ color: isPast ? '#64748b' : 'var(--primary)', textDecoration: 'none', fontWeight: '600', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <RouterLink to={hl.link} style={{ color: isPast ? '#64748b' : 'var(--secondary)', textDecoration: 'none', fontWeight: '600', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                       Details →
                     </RouterLink>
                   </div>
@@ -565,6 +564,11 @@ const Home = () => {
       <style>{`
         .tab-hover:hover {
           transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(79, 70, 229, 0.2) !important;
+        }
+        .stat-card-hover:hover {
+          transform: translateY(-4px);
+          border-color: rgba(79, 70, 229, 0.3) !important;
           box-shadow: var(--shadow-md) !important;
         }
       `}</style>

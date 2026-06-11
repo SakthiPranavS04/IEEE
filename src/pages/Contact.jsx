@@ -3,15 +3,37 @@ import { Mail, Phone, MapPin, Send, CheckCircle } from 'lucide-react';
 
 const PageHeader = ({ title, subtitle }) => (
   <div style={{
-    background: 'linear-gradient(135deg, #0a385b 0%, #02619a 100%)',
+    background: 'var(--gradient-primary)',
     color: '#ffffff',
-    padding: '50px 0',
+    padding: '70px 0',
     textAlign: 'center',
-    marginBottom: '40px'
+    marginBottom: '40px',
+    position: 'relative',
+    overflow: 'hidden'
   }}>
-    <div className="container">
-      <h1 className="font-serif" style={{ fontSize: '32px', color: '#ffffff', marginBottom: '8px' }}>{title}</h1>
-      {subtitle && <p style={{ fontSize: '15px', color: '#d0e4f2' }}>{subtitle}</p>}
+    {/* Decorative top colored line */}
+    <div style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      height: '4px',
+      background: 'var(--gradient-colorful)',
+      zIndex: 2
+    }} />
+    <div style={{
+      position: 'absolute', top: '-10%', right: '-8%',
+      width: '320px', height: '320px', borderRadius: '50%',
+      background: 'radial-gradient(circle, rgba(79, 70, 229, 0.12) 0%, transparent 70%)', pointerEvents: 'none'
+    }} />
+    <div style={{
+      position: 'absolute', bottom: '-20%', left: '-5%',
+      width: '260px', height: '260px', borderRadius: '50%',
+      background: 'radial-gradient(circle, rgba(6, 182, 212, 0.12) 0%, transparent 70%)', pointerEvents: 'none'
+    }} />
+    <div className="container" style={{ position: 'relative', zIndex: 1 }}>
+      <h1 className="font-serif" style={{ fontSize: '38px', color: '#ffffff', marginBottom: '8px', fontWeight: '800' }}>{title}</h1>
+      {subtitle && <p style={{ fontSize: '16px', color: '#d0e4f2', maxWidth: '600px', margin: '0 auto' }}>{subtitle}</p>}
     </div>
   </div>
 );
@@ -225,7 +247,7 @@ const Contact = () => {
       <style>{`
         .input-focus:focus {
           border-color: var(--secondary) !important;
-          box-shadow: 0 0 0 3px rgba(2, 97, 154, 0.15) !important;
+          box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
         }
       `}</style>
     </div>

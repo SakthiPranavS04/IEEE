@@ -3,15 +3,37 @@ import { Image, FileText, X, Maximize2 } from 'lucide-react';
 
 const PageHeader = ({ title, subtitle }) => (
   <div style={{
-    background: 'linear-gradient(135deg, #0a385b 0%, #02619a 100%)',
+    background: 'var(--gradient-primary)',
     color: '#ffffff',
-    padding: '50px 0',
+    padding: '70px 0',
     textAlign: 'center',
-    marginBottom: '40px'
+    marginBottom: '40px',
+    position: 'relative',
+    overflow: 'hidden'
   }}>
-    <div className="container">
-      <h1 className="font-serif" style={{ fontSize: '32px', color: '#ffffff', marginBottom: '8px' }}>{title}</h1>
-      {subtitle && <p style={{ fontSize: '15px', color: '#d0e4f2' }}>{subtitle}</p>}
+    {/* Decorative top colored line */}
+    <div style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      height: '4px',
+      background: 'var(--gradient-colorful)',
+      zIndex: 2
+    }} />
+    <div style={{
+      position: 'absolute', top: '-10%', right: '-8%',
+      width: '320px', height: '320px', borderRadius: '50%',
+      background: 'radial-gradient(circle, rgba(79, 70, 229, 0.12) 0%, transparent 70%)', pointerEvents: 'none'
+    }} />
+    <div style={{
+      position: 'absolute', bottom: '-20%', left: '-5%',
+      width: '260px', height: '260px', borderRadius: '50%',
+      background: 'radial-gradient(circle, rgba(6, 182, 212, 0.12) 0%, transparent 70%)', pointerEvents: 'none'
+    }} />
+    <div className="container" style={{ position: 'relative', zIndex: 1 }}>
+      <h1 className="font-serif" style={{ fontSize: '38px', color: '#ffffff', marginBottom: '8px', fontWeight: '800' }}>{title}</h1>
+      {subtitle && <p style={{ fontSize: '16px', color: '#d0e4f2', maxWidth: '600px', margin: '0 auto' }}>{subtitle}</p>}
     </div>
   </div>
 );
@@ -24,15 +46,80 @@ const Media = () => {
   const [researchPapers, setResearchPapers] = useState([]);
   const [newsItems, setNewsItems] = useState([]);
   const [carouselIndex, setCarouselIndex] = useState(0);
+  const [newsCarouselIndex, setNewsCarouselIndex] = useState(0);
 
   // Predefined default gallery fallback
   const defaultGallery = [
-    { id: 1, title: "Flutter Bootcamp 2026", cat: "Workshop", text: "Students developing cross-platform applications." },
-    { id: 2, title: "National Expo Presentation", cat: "Exhibition", text: "KEC SRC teams displaying agricultural automation solutions." },
-    { id: 3, title: "WIE Career Panel", cat: "Seminar", text: "Interactive panel discussion with tech industry experts." },
-    { id: 4, title: "SPS Embedded DSP Lab Session", cat: "Hands-on", text: "Coding digital filters on microcontrollers." },
-    { id: 5, title: "GreenTech Hackathon Pitching", cat: "Hackathon", text: "Teams presenting prototypes to judges." },
-    { id: 6, title: "Branch Executive Committee Meet", cat: "Meeting", text: "Faculty advisor and branch officers discussing yearly plans." },
+    {
+      id: 1,
+      title: "Sports & Athletics",
+      cat: "Campus Life",
+      text: "State-level facilities",
+      images: ["https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=800&auto=format&fit=crop"]
+    },
+    {
+      id: 2,
+      title: "Cultural Events",
+      cat: "Events",
+      text: "Annual tech fest & symposiums",
+      images: ["https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=800&auto=format&fit=crop"]
+    },
+    {
+      id: 3,
+      title: "Learning Spaces",
+      cat: "Academic",
+      text: "24/7 library access",
+      images: ["https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=800&auto=format&fit=crop"]
+    },
+    {
+      id: 4,
+      title: "Student Clubs",
+      cat: "Engagement",
+      text: "50+ active clubs",
+      images: ["https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800&auto=format&fit=crop"]
+    },
+    {
+      id: 5,
+      title: "World-Class Hostel Facilities",
+      cat: "Living",
+      text: "Separate hostels for boys & girls with modern amenities, Wi-Fi, and 24/7 security",
+      images: ["https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=1200&auto=format&fit=crop"]
+    },
+    {
+      id: 6,
+      title: "Transport Facilities",
+      cat: "Services",
+      text: "Extensive bus network for easy commute",
+      images: ["https://images.unsplash.com/photo-1557223562-6c77ef16210f?q=80&w=800&auto=format&fit=crop"]
+    },
+    {
+      id: 7,
+      title: "Smart Auditoriums",
+      cat: "Infrastructure",
+      text: "Air-conditioned seminar halls with advanced AV systems",
+      images: ["https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=800&auto=format&fit=crop"]
+    },
+    {
+      id: 8,
+      title: "Research Labs",
+      cat: "Innovation",
+      text: "Advanced centers for computing and hardware testing",
+      images: ["https://images.unsplash.com/photo-1507413245164-6160d8298b31?q=80&w=800&auto=format&fit=crop"]
+    },
+    {
+      id: 9,
+      title: "Green Campus",
+      cat: "Environment",
+      text: "Solar energy grids and eco-friendly spaces",
+      images: ["https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?q=80&w=800&auto=format&fit=crop"]
+    },
+    {
+      id: 10,
+      title: "Main Campus Gateway",
+      cat: "KEC",
+      text: "Welcome to Kongu Engineering College autonomous campus",
+      images: ["https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=800&auto=format&fit=crop"]
+    }
   ];
 
   // Default news items
@@ -40,22 +127,25 @@ const Media = () => {
     {
       id: 1,
       title: "IEEE Student Branch KEC wins Best Branch Laurels",
+      cat: "Award",
       source: "Erode Daily",
       date: "Oct 14, 2025",
       snippet: "Kongu Engineering College student branch recognized under Madras Section for outstanding technical contributions and volunteering.",
-      color: "#f59e0b"
+      color: "#8b5cf6"
     },
     {
       id: 2,
       title: "Students showcase Smart Assistive Device at State Expo",
+      cat: "Exhibition",
       source: "Tech Journal",
       date: "Nov 02, 2025",
       snippet: "Sponsored by IEEE SPS and KEC SRC, a student team built a voice-assisted glove prototype for quadriplegic rehabilitation.",
-      color: "#8b5cf6"
+      color: "#06b6d4"
     },
     {
       id: 3,
       title: "National Hackathon on Green Energy hosted by KEC IEEE SB",
+      cat: "Hackathon",
       source: "The Campus News",
       date: "Jan 18, 2026",
       snippet: "More than 50 teams from across Southern India participated to pitch solar tracking and smart grid distribution prototypes.",
@@ -64,13 +154,14 @@ const Media = () => {
   ];
 
   useEffect(() => {
+    // Load and migrate gallery items if they are old or lack images
     const storedGallery = localStorage.getItem('ieee_gallery_items');
-    if (storedGallery) {
-      setGalleryItems(JSON.parse(storedGallery));
-    } else {
+    let parsedGallery = storedGallery ? JSON.parse(storedGallery) : null;
+    if (!parsedGallery || parsedGallery.length === 0 || !parsedGallery[0].images || parsedGallery[0].title === 'Flutter Bootcamp 2026') {
       localStorage.setItem('ieee_gallery_items', JSON.stringify(defaultGallery));
-      setGalleryItems(defaultGallery);
+      parsedGallery = defaultGallery;
     }
+    setGalleryItems(parsedGallery);
 
     // Load Research Papers
     const storedPapers = localStorage.getItem('ieee_research_papers');
@@ -80,14 +171,14 @@ const Media = () => {
       setResearchPapers([]);
     }
 
-    // Load News Items
+    // Load and migrate news items
     const storedNews = localStorage.getItem('ieee_news_items');
-    if (storedNews) {
-      setNewsItems(JSON.parse(storedNews));
-    } else {
+    let parsedNews = storedNews ? JSON.parse(storedNews) : null;
+    if (!parsedNews || parsedNews.length === 0 || !parsedNews[0].cat) {
       localStorage.setItem('ieee_news_items', JSON.stringify(defaultNews));
-      setNewsItems(defaultNews);
+      parsedNews = defaultNews;
     }
+    setNewsItems(parsedNews);
   }, []);
 
 
@@ -105,15 +196,16 @@ const Media = () => {
           <button
             onClick={() => setActiveTab('gallery')}
             style={{
-              padding: '10px 24px',
+              padding: '12px 28px',
               fontSize: '14px',
               fontWeight: '600',
               borderRadius: '30px',
               border: 'none',
               cursor: 'pointer',
-              backgroundColor: activeTab === 'gallery' ? 'var(--primary)' : '#ffffff',
+              background: activeTab === 'gallery' ? 'var(--gradient-colorful)' : '#ffffff',
               color: activeTab === 'gallery' ? '#ffffff' : 'var(--text-muted)',
-              boxShadow: 'var(--shadow-sm)'
+              boxShadow: activeTab === 'gallery' ? '0 4px 15px rgba(79, 70, 229, 0.35)' : 'var(--shadow-sm)',
+              transition: 'all 0.25s ease'
             }}
           >
             Photo Gallery
@@ -121,15 +213,16 @@ const Media = () => {
           <button
             onClick={() => setActiveTab('news')}
             style={{
-              padding: '10px 24px',
+              padding: '12px 28px',
               fontSize: '14px',
               fontWeight: '600',
               borderRadius: '30px',
               border: 'none',
               cursor: 'pointer',
-              backgroundColor: activeTab === 'news' ? 'var(--primary)' : '#ffffff',
+              background: activeTab === 'news' ? 'var(--gradient-colorful)' : '#ffffff',
               color: activeTab === 'news' ? '#ffffff' : 'var(--text-muted)',
-              boxShadow: 'var(--shadow-sm)'
+              boxShadow: activeTab === 'news' ? '0 4px 15px rgba(79, 70, 229, 0.35)' : 'var(--shadow-sm)',
+              transition: 'all 0.25s ease'
             }}
           >
             News Clippings
@@ -137,317 +230,65 @@ const Media = () => {
           <button
             onClick={() => setActiveTab('research')}
             style={{
-              padding: '10px 24px',
+              padding: '12px 28px',
               fontSize: '14px',
               fontWeight: '600',
               borderRadius: '30px',
               border: 'none',
               cursor: 'pointer',
-              backgroundColor: activeTab === 'research' ? 'var(--primary)' : '#ffffff',
+              background: activeTab === 'research' ? 'var(--gradient-colorful)' : '#ffffff',
               color: activeTab === 'research' ? '#ffffff' : 'var(--text-muted)',
-              boxShadow: 'var(--shadow-sm)'
+              boxShadow: activeTab === 'research' ? '0 4px 15px rgba(79, 70, 229, 0.35)' : 'var(--shadow-sm)',
+              transition: 'all 0.25s ease'
             }}
           >
             Research Papers
           </button>
         </div>
 
-        {/* Gallery tab view - Carousel */}
+        {/* Gallery tab view - Bento Grid */}
         {activeTab === 'gallery' && (
           <>
             {galleryItems.length > 0 ? (
-              <div style={{
-                position: 'relative',
-                width: '100%',
-                margin: '0 auto',
-                paddingBottom: '20px'
-              }}>
-                {/* Navigation Arrows */}
-                <button
-                  onClick={() => setCarouselIndex(carouselIndex === 0 ? galleryItems.length - 1 : carouselIndex - 1)}
-                  style={{
-                    position: 'absolute',
-                    left: '0',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    backgroundColor: 'rgba(2, 97, 154, 0.1)',
-                    border: '2px solid #02619a',
-                    color: '#02619a',
-                    borderRadius: '50%',
-                    width: '48px',
-                    height: '48px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    transition: 'all 0.3s ease',
-                    zIndex: 10
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = '#02619a';
-                    e.target.style.color = '#ffffff';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = 'rgba(2, 97, 154, 0.1)';
-                    e.target.style.color = '#02619a';
-                  }}
-                >
-                  ‹
-                </button>
-
-                <button
-                  onClick={() => setCarouselIndex((carouselIndex + 1) % galleryItems.length)}
-                  style={{
-                    position: 'absolute',
-                    right: '0',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    backgroundColor: 'rgba(2, 97, 154, 0.1)',
-                    border: '2px solid #02619a',
-                    color: '#02619a',
-                    borderRadius: '50%',
-                    width: '48px',
-                    height: '48px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    transition: 'all 0.3s ease',
-                    zIndex: 10
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = '#02619a';
-                    e.target.style.color = '#ffffff';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = 'rgba(2, 97, 154, 0.1)';
-                    e.target.style.color = '#02619a';
-                  }}
-                >
-                  ›
-                </button>
-
-                {/* Carousel Container */}
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  gap: '20px',
-                  padding: '0 60px',
-                  minHeight: '400px'
-                }}>
-                  {[...Array(Math.min(3, galleryItems.length))].map((_, offset) => {
-                    if (galleryItems.length === 0) return null;
-                    const itemIndex = (carouselIndex + offset - 1 + galleryItems.length) % galleryItems.length;
-                    const item = galleryItems[itemIndex];
-                    const isCenter = offset === 1;
-                    
-                    if (!item) return null;
-                    
-                    return (
-                      <div
-                        key={`${item.id}-${offset}`}
-                        style={{
-                          flex: isCenter ? '0 0 380px' : '0 0 280px',
-                          height: isCenter ? '420px' : '320px',
-                          transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                          opacity: isCenter ? 1 : 0.6,
-                          transform: `scale(${isCenter ? 1 : 0.85})`,
-                          cursor: 'pointer'
-                        }}
-                        onClick={() => {
-                          if (!isCenter) {
-                            setCarouselIndex(itemIndex);
-                          }
-                        }}
-                      >
-                        <div
-                          className="card"
-                          style={{
-                            padding: '0',
-                            overflow: 'hidden',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            height: '100%',
-                            borderRadius: '16px',
-                            boxShadow: isCenter 
-                              ? '0 20px 40px rgba(10, 56, 91, 0.25)' 
-                              : '0 8px 16px rgba(10, 56, 91, 0.12)',
-                            border: isCenter ? '2px solid #e2e8f0' : '1px solid #e2e8f0',
-                            backgroundColor: '#ffffff',
-                            position: 'relative'
-                          }}
-                        >
-                          {/* Image Section */}
-                          <div
-                            style={{
-                              height: isCenter ? '260px' : '200px',
-                              backgroundColor: '#0a385b',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              position: 'relative',
-                              overflow: 'hidden',
-                              color: 'rgba(255,255,255,0.85)',
-                              flexShrink: 0
-                            }}
-                          >
-                            {item.images && item.images.length > 0 ? (
-                              <img
-                                src={item.images[0]}
-                                alt={item.title}
-                                style={{
-                                  width: '100%',
-                                  height: '100%',
-                                  objectFit: 'cover'
-                                }}
-                              />
-                            ) : (
-                              <Image size={isCenter ? 60 : 40} style={{ opacity: 0.6 }} />
-                            )}
-
-                            {/* Category Badge */}
-                            <span
-                              style={{
-                                position: 'absolute',
-                                top: '12px',
-                                right: '12px',
-                                backgroundColor: 'rgba(2, 97, 154, 0.9)',
-                                color: '#ffffff',
-                                fontSize: '11px',
-                                fontWeight: '700',
-                                padding: '6px 12px',
-                                borderRadius: '20px',
-                                pointerEvents: 'none'
-                              }}
-                            >
-                              {item.cat}
-                            </span>
-
-                            {/* Image Count Badge */}
-                            {item.images && item.images.length > 1 && (
-                              <span
-                                style={{
-                                  position: 'absolute',
-                                  bottom: '12px',
-                                  left: '12px',
-                                  backgroundColor: 'rgba(10, 56, 91, 0.85)',
-                                  color: '#ffffff',
-                                  fontSize: '11px',
-                                  fontWeight: '700',
-                                  padding: '6px 10px',
-                                  borderRadius: '6px',
-                                  pointerEvents: 'none'
-                                }}
-                              >
-                                📁 {item.images.length}
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Text Section */}
-                          <div
-                            style={{
-                              padding: isCenter ? '24px' : '18px',
-                              flex: 1,
-                              display: 'flex',
-                              flexDirection: 'column',
-                              justifyContent: 'space-between'
-                            }}
-                          >
-                            <div>
-                              <h3
-                                style={{
-                                  fontSize: isCenter ? '17px' : '15px',
-                                  color: '#0a385b',
-                                  marginBottom: '8px',
-                                  fontWeight: '700',
-                                  lineHeight: '1.4'
-                                }}
-                              >
-                                {item.title}
-                              </h3>
-                              {isCenter && (
-                                <p
-                                  style={{
-                                    fontSize: '13px',
-                                    color: '#64748b',
-                                    lineHeight: '1.5',
-                                    margin: 0
-                                  }}
-                                >
-                                  {item.text}
-                                </p>
-                              )}
-                            </div>
-
-                            {isCenter && item.images && item.images.length > 0 && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedImage(item);
-                                  setLightboxIndex(0);
-                                }}
-                                style={{
-                                  marginTop: '12px',
-                                  padding: '8px 16px',
-                                  backgroundColor: '#f0f4f8',
-                                  color: '#02619a',
-                                  border: '1px solid #cbd5e1',
-                                  borderRadius: '6px',
-                                  fontSize: '12px',
-                                  fontWeight: '600',
-                                  cursor: 'pointer',
-                                  transition: 'all 0.2s'
-                                }}
-                                onMouseEnter={(e) => {
-                                  e.target.style.backgroundColor = '#02619a';
-                                  e.target.style.color = '#ffffff';
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.target.style.backgroundColor = '#f0f4f8';
-                                  e.target.style.color = '#02619a';
-                                }}
-                              >
-                                View Photos
-                              </button>
-                            )}
-                          </div>
-                        </div>
+              <div className="gallery-bento-grid">
+                {galleryItems.map((item, idx) => (
+                  <div
+                    key={item.id}
+                    className={`gallery-bento-card ${idx === 4 ? 'span-3' : 'span-1'}`}
+                    onClick={() => {
+                      setSelectedImage(item);
+                      setLightboxIndex(0);
+                    }}
+                  >
+                    {item.images && item.images.length > 0 ? (
+                      <img
+                        src={item.images[0]}
+                        alt={item.title}
+                        className="gallery-bento-card-image"
+                      />
+                    ) : (
+                      <div className="gallery-bento-card-placeholder" style={{
+                        width: '100%',
+                        height: '100%',
+                        background: 'var(--gradient-cyber)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        <Image size={48} color="#ffffff" style={{ opacity: 0.6 }} />
                       </div>
-                    );
-                  })}
-                </div>
+                    )}
 
-                {/* Carousel Indicators */}
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    marginTop: '32px'
-                  }}
-                >
-                  {galleryItems.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setCarouselIndex(idx)}
-                      style={{
-                        width: carouselIndex === idx ? '28px' : '8px',
-                        height: '8px',
-                        borderRadius: '4px',
-                        backgroundColor: carouselIndex === idx ? '#02619a' : '#cbd5e1',
-                        border: 'none',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s ease'
-                      }}
-                    />
-                  ))}
-                </div>
+                    {/* Category Tag */}
+                    <span className="gallery-bento-card-badge">{item.cat}</span>
+
+                    {/* Overlay Content */}
+                    <div className="gallery-bento-card-overlay">
+                      <h3 className="gallery-bento-card-title">{item.title}</h3>
+                      <p className="gallery-bento-card-text">{item.text}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : (
               <div style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b' }}>
@@ -459,152 +300,110 @@ const Media = () => {
           </>
         )}
 
-        {/* News tab view - 3 Column Grid */}
+        {/* News tab view - 3D Slider Carousel */}
         {activeTab === 'news' && (
-          <div style={{
-            display: newsItems.length > 0 ? 'grid' : 'flex',
-            gridTemplateColumns: newsItems.length > 0 ? 'repeat(auto-fill, minmax(330px, 1fr))' : '1fr',
-            gap: '28px',
-            alignItems: newsItems.length > 0 ? 'start' : 'center',
-            justifyContent: newsItems.length > 0 ? 'auto' : 'center',
-            minHeight: newsItems.length === 0 ? '400px' : 'auto'
-          }}>
+          <>
             {newsItems.length > 0 ? (
-              newsItems.map((news) => (
-                <div
-                  key={news.id}
-                  className="card"
-                  style={{
-                    overflow: 'hidden',
-                    borderRadius: '14px',
-                    boxShadow: '0 4px 15px rgba(10, 56, 91, 0.1)',
-                    backgroundColor: '#ffffff',
-                    border: '1px solid #e2e8f0',
-                    transition: 'all 0.3s ease',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: '100%',
-                    cursor: 'pointer'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.boxShadow = '0 12px 28px rgba(10, 56, 91, 0.15)';
-                    e.currentTarget.style.transform = 'translateY(-4px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.boxShadow = '0 4px 15px rgba(10, 56, 91, 0.1)';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                  }}
+              <div style={{
+                position: 'relative',
+                width: '100%',
+                margin: '0 auto',
+                paddingBottom: '20px'
+              }}>
+                {/* Navigation Arrows */}
+                <button
+                  onClick={() => setNewsCarouselIndex(newsCarouselIndex === 0 ? newsItems.length - 1 : newsCarouselIndex - 1)}
+                  className="news-slider-arrow left"
                 >
-                  {/* Color Header / Cover Image */}
-                  <div
-                    style={{
-                      height: '140px',
-                      background: news.image ? 'none' : `linear-gradient(135deg, ${news.color} 0%, ${news.color}dd 100%)`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      position: 'relative',
-                      overflow: 'hidden'
-                    }}
-                  >
-                    {news.image ? (
-                      <img src={news.image} alt={news.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    ) : (
-                      <>
-                        <div
-                          style={{
-                            width: '80px',
-                            height: '80px',
-                            borderRadius: '50%',
-                            backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                            position: 'absolute',
-                            right: '-20px',
-                            top: '-20px'
-                          }}
-                        />
-                        <FileText size={48} color="#ffffff" style={{ opacity: 0.9 }} />
-                      </>
-                    )}
-                  </div>
+                  ‹
+                </button>
 
-                  {/* Content */}
-                  <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                    {/* Metadata */}
-                    <div style={{ marginBottom: '12px' }}>
-                      <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '10px' }}>
-                        <span
-                          style={{
-                            fontSize: '11px',
-                            fontWeight: '700',
-                            color: '#ffffff',
-                            backgroundColor: news.color,
-                            padding: '4px 12px',
-                            borderRadius: '20px',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.5px'
-                          }}
-                        >
-                          {news.source}
-                        </span>
-                        <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '500' }}>{news.date}</span>
-                      </div>
+                <button
+                  onClick={() => setNewsCarouselIndex((newsCarouselIndex + 1) % newsItems.length)}
+                  className="news-slider-arrow right"
+                >
+                  ›
+                </button>
 
-                      {/* Title */}
-                      <h3
-                        style={{
-                          fontSize: '16px',
-                          fontWeight: '700',
-                          color: '#0a385b',
-                          marginBottom: '10px',
-                          lineHeight: '1.5',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden'
+                {/* Carousel Container */}
+                <div className="news-slider-track">
+                  {[...Array(Math.min(3, newsItems.length))].map((_, offset) => {
+                    if (newsItems.length === 0) return null;
+                    const itemIndex = (newsCarouselIndex + offset - 1 + newsItems.length) % newsItems.length;
+                    const news = newsItems[itemIndex];
+                    const isCenter = offset === 1;
+                    
+                    if (!news) return null;
+                    
+                    return (
+                      <div
+                        key={`${news.id}-${offset}`}
+                        className={`news-slide-card ${isCenter ? 'center' : 'side'}`}
+                        onClick={() => {
+                          if (!isCenter) {
+                            setNewsCarouselIndex(itemIndex);
+                          }
                         }}
                       >
-                        {news.title}
-                      </h3>
-                    </div>
+                        {/* Cover Image or Gradient */}
+                        <div className="news-slide-cover">
+                          {news.image ? (
+                            <img src={news.image} alt={news.title} className="news-slide-cover-img" />
+                          ) : (
+                            <div className="news-slide-cover-gradient" style={{
+                              background: `linear-gradient(135deg, ${news.color || 'var(--secondary)'} 0%, ${news.color || 'var(--secondary)'}dd 100%)`
+                            }}>
+                              <div className="news-slide-cover-circle" />
+                              <FileText size={isCenter ? 54 : 38} color="#ffffff" style={{ opacity: 0.9, zIndex: 1 }} />
+                            </div>
+                          )}
 
-                    {/* Description */}
-                    <p
-                      style={{
-                        fontSize: '13px',
-                        color: '#64748b',
-                        lineHeight: '1.6',
-                        marginBottom: '12px',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden'
-                      }}
-                    >
-                      {news.snippet}
-                    </p>
+                          {/* Source / Category Badge */}
+                          <span className="news-card-badge">
+                            {news.cat || news.source}
+                          </span>
+                        </div>
 
-                    {/* Read More Link */}
-                    <div
-                      style={{
-                        color: news.color,
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        marginTop: 'auto'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.gap = '8px';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.gap = '4px';
-                      }}
-                    >
-                      Learn more →
-                    </div>
-                  </div>
+                        {/* Content Section */}
+                        <div className="news-slide-content">
+                          <div>
+                            <div className="news-slide-meta">
+                              <span>{news.date}</span>
+                              <span>•</span>
+                              <span>{news.source}</span>
+                            </div>
+                            <h3 className="news-slide-title">
+                              {news.title}
+                            </h3>
+                            {isCenter && (
+                              <p className="news-slide-snippet">
+                                {news.snippet}
+                              </p>
+                            )}
+                          </div>
+
+                          {isCenter && (
+                            <div className="news-slide-link">
+                              Learn more →
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              ))
+
+                {/* Carousel Indicators */}
+                <div className="news-slider-dots">
+                  {newsItems.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setNewsCarouselIndex(idx)}
+                      className={`news-slider-dot ${newsCarouselIndex === idx ? 'active' : ''}`}
+                    />
+                  ))}
+                </div>
+              </div>
             ) : (
               <div style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b', flexDirection: 'column', display: 'flex', alignItems: 'center' }}>
                 <FileText size={48} style={{ opacity: 0.4, marginBottom: '16px' }} />
@@ -612,7 +411,7 @@ const Media = () => {
                 <p style={{ fontSize: '14px' }}>Check back soon for the latest news and announcements</p>
               </div>
             )}
-          </div>
+          </>
         )}
 
         {/* Research Papers tab view */}
@@ -628,7 +427,7 @@ const Media = () => {
                   padding: '28px',
                   backgroundColor: '#ffffff',
                   borderRadius: '12px',
-                  border: '1px solid var(--border-light)',
+                  border: '1px solid var(--border-subtle)',
                   boxShadow: 'var(--shadow-sm)',
                   display: 'flex',
                   flexDirection: 'column',
@@ -639,7 +438,7 @@ const Media = () => {
                       width: '56px',
                       height: '56px',
                       borderRadius: '8px',
-                      backgroundColor: '#e0eef7',
+                      backgroundColor: 'rgba(79, 70, 229, 0.08)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -655,7 +454,7 @@ const Media = () => {
                         color: 'var(--secondary)',
                         textTransform: 'uppercase',
                         display: 'inline-block',
-                        backgroundColor: '#f0f4f8',
+                        backgroundColor: 'rgba(79, 70, 229, 0.05)',
                         padding: '4px 10px',
                         borderRadius: '4px',
                         marginBottom: '6px'
@@ -705,15 +504,15 @@ const Media = () => {
                         alignItems: 'center',
                         gap: '8px',
                         padding: '10px 16px',
-                        backgroundColor: '#f0f4f8',
-                        color: 'var(--primary)',
+                        backgroundColor: 'rgba(79, 70, 229, 0.05)',
+                        color: 'var(--secondary)',
                         borderRadius: '6px',
                         textDecoration: 'none',
                         fontSize: '13px',
                         fontWeight: '600',
                         cursor: 'pointer',
                         marginTop: 'auto',
-                        border: '1px solid #cbd5e1'
+                        border: '1px solid var(--border-subtle)'
                       }}
                       className="paper-download-btn"
                     >

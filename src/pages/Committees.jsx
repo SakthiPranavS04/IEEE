@@ -3,15 +3,47 @@ import { Target, PenTool, Cpu, Share2, Compass } from 'lucide-react';
 
 const PageHeader = ({ title, subtitle }) => (
   <div style={{
-    background: 'linear-gradient(135deg, #0a385b 0%, #02619a 100%)',
+    background: 'var(--gradient-primary)',
     color: '#ffffff',
-    padding: '50px 0',
+    padding: '70px 0',
     textAlign: 'center',
-    marginBottom: '40px'
+    marginBottom: '40px',
+    position: 'relative',
+    overflow: 'hidden'
   }}>
-    <div className="container">
-      <h1 className="font-serif" style={{ fontSize: '32px', color: '#ffffff', marginBottom: '8px' }}>{title}</h1>
-      {subtitle && <p style={{ fontSize: '15px', color: '#d0e4f2' }}>{subtitle}</p>}
+    {/* Decorative top colored line */}
+    <div style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      height: '4px',
+      background: 'var(--gradient-colorful)',
+      zIndex: 2
+    }} />
+    <div style={{
+      position: 'absolute',
+      top: '-10%',
+      right: '-10%',
+      width: '300px',
+      height: '300px',
+      borderRadius: '50%',
+      background: 'radial-gradient(circle, rgba(79, 70, 229, 0.12) 0%, transparent 70%)',
+      pointerEvents: 'none'
+    }} />
+    <div style={{
+      position: 'absolute',
+      bottom: '-20%',
+      left: '-5%',
+      width: '250px',
+      height: '250px',
+      borderRadius: '50%',
+      background: 'radial-gradient(circle, rgba(6, 182, 212, 0.12) 0%, transparent 70%)',
+      pointerEvents: 'none'
+    }} />
+    <div className="container" style={{ position: 'relative', zIndex: 1 }}>
+      <h1 className="font-serif" style={{ fontSize: '38px', color: '#ffffff', marginBottom: '12px', fontWeight: '800' }}>{title}</h1>
+      {subtitle && <p style={{ fontSize: '16px', color: '#d0e4f2', maxWidth: '600px', margin: '0 auto' }}>{subtitle}</p>}
     </div>
   </div>
 );
@@ -19,9 +51,9 @@ const PageHeader = ({ title, subtitle }) => (
 const renderIcon = (name) => {
   switch (name) {
     case 'Technical Committee': return <Cpu size={28} style={{ color: 'var(--secondary)' }} />;
-    case 'Editorial & Content Committee': return <PenTool size={28} style={{ color: 'var(--secondary)' }} />;
-    case 'Creative & Design Committee': return <Target size={28} style={{ color: 'var(--secondary)' }} />;
-    case 'Public Relations & Publicity Committee': return <Share2 size={28} style={{ color: 'var(--secondary)' }} />;
+    case 'Editorial & Content Committee': return <PenTool size={28} style={{ color: 'var(--accent)' }} />;
+    case 'Creative & Design Committee': return <Target size={28} style={{ color: '#f59e0b' }} />;
+    case 'Public Relations & Publicity Committee': return <Share2 size={28} style={{ color: 'var(--accent-cyan)' }} />;
     default: return <Compass size={28} style={{ color: 'var(--secondary)' }} />;
   }
 };
@@ -103,10 +135,11 @@ const Committees = () => {
                     width: '56px',
                     height: '56px',
                     borderRadius: '12px',
-                    backgroundColor: 'var(--accent-light)',
+                    backgroundColor: 'rgba(79, 70, 229, 0.08)',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    justifyContent: 'center',
+                    boxShadow: 'inset 0 0 10px rgba(79, 70, 229, 0.05)'
                   }}>
                     {renderIcon(comm.name)}
                   </div>

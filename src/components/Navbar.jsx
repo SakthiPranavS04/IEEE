@@ -34,8 +34,46 @@ const Navbar = () => {
     {
       name: 'Execomm',
       items: [
-        { name: 'Faculties', link: '/execomm/faculties' },
-        { name: 'Students', link: '/execomm/students' },
+        { 
+          name: 'Faculty Members', 
+          link: '/execomm/faculties',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        },
+        { 
+          name: 'Student Members', 
+          link: '/execomm/students',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        },
+        { 
+          name: 'IEEE Student Branch', 
+          link: '/execomm/student-branch',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.9 19.1 14.2-14.2"/><path d="M12 2v20"/><path d="M20.2 6.8a10 10 0 0 0-16.4 0"/><path d="M3.8 17.2a10 10 0 0 0 16.4 0"/></svg>
+        },
+        { 
+          name: 'IEEE Computer Society', 
+          link: '/execomm/computer-society',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="12" x2="12" y1="2" y2="22"/></svg>
+        },
+        { 
+          name: 'IEEE Women in Engineering (WIE)', 
+          link: '/execomm/wie',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22a7 7 0 0 0 5-12h-1.65a4 4 0 1 0-6.7 0H7a7 7 0 0 0 5 12z"/><path d="M12 2v2"/><path d="M12 8v2"/></svg>
+        },
+        { 
+          name: 'IEEE Robotics & Automation Society (RAS)', 
+          link: '/execomm/ras',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="12" x="3" y="8" rx="2" ry="2"/><path d="M12 2v6"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/><circle cx="8" cy="14" r="1"/><circle cx="16" cy="14" r="1"/></svg>
+        },
+        { 
+          name: 'IEEE Power & Energy Society (PES)', 
+          link: '/execomm/pes',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        },
+        { 
+          name: 'IEEE Communications Society (ComSoc)', 
+          link: '/execomm/comsoc',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a10 10 0 0 1 10 10c0 2.4-1 4.7-2.6 6.4L18 16a6 6 0 0 0 0-8L16.4 6.4c2-2 4.6-3 6.6-3z"/><path d="M12 6a6 6 0 0 1 6 6c0 1.5-.6 3-1.6 4L15 14a3 3 0 0 0 0-4l-1.6-1.6c1.2-1.2 2.8-1.8 3.8-1.8z"/><circle cx="12" cy="12" r="2"/></svg>
+        }
       ],
     },
     {
@@ -63,8 +101,9 @@ const Navbar = () => {
 
   return (
     <header style={{
-      backgroundColor: '#0a385b', /* Dark KSV Blue */
-      borderBottom: '1px solid #0f4875',
+      background: 'rgba(15, 23, 42, 0.85)',
+      backdropFilter: 'blur(16px)',
+      borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
       position: 'sticky',
       top: 0,
       zIndex: 1000,
@@ -88,6 +127,7 @@ const Navbar = () => {
         <nav className="header-nav" style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1, justifyContent: 'center', marginRight: '16px' }}>
           {menuItems.map((item, idx) => {
             if (item.items) {
+              const isExecomm = item.name === 'Execomm';
               return (
                 <div key={idx} className="dropdown-parent" style={{ position: 'relative' }}>
                   <button
@@ -112,24 +152,36 @@ const Navbar = () => {
                     {item.name}
                     <ChevronDown size={12} style={{ opacity: 0.7 }} />
                   </button>
-                  <div className="dropdown-menu" style={{ backgroundColor: '#ffffff', borderColor: '#d0e4f2', boxShadow: 'var(--shadow-md)' }}>
+                  <div className="dropdown-menu" style={{ 
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+                    backdropFilter: 'blur(12px)', 
+                    borderColor: 'var(--border-subtle)', 
+                    borderRadius: '12px', 
+                    boxShadow: 'var(--shadow-lg)', 
+                    overflow: 'hidden',
+                    minWidth: isExecomm ? '300px' : '220px'
+                  }}>
                     {item.items.map((subItem, sIdx) => (
                       <NavLink
                         key={sIdx}
                         to={subItem.link}
                         style={({ isActive }) => ({
-                          display: 'block',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '10px',
                           padding: '10px 20px',
                           fontSize: '13px',
                           fontWeight: '600',
-                          color: isActive ? '#02619a' : '#0a1c2a',
-                          backgroundColor: isActive ? '#f5faff' : 'transparent',
+                          color: isActive ? 'var(--secondary)' : 'var(--text-dark)',
+                          backgroundColor: isActive ? 'rgba(79, 70, 229, 0.05)' : 'transparent',
                           textDecoration: 'none',
-                          borderBottom: '1px solid #eef6fc'
+                          borderBottom: '1px solid var(--border-subtle)',
+                          borderLeft: isActive ? '3px solid var(--secondary)' : '3px solid transparent'
                         })}
                         className="dropdown-item-hover-light"
                       >
-                        {subItem.name}
+                        {subItem.icon && <span style={{ display: 'flex', alignItems: 'center', color: 'var(--secondary)' }}>{subItem.icon}</span>}
+                        <span>{subItem.name}</span>
                       </NavLink>
                     ))}
                   </div>
@@ -142,15 +194,16 @@ const Navbar = () => {
                 key={idx}
                 to={item.link}
                 style={({ isActive }) => ({
-                  padding: '6px 12px',
+                  padding: '6px 14px',
                   fontSize: '13px',
                   fontWeight: '600',
-                  color: isActive ? '#0a385b' : 'rgba(255, 255, 255, 0.9)',
-                  backgroundColor: isActive ? '#ffffff' : 'transparent',
-                  borderRadius: isActive ? '20px' : '4px',
+                  color: isActive ? '#ffffff' : 'rgba(255, 255, 255, 0.85)',
+                  background: isActive ? 'var(--gradient-colorful)' : 'transparent',
+                  borderRadius: '20px',
                   textDecoration: 'none',
                   transition: 'var(--transition-fast)',
-                  whiteSpace: 'nowrap'
+                  whiteSpace: 'nowrap',
+                  boxShadow: isActive ? '0 4px 10px rgba(79, 70, 229, 0.3)' : 'none'
                 })}
                 className={({ isActive }) => isActive ? '' : 'nav-link-hover'}
               >
@@ -165,12 +218,13 @@ const Navbar = () => {
           <Link
             to="/contact"
             style={{
-              border: '1.5px solid #ffffff',
+              border: '1.5px solid rgba(255, 255, 255, 0.4)',
               borderRadius: '20px',
               padding: '8px 20px',
               fontSize: '12px',
               fontWeight: '600',
               color: '#ffffff',
+              background: 'transparent',
               textDecoration: 'none',
               transition: 'var(--transition-fast)',
               whiteSpace: 'nowrap'
@@ -204,16 +258,16 @@ const Navbar = () => {
           <Link
             to="/admin"
             style={{
-              border: '1.5px solid #ffffff',
-              backgroundColor: '#ffffff',
-              color: '#0a385b',
               borderRadius: '20px',
-              padding: '6px 14px',
+              padding: '8px 16px',
               fontSize: '11px',
               fontWeight: '700',
+              color: '#ffffff',
+              background: 'var(--gradient-cyber)',
               textDecoration: 'none',
               transition: 'var(--transition-fast)',
-              whiteSpace: 'nowrap'
+              whiteSpace: 'nowrap',
+              boxShadow: '0 4px 10px rgba(6, 182, 212, 0.3)'
             }}
             className="admin-btn-hover"
           >
@@ -246,8 +300,9 @@ const Navbar = () => {
           top: '80px',
           left: 0,
           right: 0,
-          backgroundColor: '#0a385b',
-          borderBottom: '1px solid #0f4875',
+          background: 'rgba(15, 23, 42, 0.95)',
+          backdropFilter: 'blur(16px)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
           padding: '16px',
           maxHeight: 'calc(100vh - 80px)',
           overflowY: 'auto',
@@ -287,14 +342,27 @@ const Navbar = () => {
                             to={subItem.link}
                             onClick={() => setIsOpen(false)}
                             style={({ isActive }) => ({
-                              display: 'block',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px',
                               padding: '8px',
                               fontSize: '13px',
                               color: isActive ? '#c9ebff' : 'rgba(255,255,255,0.8)',
-                              textDecoration: 'none'
+                              textDecoration: 'none',
+                              borderLeft: isActive ? '2px solid #c9ebff' : '2px solid transparent',
+                              paddingLeft: '8px'
                             })}
                           >
-                            {subItem.name}
+                            {({ isActive }) => (
+                              <>
+                                {subItem.icon && (
+                                  <span style={{ display: 'flex', alignItems: 'center', color: isActive ? '#c9ebff' : 'rgba(255,255,255,0.5)' }}>
+                                    {subItem.icon}
+                                  </span>
+                                )}
+                                <span>{subItem.name}</span>
+                              </>
+                            )}
                           </NavLink>
                         ))}
                       </div>
@@ -327,7 +395,7 @@ const Navbar = () => {
                 to="/contact"
                 onClick={() => setIsOpen(false)}
                 style={{
-                  border: '1.5px solid #ffffff',
+                  border: '1.5px solid rgba(255, 255, 255, 0.3)',
                   borderRadius: '20px',
                   padding: '12px',
                   textAlign: 'center',
@@ -343,8 +411,8 @@ const Navbar = () => {
                 to="/admin"
                 onClick={() => setIsOpen(false)}
                 style={{
-                  backgroundColor: '#ffffff',
-                  color: '#0a385b',
+                  background: 'var(--gradient-cyber)',
+                  color: '#ffffff',
                   borderRadius: '20px',
                   padding: '12px',
                   textAlign: 'center',
@@ -370,13 +438,16 @@ const Navbar = () => {
           color: #02619a !important;
         }
         .rec-btn-hover:hover {
-          background-color: #ffffff !important;
-          color: #0a385b !important;
+          background: var(--gradient-colorful) !important;
+          color: #ffffff !important;
+          border-color: transparent !important;
+          box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
         }
         .admin-btn-hover:hover {
-          background-color: transparent !important;
+          background: var(--gradient-colorful) !important;
           color: #ffffff !important;
-          border-color: #ffffff !important;
+          box-shadow: 0 6px 15px rgba(79, 70, 229, 0.4);
+          transform: translateY(-1px);
         }
 
         /* Tablet and below */

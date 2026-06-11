@@ -14,6 +14,13 @@ import Committees from './pages/Committees';
 import Media from './pages/Media';
 import Contact from './pages/Contact';
 import Admin from './pages/Admin';
+import SocietyPage from './pages/SocietyPage';
+import StudentBranchPage from './pages/StudentBranchPage';
+import ComputerSocietyPage from './pages/ComputerSocietyPage';
+import WIEPage from './pages/WIEPage';
+import RASPage from './pages/RASPage';
+import PESPage from './pages/PESPage';
+import ComSocPage from './pages/ComSocPage';
 
 // About Pages
 import {
@@ -115,6 +122,34 @@ function App() {
           <Route path="/execomm/faculties" element={<Execomm />} />
           <Route path="/execomm/students" element={<Execomm />} />
           <Route path="/committee" element={<Committees />} />
+
+          {/* Redesigned Execomm Society Routes */}
+          <Route path="/execomm/student-branch" element={<StudentBranchPage />} />
+          <Route path="/execomm/computer-society" element={<ComputerSocietyPage />} />
+          <Route path="/execomm/wie" element={<WIEPage />} />
+          <Route path="/execomm/ras" element={<RASPage />} />
+          <Route path="/execomm/pes" element={<PESPage />} />
+          <Route path="/execomm/comsoc" element={<ComSocPage />} />
+
+          {/* Alternate spelling / fallback routes */}
+          <Route path="/execcomm/student-branch" element={<StudentBranchPage />} />
+          <Route path="/execcomm/computer-society" element={<ComputerSocietyPage />} />
+          <Route path="/execcomm/wie" element={<WIEPage />} />
+          <Route path="/execcomm/ras" element={<RASPage />} />
+          <Route path="/execcomm/pes" element={<PESPage />} />
+          <Route path="/execcomm/comsoc" element={<ComSocPage />} />
+
+          {/* Legacy /excomm/ fallback routes */}
+          <Route path="/excomm/student-branch" element={<StudentBranchPage />} />
+          <Route path="/excomm/computer-society" element={<ComputerSocietyPage />} />
+          <Route path="/excomm/wie" element={<WIEPage />} />
+          <Route path="/excomm/ras" element={<RASPage />} />
+          <Route path="/excomm/pes" element={<PESPage />} />
+          <Route path="/excomm/comsoc" element={<ComSocPage />} />
+
+          {/* Fallback route handler for dynamic paths */}
+          <Route path="/excomm/:societyId" element={<SocietyPage />} />
+          <Route path="/execomm/:societyId" element={<SocietyPage />} />
 
           {/* Events Routes */}
           <Route path="/events/upcoming" element={<Events />} />

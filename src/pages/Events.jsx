@@ -4,24 +4,33 @@ import { Calendar, MapPin, Clock, ExternalLink, CheckCircle2, Sparkles } from 'l
 
 const PageHeader = ({ title, subtitle }) => (
   <div style={{
-    background: 'linear-gradient(135deg, #0a385b 0%, #02619a 100%)',
+    background: 'var(--gradient-primary)',
     color: '#ffffff',
-    padding: '60px 0',
+    padding: '70px 0',
     textAlign: 'center',
     marginBottom: '40px',
     position: 'relative',
     overflow: 'hidden'
   }}>
-    {/* Decorative orbs */}
+    {/* Decorative top colored line */}
+    <div style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      height: '4px',
+      background: 'var(--gradient-colorful)',
+      zIndex: 2
+    }} />
     <div style={{
       position: 'absolute', top: '-10%', right: '-8%',
       width: '320px', height: '320px', borderRadius: '50%',
-      background: 'rgba(255,255,255,0.03)', pointerEvents: 'none'
+      background: 'radial-gradient(circle, rgba(79, 70, 229, 0.12) 0%, transparent 70%)', pointerEvents: 'none'
     }} />
     <div style={{
       position: 'absolute', bottom: '-20%', left: '-5%',
       width: '260px', height: '260px', borderRadius: '50%',
-      background: 'rgba(255,255,255,0.02)', pointerEvents: 'none'
+      background: 'radial-gradient(circle, rgba(6, 182, 212, 0.12) 0%, transparent 70%)', pointerEvents: 'none'
     }} />
     <div className="container" style={{ position: 'relative', zIndex: 1 }}>
       <h1 className="font-serif" style={{ fontSize: '38px', color: '#ffffff', marginBottom: '12px', fontWeight: '800' }}>
@@ -205,11 +214,11 @@ const Events = () => {
                 cursor: 'pointer',
                 letterSpacing: '0.3px',
                 transition: 'all 0.25s ease',
-                backgroundColor: active ? '#0a385b' : '#ffffff',
+                background: active ? 'var(--gradient-colorful)' : '#ffffff',
                 color: active ? '#ffffff' : '#64748b',
                 boxShadow: active
-                  ? '0 4px 14px rgba(10,56,91,0.25)'
-                  : '0 2px 6px rgba(0,0,0,0.06)',
+                  ? '0 4px 15px rgba(79, 70, 229, 0.35)'
+                  : '0 2px 6px rgba(0, 0, 0, 0.06)',
               }}
             >
               {label}
@@ -220,19 +229,20 @@ const Events = () => {
         {/* Section intro label */}
         <div style={{ marginBottom: '28px' }}>
           <span style={{
-            padding: '4px 14px',
-            backgroundColor: 'var(--accent-light)',
-            color: 'var(--primary)',
+            padding: '6px 14px',
+            backgroundColor: 'rgba(79, 70, 229, 0.08)',
+            color: 'var(--secondary)',
+            border: '1px solid rgba(79, 70, 229, 0.15)',
             borderRadius: '20px',
             fontSize: '12px',
-            fontWeight: '700',
+            fontWeight: '750',
             textTransform: 'uppercase',
             letterSpacing: '1px'
           }}>
             <Sparkles size={10} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
             {isUpcoming ? 'Upcoming Programs' : 'Completed Programs'}
           </span>
-          <h2 className="font-serif" style={{ fontSize: '24px', color: '#0a385b', marginTop: '10px', fontWeight: '800' }}>
+          <h2 className="font-serif" style={{ fontSize: '24px', color: 'var(--primary)', marginTop: '10px', fontWeight: '800' }}>
             {isUpcoming ? 'Programs Open for Registration' : 'Historical Event Archive'}
           </h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '4px' }}>
@@ -273,7 +283,7 @@ const Events = () => {
                   height: '4px',
                   background: isPast
                     ? 'linear-gradient(90deg, #cbd5e1 0%, #94a3b8 100%)'
-                    : 'linear-gradient(90deg, #0a385b 0%, #02619a 100%)'
+                    : 'var(--gradient-colorful)'
                 }} />
 
                 <div style={{ padding: '28px', display: 'flex', flexDirection: 'column', flex: 1, gap: '0' }}>
@@ -311,7 +321,7 @@ const Events = () => {
                   <h3 style={{
                     fontSize: '17px',
                     marginBottom: '10px',
-                    color: isPast ? '#475569' : '#0a385b',
+                    color: isPast ? '#475569' : 'var(--primary)',
                     lineHeight: '1.45',
                     fontWeight: '750'
                   }}>
@@ -336,17 +346,17 @@ const Events = () => {
                     marginBottom: '20px'
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-muted)' }}>
-                      <Calendar size={13} style={{ color: isPast ? '#94a3b8' : '#02619a', flexShrink: 0 }} />
+                      <Calendar size={13} style={{ color: isPast ? '#94a3b8' : 'var(--secondary)', flexShrink: 0 }} />
                       <span>{evt.date}</span>
                     </div>
                     {evt.time && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-muted)' }}>
-                        <Clock size={13} style={{ color: isPast ? '#94a3b8' : '#02619a', flexShrink: 0 }} />
+                        <Clock size={13} style={{ color: isPast ? '#94a3b8' : 'var(--secondary)', flexShrink: 0 }} />
                         <span>{evt.time}</span>
                       </div>
                     )}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-muted)' }}>
-                      <MapPin size={13} style={{ color: isPast ? '#94a3b8' : '#02619a', flexShrink: 0 }} />
+                      <MapPin size={13} style={{ color: isPast ? '#94a3b8' : 'var(--secondary)', flexShrink: 0 }} />
                       <span>{evt.venue}</span>
                     </div>
                   </div>
@@ -354,22 +364,23 @@ const Events = () => {
                   {/* CTA or Highlight */}
                   {isUpcoming ? (
                     <a
-                      href={evt.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                        backgroundColor: '#0a385b', color: '#ffffff',
-                        padding: '11px 20px', borderRadius: '8px',
-                        fontSize: '14px', fontWeight: '700',
-                        textDecoration: 'none',
-                        transition: 'all 0.25s ease',
-                        letterSpacing: '0.3px'
-                      }}
-                      className="event-register-btn"
-                    >
-                      Register Now <ExternalLink size={14} />
-                    </a>
+                       href={evt.link}
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       style={{
+                         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                         background: 'var(--gradient-colorful)', color: '#ffffff',
+                         padding: '11px 20px', borderRadius: '8px',
+                         fontSize: '14px', fontWeight: '700',
+                         textDecoration: 'none',
+                         transition: 'all 0.25s ease',
+                         letterSpacing: '0.3px',
+                         boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)'
+                       }}
+                       className="event-register-btn"
+                     >
+                       Register Now <ExternalLink size={14} />
+                     </a>
                   ) : (
                     <div style={{
                       backgroundColor: '#f8fafc',
@@ -396,11 +407,12 @@ const Events = () => {
         }
         .event-card:hover {
           transform: translateY(-5px);
-          box-shadow: 0 12px 28px rgba(10,56,91,0.10) !important;
+          box-shadow: 0 12px 28px rgba(79, 70, 229, 0.1) !important;
+          border-color: rgba(79, 70, 229, 0.3) !important;
         }
         .event-register-btn:hover {
-          background-color: #02619a !important;
-          box-shadow: 0 6px 16px rgba(2,97,154,0.28);
+          background: var(--gradient-colorful) !important;
+          box-shadow: 0 6px 18px rgba(79, 70, 229, 0.4);
           transform: translateY(-1px);
         }
       `}</style>

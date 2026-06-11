@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, LogOut, Check, Trash2, Edit3, Plus, Image as ImageIcon, BarChart3, Database, X, Calendar, Award, Users, Target, Settings, Link as LinkIcon, AlertCircle, FileText } from 'lucide-react';
+import { Lock, LogOut, Check, Trash2, Edit3, Plus, Image as ImageIcon, BarChart3, Database, X, Calendar, Award, Users, Target, Settings, Link as LinkIcon, AlertCircle, FileText, Compass, Layers, Save, RefreshCw } from 'lucide-react';
+import { studentBranchData } from '../data/studentBranch';
+import { computerSocietyData } from '../data/computerSociety';
+import { wieData } from '../data/wie';
+import { rasData } from '../data/ras';
+import { pesData } from '../data/pes';
+import { comsocData } from '../data/comsoc';
+
 
 const compressImage = (file) => {
   return new Promise((resolve, reject) => {
@@ -46,7 +53,13 @@ const Admin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [activeTab, setActiveTab] = useState('stats'); // 'stats' | 'events' | 'achievements' | 'execomm' | 'committees' | 'gallery' | 'researchpapers' | 'news'
+  const [activeTab, setActiveTab] = useState('stats'); // 'stats' | 'events' | 'achievements' | 'execomm' | 'committees' | 'gallery' | 'researchpapers' | 'news' | 'branches'
+
+  // Execomm Society Branches Management States
+  const [selectedBranchKey, setSelectedBranchKey] = useState('student-branch');
+  const [branchData, setBranchData] = useState(null);
+  const [branchSubTab, setBranchSubTab] = useState('general'); // 'general' | 'about' | 'faculty-leadership' | 'rosters' | 'gallery-contact'
+  const [branchSaved, setBranchSaved] = useState(false);
 
   // Registration States
   const [isRegistering, setIsRegistering] = useState(false);
@@ -103,6 +116,12 @@ const Admin = () => {
   const [studentImage, setStudentImage] = useState('');
   const [editingSocietyId, setEditingSocietyId] = useState(null);
   const [editingStudentId, setEditingStudentId] = useState(null);
+  const [editingGalleryId, setEditingGalleryId] = useState(null);
+  const [editingEventId, setEditingEventId] = useState(null);
+  const [editingAchievementId, setEditingAchievementId] = useState(null);
+  const [editingCommitteeId, setEditingCommitteeId] = useState(null);
+  const [editingNewsId, setEditingNewsId] = useState(null);
+  const [editingResearchPaperId, setEditingResearchPaperId] = useState(null);
 
   // Committees CRUD State
   const [committees, setCommittees] = useState([]);
@@ -158,6 +177,7 @@ const Admin = () => {
 
   // Modal Form Inputs: News Items
   const [newsTitle, setNewsTitle] = useState('');
+  const [newsCat, setNewsCat] = useState('News');
   const [newsSource, setNewsSource] = useState('');
   const [newsDate, setNewsDate] = useState('');
   const [newsSnippet, setNewsSnippet] = useState('');
@@ -175,12 +195,76 @@ const Admin = () => {
   ];
 
   const defaultGallery = [
-    { id: 1, title: "Flutter Bootcamp 2026", cat: "Workshop", text: "Students developing cross-platform applications." },
-    { id: 2, title: "National Expo Presentation", cat: "Exhibition", text: "KEC SRC teams displaying agricultural automation solutions." },
-    { id: 3, title: "WIE Career Panel", cat: "Seminar", text: "Interactive panel discussion with tech industry experts." },
-    { id: 4, title: "SPS Embedded DSP Lab Session", cat: "Hands-on", text: "Coding digital filters on microcontrollers." },
-    { id: 5, title: "GreenTech Hackathon Pitching", cat: "Hackathon", text: "Teams presenting prototypes to judges." },
-    { id: 6, title: "Branch Executive Committee Meet", cat: "Meeting", text: "Faculty advisor and branch officers discussing yearly plans." },
+    {
+      id: 1,
+      title: "Sports & Athletics",
+      cat: "Campus Life",
+      text: "State-level facilities",
+      images: ["https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=800&auto=format&fit=crop"]
+    },
+    {
+      id: 2,
+      title: "Cultural Events",
+      cat: "Events",
+      text: "Annual tech fest & symposiums",
+      images: ["https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=800&auto=format&fit=crop"]
+    },
+    {
+      id: 3,
+      title: "Learning Spaces",
+      cat: "Academic",
+      text: "24/7 library access",
+      images: ["https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=800&auto=format&fit=crop"]
+    },
+    {
+      id: 4,
+      title: "Student Clubs",
+      cat: "Engagement",
+      text: "50+ active clubs",
+      images: ["https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800&auto=format&fit=crop"]
+    },
+    {
+      id: 5,
+      title: "World-Class Hostel Facilities",
+      cat: "Living",
+      text: "Separate hostels for boys & girls with modern amenities, Wi-Fi, and 24/7 security",
+      images: ["https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=1200&auto=format&fit=crop"]
+    },
+    {
+      id: 6,
+      title: "Transport Facilities",
+      cat: "Services",
+      text: "Extensive bus network for easy commute",
+      images: ["https://images.unsplash.com/photo-1557223562-6c77ef16210f?q=80&w=800&auto=format&fit=crop"]
+    },
+    {
+      id: 7,
+      title: "Smart Auditoriums",
+      cat: "Infrastructure",
+      text: "Air-conditioned seminar halls with advanced AV systems",
+      images: ["https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=800&auto=format&fit=crop"]
+    },
+    {
+      id: 8,
+      title: "Research Labs",
+      cat: "Innovation",
+      text: "Advanced centers for computing and hardware testing",
+      images: ["https://images.unsplash.com/photo-1507413245164-6160d8298b31?q=80&w=800&auto=format&fit=crop"]
+    },
+    {
+      id: 9,
+      title: "Green Campus",
+      cat: "Environment",
+      text: "Solar energy grids and eco-friendly spaces",
+      images: ["https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?q=80&w=800&auto=format&fit=crop"]
+    },
+    {
+      id: 10,
+      title: "Main Campus Gateway",
+      cat: "KEC",
+      text: "Welcome to Kongu Engineering College autonomous campus",
+      images: ["https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=800&auto=format&fit=crop"]
+    }
   ];
 
   const defaultUpcomingEvents = [
@@ -495,22 +579,25 @@ const Admin = () => {
     {
       id: 1,
       title: "IEEE Student Branch KEC wins Best Branch Laurels",
+      cat: "Award",
       source: "Erode Daily",
       date: "Oct 14, 2025",
       snippet: "Kongu Engineering College student branch recognized under Madras Section for outstanding technical contributions and volunteering.",
-      color: "#f59e0b"
+      color: "#8b5cf6"
     },
     {
       id: 2,
       title: "Students showcase Smart Assistive Device at State Expo",
+      cat: "Exhibition",
       source: "Tech Journal",
       date: "Nov 02, 2025",
       snippet: "Sponsored by IEEE SPS and KEC SRC, a student team built a voice-assisted glove prototype for quadriplegic rehabilitation.",
-      color: "#8b5cf6"
+      color: "#06b6d4"
     },
     {
       id: 3,
       title: "National Hackathon on Green Energy hosted by KEC IEEE SB",
+      cat: "Hackathon",
       source: "The Campus News",
       date: "Jan 18, 2026",
       snippet: "More than 50 teams from across Southern India participated to pitch solar tracking and smart grid distribution prototypes.",
@@ -551,12 +638,12 @@ const Admin = () => {
 
     // Load Gallery
     const storedGallery = localStorage.getItem('ieee_gallery_items');
-    if (storedGallery) {
-      setGalleryItems(JSON.parse(storedGallery));
-    } else {
+    let parsedGallery = storedGallery ? JSON.parse(storedGallery) : null;
+    if (!parsedGallery || parsedGallery.length === 0 || !parsedGallery[0].images || parsedGallery[0].title === 'Flutter Bootcamp 2026') {
       localStorage.setItem('ieee_gallery_items', JSON.stringify(defaultGallery));
-      setGalleryItems(defaultGallery);
+      parsedGallery = defaultGallery;
     }
+    setGalleryItems(parsedGallery);
 
     // Load Events
     const storedUpcoming = localStorage.getItem('ieee_events_upcoming');
@@ -625,13 +712,35 @@ const Admin = () => {
 
     // Load News Items
     const storedNews = localStorage.getItem('ieee_news_items');
-    if (storedNews) {
-      setNewsItems(JSON.parse(storedNews));
-    } else {
+    let parsedNews = storedNews ? JSON.parse(storedNews) : null;
+    if (!parsedNews || parsedNews.length === 0 || !parsedNews[0].cat) {
       localStorage.setItem('ieee_news_items', JSON.stringify(defaultNews));
-      setNewsItems(defaultNews);
+      parsedNews = defaultNews;
     }
+    setNewsItems(parsedNews);
   }, []);
+
+  // Load current branch details on selected branch key changes
+  useEffect(() => {
+    const key = selectedBranchKey;
+    const stored = localStorage.getItem(`ieee_society_data_${key}`);
+    if (stored) {
+      try {
+        setBranchData(JSON.parse(stored));
+      } catch (e) {
+        console.error(e);
+      }
+    } else {
+      // Revert to import falls
+      if (key === 'student-branch') setBranchData(JSON.parse(JSON.stringify(studentBranchData)));
+      else if (key === 'computer-society') setBranchData(JSON.parse(JSON.stringify(computerSocietyData)));
+      else if (key === 'wie') setBranchData(JSON.parse(JSON.stringify(wieData)));
+      else if (key === 'ras') setBranchData(JSON.parse(JSON.stringify(rasData)));
+      else if (key === 'pes') setBranchData(JSON.parse(JSON.stringify(pesData)));
+      else if (key === 'comsoc') setBranchData(JSON.parse(JSON.stringify(comsocData)));
+    }
+    setBranchSaved(false);
+  }, [selectedBranchKey]);
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -1239,27 +1348,217 @@ const Admin = () => {
     setEditingStudentId(null);
   };
 
+  const startInlineEditGallery = (item) => {
+    setFormTitle(item.title);
+    setFormCat(item.cat);
+    setFormText(item.text);
+    setFormImages(item.images || []);
+    setEditingGalleryId(item.id);
+  };
+
+  const saveInlineGallery = (id) => {
+    if (!formTitle.trim() || !formText.trim()) return;
+    const updated = galleryItems.map(item =>
+      item.id === id
+        ? { ...item, title: formTitle, cat: formCat, text: formText, images: formImages }
+        : item
+    );
+    setGalleryItems(updated);
+    localStorage.setItem('ieee_gallery_items', JSON.stringify(updated));
+    setEditingGalleryId(null);
+  };
+
+  const startInlineEditEvent = (item, isUpcoming) => {
+    setEventTitle(item.title);
+    setEventDesc(item.desc);
+    setEventDate(item.date);
+    setEventTime(item.time || '');
+    setEventVenue(item.venue);
+    setEventTag(item.tag);
+    setEventIsUpcoming(isUpcoming);
+    setEventLink(item.link || '');
+    setEventHighlights(item.highlights || '');
+    setEditingEventId(item.id);
+  };
+
+  const saveInlineEvent = (id) => {
+    if (!eventTitle.trim() || !eventDesc.trim() || !eventDate.trim() || !eventVenue.trim()) return;
+    if (eventIsUpcoming) {
+      const updated = upcomingEvents.map(item =>
+        item.id === id
+          ? {
+              ...item,
+              title: eventTitle,
+              desc: eventDesc,
+              date: eventDate,
+              time: eventTime,
+              venue: eventVenue,
+              tag: eventTag,
+              link: eventLink
+            }
+          : item
+      );
+      setUpcomingEvents(updated);
+      localStorage.setItem('ieee_events_upcoming', JSON.stringify(updated));
+    } else {
+      const updated = pastEvents.map(item =>
+        item.id === id
+          ? {
+              ...item,
+              title: eventTitle,
+              desc: eventDesc,
+              date: eventDate,
+              time: eventTime,
+              venue: eventVenue,
+              tag: eventTag,
+              highlights: eventHighlights
+            }
+          : item
+      );
+      setPastEvents(updated);
+      localStorage.setItem('ieee_events_past', JSON.stringify(updated));
+    }
+    setEditingEventId(null);
+  };
+
+  const startInlineEditAchievement = (item) => {
+    setAchTitle(item.title);
+    setAchCategory(item.category);
+    setAchDesc(item.desc);
+    setAchIconType(item.iconType);
+    setEditingAchievementId(item.id);
+  };
+
+  const saveInlineAchievement = (id) => {
+    if (!achTitle.trim() || !achDesc.trim()) return;
+    const updated = achievements.map(item =>
+      item.id === id
+        ? { ...item, title: achTitle, category: achCategory, desc: achDesc, iconType: achIconType }
+        : item
+    );
+    setAchievements(updated);
+    localStorage.setItem('ieee_achievements', JSON.stringify(updated));
+    setEditingAchievementId(null);
+  };
+
+  const startInlineEditCommittee = (item) => {
+    setCommName(item.name);
+    setCommDesc(item.desc);
+    setCommLead(item.lead);
+    setCommCoLead(item.coLead);
+    setCommTeamCount(item.teamCount);
+    setEditingCommitteeId(item.id);
+  };
+
+  const saveInlineCommittee = (id) => {
+    if (!commName.trim() || !commDesc.trim() || !commLead.trim()) return;
+    const updated = committees.map(item =>
+      item.id === id
+        ? { ...item, name: commName, desc: commDesc, lead: commLead, coLead: commCoLead, teamCount: commTeamCount }
+        : item
+    );
+    setCommittees(updated);
+    localStorage.setItem('ieee_operational_committees', JSON.stringify(updated));
+    setEditingCommitteeId(null);
+  };
+
+  const startInlineEditNews = (item) => {
+    setNewsTitle(item.title);
+    setNewsSource(item.source);
+    setNewsDate(item.date);
+    setNewsSnippet(item.snippet);
+    setNewsColor(item.color || '#f59e0b');
+    setNewsImage(item.image || null);
+    setNewsCoverType(item.image ? 'image' : 'color');
+    setNewsCat(item.cat || 'News');
+    setEditingNewsId(item.id);
+  };
+
+  const saveInlineNews = (id) => {
+    if (!newsTitle.trim() || !newsSnippet.trim() || !newsSource.trim()) return;
+    const updated = newsItems.map(item =>
+      item.id === id
+        ? {
+            ...item,
+            title: newsTitle,
+            source: newsSource,
+            date: newsDate,
+            snippet: newsSnippet,
+            color: newsColor,
+            image: newsCoverType === 'image' ? newsImage : null,
+            cat: newsCat
+          }
+        : item
+    );
+    setNewsItems(updated);
+    localStorage.setItem('ieee_news_items', JSON.stringify(updated));
+    setEditingNewsId(null);
+  };
+
+  const startInlineEditResearchPaper = (item) => {
+    setPaperTitle(item.title);
+    setPaperAuthors(item.authors);
+    setPaperDesc(item.desc);
+    setPaperCategory(item.category);
+    setPaperYear(item.year);
+    setPaperFile(item.fileUrl || '');
+    setEditingResearchPaperId(item.id);
+  };
+
+  const saveInlineResearchPaper = (id) => {
+    if (!paperTitle.trim() || !paperAuthors.trim() || !paperDesc.trim()) return;
+    const updated = researchPapers.map(item =>
+      item.id === id
+        ? { ...item, title: paperTitle, authors: paperAuthors, desc: paperDesc, category: paperCategory, year: paperYear, fileUrl: paperFile }
+        : item
+    );
+    setResearchPapers(updated);
+    localStorage.setItem('ieee_research_papers', JSON.stringify(updated));
+    setEditingResearchPaperId(null);
+  };
+
   if (!isLoggedIn) {
     return (
       <div style={{
-        minHeight: '75vh',
-        backgroundColor: '#f5faff',
+        minHeight: '85vh',
+        background: 'radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.08) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.08) 0%, transparent 40%), var(--bg-light)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '40px 20px'
+        padding: '60px 20px',
+        fontFamily: 'var(--font-sans)'
       }}>
-        <div className="card" style={{
-          maxWidth: '420px',
+        <div className="card animate-fade-in" style={{
+          maxWidth: '440px',
           width: '100%',
-          padding: '36px',
-          boxShadow: '0 8px 30px rgba(10, 56, 91, 0.08)',
-          backgroundColor: '#ffffff',
-          borderRadius: '16px',
-          border: '1px solid #d0e4f2'
+          padding: '40px 36px',
+          boxShadow: 'var(--shadow-premium)',
+          backgroundColor: 'var(--bg-card)',
+          backdropFilter: 'blur(20px)',
+          borderRadius: '24px',
+          border: '1px solid var(--border-subtle)',
+          position: 'relative',
+          overflow: 'hidden'
         }}>
+          {/* Subtle glow border effect inside */}
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '4px',
+            background: 'var(--gradient-cyber)'
+          }} />
+
           {/* Navigation Toggle for Login/Register */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginBottom: '24px', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px' }}>
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            gap: '20px', 
+            marginBottom: '32px', 
+            borderBottom: '1px solid var(--border-subtle)', 
+            paddingBottom: '12px' 
+          }}>
             <button
               onClick={() => {
                 setIsRegistering(false);
@@ -1272,10 +1571,10 @@ const Admin = () => {
                 border: 'none',
                 fontSize: '15px',
                 fontWeight: '700',
-                color: !isRegistering ? '#02619a' : '#8ca6b9',
+                color: !isRegistering ? 'var(--secondary)' : 'var(--text-muted)',
                 cursor: 'pointer',
-                borderBottom: !isRegistering ? '2.5px solid #02619a' : 'none',
-                paddingBottom: '6px',
+                borderBottom: !isRegistering ? '3px solid var(--secondary)' : '3px solid transparent',
+                paddingBottom: '9px',
                 transition: 'all 0.2s ease'
               }}
             >
@@ -1293,10 +1592,10 @@ const Admin = () => {
                 border: 'none',
                 fontSize: '15px',
                 fontWeight: '700',
-                color: isRegistering ? '#02619a' : '#8ca6b9',
+                color: isRegistering ? 'var(--secondary)' : 'var(--text-muted)',
                 cursor: 'pointer',
-                borderBottom: isRegistering ? '2.5px solid #02619a' : 'none',
-                paddingBottom: '6px',
+                borderBottom: isRegistering ? '3px solid var(--secondary)' : '3px solid transparent',
+                paddingBottom: '9px',
                 transition: 'all 0.2s ease'
               }}
             >
@@ -1306,22 +1605,23 @@ const Admin = () => {
 
           <div style={{ textAlign: 'center', marginBottom: '28px' }}>
             <div style={{
-              width: '60px',
-              height: '60px',
+              width: '64px',
+              height: '64px',
               borderRadius: '50%',
-              backgroundColor: '#02619a',
+              background: 'var(--gradient-cyber)',
               color: '#ffffff',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              margin: '0 auto 16px'
+              margin: '0 auto 16px',
+              boxShadow: 'var(--shadow-glow-cyan)'
             }}>
-              <Lock size={28} />
+              <Lock size={26} />
             </div>
-            <h2 style={{ fontSize: '24px', fontWeight: '800', color: '#0a385b', marginBottom: '8px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '800', color: 'var(--primary)', marginBottom: '8px', letterSpacing: '-0.5px' }}>
               {isRegistering ? 'Register Admin' : 'Admin Login'}
             </h2>
-            <p style={{ fontSize: '13px', color: '#8ca6b9' }}>
+            <p style={{ fontSize: '13.5px', color: 'var(--text-muted)' }}>
               {isRegistering ? 'Create a new admin credential' : 'Authorize to manage branch portal database'}
             </p>
           </div>
@@ -1329,103 +1629,116 @@ const Admin = () => {
           {/* Error & Success Messages */}
           {!isRegistering && loginError && (
             <div style={{
-              padding: '10px 14px',
-              backgroundColor: '#fee2e2',
+              padding: '12px 16px',
+              backgroundColor: 'rgba(239, 68, 68, 0.08)',
               color: '#dc2626',
-              borderRadius: '8px',
-              fontSize: '13px',
+              borderRadius: '10px',
+              fontSize: '13.5px',
               fontWeight: '600',
               marginBottom: '20px',
-              border: '1px solid #fca5a5'
+              border: '1px solid rgba(220, 38, 38, 0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
             }}>
-              ⚠️ {loginError}
+              <AlertCircle size={16} /> {loginError}
             </div>
           )}
 
           {isRegistering && regError && (
             <div style={{
-              padding: '10px 14px',
-              backgroundColor: '#fee2e2',
+              padding: '12px 16px',
+              backgroundColor: 'rgba(239, 68, 68, 0.08)',
               color: '#dc2626',
-              borderRadius: '8px',
-              fontSize: '13px',
+              borderRadius: '10px',
+              fontSize: '13.5px',
               fontWeight: '600',
               marginBottom: '20px',
-              border: '1px solid #fca5a5'
+              border: '1px solid rgba(220, 38, 38, 0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
             }}>
-              ⚠️ {regError}
+              <AlertCircle size={16} /> {regError}
             </div>
           )}
 
           {isRegistering && regSuccess && (
             <div style={{
-              padding: '10px 14px',
-              backgroundColor: '#dcfce7',
+              padding: '12px 16px',
+              backgroundColor: 'rgba(21, 128, 61, 0.08)',
               color: '#15803d',
-              borderRadius: '8px',
-              fontSize: '13px',
+              borderRadius: '10px',
+              fontSize: '13.5px',
               fontWeight: '600',
               marginBottom: '20px',
-              border: '1px solid #bbf7d0'
+              border: '1px solid rgba(21, 128, 61, 0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
             }}>
-              ✅ {regSuccess}
+              <Check size={16} /> {regSuccess}
             </div>
           )}
 
           {/* Conditional Form Render */}
           {!isRegistering ? (
-            <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+            <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Email</label>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--primary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.75px' }}>Email Address</label>
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter admin email"
+                  placeholder="name@kongu.edu"
+                  className="admin-input"
                   style={{
                     width: '100%',
-                    padding: '10px 14px',
-                    borderRadius: '8px',
-                    border: '1px solid #d0e4f2',
+                    padding: '12px 16px',
+                    borderRadius: '10px',
+                    border: '1px solid var(--border-subtle)',
                     fontSize: '14px',
                     outline: 'none',
-                    backgroundColor: '#f8fafc'
+                    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+                    color: 'var(--text-dark)'
                   }}
                 />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Password</label>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--primary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.75px' }}>Password</label>
                 <input
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter password"
+                  placeholder="••••••••"
+                  className="admin-input"
                   style={{
                     width: '100%',
-                    padding: '10px 14px',
-                    borderRadius: '8px',
-                    border: '1px solid #d0e4f2',
+                    padding: '12px 16px',
+                    borderRadius: '10px',
+                    border: '1px solid var(--border-subtle)',
                     fontSize: '14px',
                     outline: 'none',
-                    backgroundColor: '#f8fafc'
+                    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+                    color: 'var(--text-dark)'
                   }}
                 />
               </div>
               <button
                 type="submit"
                 style={{
-                  backgroundColor: '#02619a',
+                  background: 'var(--gradient-cyber)',
                   color: '#ffffff',
                   border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px',
+                  borderRadius: '10px',
+                  padding: '14px',
                   fontSize: '14px',
                   fontWeight: '700',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  marginTop: '10px'
+                  marginTop: '10px',
+                  boxShadow: 'var(--shadow-md)'
                 }}
                 className="admin-login-btn"
               >
@@ -1433,77 +1746,83 @@ const Admin = () => {
               </button>
             </form>
           ) : (
-            <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Email</label>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--primary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.75px' }}>Email Address</label>
                 <input
                   type="email"
                   required
                   value={regEmail}
                   onChange={(e) => setRegEmail(e.target.value)}
                   placeholder="e.g. name@kongu.edu"
+                  className="admin-input"
                   style={{
                     width: '100%',
-                    padding: '10px 14px',
-                    borderRadius: '8px',
-                    border: '1px solid #d0e4f2',
+                    padding: '12px 16px',
+                    borderRadius: '10px',
+                    border: '1px solid var(--border-subtle)',
                     fontSize: '14px',
                     outline: 'none',
-                    backgroundColor: '#f8fafc'
+                    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+                    color: 'var(--text-dark)'
                   }}
                 />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Password</label>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--primary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.75px' }}>Password</label>
                 <input
                   type="password"
                   required
                   value={regPassword}
                   onChange={(e) => setRegPassword(e.target.value)}
                   placeholder="Min 6 characters"
+                  className="admin-input"
                   style={{
                     width: '100%',
-                    padding: '10px 14px',
-                    borderRadius: '8px',
-                    border: '1px solid #d0e4f2',
+                    padding: '12px 16px',
+                    borderRadius: '10px',
+                    border: '1px solid var(--border-subtle)',
                     fontSize: '14px',
                     outline: 'none',
-                    backgroundColor: '#f8fafc'
+                    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+                    color: 'var(--text-dark)'
                   }}
                 />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Confirm Password</label>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--primary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.75px' }}>Confirm Password</label>
                 <input
                   type="password"
                   required
                   value={regConfirmPassword}
                   onChange={(e) => setRegConfirmPassword(e.target.value)}
                   placeholder="Confirm password"
+                  className="admin-input"
                   style={{
                     width: '100%',
-                    padding: '10px 14px',
-                    borderRadius: '8px',
-                    border: '1px solid #d0e4f2',
+                    padding: '12px 16px',
+                    borderRadius: '10px',
+                    border: '1px solid var(--border-subtle)',
                     fontSize: '14px',
                     outline: 'none',
-                    backgroundColor: '#f8fafc'
+                    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+                    color: 'var(--text-dark)'
                   }}
                 />
               </div>
               <button
                 type="submit"
                 style={{
-                  backgroundColor: '#02619a',
+                  background: 'var(--gradient-cyber)',
                   color: '#ffffff',
                   border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px',
+                  borderRadius: '10px',
+                  padding: '14px',
                   fontSize: '14px',
                   fontWeight: '700',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  marginTop: '10px'
+                  marginTop: '10px',
+                  boxShadow: 'var(--shadow-md)'
                 }}
                 className="admin-login-btn"
               >
@@ -1512,48 +1831,53 @@ const Admin = () => {
             </form>
           )}
         </div>
-
-        <style>{`
-          .admin-login-btn:hover {
-            background-color: #0a385b !important;
-            box-shadow: 0 4px 12px rgba(10, 56, 91, 0.2);
-          }
-        `}</style>
       </div>
     );
   }
 
   return (
-    <div style={{ backgroundColor: '#f8fafc', minHeight: '80vh', paddingBottom: '80px' }}>
+    <div className="admin-dashboard-container" style={{ backgroundColor: 'var(--bg-light)', minHeight: '85vh', paddingBottom: '80px', fontFamily: 'var(--font-sans)' }}>
       {/* Header Panel */}
       <div style={{
-        background: 'linear-gradient(135deg, #0a385b 0%, #02619a 100%)',
+        background: 'var(--gradient-primary)',
         color: '#ffffff',
-        padding: '30px 0',
-        marginBottom: '40px'
+        padding: '40px 0',
+        marginBottom: '40px',
+        boxShadow: 'var(--shadow-md)',
+        position: 'relative'
       }}>
+        {/* Neon cyan bottom border line */}
+        <div style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: '4px',
+          background: 'var(--gradient-cyber)'
+        }} />
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
           <div>
-            <h1 style={{ fontSize: '28px', color: '#ffffff', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Database size={28} /> Admin Dashboard
+            <h1 style={{ fontSize: '32px', color: '#ffffff', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '12px', letterSpacing: '-0.75px' }}>
+              <Database size={32} style={{ color: 'var(--accent-cyan)' }} /> Admin Dashboard
             </h1>
-            <p style={{ fontSize: '14px', color: '#d0e4f2', marginTop: '4px' }}>Welcome! You have full authority to modify the whole website's content.</p>
+            <p style={{ fontSize: '14.5px', color: 'rgba(255, 255, 255, 0.75)', marginTop: '6px' }}>Welcome! You have full authority to modify the student branch website's database.</p>
           </div>
           <button
             onClick={handleLogout}
             style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              border: '1.5px solid #ffffff',
+              backgroundColor: 'rgba(255, 255, 255, 0.08)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
               color: '#ffffff',
-              padding: '8px 20px',
-              borderRadius: '20px',
-              fontSize: '13px',
-              fontWeight: '600',
+              padding: '10px 24px',
+              borderRadius: '30px',
+              fontSize: '13.5px',
+              fontWeight: '700',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s ease',
+              backdropFilter: 'blur(4px)'
             }}
             className="admin-logout-btn"
           >
@@ -1566,8 +1890,8 @@ const Admin = () => {
         {/* Tab Selection */}
         <div style={{
           display: 'flex',
-          gap: '8px',
-          borderBottom: '2px solid #e2e8f0',
+          gap: '10px',
+          borderBottom: '2px solid var(--border-subtle)',
           paddingBottom: '16px',
           marginBottom: '32px',
           flexWrap: 'wrap'
@@ -1578,6 +1902,7 @@ const Admin = () => {
             { id: 'events', label: 'Events List', icon: <Calendar size={16} /> },
             { id: 'achievements', label: 'Achievements', icon: <Award size={16} /> },
             { id: 'execomm', label: 'Execomm SB Leaders', icon: <Users size={16} /> },
+            { id: 'branches', label: 'ExeComm Branches', icon: <Layers size={16} /> },
             { id: 'committees', label: 'Committees', icon: <Target size={16} /> },
             { id: 'news', label: 'News Clippings', icon: <FileText size={16} /> },
             { id: 'researchpapers', label: 'Research Papers', icon: <FileText size={16} /> }
@@ -1585,20 +1910,23 @@ const Admin = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
+              className={`tab-btn ${activeTab === tab.id ? 'active-tab' : ''}`}
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                padding: '10px 20px',
+                padding: '10px 22px',
                 fontSize: '13.5px',
                 fontWeight: '700',
                 borderRadius: '30px',
-                border: 'none',
+                border: '1px solid transparent',
                 cursor: 'pointer',
-                backgroundColor: activeTab === tab.id ? '#02619a' : '#ffffff',
-                color: activeTab === tab.id ? '#ffffff' : '#64748b',
-                boxShadow: activeTab === tab.id ? '0 4px 12px rgba(10,56,91,0.15)' : '0 1px 3px rgba(0,0,0,0.05)',
-                transition: 'all 0.2s ease'
+                backgroundColor: activeTab === tab.id ? 'var(--secondary)' : 'rgba(255, 255, 255, 0.7)',
+                color: activeTab === tab.id ? '#ffffff' : 'var(--text-muted)',
+                boxShadow: activeTab === tab.id ? 'var(--shadow-glow)' : 'var(--shadow-sm)',
+                border: activeTab === tab.id ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid var(--border-subtle)',
+                transition: 'all 0.2s ease',
+                backdropFilter: 'blur(8px)'
               }}
             >
               {tab.icon}
@@ -1738,7 +2066,7 @@ const Admin = () => {
 
         {/* Tab 2: Gallery CRUD Operations */}
         {activeTab === 'gallery' && (
-          <div className="animate-fade-in">
+          <div className="animate-fade-in card" style={{ padding: '36px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
               <div>
                 <h2 style={{ fontSize: '20px', color: '#0a385b', fontWeight: '800' }}>Manage Media Gallery Logs</h2>
@@ -1778,39 +2106,138 @@ const Admin = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {galleryItems.map((item, idx) => (
-                      <tr key={item.id} style={{ borderBottom: idx < galleryItems.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
-                        <td style={{ padding: '16px 20px', verticalAlign: 'top' }}>
-                          <span style={{ padding: '4px 10px', backgroundColor: '#e0f2fe', color: '#0369a1', borderRadius: '4px', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase' }}>
-                            {item.cat}
-                          </span>
-                        </td>
-                        <td style={{ padding: '16px 20px', fontWeight: '600', color: '#0a385b', verticalAlign: 'top', minWidth: '180px' }}>
-                          {item.title}
-                        </td>
-                        <td style={{ padding: '16px 20px', color: '#64748b', verticalAlign: 'top', minWidth: '240px' }}>
-                          {item.text}
-                        </td>
-                        <td style={{ padding: '16px 20px', verticalAlign: 'top', textAlign: 'center', width: '130px' }}>
-                          <div style={{ display: 'inline-flex', gap: '8px' }}>
-                            <button
-                              onClick={() => openEditModal('gallery', item)}
-                              style={{ color: '#02619a', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
-                              className="action-btn-hover-edit"
-                            >
-                              <Edit3 size={15} />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteItem('gallery', item.id)}
-                              style={{ color: '#ef4444', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
-                              className="action-btn-hover-delete"
-                            >
-                              <Trash2 size={15} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                    {galleryItems.map((item, idx) => {
+                      const isEditing = editingGalleryId === item.id;
+                      return (
+                        <tr key={item.id} style={{ borderBottom: idx < galleryItems.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
+                          {isEditing ? (
+                            <>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'top' }}>
+                                <select
+                                  value={formCat}
+                                  onChange={(e) => setFormCat(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px', backgroundColor: '#ffffff' }}
+                                >
+                                  <option value="Workshop">Workshop</option>
+                                  <option value="Exhibition">Exhibition</option>
+                                  <option value="Seminar">Seminar</option>
+                                  <option value="Hands-on">Hands-on</option>
+                                  <option value="Hackathon">Hackathon</option>
+                                  <option value="Meeting">Meeting</option>
+                                  <option value="Campus Life">Campus Life</option>
+                                  <option value="Events">Events</option>
+                                  <option value="Academic">Academic</option>
+                                  <option value="Engagement">Engagement</option>
+                                  <option value="Living">Living</option>
+                                  <option value="Services">Services</option>
+                                  <option value="Infrastructure">Infrastructure</option>
+                                  <option value="Innovation">Innovation</option>
+                                  <option value="Environment">Environment</option>
+                                  <option value="KEC">KEC</option>
+                                </select>
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'top' }}>
+                                <input
+                                  type="text"
+                                  value={formTitle}
+                                  onChange={(e) => setFormTitle(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px' }}
+                                />
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'top' }}>
+                                <textarea
+                                  value={formText}
+                                  onChange={(e) => setFormText(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px', fontFamily: 'inherit', resize: 'vertical' }}
+                                  rows="3"
+                                />
+                                <div style={{ marginTop: '8px' }}>
+                                  <label style={{ fontSize: '11px', fontWeight: '700', display: 'block', marginBottom: '4px', color: '#0a385b' }}>Upload Images:</label>
+                                  <input
+                                    type="file"
+                                    multiple
+                                    accept="image/*"
+                                    onChange={handleImagesUpload}
+                                    style={{ fontSize: '11px', width: '100%' }}
+                                  />
+                                  {formImages.length > 0 && (
+                                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '6px' }}>
+                                      {formImages.map((img, i) => (
+                                        <div key={i} style={{ position: 'relative', width: '40px', height: '40px', borderRadius: '4px', overflow: 'hidden', border: '1px solid #cbd5e1' }}>
+                                          <img src={img} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                          <button
+                                            type="button"
+                                            onClick={() => removeFormImage(i)}
+                                            style={{ position: 'absolute', top: '1px', right: '1px', backgroundColor: 'rgba(239, 68, 68, 0.9)', color: '#ffffff', border: 'none', borderRadius: '50%', width: '12px', height: '12px', fontSize: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
+                                          >
+                                            ✕
+                                          </button>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center' }}>
+                                <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                                  <button
+                                    onClick={() => saveInlineGallery(item.id)}
+                                    style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                                  >
+                                    Save
+                                  </button>
+                                  <button
+                                    onClick={() => setEditingGalleryId(null)}
+                                    style={{ backgroundColor: '#64748b', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </td>
+                            </>
+                          ) : (
+                            <>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'top' }}>
+                                <span style={{ padding: '4px 10px', backgroundColor: '#e0f2fe', color: '#0369a1', borderRadius: '4px', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase' }}>
+                                  {item.cat}
+                                </span>
+                              </td>
+                              <td style={{ padding: '16px 20px', fontWeight: '600', color: '#0a385b', verticalAlign: 'top', minWidth: '180px' }}>
+                                {item.title}
+                              </td>
+                              <td style={{ padding: '16px 20px', color: '#64748b', verticalAlign: 'top', minWidth: '240px' }}>
+                                <div>{item.text}</div>
+                                {item.images && item.images.length > 0 && (
+                                  <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
+                                    {item.images.map((img, i) => (
+                                      <img key={i} src={img} alt="Thumb" style={{ width: '30px', height: '30px', borderRadius: '4px', objectFit: 'cover' }} />
+                                    ))}
+                                  </div>
+                                )}
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'top', textAlign: 'center', width: '130px' }}>
+                                <div style={{ display: 'inline-flex', gap: '8px' }}>
+                                  <button
+                                    onClick={() => startInlineEditGallery(item)}
+                                    style={{ color: '#02619a', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
+                                    className="action-btn-hover-edit"
+                                  >
+                                    <Edit3 size={15} />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteItem('gallery', item.id)}
+                                    style={{ color: '#ef4444', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
+                                    className="action-btn-hover-delete"
+                                  >
+                                    <Trash2 size={15} />
+                                  </button>
+                                </div>
+                              </td>
+                            </>
+                          )}
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -1820,7 +2247,7 @@ const Admin = () => {
 
         {/* Tab 3: Events CRUD Operations */}
         {activeTab === 'events' && (
-          <div className="animate-fade-in">
+          <div className="animate-fade-in card" style={{ padding: '36px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
               <div>
                 <h2 style={{ fontSize: '20px', color: '#0a385b', fontWeight: '800' }}>Manage Website Events Calendar</h2>
@@ -1865,85 +2292,268 @@ const Admin = () => {
                   </thead>
                   <tbody>
                     {/* Render Upcoming Events */}
-                    {upcomingEvents.map((item) => (
-                      <tr key={`upcoming-${item.id}`} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                        <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
-                          <span style={{ padding: '4px 10px', backgroundColor: '#dcfce7', color: '#15803d', borderRadius: '20px', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase' }}>
-                            Upcoming
-                          </span>
-                        </td>
-                        <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
-                          <span style={{ padding: '3px 8px', backgroundColor: '#e2e8f0', color: '#475569', borderRadius: '4px', fontSize: '11px', fontWeight: '700' }}>
-                            {item.tag}
-                          </span>
-                        </td>
-                        <td style={{ padding: '16px 20px', fontWeight: '600', color: '#0a385b', verticalAlign: 'middle', minWidth: '220px' }}>
-                          {item.title}
-                        </td>
-                        <td style={{ padding: '16px 20px', color: '#64748b', fontSize: '13px', verticalAlign: 'middle' }}>
-                          <div>📅 {item.date}</div>
-                          <div>📍 {item.venue}</div>
-                        </td>
-                        <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center', width: '130px' }}>
-                          <div style={{ display: 'inline-flex', gap: '8px' }}>
-                            <button
-                              onClick={() => openEditModal('event', item)}
-                              style={{ color: '#02619a', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
-                              className="action-btn-hover-edit"
-                            >
-                              <Edit3 size={15} />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteItem('event', item.id)}
-                              style={{ color: '#ef4444', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
-                              className="action-btn-hover-delete"
-                            >
-                              <Trash2 size={15} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                    {upcomingEvents.map((item) => {
+                      const isEditing = editingEventId === item.id && eventIsUpcoming === true;
+                      return (
+                        <tr key={`upcoming-${item.id}`} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                          {isEditing ? (
+                            <>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                                <span style={{ padding: '4px 10px', backgroundColor: '#dcfce7', color: '#15803d', borderRadius: '20px', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase' }}>
+                                  Upcoming
+                                </span>
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                                <select
+                                  value={eventTag}
+                                  onChange={(e) => setEventTag(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px', backgroundColor: '#ffffff' }}
+                                >
+                                  <option value="Workshop">Workshop</option>
+                                  <option value="Exhibition">Exhibition</option>
+                                  <option value="Seminar">Seminar</option>
+                                  <option value="Hands-on">Hands-on</option>
+                                  <option value="Hackathon">Hackathon</option>
+                                  <option value="Meeting">Meeting</option>
+                                </select>
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'top' }}>
+                                <input
+                                  type="text"
+                                  value={eventTitle}
+                                  onChange={(e) => setEventTitle(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px', marginBottom: '6px' }}
+                                  placeholder="Title"
+                                />
+                                <textarea
+                                  value={eventDesc}
+                                  onChange={(e) => setEventDesc(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px', fontFamily: 'inherit', resize: 'vertical' }}
+                                  rows="2"
+                                  placeholder="Description"
+                                />
+                                <input
+                                  type="text"
+                                  value={eventLink}
+                                  onChange={(e) => setEventLink(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px', marginTop: '6px' }}
+                                  placeholder="Registration Link"
+                                />
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'top' }}>
+                                <input
+                                  type="text"
+                                  value={eventDate}
+                                  onChange={(e) => setEventDate(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px', marginBottom: '6px' }}
+                                  placeholder="Date (e.g. June 12, 2026)"
+                                />
+                                <input
+                                  type="text"
+                                  value={eventTime}
+                                  onChange={(e) => setEventTime(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px', marginBottom: '6px' }}
+                                  placeholder="Time (e.g. 09:00 AM - 04:30 PM)"
+                                />
+                                <input
+                                  type="text"
+                                  value={eventVenue}
+                                  onChange={(e) => setEventVenue(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px' }}
+                                  placeholder="Venue"
+                                />
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center' }}>
+                                <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                                  <button
+                                    onClick={() => saveInlineEvent(item.id)}
+                                    style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                                  >
+                                    Save
+                                  </button>
+                                  <button
+                                    onClick={() => setEditingEventId(null)}
+                                    style={{ backgroundColor: '#64748b', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </td>
+                            </>
+                          ) : (
+                            <>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                                <span style={{ padding: '4px 10px', backgroundColor: '#dcfce7', color: '#15803d', borderRadius: '20px', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase' }}>
+                                  Upcoming
+                                </span>
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                                <span style={{ padding: '3px 8px', backgroundColor: '#e2e8f0', color: '#475569', borderRadius: '4px', fontSize: '11px', fontWeight: '700' }}>
+                                  {item.tag}
+                                </span>
+                              </td>
+                              <td style={{ padding: '16px 20px', fontWeight: '600', color: '#0a385b', verticalAlign: 'middle', minWidth: '220px' }}>
+                                {item.title}
+                              </td>
+                              <td style={{ padding: '16px 20px', color: '#64748b', fontSize: '13px', verticalAlign: 'middle' }}>
+                                <div>📅 {item.date}</div>
+                                <div>📍 {item.venue}</div>
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center', width: '130px' }}>
+                                <div style={{ display: 'inline-flex', gap: '8px' }}>
+                                  <button
+                                    onClick={() => startInlineEditEvent(item, true)}
+                                    style={{ color: '#02619a', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
+                                    className="action-btn-hover-edit"
+                                  >
+                                    <Edit3 size={15} />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteItem('event', item.id)}
+                                    style={{ color: '#ef4444', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
+                                    className="action-btn-hover-delete"
+                                  >
+                                    <Trash2 size={15} />
+                                  </button>
+                                </div>
+                              </td>
+                            </>
+                          )}
+                        </tr>
+                      );
+                    })}
+
                     {/* Render Past Events */}
-                    {pastEvents.map((item, idx) => (
-                      <tr key={`past-${item.id}`} style={{ borderBottom: idx < pastEvents.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
-                        <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
-                          <span style={{ padding: '4px 10px', backgroundColor: '#f1f5f9', color: '#64748b', borderRadius: '20px', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase' }}>
-                            Completed
-                          </span>
-                        </td>
-                        <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
-                          <span style={{ padding: '3px 8px', backgroundColor: '#e2e8f0', color: '#475569', borderRadius: '4px', fontSize: '11px', fontWeight: '700' }}>
-                            {item.tag}
-                          </span>
-                        </td>
-                        <td style={{ padding: '16px 20px', fontWeight: '600', color: '#475569', verticalAlign: 'middle', minWidth: '220px' }}>
-                          {item.title}
-                        </td>
-                        <td style={{ padding: '16px 20px', color: '#64748b', fontSize: '13px', verticalAlign: 'middle' }}>
-                          <div>📅 {item.date}</div>
-                          <div>📍 {item.venue}</div>
-                        </td>
-                        <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center', width: '130px' }}>
-                          <div style={{ display: 'inline-flex', gap: '8px' }}>
-                            <button
-                              onClick={() => openEditModal('event', item)}
-                              style={{ color: '#02619a', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
-                              className="action-btn-hover-edit"
-                            >
-                              <Edit3 size={15} />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteItem('event', item.id)}
-                              style={{ color: '#ef4444', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
-                              className="action-btn-hover-delete"
-                            >
-                              <Trash2 size={15} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                    {pastEvents.map((item, idx) => {
+                      const isEditing = editingEventId === item.id && eventIsUpcoming === false;
+                      return (
+                        <tr key={`past-${item.id}`} style={{ borderBottom: idx < pastEvents.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
+                          {isEditing ? (
+                            <>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                                <span style={{ padding: '4px 10px', backgroundColor: '#f1f5f9', color: '#64748b', borderRadius: '20px', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase' }}>
+                                  Completed
+                                </span>
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                                <select
+                                  value={eventTag}
+                                  onChange={(e) => setEventTag(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px', backgroundColor: '#ffffff' }}
+                                >
+                                  <option value="Workshop">Workshop</option>
+                                  <option value="Exhibition">Exhibition</option>
+                                  <option value="Seminar">Seminar</option>
+                                  <option value="Hands-on">Hands-on</option>
+                                  <option value="Hackathon">Hackathon</option>
+                                  <option value="Meeting">Meeting</option>
+                                </select>
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'top' }}>
+                                <input
+                                  type="text"
+                                  value={eventTitle}
+                                  onChange={(e) => setEventTitle(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px', marginBottom: '6px' }}
+                                  placeholder="Title"
+                                />
+                                <textarea
+                                  value={eventDesc}
+                                  onChange={(e) => setEventDesc(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px', fontFamily: 'inherit', resize: 'vertical' }}
+                                  rows="2"
+                                  placeholder="Description"
+                                />
+                                <input
+                                  type="text"
+                                  value={eventHighlights}
+                                  onChange={(e) => setEventHighlights(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px', marginTop: '6px' }}
+                                  placeholder="Key Highlights"
+                                />
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'top' }}>
+                                <input
+                                  type="text"
+                                  value={eventDate}
+                                  onChange={(e) => setEventDate(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px', marginBottom: '6px' }}
+                                  placeholder="Date (e.g. June 12, 2026)"
+                                />
+                                <input
+                                  type="text"
+                                  value={eventTime}
+                                  onChange={(e) => setEventTime(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px', marginBottom: '6px' }}
+                                  placeholder="Time (e.g. 09:00 AM - 04:30 PM)"
+                                />
+                                <input
+                                  type="text"
+                                  value={eventVenue}
+                                  onChange={(e) => setEventVenue(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px' }}
+                                  placeholder="Venue"
+                                />
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center' }}>
+                                <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                                  <button
+                                    onClick={() => saveInlineEvent(item.id)}
+                                    style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                                  >
+                                    Save
+                                  </button>
+                                  <button
+                                    onClick={() => setEditingEventId(null)}
+                                    style={{ backgroundColor: '#64748b', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </td>
+                            </>
+                          ) : (
+                            <>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                                <span style={{ padding: '4px 10px', backgroundColor: '#f1f5f9', color: '#64748b', borderRadius: '20px', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase' }}>
+                                  Completed
+                                </span>
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                                <span style={{ padding: '3px 8px', backgroundColor: '#e2e8f0', color: '#475569', borderRadius: '4px', fontSize: '11px', fontWeight: '700' }}>
+                                  {item.tag}
+                                </span>
+                              </td>
+                              <td style={{ padding: '16px 20px', fontWeight: '600', color: '#475569', verticalAlign: 'middle', minWidth: '220px' }}>
+                                {item.title}
+                              </td>
+                              <td style={{ padding: '16px 20px', color: '#64748b', fontSize: '13px', verticalAlign: 'middle' }}>
+                                <div>📅 {item.date}</div>
+                                <div>📍 {item.venue}</div>
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center', width: '130px' }}>
+                                <div style={{ display: 'inline-flex', gap: '8px' }}>
+                                  <button
+                                    onClick={() => startInlineEditEvent(item, false)}
+                                    style={{ color: '#02619a', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
+                                    className="action-btn-hover-edit"
+                                  >
+                                    <Edit3 size={15} />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteItem('event', item.id)}
+                                    style={{ color: '#ef4444', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
+                                    className="action-btn-hover-delete"
+                                  >
+                                    <Trash2 size={15} />
+                                  </button>
+                                </div>
+                              </td>
+                            </>
+                          )}
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -1953,7 +2563,7 @@ const Admin = () => {
 
         {/* Tab 4: Achievements CRUD Operations */}
         {activeTab === 'achievements' && (
-          <div className="animate-fade-in">
+          <div className="animate-fade-in card" style={{ padding: '36px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
               <div>
                 <h2 style={{ fontSize: '20px', color: '#0a385b', fontWeight: '800' }}>Manage Student Achievements</h2>
@@ -1994,42 +2604,104 @@ const Admin = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {achievements.map((item, idx) => (
-                      <tr key={item.id} style={{ borderBottom: idx < achievements.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
-                        <td style={{ padding: '16px 20px', verticalAlign: 'top' }}>
-                          <span style={{ padding: '3px 8px', backgroundColor: '#fff7ed', color: '#ea580c', border: '1px solid #ffedd5', borderRadius: '4px', fontSize: '12px', fontWeight: '700' }}>
-                            {item.iconType}
-                          </span>
-                        </td>
-                        <td style={{ padding: '16px 20px', verticalAlign: 'top', fontWeight: '600', color: 'var(--secondary)' }}>
-                          {item.category}
-                        </td>
-                        <td style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', verticalAlign: 'top', minWidth: '180px' }}>
-                          {item.title}
-                        </td>
-                        <td style={{ padding: '16px 20px', color: '#64748b', verticalAlign: 'top', minWidth: '240px' }}>
-                          {item.desc}
-                        </td>
-                        <td style={{ padding: '16px 20px', verticalAlign: 'top', textAlign: 'center', width: '130px' }}>
-                          <div style={{ display: 'inline-flex', gap: '8px' }}>
-                            <button
-                              onClick={() => openEditModal('achievement', item)}
-                              style={{ color: '#02619a', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
-                              className="action-btn-hover-edit"
-                            >
-                              <Edit3 size={15} />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteItem('achievement', item.id)}
-                              style={{ color: '#ef4444', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
-                              className="action-btn-hover-delete"
-                            >
-                              <Trash2 size={15} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                    {achievements.map((item, idx) => {
+                      const isEditing = editingAchievementId === item.id;
+                      return (
+                        <tr key={item.id} style={{ borderBottom: idx < achievements.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
+                          {isEditing ? (
+                            <>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'top' }}>
+                                <select
+                                  value={achIconType}
+                                  onChange={(e) => setAchIconType(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px', backgroundColor: '#ffffff' }}
+                                >
+                                  <option value="Trophy">Trophy</option>
+                                  <option value="Award">Award</option>
+                                  <option value="Star">Star</option>
+                                  <option value="TrendingUp">TrendingUp</option>
+                                </select>
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'top' }}>
+                                <input
+                                  type="text"
+                                  value={achCategory}
+                                  onChange={(e) => setAchCategory(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px' }}
+                                />
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'top' }}>
+                                <input
+                                  type="text"
+                                  value={achTitle}
+                                  onChange={(e) => setAchTitle(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px' }}
+                                />
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'top' }}>
+                                <textarea
+                                  value={achDesc}
+                                  onChange={(e) => setAchDesc(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px', fontFamily: 'inherit', resize: 'vertical' }}
+                                  rows="2"
+                                />
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center' }}>
+                                <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                                  <button
+                                    onClick={() => saveInlineAchievement(item.id)}
+                                    style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                                  >
+                                    Save
+                                  </button>
+                                  <button
+                                    onClick={() => setEditingAchievementId(null)}
+                                    style={{ backgroundColor: '#64748b', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </td>
+                            </>
+                          ) : (
+                            <>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'top' }}>
+                                <span style={{ padding: '3px 8px', backgroundColor: '#fff7ed', color: '#ea580c', border: '1px solid #ffedd5', borderRadius: '4px', fontSize: '12px', fontWeight: '700' }}>
+                                  {item.iconType}
+                                </span>
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'top', fontWeight: '600', color: 'var(--secondary)' }}>
+                                {item.category}
+                              </td>
+                              <td style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', verticalAlign: 'top', minWidth: '180px' }}>
+                                {item.title}
+                              </td>
+                              <td style={{ padding: '16px 20px', color: '#64748b', verticalAlign: 'top', minWidth: '240px' }}>
+                                {item.desc}
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'top', textAlign: 'center', width: '130px' }}>
+                                <div style={{ display: 'inline-flex', gap: '8px' }}>
+                                  <button
+                                    onClick={() => startInlineEditAchievement(item)}
+                                    style={{ color: '#02619a', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
+                                    className="action-btn-hover-edit"
+                                  >
+                                    <Edit3 size={15} />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteItem('achievement', item.id)}
+                                    style={{ color: '#ef4444', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
+                                    className="action-btn-hover-delete"
+                                  >
+                                    <Trash2 size={15} />
+                                  </button>
+                                </div>
+                              </td>
+                            </>
+                          )}
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -2039,7 +2711,13 @@ const Admin = () => {
 
         {/* Tab 5: Execomm (Societies & Students Management) */}
         {activeTab === 'execomm' && (
-          <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+          <div className="animate-fade-in card" style={{ padding: '36px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '30px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '16px' }}>
+              <div>
+                <h2 style={{ fontSize: '20px', color: '#0a385b', fontWeight: '800', margin: 0 }}>Manage ExeComm Committee Members & Faculty Roster</h2>
+                <p style={{ color: '#64748b', fontSize: '13px', marginTop: '2px' }}>Configure general student branch faculty advisors and student representatives.</p>
+              </div>
+            </div>
             {/* Sub-tab selection */}
             <div style={{ display: 'flex', gap: '10px', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px' }}>
               <button
@@ -2543,9 +3221,1481 @@ const Admin = () => {
           </div>
         )}
 
+        {/* Tab: Execomm Society Branches Management */}
+        {activeTab === 'branches' && branchData && (
+          <div className="animate-fade-in card" style={{ padding: '36px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+              <div>
+                <h2 style={{ fontSize: '20px', color: '#0a385b', fontWeight: '800' }}>Manage ExeComm Branches & Society Pages</h2>
+                <p style={{ color: '#64748b', fontSize: '13px', marginTop: '2px' }}>Edit custom content, stats, coordinates, and rosters for all six IEEE societies.</p>
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  onClick={() => {
+                    localStorage.setItem(`ieee_society_data_${selectedBranchKey}`, JSON.stringify(branchData));
+                    setBranchSaved(true);
+                    setTimeout(() => setBranchSaved(false), 3000);
+                  }}
+                  style={{
+                    backgroundColor: '#10b981',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '30px',
+                    padding: '10px 20px',
+                    fontSize: '13.5px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 4px 12px rgba(16,185,129,0.2)'
+                  }}
+                >
+                  <Save size={15} /> Save Branch Details
+                </button>
+                <button
+                  onClick={() => {
+                    if (window.confirm("Are you sure you want to revert all changes for this branch to default settings? This cannot be undone.")) {
+                      localStorage.removeItem(`ieee_society_data_${selectedBranchKey}`);
+                      const key = selectedBranchKey;
+                      if (key === 'student-branch') setBranchData(JSON.parse(JSON.stringify(studentBranchData)));
+                      else if (key === 'computer-society') setBranchData(JSON.parse(JSON.stringify(computerSocietyData)));
+                      else if (key === 'wie') setBranchData(JSON.parse(JSON.stringify(wieData)));
+                      else if (key === 'ras') setBranchData(JSON.parse(JSON.stringify(rasData)));
+                      else if (key === 'pes') setBranchData(JSON.parse(JSON.stringify(pesData)));
+                      else if (key === 'comsoc') setBranchData(JSON.parse(JSON.stringify(comsocData)));
+                      setBranchSaved(true);
+                      setTimeout(() => setBranchSaved(false), 2000);
+                    }
+                  }}
+                  style={{
+                    backgroundColor: '#ef4444',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '30px',
+                    padding: '10px 20px',
+                    fontSize: '13.5px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 4px 12px rgba(239,68,68,0.2)'
+                  }}
+                >
+                  <RefreshCw size={15} /> Reset to Defaults
+                </button>
+              </div>
+            </div>
+
+            {branchSaved && (
+              <div style={{
+                padding: '12px 16px',
+                backgroundColor: '#dcfce7',
+                color: '#15803d',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                marginBottom: '24px',
+                border: '1px solid #bbf7d0',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <Check size={16} /> Changes successfully saved for {branchData.name}!
+              </div>
+            )}
+
+            {/* Branch Selector Dropdown & Grid */}
+            <div style={{ marginBottom: '28px' }}>
+              <label style={{ display: 'block', fontSize: '13.5px', fontWeight: '700', color: '#334155', marginBottom: '8px' }}>Select Branch to Manage:</label>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {[
+                  { key: 'student-branch', name: 'Student Branch', color: '#00629B' },
+                  { key: 'computer-society', name: 'Computer Society', color: '#003366' },
+                  { key: 'wie', name: 'Women in Engineering', color: '#8E44AD' },
+                  { key: 'ras', name: 'Robotics & Automation', color: '#FF6F00' },
+                  { key: 'pes', name: 'Power & Energy', color: '#2E7D32' },
+                  { key: 'comsoc', name: 'Communications Society', color: '#00897B' }
+                ].map(branch => (
+                  <button
+                    key={branch.key}
+                    onClick={() => setSelectedBranchKey(branch.key)}
+                    style={{
+                      padding: '10px 18px',
+                      fontSize: '13px',
+                      fontWeight: '700',
+                      borderRadius: '8px',
+                      border: selectedBranchKey === branch.key ? `2px solid ${branch.color}` : '1px solid #cbd5e1',
+                      cursor: 'pointer',
+                      backgroundColor: selectedBranchKey === branch.key ? `${branch.color}15` : '#f8fafc',
+                      color: selectedBranchKey === branch.key ? branch.color : '#475569',
+                      transition: 'all 0.2s ease',
+                      boxShadow: selectedBranchKey === branch.key ? '0 4px 10px rgba(0,0,0,0.05)' : 'none'
+                    }}
+                  >
+                    <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: branch.color, marginRight: '8px' }}></span>
+                    {branch.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Sub-Tabs Selector */}
+            <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px', marginBottom: '28px', flexWrap: 'wrap' }}>
+              {[
+                { id: 'general', label: 'General & Colors' },
+                { id: 'about', label: 'About & Stats' },
+                { id: 'faculty-leadership', label: 'Faculty & Leaders' },
+                { id: 'rosters', label: 'Rosters & Members' },
+                { id: 'gallery-contact', label: 'Gallery & Contact' }
+              ].map(subTab => (
+                <button
+                  key={subTab.id}
+                  onClick={() => setBranchSubTab(subTab.id)}
+                  style={{
+                    padding: '8px 16px',
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    backgroundColor: branchSubTab === subTab.id ? '#0a385b' : '#f1f5f9',
+                    color: branchSubTab === subTab.id ? '#ffffff' : '#475569',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {subTab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Sub-Tab 1: General Settings */}
+            {branchSubTab === 'general' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>Society Full Name:</label>
+                    <input
+                      type="text"
+                      value={branchData.name || ''}
+                      onChange={(e) => setBranchData({ ...branchData, name: e.target.value })}
+                      style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>Motto / Slogan:</label>
+                    <input
+                      type="text"
+                      value={branchData.motto || ''}
+                      onChange={(e) => setBranchData({ ...branchData, motto: e.target.value })}
+                      style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none' }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>Brief Description:</label>
+                  <textarea
+                    rows="3"
+                    value={branchData.description || ''}
+                    onChange={(e) => setBranchData({ ...branchData, description: e.target.value })}
+                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>Primary Theme Color (HEX):</label>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input
+                        type="color"
+                        value={branchData.theme?.primary || '#00629B'}
+                        onChange={(e) => setBranchData({
+                          ...branchData,
+                          theme: { ...branchData.theme, primary: e.target.value }
+                        })}
+                        style={{ width: '42px', height: '42px', padding: '0', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+                      />
+                      <input
+                        type="text"
+                        value={branchData.theme?.primary || ''}
+                        onChange={(e) => setBranchData({
+                          ...branchData,
+                          theme: { ...branchData.theme, primary: e.target.value }
+                        })}
+                        style={{ flexGrow: 1, padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none' }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>Secondary Theme Color (HEX):</label>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input
+                        type="color"
+                        value={branchData.theme?.secondary || '#ffffff'}
+                        onChange={(e) => setBranchData({
+                          ...branchData,
+                          theme: { ...branchData.theme, secondary: e.target.value }
+                        })}
+                        style={{ width: '42px', height: '42px', padding: '0', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+                      />
+                      <input
+                        type="text"
+                        value={branchData.theme?.secondary || ''}
+                        onChange={(e) => setBranchData({
+                          ...branchData,
+                          theme: { ...branchData.theme, secondary: e.target.value }
+                        })}
+                        style={{ flexGrow: 1, padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>Hero Image URL:</label>
+                    <input
+                      type="text"
+                      value={branchData.heroImage || ''}
+                      onChange={(e) => setBranchData({ ...branchData, heroImage: e.target.value })}
+                      style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>Hero Video URL (Vimeo/CDN looped mp4):</label>
+                    <input
+                      type="text"
+                      value={branchData.heroVideo || ''}
+                      onChange={(e) => setBranchData({ ...branchData, heroVideo: e.target.value })}
+                      style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none' }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Sub-Tab 2: About & Stats */}
+            {branchSubTab === 'about' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                
+                {/* Detailed Overview Field */}
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>About the Society (Detailed Multi-Paragraph Overview):</label>
+                  <textarea
+                    rows="6"
+                    value={branchData.about?.overview || ''}
+                    onChange={(e) => setBranchData({
+                      ...branchData,
+                      about: { ...branchData.about, overview: e.target.value }
+                    })}
+                    placeholder="Provide a detailed overview of the society branch. Use double line breaks (Enter key twice) to start new paragraphs."
+                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', resize: 'vertical', fontFamily: 'inherit', lineHeight: '1.5', fontSize: '13.5px' }}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>Mission Statement:</label>
+                    <textarea
+                      rows="3"
+                      value={branchData.about?.mission || ''}
+                      onChange={(e) => setBranchData({
+                        ...branchData,
+                        about: { ...branchData.about, mission: e.target.value }
+                      })}
+                      style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>Vision Statement:</label>
+                    <textarea
+                      rows="3"
+                      value={branchData.about?.vision || ''}
+                      onChange={(e) => setBranchData({
+                        ...branchData,
+                        about: { ...branchData.about, vision: e.target.value }
+                      })}
+                      style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }}
+                    />
+                  </div>
+                </div>
+
+                {/* Objectives Checklist Manager */}
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <label style={{ fontSize: '13px', fontWeight: '700', color: '#475569' }}>Key Objectives:</label>
+                    <button
+                      onClick={() => {
+                        const objectives = branchData.about?.objectives ? [...branchData.about.objectives] : [];
+                        objectives.push("New objective statement...");
+                        setBranchData({
+                          ...branchData,
+                          about: { ...branchData.about, objectives }
+                        });
+                      }}
+                      style={{ padding: '4px 10px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', border: 'none', borderRadius: '4px', backgroundColor: '#e0f2fe', color: '#0369a1' }}
+                    >
+                      + Add Objective
+                    </button>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {branchData.about?.objectives && branchData.about.objectives.map((obj, index) => (
+                      <div key={index} style={{ display: 'flex', gap: '8px' }}>
+                        <input
+                          type="text"
+                          value={obj || ''}
+                          onChange={(e) => {
+                            const objectives = [...branchData.about.objectives];
+                            objectives[index] = e.target.value;
+                            setBranchData({
+                              ...branchData,
+                              about: { ...branchData.about, objectives }
+                            });
+                          }}
+                          style={{ flexGrow: 1, padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13.5px' }}
+                        />
+                        <button
+                          onClick={() => {
+                            const objectives = branchData.about.objectives.filter((_, i) => i !== index);
+                            setBranchData({
+                              ...branchData,
+                              about: { ...branchData.about, objectives }
+                            });
+                          }}
+                          style={{ padding: '8px 12px', border: 'none', borderRadius: '6px', cursor: 'pointer', backgroundColor: '#fee2e2', color: '#ef4444' }}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Statistics Counter Fields */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '13.5px', fontWeight: '800', color: '#0a385b', borderTop: '1px solid #f1f5f9', paddingTop: '16px', marginBottom: '12px' }}>Statistics Counters</label>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Members Count:</label>
+                      <input
+                        type="text"
+                        value={branchData.statistics?.members || ''}
+                        onChange={(e) => setBranchData({
+                          ...branchData,
+                          statistics: { ...branchData.statistics, members: e.target.value }
+                        })}
+                        style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Events Count:</label>
+                      <input
+                        type="text"
+                        value={branchData.statistics?.events || ''}
+                        onChange={(e) => setBranchData({
+                          ...branchData,
+                          statistics: { ...branchData.statistics, events: e.target.value }
+                        })}
+                        style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Awards Count:</label>
+                      <input
+                        type="text"
+                        value={branchData.statistics?.awards || ''}
+                        onChange={(e) => setBranchData({
+                          ...branchData,
+                          statistics: { ...branchData.statistics, awards: e.target.value }
+                        })}
+                        style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Projects Count:</label>
+                      <input
+                        type="text"
+                        value={branchData.statistics?.projects || ''}
+                        onChange={(e) => setBranchData({
+                          ...branchData,
+                          statistics: { ...branchData.statistics, projects: e.target.value }
+                        })}
+                        style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Flagship Initiatives Section */}
+                <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '20px', marginTop: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                    <label style={{ display: 'block', fontSize: '14.5px', fontWeight: '800', color: '#0a385b', margin: 0 }}>
+                      Manage Flagship Initiatives ({branchData.initiatives ? branchData.initiatives.length : 0} items)
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const initiatives = branchData.initiatives ? [...branchData.initiatives] : [];
+                        initiatives.push({ title: 'New Initiative', description: '', icon: 'Cpu', tag: '' });
+                        setBranchData({ ...branchData, initiatives });
+                      }}
+                      style={{ padding: '6px 12px', fontSize: '12.2px', fontWeight: '700', cursor: 'pointer', border: 'none', borderRadius: '4px', backgroundColor: '#e2fbe8', color: '#15803d' }}
+                    >
+                      + Add Initiative
+                    </button>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    {branchData.initiatives && branchData.initiatives.map((initiative, idx) => (
+                      <div key={idx} style={{ padding: '20px', backgroundColor: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', position: 'relative' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                          <h4 style={{ fontSize: '13.5px', color: '#0a385b', fontWeight: '800', margin: 0 }}>Initiative #{idx + 1}</h4>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const initiatives = branchData.initiatives.filter((_, i) => i !== idx);
+                              setBranchData({ ...branchData, initiatives });
+                            }}
+                            style={{ border: 'none', background: 'none', color: '#ef4444', cursor: 'pointer', padding: 0 }}
+                            title="Delete Initiative"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Title:</label>
+                            <input
+                              type="text"
+                              value={initiative.title || ''}
+                              onChange={(e) => {
+                                const initiatives = [...branchData.initiatives];
+                                initiatives[idx].title = e.target.value;
+                                setBranchData({ ...branchData, initiatives });
+                              }}
+                              style={{ width: '100%', padding: '8px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Icon:</label>
+                            <select
+                              value={initiative.icon || 'Cpu'}
+                              onChange={(e) => {
+                                const initiatives = [...branchData.initiatives];
+                                initiatives[idx].icon = e.target.value;
+                                setBranchData({ ...branchData, initiatives });
+                              }}
+                              style={{ width: '100%', padding: '8px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#ffffff' }}
+                            >
+                              {['Cpu', 'Network', 'Zap', 'Heart', 'Code', 'Globe', 'Award', 'Users'].map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Tag (e.g. Skill Dev):</label>
+                            <input
+                              type="text"
+                              value={initiative.tag || ''}
+                              onChange={(e) => {
+                                const initiatives = [...branchData.initiatives];
+                                initiatives[idx].tag = e.target.value;
+                                setBranchData({ ...branchData, initiatives });
+                              }}
+                              style={{ width: '100%', padding: '8px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Description:</label>
+                          <textarea
+                            rows="2"
+                            value={initiative.description || ''}
+                            onChange={(e) => {
+                              const initiatives = [...branchData.initiatives];
+                              initiatives[idx].description = e.target.value;
+                              setBranchData({ ...branchData, initiatives });
+                            }}
+                            style={{ width: '100%', padding: '8px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1', resize: 'vertical', fontFamily: 'inherit' }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+            )}
+
+            {/* Sub-Tab 3: Faculty & Leaders */}
+            {branchSubTab === 'faculty-leadership' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+                
+                {/* Faculty Advisor Section */}
+                <div style={{ backgroundColor: '#f8fafc', padding: '20px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                  <h3 style={{ fontSize: '15px', color: '#0a385b', fontWeight: '800', marginBottom: '16px' }}>Faculty In-Charge Details</h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '20px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
+                      {branchData.facultyIncharge?.photo ? (
+                        <img src={branchData.facultyIncharge.photo} alt="Faculty Incharge" style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #cbd5e1' }} />
+                      ) : (
+                        <div style={{ width: '120px', height: '120px', borderRadius: '50%', backgroundColor: '#cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#475569' }}>No Photo</div>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={async (e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            try {
+                              const base64 = await compressImage(file);
+                              setBranchData({
+                                ...branchData,
+                                facultyIncharge: { ...branchData.facultyIncharge, photo: base64 }
+                              });
+                            } catch (err) {
+                              console.error(err);
+                            }
+                          }
+                        }}
+                        style={{ fontSize: '11px', width: '150px' }}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Or paste photo URL..."
+                        value={branchData.facultyIncharge?.photo || ''}
+                        onChange={(e) => setBranchData({
+                          ...branchData,
+                          facultyIncharge: { ...branchData.facultyIncharge, photo: e.target.value }
+                        })}
+                        style={{ width: '100%', padding: '6px', fontSize: '11px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                      />
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Name:</label>
+                        <input
+                          type="text"
+                          value={branchData.facultyIncharge?.name || ''}
+                          onChange={(e) => setBranchData({
+                            ...branchData,
+                            facultyIncharge: { ...branchData.facultyIncharge, name: e.target.value }
+                          })}
+                          style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Position:</label>
+                        <input
+                          type="text"
+                          value={branchData.facultyIncharge?.position || ''}
+                          onChange={(e) => setBranchData({
+                            ...branchData,
+                            facultyIncharge: { ...branchData.facultyIncharge, position: e.target.value }
+                          })}
+                          style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Department:</label>
+                        <input
+                          type="text"
+                          value={branchData.facultyIncharge?.department || ''}
+                          onChange={(e) => setBranchData({
+                            ...branchData,
+                            facultyIncharge: { ...branchData.facultyIncharge, department: e.target.value }
+                          })}
+                          style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Phone Number:</label>
+                        <input
+                          type="text"
+                          value={branchData.facultyIncharge?.phone || ''}
+                          onChange={(e) => setBranchData({
+                            ...branchData,
+                            facultyIncharge: { ...branchData.facultyIncharge, phone: e.target.value }
+                          })}
+                          style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                        />
+                      </div>
+                      <div style={{ gridColumn: 'span 2' }}>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Email Address:</label>
+                        <input
+                          type="email"
+                          value={branchData.facultyIncharge?.email || ''}
+                          onChange={(e) => setBranchData({
+                            ...branchData,
+                            facultyIncharge: { ...branchData.facultyIncharge, email: e.target.value }
+                          })}
+                          style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Leadership (Chairman & Vice Chairman) Section */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                  
+                  {/* Chairman Card */}
+                  <div style={{ backgroundColor: '#f8fafc', padding: '20px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                    <h3 style={{ fontSize: '14.5px', color: '#0a385b', fontWeight: '800', marginBottom: '16px' }}>Chairman Profile</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                        {branchData.chairman?.photo ? (
+                          <img src={branchData.chairman.photo} alt="Chairman" style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover' }} />
+                        ) : (
+                          <div style={{ width: '60px', height: '60px', borderRadius: '8px', backgroundColor: '#cbd5e1' }} />
+                        )}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files[0];
+                              if (file) {
+                                try {
+                                  const base64 = await compressImage(file);
+                                  setBranchData({
+                                    ...branchData,
+                                    chairman: { ...branchData.chairman, photo: base64 }
+                                  });
+                                } catch (err) {
+                                  console.error(err);
+                                }
+                              }
+                            }}
+                            style={{ fontSize: '10px', width: '140px' }}
+                          />
+                          <input
+                            type="text"
+                            placeholder="Photo URL"
+                            value={branchData.chairman?.photo || ''}
+                            onChange={(e) => setBranchData({
+                              ...branchData,
+                              chairman: { ...branchData.chairman, photo: e.target.value }
+                            })}
+                            style={{ width: '140px', padding: '4px', fontSize: '10px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                          />
+                        </div>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                        <input
+                          type="text"
+                          placeholder="Name"
+                          value={branchData.chairman?.name || ''}
+                          onChange={(e) => setBranchData({
+                            ...branchData,
+                            chairman: { ...branchData.chairman, name: e.target.value }
+                          })}
+                          style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                        />
+                        <input
+                          type="text"
+                          placeholder="Position"
+                          value={branchData.chairman?.position || ''}
+                          onChange={(e) => setBranchData({
+                            ...branchData,
+                            chairman: { ...branchData.chairman, position: e.target.value }
+                          })}
+                          style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                        />
+                        <input
+                          type="text"
+                          placeholder="Year (e.g. IV Year)"
+                          value={branchData.chairman?.year || ''}
+                          onChange={(e) => setBranchData({
+                            ...branchData,
+                            chairman: { ...branchData.chairman, year: e.target.value }
+                          })}
+                          style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                        />
+                        <input
+                          type="text"
+                          placeholder="Department"
+                          value={branchData.chairman?.department || ''}
+                          onChange={(e) => setBranchData({
+                            ...branchData,
+                            chairman: { ...branchData.chairman, department: e.target.value }
+                          })}
+                          style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Vice Chairman Card */}
+                  <div style={{ backgroundColor: '#f8fafc', padding: '20px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                    <h3 style={{ fontSize: '14.5px', color: '#0a385b', fontWeight: '800', marginBottom: '16px' }}>Vice Chairman Profile</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                        {branchData.viceChairman?.photo ? (
+                          <img src={branchData.viceChairman.photo} alt="Vice Chairman" style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover' }} />
+                        ) : (
+                          <div style={{ width: '60px', height: '60px', borderRadius: '8px', backgroundColor: '#cbd5e1' }} />
+                        )}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files[0];
+                              if (file) {
+                                try {
+                                  const base64 = await compressImage(file);
+                                  setBranchData({
+                                    ...branchData,
+                                    viceChairman: { ...branchData.viceChairman, photo: base64 }
+                                  });
+                                } catch (err) {
+                                  console.error(err);
+                                }
+                              }
+                            }}
+                            style={{ fontSize: '10px', width: '140px' }}
+                          />
+                          <input
+                            type="text"
+                            placeholder="Photo URL"
+                            value={branchData.viceChairman?.photo || ''}
+                            onChange={(e) => setBranchData({
+                              ...branchData,
+                              viceChairman: { ...branchData.viceChairman, photo: e.target.value }
+                            })}
+                            style={{ width: '140px', padding: '4px', fontSize: '10px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                          />
+                        </div>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                        <input
+                          type="text"
+                          placeholder="Name"
+                          value={branchData.viceChairman?.name || ''}
+                          onChange={(e) => setBranchData({
+                            ...branchData,
+                            viceChairman: { ...branchData.viceChairman, name: e.target.value }
+                          })}
+                          style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                        />
+                        <input
+                          type="text"
+                          placeholder="Position"
+                          value={branchData.viceChairman?.position || ''}
+                          onChange={(e) => setBranchData({
+                            ...branchData,
+                            viceChairman: { ...branchData.viceChairman, position: e.target.value }
+                          })}
+                          style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                        />
+                        <input
+                          type="text"
+                          placeholder="Year (e.g. IV Year)"
+                          value={branchData.viceChairman?.year || ''}
+                          onChange={(e) => setBranchData({
+                            ...branchData,
+                            viceChairman: { ...branchData.viceChairman, year: e.target.value }
+                          })}
+                          style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                        />
+                        <input
+                          type="text"
+                          placeholder="Department"
+                          value={branchData.viceChairman?.department || ''}
+                          onChange={(e) => setBranchData({
+                            ...branchData,
+                            viceChairman: { ...branchData.viceChairman, department: e.target.value }
+                          })}
+                          style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            )}
+
+            {/* Sub-Tab 4: Rosters & Members */}
+            {branchSubTab === 'rosters' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                
+                {/* Office Bearers List */}
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                    <h3 style={{ fontSize: '15px', color: '#0a385b', fontWeight: '800', margin: 0 }}>Office Bearers List</h3>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const colName = window.prompt("Enter new column name for Office Bearers:");
+                          if (colName && colName.trim()) {
+                            const customCols = branchData.officeBearersCustomCols ? [...branchData.officeBearersCustomCols] : [];
+                            if (customCols.includes(colName.trim())) {
+                              alert("Column already exists!");
+                              return;
+                            }
+                            customCols.push(colName.trim());
+                            setBranchData({ ...branchData, officeBearersCustomCols: customCols });
+                          }
+                        }}
+                        style={{ padding: '6px 12px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', border: '1px solid #cbd5e1', borderRadius: '4px', backgroundColor: '#ffffff', color: '#475569' }}
+                      >
+                        + Add Column
+                      </button>
+                      <button
+                        onClick={() => {
+                          const officeBearers = branchData.officeBearers ? [...branchData.officeBearers] : [];
+                          officeBearers.unshift({
+                            name: "New Roster...",
+                            position: "Secretary",
+                            year: "III Year",
+                            department: "ECE Department",
+                            photo: "https://i.pravatar.cc/300?img=15",
+                            ieeeMembershipNo: "",
+                            customFields: {}
+                          });
+                          setBranchData({ ...branchData, officeBearers });
+                        }}
+                        style={{ padding: '6px 12px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', border: 'none', borderRadius: '4px', backgroundColor: '#e2fbe8', color: '#15803d' }}
+                      >
+                        + Add Office Bearer
+                      </button>
+                    </div>
+                  </div>
+
+                  <div style={{ maxHeight: '420px', overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+                      <thead>
+                        <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
+                          <th style={{ padding: '12px', fontWeight: '700', color: '#0a385b' }}>Photo</th>
+                          <th style={{ padding: '12px', fontWeight: '700', color: '#0a385b' }}>Name</th>
+                          <th style={{ padding: '12px', fontWeight: '700', color: '#0a385b' }}>Position</th>
+                          <th style={{ padding: '12px', fontWeight: '700', color: '#0a385b' }}>Year</th>
+                          <th style={{ padding: '12px', fontWeight: '700', color: '#0a385b' }}>Department</th>
+                          <th style={{ padding: '12px', fontWeight: '700', color: '#0a385b' }}>IEEE No</th>
+                          {branchData.officeBearersCustomCols && branchData.officeBearersCustomCols.map((col, cIdx) => (
+                            <th key={cIdx} style={{ padding: '12px', fontWeight: '700', color: '#0a385b' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                {col}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (window.confirm(`Are you sure you want to delete the column "${col}"?`)) {
+                                      const customCols = branchData.officeBearersCustomCols.filter(c => c !== col);
+                                      const officeBearers = branchData.officeBearers.map(item => {
+                                        const cleaned = { ...item };
+                                        if (cleaned.customFields) {
+                                          delete cleaned.customFields[col];
+                                        }
+                                        return cleaned;
+                                      });
+                                      setBranchData({ ...branchData, officeBearersCustomCols: customCols, officeBearers });
+                                    }
+                                  }}
+                                  style={{ border: 'none', background: 'none', color: '#ef4444', cursor: 'pointer', padding: 0 }}
+                                  title="Delete Column"
+                                >
+                                  <X size={12} />
+                                </button>
+                              </div>
+                            </th>
+                          ))}
+                          <th style={{ padding: '12px', fontWeight: '700', color: '#0a385b', textAlign: 'center' }}>Remove</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {branchData.officeBearers && branchData.officeBearers.map((ob, index) => (
+                          <tr key={index} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                            <td style={{ padding: '8px 12px' }}>
+                              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                <img src={ob.photo} alt={ob.name} style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover' }} />
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={async (e) => {
+                                      const file = e.target.files[0];
+                                      if (file) {
+                                        try {
+                                          const base64 = await compressImage(file);
+                                          const officeBearers = [...branchData.officeBearers];
+                                          officeBearers[index].photo = base64;
+                                          setBranchData({ ...branchData, officeBearers });
+                                        } catch (err) {
+                                          console.error(err);
+                                        }
+                                      }
+                                    }}
+                                    style={{ fontSize: '9px', width: '80px' }}
+                                  />
+                                </div>
+                              </div>
+                            </td>
+                            <td style={{ padding: '8px 12px' }}>
+                              <input
+                                type="text"
+                                value={ob.name || ''}
+                                onChange={(e) => {
+                                  const officeBearers = [...branchData.officeBearers];
+                                  officeBearers[index].name = e.target.value;
+                                  setBranchData({ ...branchData, officeBearers });
+                                }}
+                                style={{ width: '90%', padding: '6px', borderRadius: '4px', border: '1px solid #e2e8f0' }}
+                              />
+                            </td>
+                            <td style={{ padding: '8px 12px' }}>
+                              <input
+                                type="text"
+                                value={ob.position || ''}
+                                onChange={(e) => {
+                                  const officeBearers = [...branchData.officeBearers];
+                                  officeBearers[index].position = e.target.value;
+                                  setBranchData({ ...branchData, officeBearers });
+                                }}
+                                style={{ width: '90%', padding: '6px', borderRadius: '4px', border: '1px solid #e2e8f0' }}
+                              />
+                            </td>
+                            <td style={{ padding: '8px 12px' }}>
+                              <input
+                                type="text"
+                                value={ob.year || ''}
+                                onChange={(e) => {
+                                  const officeBearers = [...branchData.officeBearers];
+                                  officeBearers[index].year = e.target.value;
+                                  setBranchData({ ...branchData, officeBearers });
+                                }}
+                                style={{ width: '80px', padding: '6px', borderRadius: '4px', border: '1px solid #e2e8f0' }}
+                              />
+                            </td>
+                            <td style={{ padding: '8px 12px' }}>
+                              <input
+                                type="text"
+                                value={ob.department || ''}
+                                onChange={(e) => {
+                                  const officeBearers = [...branchData.officeBearers];
+                                  officeBearers[index].department = e.target.value;
+                                  setBranchData({ ...branchData, officeBearers });
+                                }}
+                                style={{ width: '90%', padding: '6px', borderRadius: '4px', border: '1px solid #e2e8f0' }}
+                              />
+                            </td>
+                            <td style={{ padding: '8px 12px' }}>
+                              <input
+                                type="text"
+                                placeholder="IEEE Membership No"
+                                value={ob.ieeeMembershipNo || ''}
+                                onChange={(e) => {
+                                  const officeBearers = [...branchData.officeBearers];
+                                  officeBearers[index].ieeeMembershipNo = e.target.value;
+                                  setBranchData({ ...branchData, officeBearers });
+                                }}
+                                style={{ width: '120px', padding: '6px', borderRadius: '4px', border: '1px solid #e2e8f0' }}
+                              />
+                            </td>
+                            {branchData.officeBearersCustomCols && branchData.officeBearersCustomCols.map((col, cIdx) => (
+                              <td key={cIdx} style={{ padding: '8px 12px' }}>
+                                <input
+                                  type="text"
+                                  placeholder={col}
+                                  value={(ob.customFields && ob.customFields[col]) || ''}
+                                  onChange={(e) => {
+                                    const officeBearers = [...branchData.officeBearers];
+                                    if (!officeBearers[index].customFields) {
+                                      officeBearers[index].customFields = {};
+                                    }
+                                    officeBearers[index].customFields[col] = e.target.value;
+                                    setBranchData({ ...branchData, officeBearers });
+                                  }}
+                                  style={{ width: '90%', padding: '6px', borderRadius: '4px', border: '1px solid #e2e8f0' }}
+                                />
+                              </td>
+                            ))}
+                            <td style={{ padding: '8px 12px', textAlign: 'center' }}>
+                              <button
+                                onClick={() => {
+                                  const officeBearers = branchData.officeBearers.filter((_, i) => i !== index);
+                                  setBranchData({ ...branchData, officeBearers });
+                                }}
+                                style={{ border: 'none', borderRadius: '4px', padding: '6px 8px', cursor: 'pointer', backgroundColor: '#fee2e2', color: '#ef4444' }}
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Committee Members List */}
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                    <h3 style={{ fontSize: '15px', color: '#0a385b', fontWeight: '800', margin: 0 }}>Committee Members List</h3>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const colName = window.prompt("Enter new column name for Committee Members:");
+                          if (colName && colName.trim()) {
+                            const customCols = branchData.membersCustomCols ? [...branchData.membersCustomCols] : [];
+                            if (customCols.includes(colName.trim())) {
+                              alert("Column already exists!");
+                              return;
+                            }
+                            customCols.push(colName.trim());
+                            setBranchData({ ...branchData, membersCustomCols: customCols });
+                          }
+                        }}
+                        style={{ padding: '6px 12px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', border: '1px solid #cbd5e1', borderRadius: '4px', backgroundColor: '#ffffff', color: '#475569' }}
+                      >
+                        + Add Column
+                      </button>
+                      <button
+                        onClick={() => {
+                          const members = branchData.members ? [...branchData.members] : [];
+                          members.unshift({
+                            name: "New Member...",
+                            year: "II Year",
+                            department: "ECE Department",
+                            photo: "https://i.pravatar.cc/300?img=22",
+                            socials: { linkedin: "#", instagram: "#", facebook: "#" },
+                            ieeeMembershipNo: "",
+                            customFields: {}
+                          });
+                          setBranchData({ ...branchData, members });
+                        }}
+                        style={{ padding: '6px 12px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', border: 'none', borderRadius: '4px', backgroundColor: '#e2fbe8', color: '#15803d' }}
+                      >
+                        + Add Committee Member
+                      </button>
+                    </div>
+                  </div>
+
+                  <div style={{ maxHeight: '420px', overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+                      <thead>
+                        <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
+                          <th style={{ padding: '12px', fontWeight: '700', color: '#0a385b' }}>Photo</th>
+                          <th style={{ padding: '12px', fontWeight: '700', color: '#0a385b' }}>Name</th>
+                          <th style={{ padding: '12px', fontWeight: '700', color: '#0a385b' }}>Year</th>
+                          <th style={{ padding: '12px', fontWeight: '700', color: '#0a385b' }}>Department</th>
+                          <th style={{ padding: '12px', fontWeight: '700', color: '#0a385b' }}>IEEE No</th>
+                          {branchData.membersCustomCols && branchData.membersCustomCols.map((col, cIdx) => (
+                            <th key={cIdx} style={{ padding: '12px', fontWeight: '700', color: '#0a385b' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                {col}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (window.confirm(`Are you sure you want to delete the column "${col}"?`)) {
+                                      const customCols = branchData.membersCustomCols.filter(c => c !== col);
+                                      const members = branchData.members.map(item => {
+                                        const cleaned = { ...item };
+                                        if (cleaned.customFields) {
+                                          delete cleaned.customFields[col];
+                                        }
+                                        return cleaned;
+                                      });
+                                      setBranchData({ ...branchData, membersCustomCols: customCols, members });
+                                    }
+                                  }}
+                                  style={{ border: 'none', background: 'none', color: '#ef4444', cursor: 'pointer', padding: 0 }}
+                                  title="Delete Column"
+                                >
+                                  <X size={12} />
+                                </button>
+                              </div>
+                            </th>
+                          ))}
+                          <th style={{ padding: '12px', fontWeight: '700', color: '#0a385b' }}>Social Profiles (LN / IG / FB)</th>
+                          <th style={{ padding: '12px', fontWeight: '700', color: '#0a385b', textAlign: 'center' }}>Remove</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {branchData.members && branchData.members.map((mem, index) => (
+                          <tr key={index} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                            <td style={{ padding: '8px 12px' }}>
+                              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                <img src={mem.photo} alt={mem.name} style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover' }} />
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={async (e) => {
+                                    const file = e.target.files[0];
+                                    if (file) {
+                                      try {
+                                        const base64 = await compressImage(file);
+                                        const members = [...branchData.members];
+                                        members[index].photo = base64;
+                                        setBranchData({ ...branchData, members });
+                                      } catch (err) {
+                                        console.error(err);
+                                      }
+                                    }
+                                  }}
+                                  style={{ fontSize: '9px', width: '80px' }}
+                                />
+                              </div>
+                            </td>
+                            <td style={{ padding: '8px 12px' }}>
+                              <input
+                                type="text"
+                                value={mem.name || ''}
+                                onChange={(e) => {
+                                  const members = [...branchData.members];
+                                  members[index].name = e.target.value;
+                                  setBranchData({ ...branchData, members });
+                                }}
+                                style={{ width: '90%', padding: '6px', borderRadius: '4px', border: '1px solid #e2e8f0' }}
+                              />
+                            </td>
+                            <td style={{ padding: '8px 12px' }}>
+                              <input
+                                type="text"
+                                value={mem.year || ''}
+                                onChange={(e) => {
+                                  const members = [...branchData.members];
+                                  members[index].year = e.target.value;
+                                  setBranchData({ ...branchData, members });
+                                }}
+                                style={{ width: '80px', padding: '6px', borderRadius: '4px', border: '1px solid #e2e8f0' }}
+                              />
+                            </td>
+                            <td style={{ padding: '8px 12px' }}>
+                              <input
+                                type="text"
+                                value={mem.department || ''}
+                                onChange={(e) => {
+                                  const members = [...branchData.members];
+                                  members[index].department = e.target.value;
+                                  setBranchData({ ...branchData, members });
+                                }}
+                                style={{ width: '90%', padding: '6px', borderRadius: '4px', border: '1px solid #e2e8f0' }}
+                              />
+                            </td>
+                            <td style={{ padding: '8px 12px' }}>
+                              <input
+                                type="text"
+                                placeholder="IEEE Membership No"
+                                value={mem.ieeeMembershipNo || ''}
+                                onChange={(e) => {
+                                  const members = [...branchData.members];
+                                  members[index].ieeeMembershipNo = e.target.value;
+                                  setBranchData({ ...branchData, members });
+                                }}
+                                style={{ width: '120px', padding: '6px', borderRadius: '4px', border: '1px solid #e2e8f0' }}
+                              />
+                            </td>
+                            {branchData.membersCustomCols && branchData.membersCustomCols.map((col, cIdx) => (
+                              <td key={cIdx} style={{ padding: '8px 12px' }}>
+                                <input
+                                  type="text"
+                                  placeholder={col}
+                                  value={(mem.customFields && mem.customFields[col]) || ''}
+                                  onChange={(e) => {
+                                    const members = [...branchData.members];
+                                    if (!members[index].customFields) {
+                                      members[index].customFields = {};
+                                    }
+                                    members[index].customFields[col] = e.target.value;
+                                    setBranchData({ ...branchData, members });
+                                  }}
+                                  style={{ width: '90%', padding: '6px', borderRadius: '4px', border: '1px solid #e2e8f0' }}
+                                />
+                              </td>
+                            ))}
+                            <td style={{ padding: '8px 12px' }}>
+                              <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                                <input
+                                  type="text"
+                                  placeholder="LinkedIn"
+                                  value={mem.socials?.linkedin || ''}
+                                  onChange={(e) => {
+                                    const members = [...branchData.members];
+                                    members[index].socials = { ...members[index].socials, linkedin: e.target.value };
+                                    setBranchData({ ...branchData, members });
+                                  }}
+                                  style={{ width: '90px', padding: '4px', fontSize: '11px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                                />
+                                <input
+                                  type="text"
+                                  placeholder="Instagram"
+                                  value={mem.socials?.instagram || ''}
+                                  onChange={(e) => {
+                                    const members = [...branchData.members];
+                                    members[index].socials = { ...members[index].socials, instagram: e.target.value };
+                                    setBranchData({ ...branchData, members });
+                                  }}
+                                  style={{ width: '90px', padding: '4px', fontSize: '11px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                                />
+                                <input
+                                  type="text"
+                                  placeholder="Facebook"
+                                  value={mem.socials?.facebook || ''}
+                                  onChange={(e) => {
+                                    const members = [...branchData.members];
+                                    members[index].socials = { ...members[index].socials, facebook: e.target.value };
+                                    setBranchData({ ...branchData, members });
+                                  }}
+                                  style={{ width: '90px', padding: '4px', fontSize: '11px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                                />
+                              </div>
+                            </td>
+                            <td style={{ padding: '8px 12px', textAlign: 'center' }}>
+                              <button
+                                onClick={() => {
+                                  const members = branchData.members.filter((_, i) => i !== index);
+                                  setBranchData({ ...branchData, members });
+                                }}
+                                style={{ border: 'none', borderRadius: '4px', padding: '6px 8px', cursor: 'pointer', backgroundColor: '#fee2e2', color: '#ef4444' }}
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+              </div>
+            )}
+
+            {/* Sub-Tab 5: Gallery & Contact */}
+            {branchSubTab === 'gallery-contact' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+                
+                {/* Masonry Gallery Manager */}
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                    <h3 style={{ fontSize: '15px', color: '#0a385b', fontWeight: '800', margin: 0 }}>
+                      Edit Gallery Photos ({branchData.gallery ? branchData.gallery.length : 0} items)
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const gallery = branchData.gallery ? [...branchData.gallery] : [];
+                        gallery.push({ url: '', caption: 'New Gallery Photo' });
+                        setBranchData({ ...branchData, gallery });
+                      }}
+                      style={{
+                        backgroundColor: '#02619a',
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: '6px',
+                        padding: '6px 12px',
+                        fontSize: '12.5px',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        boxShadow: '0 2px 5px rgba(2,97,154,0.2)'
+                      }}
+                    >
+                      <Plus size={14} /> Add Gallery Photo
+                    </button>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                    {branchData.gallery && branchData.gallery.map((img, idx) => (
+                      <div key={idx} style={{ padding: '16px', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', gap: '12px', alignItems: 'center' }}>
+                        <div style={{ width: '80px', height: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#cbd5e1', borderRadius: '6px', overflow: 'hidden', flexShrink: 0 }}>
+                          {img.url ? (
+                            <img src={img.url} alt={`Gallery ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          ) : (
+                            <span style={{ fontSize: '11px', color: '#475569' }}>No Image</span>
+                          )}
+                        </div>
+                        <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          <div style={{ display: 'flex', gap: '6px' }}>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={async (e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                  try {
+                                    const base64 = await compressImage(file);
+                                    const gallery = [...branchData.gallery];
+                                    gallery[idx].url = base64;
+                                    setBranchData({ ...branchData, gallery });
+                                  } catch (err) {
+                                    console.error(err);
+                                  }
+                                }
+                              }}
+                              style={{ fontSize: '10px', width: '130px' }}
+                            />
+                            <input
+                              type="text"
+                              placeholder="Photo URL"
+                              value={img.url || ''}
+                              onChange={(e) => {
+                                const gallery = [...branchData.gallery];
+                                gallery[idx].url = e.target.value;
+                                setBranchData({ ...branchData, gallery });
+                              }}
+                              style={{ flexGrow: 1, padding: '4px 6px', fontSize: '11px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                            />
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="Caption / Description"
+                            value={img.caption || ''}
+                            onChange={(e) => {
+                              const gallery = [...branchData.gallery];
+                              gallery[idx].caption = e.target.value;
+                              setBranchData({ ...branchData, gallery });
+                            }}
+                            style={{ padding: '6px 10px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const gallery = branchData.gallery.filter((_, i) => i !== idx);
+                            setBranchData({ ...branchData, gallery });
+                          }}
+                          style={{
+                            padding: '8px',
+                            border: 'none',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            backgroundColor: '#fee2e2',
+                            color: '#ef4444',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flexShrink: 0
+                          }}
+                          title="Delete Photo"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Contact Coordinates */}
+                <div>
+                  <h3 style={{ fontSize: '15px', color: '#0a385b', fontWeight: '800', borderTop: '1px solid #f1f5f9', paddingTop: '16px', marginBottom: '14px' }}>Contact Coordinates & Social Portals</h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Email Address:</label>
+                      <input
+                        type="email"
+                        value={branchData.contact?.email || ''}
+                        onChange={(e) => setBranchData({
+                          ...branchData,
+                          contact: { ...branchData.contact, email: e.target.value }
+                        })}
+                        style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Phone Number:</label>
+                      <input
+                        type="text"
+                        value={branchData.contact?.phone || ''}
+                        onChange={(e) => setBranchData({
+                          ...branchData,
+                          contact: { ...branchData.contact, phone: e.target.value }
+                        })}
+                        style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                      />
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: '20px' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Physical Office Location:</label>
+                    <input
+                      type="text"
+                      value={branchData.contact?.location || ''}
+                      onChange={(e) => setBranchData({
+                        ...branchData,
+                        contact: { ...branchData.contact, location: e.target.value }
+                      })}
+                      style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>LinkedIn:</label>
+                      <input
+                        type="text"
+                        value={branchData.contact?.socials?.linkedin || ''}
+                        onChange={(e) => setBranchData({
+                          ...branchData,
+                          contact: {
+                            ...branchData.contact,
+                            socials: { ...branchData.contact.socials, linkedin: e.target.value }
+                          }
+                        })}
+                        style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Instagram:</label>
+                      <input
+                        type="text"
+                        value={branchData.contact?.socials?.instagram || ''}
+                        onChange={(e) => setBranchData({
+                          ...branchData,
+                          contact: {
+                            ...branchData.contact,
+                            socials: { ...branchData.contact.socials, instagram: e.target.value }
+                          }
+                        })}
+                        style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Facebook:</label>
+                      <input
+                        type="text"
+                        value={branchData.contact?.socials?.facebook || ''}
+                        onChange={(e) => setBranchData({
+                          ...branchData,
+                          contact: {
+                            ...branchData.contact,
+                            socials: { ...branchData.contact.socials, facebook: e.target.value }
+                          }
+                        })}
+                        style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Official Website:</label>
+                      <input
+                        type="text"
+                        value={branchData.contact?.socials?.website || ''}
+                        onChange={(e) => setBranchData({
+                          ...branchData,
+                          contact: {
+                            ...branchData.contact,
+                            socials: { ...branchData.contact.socials, website: e.target.value }
+                          }
+                        })}
+                        style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Tab 6: Operational Committees */}
         {activeTab === 'committees' && (
-          <div className="animate-fade-in">
+          <div className="animate-fade-in card" style={{ padding: '36px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
               <div>
                 <h2 style={{ fontSize: '20px', color: '#0a385b', fontWeight: '800' }}>Manage Operational Committees</h2>
@@ -2586,40 +4736,110 @@ const Admin = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {committees.map((item, idx) => (
-                      <tr key={item.id} style={{ borderBottom: idx < committees.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
-                        <td style={{ padding: '16px 20px', fontWeight: '600', color: '#0a385b', verticalAlign: 'middle', minWidth: '180px' }}>
-                          {item.name}
-                        </td>
-                        <td style={{ padding: '16px 20px', color: '#475569', fontWeight: '550', verticalAlign: 'middle' }}>
-                          👤 {item.lead}
-                        </td>
-                        <td style={{ padding: '16px 20px', color: '#475569', fontWeight: '550', verticalAlign: 'middle' }}>
-                          👤 {item.coLead}
-                        </td>
-                        <td style={{ padding: '16px 20px', color: 'var(--secondary)', fontWeight: '700', verticalAlign: 'middle', textAlign: 'center' }}>
-                          {item.teamCount} Volunteers
-                        </td>
-                        <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center', width: '130px' }}>
-                          <div style={{ display: 'inline-flex', gap: '8px' }}>
-                            <button
-                              onClick={() => openEditModal('committee', item)}
-                              style={{ color: '#02619a', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
-                              className="action-btn-hover-edit"
-                            >
-                              <Edit3 size={15} />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteItem('committee', item.id)}
-                              style={{ color: '#ef4444', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
-                              className="action-btn-hover-delete"
-                            >
-                              <Trash2 size={15} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                    {committees.map((item, idx) => {
+                      const isEditing = editingCommitteeId === item.id;
+                      return (
+                        <tr key={item.id} style={{ borderBottom: idx < committees.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
+                          {isEditing ? (
+                            <>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'top', minWidth: '180px' }}>
+                                <input
+                                  type="text"
+                                  value={commName}
+                                  onChange={(e) => setCommName(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px', marginBottom: '6px' }}
+                                  placeholder="Name"
+                                />
+                                <textarea
+                                  value={commDesc}
+                                  onChange={(e) => setCommDesc(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px', fontFamily: 'inherit', resize: 'vertical' }}
+                                  rows="2"
+                                  placeholder="Description"
+                                />
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'top' }}>
+                                <input
+                                  type="text"
+                                  value={commLead}
+                                  onChange={(e) => setCommLead(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px' }}
+                                  placeholder="Lead"
+                                />
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'top' }}>
+                                <input
+                                  type="text"
+                                  value={commCoLead}
+                                  onChange={(e) => setCommCoLead(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px' }}
+                                  placeholder="Co-Lead"
+                                />
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'top', textAlign: 'center' }}>
+                                <input
+                                  type="number"
+                                  value={commTeamCount}
+                                  onChange={(e) => setCommTeamCount(e.target.value)}
+                                  style={{ width: '80px', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px', textAlign: 'center' }}
+                                  placeholder="Volunteers"
+                                />
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center' }}>
+                                <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                                  <button
+                                    onClick={() => saveInlineCommittee(item.id)}
+                                    style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                                  >
+                                    Save
+                                  </button>
+                                  <button
+                                    onClick={() => setEditingCommitteeId(null)}
+                                    style={{ backgroundColor: '#64748b', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </td>
+                            </>
+                          ) : (
+                            <>
+                              <td style={{ padding: '16px 20px', fontWeight: '600', color: '#0a385b', verticalAlign: 'middle', minWidth: '180px' }}>
+                                <div>{item.name}</div>
+                                <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 'normal', marginTop: '4px' }}>{item.desc}</div>
+                              </td>
+                              <td style={{ padding: '16px 20px', color: '#475569', fontWeight: '550', verticalAlign: 'middle' }}>
+                                👤 {item.lead}
+                              </td>
+                              <td style={{ padding: '16px 20px', color: '#475569', fontWeight: '550', verticalAlign: 'middle' }}>
+                                👤 {item.coLead}
+                              </td>
+                              <td style={{ padding: '16px 20px', color: 'var(--secondary)', fontWeight: '700', verticalAlign: 'middle', textAlign: 'center' }}>
+                                {item.teamCount} Volunteers
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center', width: '130px' }}>
+                                <div style={{ display: 'inline-flex', gap: '8px' }}>
+                                  <button
+                                    onClick={() => startInlineEditCommittee(item)}
+                                    style={{ color: '#02619a', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
+                                    className="action-btn-hover-edit"
+                                  >
+                                    <Edit3 size={15} />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteItem('committee', item.id)}
+                                    style={{ color: '#ef4444', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
+                                    className="action-btn-hover-delete"
+                                  >
+                                    <Trash2 size={15} />
+                                  </button>
+                                </div>
+                              </td>
+                            </>
+                          )}
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -2629,7 +4849,7 @@ const Admin = () => {
 
         {/* Tab 6: News Clippings Management */}
         {activeTab === 'news' && (
-          <div className="animate-fade-in">
+          <div className="animate-fade-in card" style={{ padding: '36px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
               <div>
                 <h2 style={{ fontSize: '20px', color: '#0a385b', fontWeight: '800' }}>News Clippings Manager</h2>
@@ -2700,7 +4920,7 @@ const Admin = () => {
 
         {/* Tab 7: Research Papers Management */}
         {activeTab === 'researchpapers' && (
-          <div className="animate-fade-in">
+          <div className="animate-fade-in card" style={{ padding: '36px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
               <div>
                 <h2 style={{ fontSize: '20px', color: '#0a385b', fontWeight: '800' }}>Research Papers Repository</h2>
@@ -2819,43 +5039,52 @@ const Admin = () => {
 
       {/* CRUD Add/Edit Overlay Modal */}
       {isModalOpen && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(5, 23, 38, 0.6)',
-          backdropFilter: 'blur(4px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 9999,
-          padding: '20px'
-        }}>
-          <div className="card" style={{
-            maxWidth: '560px',
-            width: '100%',
-            backgroundColor: '#ffffff',
-            borderRadius: '12px',
-            boxShadow: 'var(--shadow-lg)',
-            overflow: 'hidden',
-            border: '1px solid #e2e8f0',
-            maxHeight: '90vh',
+        <div 
+          className="modal-overlay"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.6)',
+            backdropFilter: 'blur(8px)',
             display: 'flex',
-            flexDirection: 'column',
-            animation: 'modal-slide-up 0.25s ease-out'
-          }}>
-            {/* Modal Header */}
-            <div style={{
-              padding: '20px 24px',
-              backgroundColor: '#0a385b',
-              color: '#ffffff',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: '20px'
+          }}
+        >
+          <div 
+            className="card modal-card"
+            style={{
+              maxWidth: '560px',
+              width: '100%',
+              backgroundColor: 'var(--bg-card)',
+              borderRadius: '20px',
+              boxShadow: 'var(--shadow-premium)',
+              overflow: 'hidden',
+              border: '1px solid var(--border-subtle)',
+              maxHeight: '90vh',
               display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              flexShrink: 0
-            }}>
+              flexDirection: 'column',
+              animation: 'modal-slide-up 0.25s ease-out'
+            }}
+          >
+            {/* Modal Header */}
+            <div 
+              className="modal-header"
+              style={{
+                padding: '20px 24px',
+                background: 'var(--gradient-primary)',
+                color: '#ffffff',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexShrink: 0
+              }}
+            >
               <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#ffffff' }}>
                 {modalMode === 'add' ? 'Create New Entry' : 'Edit Existing Entry'}
               </h3>
@@ -3611,13 +5840,13 @@ const Admin = () => {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  style={{ padding: '8px 20px', fontSize: '13.5px', fontWeight: '700', color: '#64748b', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '6px', cursor: 'pointer' }}
+                  style={{ padding: '10px 22px', fontSize: '13.5px', fontWeight: '700', color: 'var(--text-muted)', border: '1px solid var(--border-subtle)', backgroundColor: 'transparent', borderRadius: '30px', cursor: 'pointer' }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  style={{ padding: '8px 20px', fontSize: '13.5px', fontWeight: '700', color: '#ffffff', backgroundColor: '#02619a', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+                  style={{ padding: '10px 22px', fontSize: '13.5px', fontWeight: '700', color: '#ffffff', backgroundColor: 'var(--secondary)', border: 'none', borderRadius: '30px', cursor: 'pointer' }}
                 >
                   Save Record
                 </button>
@@ -3633,21 +5862,154 @@ const Admin = () => {
           from { opacity: 0; transform: translateY(15px); }
           to { opacity: 1; transform: translateY(0); }
         }
+        /* Dashboard Container & Grid card adjustments */
+        .admin-dashboard-container {
+          color: var(--text-dark) !important;
+        }
+        /* Override primary text colors */
+        .admin-dashboard-container h2, 
+        .admin-dashboard-container h3, 
+        .admin-dashboard-container h4, 
+        .admin-dashboard-container label, 
+        .admin-dashboard-container th,
+        .admin-dashboard-container td strong {
+          color: var(--primary) !important;
+        }
+        /* Style card containers to look premium and glassmorphic */
+        .admin-dashboard-container .card {
+          background-color: var(--bg-card) !important;
+          backdrop-filter: blur(16px) !important;
+          border: 1px solid var(--border-subtle) !important;
+          box-shadow: var(--shadow-md) !important;
+          border-radius: 16px !important;
+          transition: all 0.3s ease !important;
+        }
+        .admin-dashboard-container .card:hover {
+          box-shadow: var(--shadow-lg) !important;
+          border-color: rgba(79, 70, 229, 0.25) !important;
+        }
+        /* Input, Textarea, Select style overrides */
+        .admin-dashboard-container input,
+        .admin-dashboard-container select,
+        .admin-dashboard-container textarea {
+          border: 1px solid var(--border-subtle) !important;
+          background-color: rgba(255, 255, 255, 0.75) !important;
+          border-radius: 10px !important;
+          color: var(--text-dark) !important;
+          padding: 11px 15px !important;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+          font-family: var(--font-sans) !important;
+        }
+        .admin-dashboard-container input:focus,
+        .admin-dashboard-container select:focus,
+        .admin-dashboard-container textarea:focus {
+          border-color: var(--secondary) !important;
+          background-color: #ffffff !important;
+          box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12) !important;
+          outline: none !important;
+        }
+        /* Buttons layout overrides */
+        .admin-dashboard-container button {
+          font-family: var(--font-sans) !important;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        /* Specific action buttons */
+        .admin-save-btn, .admin-add-btn, .admin-login-btn, button[type="submit"] {
+          background: var(--gradient-primary) !important;
+          color: #ffffff !important;
+          border-radius: 30px !important;
+          font-weight: 700 !important;
+          padding: 10px 24px !important;
+          box-shadow: var(--shadow-sm) !important;
+          border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+        .admin-save-btn:hover, .admin-add-btn:hover, .admin-login-btn:hover, button[type="submit"]:hover {
+          background: var(--gradient-cyber) !important;
+          transform: translateY(-1.5px) !important;
+          box-shadow: var(--shadow-glow) !important;
+        }
+        /* Logout hover */
         .admin-logout-btn:hover {
           background-color: #ffffff !important;
-          color: #0a385b !important;
+          color: var(--primary) !important;
+          border-color: #ffffff !important;
+          box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3) !important;
         }
-        .admin-save-btn:hover, .admin-add-btn:hover {
-          background-color: #0a385b !important;
-          box-shadow: 0 4px 12px rgba(10,56,91,0.2) !important;
+        /* Edit & Delete hover overrides */
+        .action-btn-hover-edit {
+          color: var(--secondary) !important;
+          border: 1px solid var(--border-subtle) !important;
+          border-radius: 8px !important;
+          padding: 7px !important;
+          transition: all 0.2s ease !important;
         }
         .action-btn-hover-edit:hover {
-          border-color: #02619a !important;
-          background-color: #f0f7ff !important;
+          background-color: var(--accent-light) !important;
+          border-color: var(--secondary) !important;
+          color: var(--secondary) !important;
+          transform: scale(1.05) !important;
+        }
+        .action-btn-hover-delete {
+          color: #ef4444 !important;
+          border: 1px solid var(--border-subtle) !important;
+          border-radius: 8px !important;
+          padding: 7px !important;
+          transition: all 0.2s ease !important;
         }
         .action-btn-hover-delete:hover {
-          border-color: #ef4444 !important;
           background-color: #fef2f2 !important;
+          border-color: #fca5a5 !important;
+          color: #ef4444 !important;
+          transform: scale(1.05) !important;
+        }
+        /* Tables style overrides */
+        .admin-dashboard-container table {
+          border-collapse: collapse !important;
+          width: 100% !important;
+        }
+        .admin-dashboard-container thead tr {
+          background-color: rgba(79, 70, 229, 0.04) !important;
+          border-bottom: 2px solid var(--border-subtle) !important;
+        }
+        .admin-dashboard-container th {
+          padding: 16px 20px !important;
+          font-weight: 700 !important;
+          font-size: 13.5px !important;
+          letter-spacing: 0.5px !important;
+          text-transform: uppercase !important;
+          color: var(--primary) !important;
+        }
+        .admin-dashboard-container tbody tr {
+          border-bottom: 1px solid rgba(79, 70, 229, 0.08) !important;
+          transition: background-color 0.2s ease !important;
+        }
+        .admin-dashboard-container tbody tr:hover {
+          background-color: rgba(79, 70, 229, 0.015) !important;
+        }
+        .admin-dashboard-container td {
+          padding: 16px 20px !important;
+          color: var(--text-muted) !important;
+          font-size: 14px !important;
+        }
+        /* Tab buttons */
+        .tab-btn:hover:not(.active-tab) {
+          background-color: rgba(79, 70, 229, 0.08) !important;
+          color: var(--secondary) !important;
+          border-color: var(--border-subtle) !important;
+        }
+        /* Overlay Modals */
+        .modal-overlay {
+          backdrop-filter: blur(8px) !important;
+          background-color: rgba(15, 23, 42, 0.6) !important;
+        }
+        .modal-card {
+          border-radius: 20px !important;
+          box-shadow: var(--shadow-premium) !important;
+          border: 1px solid var(--border-subtle) !important;
+        }
+        .modal-header {
+          background: var(--gradient-primary) !important;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
         }
       `}</style>
     </div>

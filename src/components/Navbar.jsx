@@ -109,9 +109,9 @@ const Navbar = () => {
           name: 'Societies',
           subItems: [
             { 
-              name: 'IEEE Student Branch', 
-              link: '/execomm/student-branch',
-              icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.9 19.1 14.2-14.2"/><path d="M12 2v20"/><path d="M20.2 6.8a10 10 0 0 0-16.4 0"/><path d="M3.8 17.2a10 10 0 0 0 16.4 0"/></svg>
+              name: 'IEEE Antennas & Propagation Society (APS)', 
+              link: '/execomm/ap-s',
+              icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="2"/><path d="M12 12v10"/><path d="M12 2a10 10 0 0 1 10 10"/><path d="M12 6a6 6 0 0 1 6 6"/><path d="M12 2a10 10 0 0 0-10 10"/><path d="M12 6a6 6 0 0 0-6 6"/></svg>
             },
             { 
               name: 'IEEE Computer Society', 

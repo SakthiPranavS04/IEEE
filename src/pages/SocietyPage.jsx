@@ -203,7 +203,6 @@ const SocietyPage = () => {
       >
         <div className="society-hero-overlay" />
         <div className="society-hero-content container">
-          <span className="society-hero-badge">{society.logoText}</span>
           <h1 className="society-hero-title font-serif">{society.name}</h1>
           <p className="society-hero-desc">{society.tagline}</p>
         </div>

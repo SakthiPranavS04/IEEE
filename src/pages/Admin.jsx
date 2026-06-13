@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Lock, LogOut, Check, Trash2, Edit3, Plus, Image as ImageIcon, BarChart3, Database, X, Calendar, Award, Users, Target, Settings, Link as LinkIcon, AlertCircle, FileText, Compass, Layers, Save, RefreshCw } from 'lucide-react';
-import { studentBranchData } from '../data/studentBranch';
+import { apsData } from '../data/aps';
 import { computerSocietyData } from '../data/computerSociety';
 import { wieData } from '../data/wie';
 import { rasData } from '../data/ras';
@@ -56,7 +56,7 @@ const Admin = () => {
   const [activeTab, setActiveTab] = useState('stats'); // 'stats' | 'events' | 'achievements' | 'execomm' | 'committees' | 'gallery' | 'researchpapers' | 'news' | 'branches'
 
   // Execomm Society Branches Management States
-  const [selectedBranchKey, setSelectedBranchKey] = useState('student-branch');
+  const [selectedBranchKey, setSelectedBranchKey] = useState('ap-s');
   const [branchData, setBranchData] = useState(null);
   const [branchSubTab, setBranchSubTab] = useState('general'); // 'general' | 'about' | 'faculty-leadership' | 'rosters' | 'gallery-contact'
   const [branchSaved, setBranchSaved] = useState(false);
@@ -853,7 +853,7 @@ const Admin = () => {
       }
     } else {
       // Revert to import falls
-      if (key === 'student-branch') setBranchData(JSON.parse(JSON.stringify(studentBranchData)));
+      if (key === 'ap-s') setBranchData(JSON.parse(JSON.stringify(apsData)));
       else if (key === 'computer-society') setBranchData(JSON.parse(JSON.stringify(computerSocietyData)));
       else if (key === 'wie') setBranchData(JSON.parse(JSON.stringify(wieData)));
       else if (key === 'ras') setBranchData(JSON.parse(JSON.stringify(rasData)));
@@ -3382,7 +3382,7 @@ const Admin = () => {
                     if (window.confirm("Are you sure you want to revert all changes for this branch to default settings? This cannot be undone.")) {
                       localStorage.removeItem(`ieee_society_data_${selectedBranchKey}`);
                       const key = selectedBranchKey;
-                      if (key === 'student-branch') setBranchData(JSON.parse(JSON.stringify(studentBranchData)));
+                      if (key === 'ap-s') setBranchData(JSON.parse(JSON.stringify(apsData)));
                       else if (key === 'computer-society') setBranchData(JSON.parse(JSON.stringify(computerSocietyData)));
                       else if (key === 'wie') setBranchData(JSON.parse(JSON.stringify(wieData)));
                       else if (key === 'ras') setBranchData(JSON.parse(JSON.stringify(rasData)));
@@ -3435,12 +3435,12 @@ const Admin = () => {
               <label style={{ display: 'block', fontSize: '13.5px', fontWeight: '700', color: '#334155', marginBottom: '8px' }}>Select Branch to Manage:</label>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 {[
-                  { key: 'student-branch', name: 'Student Branch', color: '#00629B' },
-                  { key: 'computer-society', name: 'Computer Society', color: '#003366' },
-                  { key: 'wie', name: 'Women in Engineering', color: '#8E44AD' },
-                  { key: 'ras', name: 'Robotics & Automation', color: '#FF6F00' },
-                  { key: 'pes', name: 'Power & Energy', color: '#2E7D32' },
-                  { key: 'comsoc', name: 'Communications Society', color: '#00897B' }
+                  { key: 'ap-s', name: 'APS (Antennas & Propagation)', color: '#000000' },
+                  { key: 'computer-society', name: 'Computer Society', color: '#eab308' },
+                  { key: 'wie', name: 'Women in Engineering', color: '#8e24aa' },
+                  { key: 'ras', name: 'Robotics & Automation', color: '#dc2626' },
+                  { key: 'pes', name: 'Power & Energy', color: '#15803d' },
+                  { key: 'comsoc', name: 'Communications Society', color: '#0a385b' }
                 ].map(branch => (
                   <button
                     key={branch.key}

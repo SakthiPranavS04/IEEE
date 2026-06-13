@@ -255,14 +255,21 @@
 
 /* Statistics Section */
 .stats-section {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  color: #ffffff;
+  background: rgba(var(--society-primary-rgb), 0.08);
+  border: 1px solid rgba(var(--society-primary-rgb), 0.15);
   padding: 60px 0;
   position: relative;
   overflow: hidden;
   border-radius: 24px;
   margin: 40px auto;
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15);
+  box-shadow: 0 10px 30px rgba(var(--society-primary-rgb), 0.04);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.stats-section:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(var(--society-primary-rgb), 0.08);
+  border-color: rgba(var(--society-primary-rgb), 0.3);
 }
 
 .stats-grid {
@@ -303,13 +310,13 @@
 .stat-number {
   font-size: 44px;
   font-weight: 850;
-  color: #ffffff;
+  color: var(--society-primary);
   margin-bottom: 8px;
   letter-spacing: -1px;
 }
 
 .stat-number.colored {
-  background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.7) 100%);
+  background: linear-gradient(135deg, var(--society-primary) 0%, rgba(var(--society-primary-rgb), 0.8) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -317,7 +324,7 @@
 .stat-label {
   font-size: 13.5px;
   font-weight: 600;
-  color: #94a3b8;
+  color: #334155;
   text-transform: uppercase;
   letter-spacing: 1.2px;
 }

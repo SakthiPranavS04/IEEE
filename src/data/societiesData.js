@@ -1,133 +1,105 @@
 // IEEE KEC Societies Detailed Data Structure
 export const societiesData = {
-  "student-branch": {
-    name: "IEEE Student Branch",
-    tagline: "Empowering Student Engineering Leadership and Global Professional Collaboration",
+  "ap-s": {
+    name: "IEEE Antennas & Propagation Society (APS)",
+    tagline: "Advancing Electromagnetics, Antennas, and Propagation Technologies",
     theme: {
-      primary: "#00629B", // IEEE Blue
+      primary: "#000000",
       secondary: "#ffffff"
     },
-    heroImage: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1200",
-    logoText: "IEEE KEC SB",
+    heroImage: "https://images.unsplash.com/photo-1544256718-3bcf237f3974?q=80&w=1200",
+    logoText: "IEEE APS",
     stats: {
-      members: "150+",
-      events: "45+",
-      awards: "12+",
-      projects: "25+"
+      members: "85+",
+      events: "20+",
+      awards: "5+",
+      projects: "12+"
     },
     about: {
-      overview: "The IEEE Kongu Engineering College Student Branch (IEEE KEC SB) is the umbrella student body facilitating technical learning, project developments, and leadership building. We foster a collaborative ecosystem where students gain exposure to globally recognized research, standards, and technical networks.",
-      mission: "To inspire, enable, and foster professional and technical excellence among student members to engineer solutions for the benefit of local and global communities.",
-      vision: "To become a prime hub of technical innovation and leadership in the region, bridging the gap between academic theories and industry expectations.",
+      overview: "The IEEE Antennas & Propagation Society (APS) Student Chapter at Kongu Engineering College is dedicated to advancing the theories, applications, and measurements of antennas, electromagnetics, and propagation. We bridge the gap between abstract electromagnetic theories and practical hardware designs by facilitating software simulation training and hands-on prototyping. Joining APS connects students to global research networks, microwave hardware testing platforms, and expert seminars in communications, satellite technology, and antenna design.",
+      mission: "To inspire, educate, and empower student members to excel in radio frequency, antenna design, and electromagnetics research.",
+      vision: "To build a center of excellence in RF design and microwave technology that enables student developers to pioneer hardware solutions for global communication networks.",
       objectives: [
-        "Nurture student research capabilities and prototype development.",
-        "Facilitate active networking with global experts, researchers, and professional alumni.",
-        "Promote technical awareness and hands-on exposure to advanced tools.",
-        "Encourage leadership, volunteerism, and social responsibility."
+        "Train student members on high-frequency structural simulation tools (HFSS) and CST studio.",
+        "Facilitate hands-on fabrication and testing of microstrip patch antennas.",
+        "Support student research publications in electromagnetics and communication systems.",
+        "Conduct regional antenna design and satellite prototype contests."
       ]
     },
     facultyIncharge: {
-      name: "Dr. A. Kumar",
-      position: "Student Branch Counselor",
+      name: "Dr. T. Meeradevi",
+      position: "Society Advisor",
       department: "Electronics and Communication Engineering",
-      phone: "+91 94435 12345",
-      email: "advisor@kec.edu",
-      photo: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=300"
+      phone: "+91 98427 21122",
+      email: "meeradevi@kec.edu",
+      photo: "/assets/faculty_female.png"
     },
     chairman: {
-      name: "Abhishek M.",
-      year: "IV Year",
-      department: "Computer Science and Engineering",
-      photo: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=300"
-    },
-    viceChairman: {
-      name: "Sneha R.",
+      name: "Siddharth K.",
       year: "IV Year",
       department: "Electronics and Communication Engineering",
-      photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=300"
+      photo: "https://i.pravatar.cc/300?img=12"
+    },
+    viceChairman: {
+      name: "Akshara R.",
+      year: "IV Year",
+      department: "Electronics and Communication Engineering",
+      photo: "https://i.pravatar.cc/300?img=47"
     },
     officeBearers: [
       {
-        name: "Harish K.",
+        name: "Mohanraj R.",
         position: "Secretary",
         year: "III Year",
-        department: "Electronics and Instrumentation Engineering",
-        photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=300"
+        department: "Electronics and Communication Engineering",
+        photo: "https://i.pravatar.cc/300?img=11"
       },
       {
-        name: "Naveen S.",
+        name: "Abinaya S.",
         position: "Joint Secretary",
         year: "III Year",
-        department: "Mechanical Engineering",
-        photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=300"
+        department: "Information Technology",
+        photo: "https://i.pravatar.cc/300?img=13"
       },
       {
-        name: "Divya K.",
+        name: "Rajesh K.",
         position: "Treasurer",
         year: "III Year",
-        department: "Computer Science and Engineering",
-        photo: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=300"
+        department: "Electronics and Communication Engineering",
+        photo: "https://i.pravatar.cc/300?img=16"
       },
       {
-        name: "Dharini P.",
+        name: "Pooja V.",
         position: "Webmaster",
         year: "III Year",
-        department: "Information Technology",
-        photo: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=300"
-      },
-      {
-        name: "Karthick M.",
-        position: "Technical Coordinator",
-        year: "III Year",
-        department: "Electrical and Electronics Engineering",
-        photo: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=300"
-      },
-      {
-        name: "Arun Kumar S.",
-        position: "Event Coordinator",
-        year: "III Year",
-        department: "Chemical Engineering",
-        photo: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=300"
-      },
-      {
-        name: "Keerthana B.",
-        position: "Membership Coordinator",
-        year: "III Year",
-        department: "Civil Engineering",
-        photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300"
-      },
-      {
-        name: "Sanjay R.",
-        position: "Design Lead",
-        year: "III Year",
-        department: "Mechatronics Engineering",
-        photo: "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?q=80&w=300"
+        department: "Computer Science and Engineering",
+        photo: "https://i.pravatar.cc/300?img=20"
       }
     ],
     members: [
       {
-        name: "Ramprasath T.",
+        name: "Naveenkumar B.",
         year: "II Year",
-        department: "Computer Science and Engineering",
+        department: "Electronics and Communication Engineering",
         photo: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?q=80&w=300",
         socials: { linkedin: "#", instagram: "#", facebook: "#", ieee: "#" }
       },
       {
-        name: "Deepika S.",
+        name: "Nithyasree G.",
         year: "II Year",
         department: "Electronics and Communication Engineering",
         photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=300",
         socials: { linkedin: "#", instagram: "#", facebook: "#", ieee: "#" }
       },
       {
-        name: "Vignesh A.",
+        name: "Balakrishnan S.",
         year: "II Year",
-        department: "Electrical and Electronics Engineering",
+        department: "Computer Science and Engineering",
         photo: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=300",
         socials: { linkedin: "#", instagram: "#", facebook: "#", ieee: "#" }
       },
       {
-        name: "Megala R.",
+        name: "Bhuvaneswari R.",
         year: "II Year",
         department: "Information Technology",
         photo: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=300",
@@ -135,15 +107,15 @@ export const societiesData = {
       }
     ],
     gallery: [
-      { url: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?q=80&w=600", caption: "Inauguration Ceremony" },
-      { url: "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=600", caption: "National Level Workshop" },
-      { url: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=600", caption: "24-Hour Hackathon" },
-      { url: "https://images.unsplash.com/photo-1528605248644-14dd04022da1?q=80&w=600", caption: "Executive Committee Meeting" }
+      { url: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=600", caption: "5G Networking Seminar" },
+      { url: "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=600", caption: "RF Antenna Design and Simulation" },
+      { url: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=600", caption: "IoT Connectivity Hackathon" },
+      { url: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?q=80&w=600", caption: "Optical Fiber Splicing Training" }
     ],
     contact: {
-      email: "ieee@kec.edu",
-      phone: "+91 4294 226555",
-      location: "IEEE Student Branch Cabin, Main Block, Kongu Engineering College, Perundurai, Erode - 638060",
+      email: "aps@kec.edu",
+      phone: "+91 98427 21122",
+      location: "Microwave and Fiber Optics Lab, Dept of ECE, Kongu Engineering College, Perundurai, Erode - 638060",
       socials: {
         linkedin: "https://linkedin.com",
         instagram: "https://instagram.com",
@@ -153,16 +125,10 @@ export const societiesData = {
     },
     milestones: [
       {
-        title: "Madras Section Best Branch Award",
+        title: "Telecommunication Prototype Grant",
         date: "2025",
-        description: "Recognized as one of the most active and high-performing student branches under the Madras Section for technical and community contributions.",
-        image: "https://images.unsplash.com/photo-1531545514256-b1400bc00f31?q=80&w=400"
-      },
-      {
-        title: "All India Student Congress",
-        date: "2024",
-        description: "Successfully hosted delegation for the annual IEEE All India Student Congress with 200+ regional student leaders and guest speakers.",
-        image: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?q=80&w=400"
+        description: "Received research funding for building open-source LoRaWAN mesh communication systems for disaster rescue.",
+        image: "https://images.unsplash.com/photo-1544256718-3bcf237f3974?q=80&w=400"
       }
     ]
   },
@@ -170,8 +136,8 @@ export const societiesData = {
     name: "IEEE Computer Society",
     tagline: "Advancing computing technologies to empower innovation and create impact.",
     theme: {
-      primary: "#003366", // Dark Blue
-      secondary: "#00BCD4" // Cyan
+      primary: "#eab308", // YELLOW
+      secondary: "#ca8a04"
     },
     heroImage: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1200",
     logoText: "IEEE CS",
@@ -336,8 +302,8 @@ export const societiesData = {
     name: "IEEE Women in Engineering (WIE)",
     tagline: "Inspiring, engaging and advancing women in technology worldwide.",
     theme: {
-      primary: "#8E44AD", // Purple
-      secondary: "#E91E63" // Pink
+      primary: "#8e24aa", // Purple
+      secondary: "#e91e63" // Pink
     },
     heroImage: "https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=1200",
     logoText: "IEEE WIE",
@@ -496,8 +462,8 @@ export const societiesData = {
     name: "IEEE Robotics and Automation Society (RAS)",
     tagline: "Driving innovation in robotics and intelligent automation systems.",
     theme: {
-      primary: "#FF6F00", // Orange
-      secondary: "#263238" // Dark Gray
+      primary: "#dc2626", // RED
+      secondary: "#9e1c3b" // Reddish Purple
     },
     heroImage: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=1200",
     logoText: "IEEE RAS",
@@ -656,8 +622,8 @@ export const societiesData = {
     name: "IEEE Power and Energy Society (PES)",
     tagline: "Powering the future through sustainable energy solutions.",
     theme: {
-      primary: "#2E7D32", // Green
-      secondary: "#81C784" // Light Green
+      primary: "#15803d", // GREEN
+      secondary: "#2e7d32" // Forest Green
     },
     heroImage: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?q=80&w=1200",
     logoText: "IEEE PES",
@@ -816,8 +782,8 @@ export const societiesData = {
     name: "IEEE Communications Society (ComSoc)",
     tagline: "Connecting the world through communication technologies.",
     theme: {
-      primary: "#00897B", // Teal
-      secondary: "#2196F3" // Blue
+      primary: "#0a385b", // NAVY BLUE
+      secondary: "#1e3a8a"
     },
     heroImage: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200",
     logoText: "IEEE ComSoc",

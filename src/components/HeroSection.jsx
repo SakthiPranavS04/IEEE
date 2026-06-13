@@ -28,14 +28,13 @@ const HeroSection = ({ name, motto, description, heroImage, heroVideo, logoText 
       )}
       <div className="society-hero-overlay" style={{ zIndex: 1 }} />
       <div className="society-hero-content container" style={{ zIndex: 2 }}>
-        <span className="society-hero-badge" style={{ animationDelay: '0.1s' }}>{logoText || 'IEEE'}</span>
         <h1 className="society-hero-title font-serif">{name}</h1>
         <div style={{
           fontSize: '15px',
           fontWeight: '750',
           letterSpacing: '1px',
           textTransform: 'uppercase',
-          color: 'var(--society-secondary, #ffffff)',
+          color: '#ffffff',
           marginBottom: '16px',
           opacity: 0.9,
           display: 'inline-block',

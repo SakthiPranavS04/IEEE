@@ -89,7 +89,7 @@ const SocietyPage = () => {
   const [society, setSociety] = useState(societiesData[societyId] || null);
 
   useEffect(() => {
-    const stored = localStorage.getItem(`ieee_society_data_${societyId}`);
+    const stored = localStorage.getItem(`ieee_society_data_${societyId}_v4`);
     if (stored) {
       try {
         setSociety(JSON.parse(stored));

@@ -15,8 +15,8 @@ export const comsocData = {
     ]
   },
   theme: {
-    primary: "#00897B",
-    secondary: "#2196F3"
+    primary: "#0a385b",
+    secondary: "#1e3a8a"
   },
   heroImage: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200",
   heroVideo: "https://player.vimeo.com/external/384761655.sd.mp4?s=384c2f1f0a28abcb3811f0a53b51b75fa59b1395&profile_id=165&oauth2_token_id=57447761",

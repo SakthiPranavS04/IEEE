@@ -15,8 +15,8 @@ export const computerSocietyData = {
     ]
   },
   theme: {
-    primary: "#003366",
-    secondary: "#00BCD4"
+    primary: "#eab308",
+    secondary: "#ca8a04"
   },
   heroImage: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1200",
   heroVideo: "https://player.vimeo.com/external/409419139.sd.mp4?s=dfaf631e5138128331da294c77aa762143093b74&profile_id=165&oauth2_token_id=57447761",

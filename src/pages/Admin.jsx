@@ -844,7 +844,7 @@ const Admin = () => {
   // Load current branch details on selected branch key changes
   useEffect(() => {
     const key = selectedBranchKey;
-    const stored = localStorage.getItem(`ieee_society_data_${key}`);
+    const stored = localStorage.getItem(`ieee_society_data_${key}_v4`);
     if (stored) {
       try {
         setBranchData(JSON.parse(stored));
@@ -3356,7 +3356,7 @@ const Admin = () => {
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button
                   onClick={() => {
-                    localStorage.setItem(`ieee_society_data_${selectedBranchKey}`, JSON.stringify(branchData));
+                    localStorage.setItem(`ieee_society_data_${selectedBranchKey}_v4`, JSON.stringify(branchData));
                     setBranchSaved(true);
                     setTimeout(() => setBranchSaved(false), 3000);
                   }}
@@ -3380,7 +3380,7 @@ const Admin = () => {
                 <button
                   onClick={() => {
                     if (window.confirm("Are you sure you want to revert all changes for this branch to default settings? This cannot be undone.")) {
-                      localStorage.removeItem(`ieee_society_data_${selectedBranchKey}`);
+                      localStorage.removeItem(`ieee_society_data_${selectedBranchKey}_v4`);
                       const key = selectedBranchKey;
                       if (key === 'ap-s') setBranchData(JSON.parse(JSON.stringify(apsData)));
                       else if (key === 'computer-society') setBranchData(JSON.parse(JSON.stringify(computerSocietyData)));

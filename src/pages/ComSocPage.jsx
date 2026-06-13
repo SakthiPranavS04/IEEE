@@ -6,7 +6,7 @@ const ComSocPage = () => {
   const [data, setData] = useState(comsocData);
 
   useEffect(() => {
-    const stored = localStorage.getItem('ieee_society_data_comsoc');
+    const stored = localStorage.getItem('ieee_society_data_comsoc_v4');
     if (stored) {
       try {
         setData(JSON.parse(stored));

@@ -15,8 +15,8 @@ export const wieData = {
     ]
   },
   theme: {
-    primary: "#8E44AD",
-    secondary: "#E91E63"
+    primary: "#8e24aa",
+    secondary: "#e91e63"
   },
   heroImage: "https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=1200",
   heroVideo: "https://player.vimeo.com/external/394178553.sd.mp4?s=d00bd3a0889241b7fcf70a1a0f9a2de94f48ff1b&profile_id=165&oauth2_token_id=57447761",

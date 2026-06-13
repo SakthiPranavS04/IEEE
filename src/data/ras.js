@@ -15,8 +15,8 @@ export const rasData = {
     ]
   },
   theme: {
-    primary: "#FF6F00",
-    secondary: "#263238"
+    primary: "#dc2626",
+    secondary: "#9e1c3b"
   },
   heroImage: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=1200",
   heroVideo: "https://player.vimeo.com/external/459389137.sd.mp4?s=994b611e9f19ad1736181f0878e3ec83a37f59d5&profile_id=165&oauth2_token_id=57447761",

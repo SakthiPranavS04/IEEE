@@ -15,8 +15,8 @@ export const pesData = {
     ]
   },
   theme: {
-    primary: "#2E7D32",
-    secondary: "#81C784"
+    primary: "#15803d",
+    secondary: "#2e7d32"
   },
   heroImage: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?q=80&w=1200",
   heroVideo: "https://player.vimeo.com/external/435674703.sd.mp4?s=5ccff5757d5b8e9700bc0d0999580436402d08a5&profile_id=165&oauth2_token_id=57447761",

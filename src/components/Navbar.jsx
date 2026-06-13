@@ -30,7 +30,7 @@ const Navbar = () => {
         );
       case 'Media':
         return pathname.startsWith('/media');
-      case 'Downloads':
+      case 'Request':
         return pathname.startsWith('/about/ieee');
       case 'Contact':
         return pathname.startsWith('/contact');
@@ -158,7 +158,7 @@ const Navbar = () => {
       ],
     },
     {
-      name: 'Downloads',
+      name: 'Request',
       items: [
         { 
           name: 'IEEE Guidelines', 

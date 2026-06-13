@@ -42,6 +42,7 @@ const Media = () => {
   const [activeTab, setActiveTab] = useState('gallery'); // 'gallery' | 'news' | 'research'
   const [selectedImage, setSelectedImage] = useState(null);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [activeFolder, setActiveFolder] = useState(null);
   const [galleryItems, setGalleryItems] = useState([]);
   const [researchPapers, setResearchPapers] = useState([]);
   const [newsItems, setNewsItems] = useState([]);
@@ -179,6 +180,15 @@ const Media = () => {
       parsedNews = defaultNews;
     }
     setNewsItems(parsedNews);
+
+    // Escape key listener for lightbox modal
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setSelectedImage(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
 
@@ -194,7 +204,7 @@ const Media = () => {
         {/* Toggle gallery vs news */}
         <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '40px' }}>
           <button
-            onClick={() => setActiveTab('gallery')}
+            onClick={() => { setActiveTab('gallery'); setActiveFolder(null); }}
             style={{
               padding: '12px 28px',
               fontSize: '14px',
@@ -211,7 +221,7 @@ const Media = () => {
             Photo Gallery
           </button>
           <button
-            onClick={() => setActiveTab('news')}
+            onClick={() => { setActiveTab('news'); setActiveFolder(null); }}
             style={{
               padding: '12px 28px',
               fontSize: '14px',
@@ -228,7 +238,7 @@ const Media = () => {
             News Clippings
           </button>
           <button
-            onClick={() => setActiveTab('research')}
+            onClick={() => { setActiveTab('research'); setActiveFolder(null); }}
             style={{
               padding: '12px 28px',
               fontSize: '14px',
@@ -249,53 +259,139 @@ const Media = () => {
         {/* Gallery tab view - Bento Grid */}
         {activeTab === 'gallery' && (
           <>
-            {galleryItems.length > 0 ? (
-              <div className="gallery-bento-grid">
-                {galleryItems.map((item, idx) => (
-                  <div
-                    key={item.id}
-                    className={`gallery-bento-card ${idx === 4 ? 'span-3' : 'span-1'}`}
-                    onClick={() => {
-                      setSelectedImage(item);
-                      setLightboxIndex(0);
-                    }}
+            {activeFolder ? (
+              <div className="animate-fade-in">
+                {/* Header card / block for folder */}
+                <div style={{ marginBottom: '32px' }}>
+                  <button 
+                    onClick={() => setActiveFolder(null)}
+                    className="back-to-albums-btn"
                   >
-                    {item.images && item.images.length > 0 ? (
-                      <img
-                        src={item.images[0]}
-                        alt={item.title}
-                        className="gallery-bento-card-image"
-                      />
-                    ) : (
-                      <div className="gallery-bento-card-placeholder" style={{
-                        width: '100%',
-                        height: '100%',
-                        background: 'var(--gradient-cyber)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}>
-                        <Image size={48} color="#ffffff" style={{ opacity: 0.6 }} />
-                      </div>
-                    )}
-
-                    {/* Category Tag */}
-                    <span className="gallery-bento-card-badge">{item.cat}</span>
-
-                    {/* Overlay Content */}
-                    <div className="gallery-bento-card-overlay">
-                      <h3 className="gallery-bento-card-title">{item.title}</h3>
-                      <p className="gallery-bento-card-text">{item.text}</p>
-                    </div>
+                    ← Back to Albums
+                  </button>
+                  
+                  <div style={{
+                    backgroundColor: '#ffffff',
+                    borderRadius: '16px',
+                    padding: '24px 32px',
+                    border: '1px solid var(--border-subtle)',
+                    boxShadow: 'var(--shadow-sm)',
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}>
+                    <div style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '4px',
+                      height: '100%',
+                      background: 'var(--gradient-cyber)'
+                    }} />
+                    <span style={{
+                      fontSize: '11px',
+                      fontWeight: '750',
+                      color: 'var(--secondary)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '1px',
+                      display: 'inline-block',
+                      backgroundColor: 'rgba(6, 182, 212, 0.08)',
+                      padding: '4px 12px',
+                      borderRadius: '12px',
+                      marginBottom: '12px'
+                    }}>
+                      {activeFolder.cat}
+                    </span>
+                    <h2 className="font-serif" style={{ fontSize: '28px', color: 'var(--primary)', margin: '0 0 8px 0', fontWeight: '800' }}>
+                      {activeFolder.title}
+                    </h2>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '15px', margin: 0, lineHeight: '1.6' }}>
+                      {activeFolder.text}
+                    </p>
                   </div>
-                ))}
+                </div>
+
+                {/* Grid of images in this folder */}
+                <div className="folder-images-grid">
+                  {activeFolder.images && activeFolder.images.length > 0 ? (
+                    activeFolder.images.map((imgUrl, imgIdx) => (
+                      <div 
+                        key={imgIdx}
+                        onClick={() => {
+                          setSelectedImage(activeFolder);
+                          setLightboxIndex(imgIdx);
+                        }}
+                        className="folder-image-card"
+                      >
+                        <img 
+                          src={imgUrl} 
+                          alt={`${activeFolder.title} - ${imgIdx + 1}`} 
+                          className="folder-image"
+                        />
+                        <div className="folder-image-overlay">
+                          <span style={{ color: '#ffffff', fontSize: '12.5px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                            View Photo
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
+                      <Image size={48} style={{ opacity: 0.4, marginBottom: '16px' }} />
+                      <p style={{ fontSize: '15px', fontWeight: '600' }}>No pictures in this folder yet</p>
+                    </div>
+                  )}
+                </div>
               </div>
             ) : (
-              <div style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b' }}>
-                <Image size={48} style={{ opacity: 0.4, marginBottom: '16px' }} />
-                <p style={{ fontSize: '15px', fontWeight: '600' }}>No gallery items yet</p>
-                <p style={{ fontSize: '13px', marginTop: '8px' }}>Photo galleries will appear here</p>
-              </div>
+              <>
+                {galleryItems.length > 0 ? (
+                  <div className="gallery-bento-grid">
+                    {galleryItems.map((item, idx) => (
+                      <div
+                        key={item.id}
+                        className={`gallery-bento-card ${idx === 4 ? 'span-3' : 'span-1'}`}
+                        onClick={() => {
+                          setActiveFolder(item);
+                        }}
+                      >
+                        {item.images && item.images.length > 0 ? (
+                          <img
+                            src={item.images[0]}
+                            alt={item.title}
+                            className="gallery-bento-card-image"
+                          />
+                        ) : (
+                          <div className="gallery-bento-card-placeholder" style={{
+                            width: '100%',
+                            height: '100%',
+                            background: 'var(--gradient-cyber)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}>
+                            <Image size={48} color="#ffffff" style={{ opacity: 0.6 }} />
+                          </div>
+                        )}
+
+                        {/* Category Tag */}
+                        <span className="gallery-bento-card-badge">{item.cat}</span>
+
+                        {/* Overlay Content */}
+                        <div className="gallery-bento-card-overlay">
+                          <h3 className="gallery-bento-card-title">{item.title}</h3>
+                          <p className="gallery-bento-card-text">{item.text}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b' }}>
+                    <Image size={48} style={{ opacity: 0.4, marginBottom: '16px' }} />
+                    <p style={{ fontSize: '15px', fontWeight: '600' }}>No gallery items yet</p>
+                    <p style={{ fontSize: '13px', marginTop: '8px' }}>Photo galleries will appear here</p>
+                  </div>
+                )}
+              </>
             )}
           </>
         )}
@@ -540,19 +636,23 @@ const Media = () => {
 
       {/* Lightbox / Image Zoom Viewer */}
       {selectedImage && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(5, 23, 38, 0.95)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 9999,
-          padding: '24px'
-        }}>
+        <div 
+          onClick={() => setSelectedImage(null)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(5, 23, 38, 0.95)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: '24px',
+            cursor: 'pointer'
+          }}
+        >
           <button
             onClick={() => setSelectedImage(null)}
             style={{
@@ -568,19 +668,25 @@ const Media = () => {
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              zIndex: 10000
             }}
           >
             <X size={24} />
           </button>
-          <div style={{
-            maxWidth: '680px',
-            width: '100%',
-            backgroundColor: '#ffffff',
-            borderRadius: '12px',
-            overflow: 'hidden',
-            boxShadow: 'var(--shadow-lg)'
-          }}>
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: '680px',
+              width: '100%',
+              backgroundColor: '#ffffff',
+              borderRadius: '12px',
+              overflow: 'hidden',
+              boxShadow: 'var(--shadow-lg)',
+              cursor: 'default',
+              position: 'relative'
+            }}
+          >
             <div style={{
               height: '380px',
               backgroundColor: '#051726',

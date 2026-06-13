@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Users, Phone, User, Award, Shield, BookOpen, Layers } from 'lucide-react';
+import { Users, Phone, User, Award, Shield, BookOpen, Layers, X } from 'lucide-react';
 
 // ─── Page Header ──────────────────────────────────────────────────────────────
 const PageHeader = ({ title, subtitle }) => (
@@ -253,83 +253,55 @@ const StudentCard = ({ student, onClick }) => {
         backgroundColor: '#ffffff',
         borderRadius: '16px',
         border: '1px solid var(--border-subtle)',
-        borderTop: '4px solid var(--accent-cyan)',
-        padding: '20px',
-        textAlign: 'left',
         transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
         display: 'flex',
         flexDirection: 'column',
-        gap: '12px',
         height: '100%',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        overflow: 'hidden'
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '14px', borderBottom: '1px solid #f1f5f9', paddingBottom: '12px' }}>
-        {student.image ? (
-          <img 
-            src={student.image} 
-            alt={student.name} 
-            style={{
-              width: '50px', 
-              height: '50px', 
-              borderRadius: '50%',
-              objectFit: 'cover',
-              backgroundColor: '#f1f5f9',
-              flexShrink: 0
-            }} 
-          />
-        ) : (
-          <div 
-            style={{
-              width: '50px', 
-              height: '50px', 
-              borderRadius: '50%',
-              background: 'var(--gradient-colorful)',
-              color: '#ffffff',
-              fontSize: '16px', 
-              fontWeight: '800',
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              flexShrink: 0
-            }}
-          >
-            {initials}
-          </div>
-        )}
-        <div style={{ minWidth: 0 }}>
-          <h3 style={{ fontSize: '16px', color: 'var(--primary)', margin: '0 0 2px 0', fontWeight: '800', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {student.name}
-          </h3>
-          <span style={{
-            fontSize: '11px',
-            fontWeight: '700',
-            color: 'var(--secondary)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px'
-          }}>
-            {student.position}
-          </span>
+      {student.image ? (
+        <img 
+          src={student.image} 
+          alt={student.name} 
+          style={{
+            width: '100%', 
+            height: '200px', 
+            objectFit: 'cover',
+            backgroundColor: '#f1f5f9'
+          }} 
+        />
+      ) : (
+        <div 
+          style={{
+            width: '100%', 
+            height: '200px', 
+            background: 'linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)',
+            color: '#ffffff',
+            fontSize: '40px', 
+            fontWeight: '800',
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center'
+          }}
+        >
+          {initials}
         </div>
-      </div>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '13px', color: '#475569', flexGrow: 1 }}>
-        <div>
-          <span style={{ fontWeight: '750', color: 'var(--primary)' }}>Name: </span>
-          <span>{student.name}</span>
-        </div>
-        <div>
-          <span style={{ fontWeight: '750', color: 'var(--primary)' }}>Department: </span>
-          <span>{student.department}</span>
-        </div>
-        <div>
-          <span style={{ fontWeight: '750', color: 'var(--primary)' }}>Year of Study: </span>
-          <span>{student.yearOfStudy}</span>
-        </div>
-        <div>
-          <span style={{ fontWeight: '750', color: 'var(--primary)' }}>IEEE Membership Number: </span>
-          <span>{student.ieeeNumber}</span>
-        </div>
+      )}
+      <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <h3 style={{ fontSize: '16px', color: 'var(--primary)', margin: '0', fontWeight: '800', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {student.name}
+        </h3>
+        <span style={{
+          fontSize: '12px',
+          fontWeight: '700',
+          color: 'var(--secondary)',
+          textTransform: 'uppercase',
+          letterSpacing: '0.5px'
+        }}>
+          {student.position}
+        </span>
       </div>
     </div>
   );
@@ -416,14 +388,13 @@ const MemberModal = ({ member, onClose }) => {
         onClick={(e) => e.stopPropagation()}
         onKeyDown={handleTabKey}
         style={{
-          width: '680px',
+          width: '650px',
           maxWidth: '90%',
-          maxHeight: '90vh',
           backgroundColor: '#ffffff',
           border: '1px solid var(--border-subtle)',
           borderRadius: '16px',
           boxShadow: 'var(--shadow-premium)',
-          overflowY: 'auto',
+          overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
           position: 'relative',
@@ -436,16 +407,15 @@ const MemberModal = ({ member, onClose }) => {
           aria-label="Close modal"
           style={{
             position: 'absolute',
-            top: '12px',
-            right: '12px',
-            width: '32px',
-            height: '32px',
+            top: '16px',
+            right: '16px',
+            width: '36px',
+            height: '36px',
             borderRadius: '50%',
-            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-            border: '1px solid var(--border-subtle)',
-            color: 'var(--secondary)',
-            fontSize: '20px',
-            fontWeight: 'bold',
+            backgroundColor: '#ffffff',
+            border: 'none',
+            color: '#3f51b5',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -456,13 +426,13 @@ const MemberModal = ({ member, onClose }) => {
           }}
           className="modal-close-btn"
         >
-          &times;
+          <X size={16} strokeWidth={3} />
         </button>
 
         {/* Modal Side-by-Side Flex Layout */}
         <div className="execomm-modal-layout" style={{ display: 'flex', flexDirection: 'row', width: '100%', minHeight: '360px' }}>
-          {/* Left Column: Profile Image Container (Fully visible original photo, no cropping) */}
-          <div className="modal-left-image-container" style={{ width: '280px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--accent-light)', flexShrink: 0, overflow: 'hidden' }}>
+          {/* Left Column: Profile Image Container */}
+          <div className="modal-left-image-container" style={{ width: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
             {member.image ? (
               <img 
                 src={member.image} 
@@ -470,16 +440,16 @@ const MemberModal = ({ member, onClose }) => {
                 style={{
                   width: '100%',
                   height: '100%',
-                  objectFit: 'contain'
+                  objectFit: 'cover'
                 }}
               />
             ) : (
               <div style={{
                 width: '100%',
                 height: '100%',
-                background: 'var(--gradient-primary)',
+                background: 'linear-gradient(135deg, #3f51b5 0%, #1a237e 100%)',
                 color: '#ffffff',
-                fontSize: '48px',
+                fontSize: '110px',
                 fontWeight: '800',
                 display: 'flex',
                 alignItems: 'center',
@@ -491,55 +461,53 @@ const MemberModal = ({ member, onClose }) => {
           </div>
 
           {/* Right Column: Details Section */}
-          <div className="modal-right-details-container" style={{ flexGrow: 1, padding: '28px', textAlign: 'left', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <h2 style={{ fontSize: '24px', color: 'var(--secondary)', fontWeight: '800', margin: '0 0 4px 0' }}>
+          <div className="modal-right-details-container" style={{ flexGrow: 1, padding: '36px', textAlign: 'left', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <h2 style={{ fontSize: '28px', color: '#3f51b5', fontWeight: '700', margin: '0 0 4px 0' }}>
               {member.name}
             </h2>
             <div style={{ 
               fontSize: '14px', 
               fontWeight: '700', 
-              color: 'var(--secondary)', 
+              color: '#3f51b5', 
               textTransform: 'uppercase', 
-              letterSpacing: '0.5px',
-              marginBottom: '20px'
+              letterSpacing: '0.5px'
             }}>
               {member.position}
             </div>
 
+            <div style={{ borderBottom: '1px solid #e2e8f0', margin: '16px 0 24px 0' }} />
+
             <div style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: '12px',
-              borderTop: '1px solid var(--border-subtle)',
-              paddingTop: '20px',
-              fontSize: '15px',
-              color: '#334155'
+              gap: '16px',
+              fontSize: '15px'
             }}>
-              <div>
-                <span style={{ fontWeight: '750', color: 'var(--secondary)', display: 'inline-block', width: '130px' }}>Branch:</span>
-                <span style={{ fontWeight: '500' }}>{member.branch}</span>
+              <div style={{ display: 'flex', alignItems: 'start' }}>
+                <span style={{ fontWeight: '700', color: '#3f51b5', width: '130px', flexShrink: 0 }}>Branch:</span>
+                <span style={{ fontWeight: '500', color: '#334155' }}>{member.branch}</span>
               </div>
               {member.department && (
-                <div>
-                  <span style={{ fontWeight: '750', color: 'var(--secondary)', display: 'inline-block', width: '130px' }}>Department:</span>
-                  <span style={{ fontWeight: '500' }}>{member.department}</span>
+                <div style={{ display: 'flex', alignItems: 'start' }}>
+                  <span style={{ fontWeight: '700', color: '#3f51b5', width: '130px', flexShrink: 0 }}>Department:</span>
+                  <span style={{ fontWeight: '500', color: '#334155' }}>{member.department}</span>
                 </div>
               )}
-              <div>
-                <span style={{ fontWeight: '750', color: 'var(--secondary)', display: 'inline-block', width: '130px' }}>IEEE Number:</span>
-                <span style={{ fontWeight: '600' }}>{member.ieeeNumber || 'N/A'}</span>
+              <div style={{ display: 'flex', alignItems: 'start' }}>
+                <span style={{ fontWeight: '700', color: '#3f51b5', width: '130px', flexShrink: 0 }}>IEEE Number:</span>
+                <span style={{ fontWeight: '500', color: '#334155' }}>{member.ieeeNumber || 'N/A'}</span>
               </div>
               {member.year && (
-                <div>
-                  <span style={{ fontWeight: '750', color: 'var(--secondary)', display: 'inline-block', width: '130px' }}>Year:</span>
-                  <span style={{ fontWeight: '500' }}>{member.year} Year</span>
+                <div style={{ display: 'flex', alignItems: 'start' }}>
+                  <span style={{ fontWeight: '700', color: '#3f51b5', width: '130px', flexShrink: 0 }}>Year:</span>
+                  <span style={{ fontWeight: '500', color: '#334155' }}>{member.year} Year</span>
                 </div>
               )}
               {member.phone && (
-                <div>
-                  <span style={{ fontWeight: '750', color: 'var(--secondary)', display: 'inline-block', width: '130px' }}>Phone:</span>
-                  <span style={{ fontWeight: '500' }}>
-                    <a href={`tel:${member.phone}`} style={{ color: 'var(--secondary)', textDecoration: 'none', fontWeight: '600' }}>
+                <div style={{ display: 'flex', alignItems: 'start' }}>
+                  <span style={{ fontWeight: '700', color: '#3f51b5', width: '130px', flexShrink: 0 }}>Phone:</span>
+                  <span style={{ fontWeight: '500', color: '#334155' }}>
+                    <a href={`tel:${member.phone}`} style={{ color: '#334155', textDecoration: 'none', fontWeight: '500' }}>
                       {member.phone}
                     </a>
                   </span>
@@ -569,38 +537,38 @@ const Execomm = () => {
       {
         id: 1,
         name: "Computer Society (CS Society)",
-        faculty1: { name: "Dr. S. Varadhaganapathy", position: "Society Chairman", phone: "+91 98427 21111" },
-        faculty2: { name: "Dr. P. Natesan", position: "Society Vice Chairman", phone: "+91 98427 22222" }
+        faculty1: { name: "Dr. S. Varadhaganapathy", position: "Society Chairman", phone: "+91 98427 21111", image: "/assets/faculty_male_1.png" },
+        faculty2: { name: "Dr. P. Natesan", position: "Society Vice Chairman", phone: "+91 98427 22222", image: "/assets/faculty_male_2.png" }
       },
       {
         id: 2,
         name: "Robotics and Automation Society (RAS)",
-        faculty1: { name: "Dr. R. Murugesan", position: "Society Chairman", phone: "+91 98427 23333" },
-        faculty2: { name: "Mr. S. Albert Alexander", position: "Society Vice Chairman", phone: "+91 98427 24444" }
+        faculty1: { name: "Dr. R. Murugesan", position: "Society Chairman", phone: "+91 98427 23333", image: "/assets/faculty_male_3.png" },
+        faculty2: { name: "Mr. S. Albert Alexander", position: "Society Vice Chairman", phone: "+91 98427 24444", image: "/assets/faculty_male_4.png" }
       },
       {
         id: 3,
         name: "Women in Engineering (WIE)",
-        faculty1: { name: "Dr. J. Premalatha", position: "Society Chairman", phone: "+91 98427 25555" },
-        faculty2: { name: "Dr. S. Kalaiselvi", position: "Society Vice Chairman", phone: "+91 98427 26666" }
+        faculty1: { name: "Dr. J. Premalatha", position: "Society Chairman", phone: "+91 98427 25555", image: "/assets/faculty_female_1.png" },
+        faculty2: { name: "Dr. S. Kalaiselvi", position: "Society Vice Chairman", phone: "+91 98427 26666", image: "/assets/faculty_female_2.png" }
       },
       {
         id: 4,
         name: "Power & Energy Society (PES)",
-        faculty1: { name: "Dr. N. Nithyadevi", position: "Society Chairman", phone: "+91 98427 27777" },
-        faculty2: { name: "Dr. A. Sheela", position: "Society Vice Chairman", phone: "+91 98427 28888" }
+        faculty1: { name: "Dr. N. Nithyadevi", position: "Society Chairman", phone: "+91 98427 27777", image: "/assets/faculty_female_3.png" },
+        faculty2: { name: "Dr. A. Sheela", position: "Society Vice Chairman", phone: "+91 98427 28888", image: "/assets/faculty_female_4.png" }
       },
       {
         id: 5,
         name: "Communications Society (ComSoc)",
-        faculty1: { name: "Dr. K. Senthil Kumar", position: "Society Chairman", phone: "+91 98427 29999" },
-        faculty2: { name: "Dr. G. Murugesan", position: "Society Vice Chairman", phone: "+91 98427 20000" }
+        faculty1: { name: "Dr. K. Senthil Kumar", position: "Society Chairman", phone: "+91 98427 29999", image: "/assets/faculty_male.png" },
+        faculty2: { name: "Dr. G. Murugesan", position: "Society Vice Chairman", phone: "+91 98427 20000", image: "/assets/faculty_male_1.png" }
       },
       {
         id: 6,
         name: "AP-S (Antennas and Propagation Society)",
-        faculty1: { name: "Dr. T. Meeradevi", position: "Society Chairman", phone: "+91 98427 21122" },
-        faculty2: { name: "Dr. K. Albert", position: "Society Vice Chairman", phone: "+91 98427 33344" }
+        faculty1: { name: "Dr. T. Meeradevi", position: "Society Chairman", phone: "+91 98427 21122", image: "/assets/faculty_female.png" },
+        faculty2: { name: "Dr. K. Albert", position: "Society Vice Chairman", phone: "+91 98427 33344", image: "/assets/faculty_male_2.png" }
       }
     ];
 
@@ -613,7 +581,8 @@ const Execomm = () => {
         yearOfStudy: "IV",
         ieeeNumber: "92837482",
         position: "Chairman",
-        society: "IEEE KEC SB"
+        society: "IEEE KEC SB",
+        image: "/assets/student_male.png"
       },
       {
         id: 2,
@@ -622,7 +591,8 @@ const Execomm = () => {
         yearOfStudy: "IV",
         ieeeNumber: "92837483",
         position: "Vice Chairman",
-        society: "IEEE KEC SB"
+        society: "IEEE KEC SB",
+        image: "/assets/student_female.png"
       },
       {
         id: 3,
@@ -631,7 +601,8 @@ const Execomm = () => {
         yearOfStudy: "IV",
         ieeeNumber: "92837484",
         position: "Society Chairman",
-        society: "Computer Society (CS Society)"
+        society: "Computer Society (CS Society)",
+        image: "/assets/student_male_1.png"
       },
       {
         id: 4,
@@ -640,7 +611,8 @@ const Execomm = () => {
         yearOfStudy: "IV",
         ieeeNumber: "92837485",
         position: "Society Vice Chairman",
-        society: "Women in Engineering (WIE)"
+        society: "Women in Engineering (WIE)",
+        image: "/assets/faculty_female_4.png"
       },
       {
         id: 5,
@@ -649,7 +621,8 @@ const Execomm = () => {
         yearOfStudy: "III",
         ieeeNumber: "92837486",
         position: "Additional Secretary",
-        society: "IEEE KEC SB"
+        society: "IEEE KEC SB",
+        image: "/assets/student_male_2.png"
       },
       {
         id: 6,
@@ -658,7 +631,8 @@ const Execomm = () => {
         yearOfStudy: "III",
         ieeeNumber: "92837487",
         position: "Joint Secretary",
-        society: "IEEE KEC SB"
+        society: "IEEE KEC SB",
+        image: "/assets/student_male_3.png"
       },
       {
         id: 7,
@@ -667,7 +641,8 @@ const Execomm = () => {
         yearOfStudy: "III",
         ieeeNumber: "92837488",
         position: "Web Team Chairman",
-        society: "IEEE KEC SB"
+        society: "IEEE KEC SB",
+        image: "/assets/faculty_female_3.png"
       },
       {
         id: 8,
@@ -676,7 +651,8 @@ const Execomm = () => {
         yearOfStudy: "III",
         ieeeNumber: "92837489",
         position: "Event Team Chairman",
-        society: "IEEE KEC SB"
+        society: "IEEE KEC SB",
+        image: "/assets/student_male_4.png"
       },
       {
         id: 9,
@@ -685,7 +661,8 @@ const Execomm = () => {
         yearOfStudy: "II",
         ieeeNumber: "92837490",
         position: "Office Bearer",
-        society: "Women in Engineering (WIE)"
+        society: "Women in Engineering (WIE)",
+        image: "/assets/faculty_female_2.png"
       },
       {
         id: 10,
@@ -694,24 +671,25 @@ const Execomm = () => {
         yearOfStudy: "II",
         ieeeNumber: "92837491",
         position: "Member",
-        society: "Robotics and Automation Society (RAS)"
+        society: "Robotics and Automation Society (RAS)",
+        image: "/assets/faculty_female_1.png"
       }
     ];
 
-    // Load from localStorage
-    const storedSocieties = localStorage.getItem('ieee_execomm_societies');
+    // Load from localStorage, version 2 keys to reset sample images for better viewing
+    const storedSocieties = localStorage.getItem('ieee_execomm_societies_v2');
     if (storedSocieties) {
       setSocieties(JSON.parse(storedSocieties));
     } else {
-      localStorage.setItem('ieee_execomm_societies', JSON.stringify(defaultSocieties));
+      localStorage.setItem('ieee_execomm_societies_v2', JSON.stringify(defaultSocieties));
       setSocieties(defaultSocieties);
     }
 
-    const storedStudents = localStorage.getItem('ieee_execomm_students');
+    const storedStudents = localStorage.getItem('ieee_execomm_students_v2');
     if (storedStudents) {
       setStudents(JSON.parse(storedStudents));
     } else {
-      localStorage.setItem('ieee_execomm_students', JSON.stringify(defaultStudents));
+      localStorage.setItem('ieee_execomm_students_v2', JSON.stringify(defaultStudents));
       setStudents(defaultStudents);
     }
   }, []);
@@ -769,10 +747,10 @@ const Execomm = () => {
               borderRadius: '30px', border: 'none', cursor: 'pointer',
               letterSpacing: '0.5px',
               transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-              background: activeTab === 'faculties' ? 'var(--gradient-colorful)' : '#ffffff',
+              background: activeTab === 'faculties' ? 'var(--gradient-cyber)' : '#ffffff',
               color: activeTab === 'faculties' ? '#ffffff' : '#64748b',
               boxShadow: activeTab === 'faculties'
-                ? '0 6px 20px rgba(79,70,229,0.3)'
+                ? '0 6px 20px rgba(6,182,212,0.3)'
                 : '0 2px 8px rgba(0,0,0,0.06)',
               transform: activeTab === 'faculties' ? 'translateY(-1px)' : 'none'
             }}
@@ -787,10 +765,10 @@ const Execomm = () => {
               borderRadius: '30px', border: 'none', cursor: 'pointer',
               letterSpacing: '0.5px',
               transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-              background: activeTab === 'students' ? 'var(--gradient-colorful)' : '#ffffff',
+              background: activeTab === 'students' ? 'var(--gradient-cyber)' : '#ffffff',
               color: activeTab === 'students' ? '#ffffff' : '#64748b',
               boxShadow: activeTab === 'students'
-                ? '0 6px 20px rgba(79,70,229,0.3)'
+                ? '0 6px 20px rgba(6,182,212,0.3)'
                 : '0 2px 8px rgba(0,0,0,0.06)',
               transform: activeTab === 'students' ? 'translateY(-1px)' : 'none'
             }}
@@ -932,9 +910,8 @@ const Execomm = () => {
                         <span style={{ fontSize: '24px' }}>🛡️</span> {HIERARCHY_LEVEL_LABELS[level]}
                       </h3>
                       
-                      <div style={{
+                      <div className="execomm-students-grid" style={{
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
                         gap: '24px'
                       }}>
                         {levelStudents.map((stud) => (
@@ -972,6 +949,19 @@ const Execomm = () => {
       </div>
 
       <style>{`
+        .execomm-students-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+        @media (max-width: 1024px) {
+          .execomm-students-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+        @media (max-width: 640px) {
+          .execomm-students-grid {
+            grid-template-columns: 1fr;
+          }
+        }
         .execomm-clickable-card {
           cursor: pointer;
           transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
@@ -985,10 +975,12 @@ const Execomm = () => {
           box-shadow: 0 8px 20px rgba(79, 70, 229, 0.15) !important;
           border-color: var(--border-focus) !important;
         }
+        .modal-close-btn {
+          transition: all 0.2s ease;
+        }
         .modal-close-btn:hover {
-          background-color: #ffffff !important;
-          color: var(--secondary) !important;
           transform: scale(1.1);
+          box-shadow: 0 6px 16px rgba(0,0,0,0.15) !important;
         }
         @keyframes fadeIn {
           from { opacity: 0; }

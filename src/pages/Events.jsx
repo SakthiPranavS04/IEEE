@@ -84,11 +84,44 @@ const Events = () => {
     }
   };
 
+  const isEventNear = (dateStr) => {
+    try {
+      const today = new Date("2026-06-04");
+      let normalized = dateStr;
+      if (normalized.includes('-')) {
+        const parts = normalized.split('-');
+        const yearMatch = normalized.match(/\d{4}/);
+        const year = yearMatch ? yearMatch[0] : "2026";
+        const dayMatch = parts[0].match(/\d+/);
+        const monthMatch = normalized.match(/[a-zA-Z]+/);
+        if (dayMatch && monthMatch) {
+          normalized = `${monthMatch[0]} ${dayMatch[0]}, ${year}`;
+        }
+      } else {
+        const words = normalized.trim().split(/\s+/);
+        if (words.length === 2) {
+          normalized = `${words[0]} 28, ${words[1]}`;
+        }
+      }
+      const parsedDate = new Date(normalized);
+      const diffTime = parsedDate - today;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays >= 0 && diffDays <= 10;
+    } catch (e) {
+      return false;
+    }
+  };
+
   const location = useLocation();
   const isUpcoming = location.pathname.includes('/upcoming');
 
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [pastEvents, setPastEvents] = useState([]);
+  const [showAll, setShowAll] = useState(false);
+
+  useEffect(() => {
+    setShowAll(false);
+  }, [isUpcoming]);
 
   useEffect(() => {
     const defaultUpcoming = [
@@ -181,6 +214,7 @@ const Events = () => {
   }, []);
 
   const currentEvents = isUpcoming ? upcomingEvents : pastEvents;
+  const displayedEvents = showAll ? currentEvents : currentEvents.slice(0, 3);
 
   return (
     <div className="animate-fade-in" style={{ backgroundColor: 'var(--bg-light)', paddingBottom: '90px', minHeight: '60vh' }}>
@@ -227,29 +261,59 @@ const Events = () => {
         </div>
 
         {/* Section intro label */}
-        <div style={{ marginBottom: '28px' }}>
-          <span style={{
-            padding: '6px 14px',
-            backgroundColor: 'rgba(79, 70, 229, 0.08)',
-            color: 'var(--secondary)',
-            border: '1px solid rgba(79, 70, 229, 0.15)',
-            borderRadius: '20px',
-            fontSize: '12px',
-            fontWeight: '750',
-            textTransform: 'uppercase',
-            letterSpacing: '1px'
-          }}>
-            <Sparkles size={10} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
-            {isUpcoming ? 'Upcoming Programs' : 'Completed Programs'}
-          </span>
-          <h2 className="font-serif" style={{ fontSize: '24px', color: 'var(--primary)', marginTop: '10px', fontWeight: '800' }}>
-            {isUpcoming ? 'Programs Open for Registration' : 'Historical Event Archive'}
-          </h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '4px' }}>
-            {isUpcoming
-              ? 'Browse and register for our upcoming technical events and seminars.'
-              : 'A comprehensive log of events completed by KEC IEEE Student Branch.'}
-          </p>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-end',
+          marginBottom: '28px',
+          flexWrap: 'wrap',
+          gap: '16px'
+        }}>
+          <div>
+            <span style={{
+              padding: '6px 14px',
+              backgroundColor: 'rgba(79, 70, 229, 0.08)',
+              color: 'var(--secondary)',
+              border: '1px solid rgba(79, 70, 229, 0.15)',
+              borderRadius: '20px',
+              fontSize: '12px',
+              fontWeight: '750',
+              textTransform: 'uppercase',
+              letterSpacing: '1px'
+            }}>
+              <Sparkles size={10} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+              {isUpcoming ? 'Upcoming Programs' : 'Completed Programs'}
+            </span>
+            <h2 className="font-serif" style={{ fontSize: '24px', color: 'var(--primary)', marginTop: '10px', fontWeight: '800' }}>
+              {isUpcoming ? 'Programs Open for Registration' : 'Historical Event Archive'}
+            </h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '4px' }}>
+              {isUpcoming
+                ? 'Browse and register for our upcoming technical events and seminars.'
+                : 'A comprehensive log of events completed by KEC IEEE Student Branch.'}
+            </p>
+          </div>
+
+          {currentEvents.length > 3 && (
+            <button
+              onClick={() => setShowAll(!showAll)}
+              style={{
+                padding: '10px 22px',
+                fontSize: '13px',
+                fontWeight: '700',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.25s ease',
+                background: 'transparent',
+                border: '1.5px solid var(--secondary)',
+                color: 'var(--secondary)',
+                whiteSpace: 'nowrap'
+              }}
+              className="view-all-btn"
+            >
+              {showAll ? 'Show Less' : 'View All Events'}
+            </button>
+          )}
         </div>
 
         {/* Event Cards Grid */}
@@ -258,14 +322,17 @@ const Events = () => {
           gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
           gap: '28px'
         }}>
-          {currentEvents.map((evt, idx) => {
+          {displayedEvents.map((evt, idx) => {
             const isPast = isEventCompleted(evt.date);
+            const isNear = isEventNear(evt.date);
+            const shouldShowNewBadge = !isPast && (evt.showNewBadge || isNear);
             const tagStyle = getTagStyle(evt.tag);
             return (
               <div
                 key={idx}
                 className="card event-card"
                 style={{
+                  position: 'relative',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
@@ -278,6 +345,21 @@ const Events = () => {
                   padding: 0,
                 }}
               >
+                {/* NEW Badge / Sticker */}
+                {shouldShowNewBadge && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '12px',
+                    right: '12px',
+                    zIndex: 3,
+                    filter: 'drop-shadow(0 2px 6px rgba(239, 68, 68, 0.45))',
+                  }} className="new-badge-pulse">
+                    <svg viewBox="0 0 100 100" width="38" height="38">
+                      <path d="M 50 5 L 62 18 L 79 12 L 82 30 L 98 33 L 90 50 L 98 67 L 82 70 L 79 88 L 62 82 L 50 95 L 38 82 L 21 88 L 18 70 L 2 67 L 10 50 L 2 33 L 18 30 L 21 12 L 38 18 Z" fill="#ef4444" />
+                      <text x="50" y="55" fill="white" fontSize="16" fontWeight="900" textAnchor="middle" transform="rotate(-15 50 55)">NEW</text>
+                    </svg>
+                  </div>
+                )}
                 {/* Card Top Accent Bar */}
                 <div style={{
                   height: '4px',
@@ -414,6 +496,14 @@ const Events = () => {
           background: var(--gradient-colorful) !important;
           box-shadow: 0 6px 18px rgba(79, 70, 229, 0.4);
           transform: translateY(-1px);
+        }
+        @keyframes pulse-glow {
+          0% { transform: scale(1); filter: drop-shadow(0 2px 6px rgba(239, 68, 68, 0.45)); }
+          50% { transform: scale(1.06); filter: drop-shadow(0 2px 14px rgba(239, 68, 68, 0.7)); }
+          100% { transform: scale(1); filter: drop-shadow(0 2px 6px rgba(239, 68, 68, 0.45)); }
+        }
+        .new-badge-pulse {
+          animation: pulse-glow 2.2s infinite ease-in-out;
         }
       `}</style>
     </div>

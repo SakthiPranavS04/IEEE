@@ -1,11 +1,43 @@
 import React, { useState } from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useLocation } from 'react-router-dom';
 import { ChevronDown, ChevronRight, Menu, X } from 'lucide-react';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [activeSubDropdown, setActiveSubDropdown] = useState(null);
+  const { pathname } = useLocation();
+
+  const isItemActive = (name) => {
+    switch (name) {
+      case 'Home':
+        return pathname === '/';
+      case 'Events':
+        return pathname.startsWith('/events');
+      case 'Achievements':
+        return pathname.startsWith('/achievements');
+      case 'About':
+        return (
+          (pathname.startsWith('/about') && !pathname.startsWith('/about/ieee')) ||
+          pathname === '/faculties' ||
+          pathname === '/committee'
+        );
+      case 'Execomm':
+        return (
+          pathname.startsWith('/execomm') ||
+          pathname.startsWith('/execcomm') ||
+          pathname.startsWith('/excomm')
+        );
+      case 'Media':
+        return pathname.startsWith('/media');
+      case 'Downloads':
+        return pathname.startsWith('/about/ieee');
+      case 'Contact':
+        return pathname.startsWith('/contact');
+      default:
+        return false;
+    }
+  };
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -18,22 +50,46 @@ const Navbar = () => {
     {
       name: 'Events',
       items: [
-        { name: 'Upcoming Events', link: '/events/upcoming' },
-        { name: 'Past Events', link: '/events/past' },
+        { 
+          name: 'Upcoming Events', 
+          link: '/events/upcoming',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
+        },
+        { 
+          name: 'Past Events', 
+          link: '/events/past',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/><line x1="12" y1="7" x2="12" y2="12"/><polyline points="12 12 16 14"/></svg>
+        },
       ],
     },
     {
       name: 'Achievements',
       items: [
-        { name: 'Student Achievements', link: '/achievements' },
+        { 
+          name: 'Student Achievements', 
+          link: '/achievements',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"/><path d="M12 2a5 5 0 0 0-5 5v3.34c0 .87.35 1.7 1 2.33l1.3 1.3a1 1 0 0 0 1.4 0l1.3-1.3c.65-.63 1-1.46 1-2.33V7a5 5 0 0 0-5-5z"/></svg>
+        },
       ],
     },
     {
       name: 'About',
       items: [
-        { name: 'About IEEE KEC SB', link: '/about/ieee-kec-sb' },
-        { name: 'IEEE KEC Internal Committee', link: '/faculties' },
-        { name: 'Operational Committees', link: '/committee' },
+        { 
+          name: 'About IEEE KEC SB', 
+          link: '/about/ieee-kec-sb',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        },
+        { 
+          name: 'IEEE KEC Internal Committee', 
+          link: '/faculties',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        },
+        { 
+          name: 'Operational Committees', 
+          link: '/committee',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polygon points="2 17 12 22 22 17"/><polygon points="2 12 12 17 22 12"/></svg>
+        },
       ],
     },
     {
@@ -94,14 +150,26 @@ const Navbar = () => {
     {
       name: 'Media',
       items: [
-        { name: 'Gallery', link: '/media/gallery' },
-        { name: 'News', link: '/media/news' },
+        { 
+          name: 'Gallery', 
+          link: '/media/gallery',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+        },
+        { 
+          name: 'News', 
+          link: '/media/news',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
+        },
       ],
     },
     {
       name: 'Downloads',
       items: [
-        { name: 'IEEE Guidelines', link: '/about/ieee' }, // fallback
+        { 
+          name: 'IEEE Guidelines', 
+          link: '/about/ieee',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+        }, // fallback
       ],
     },
     { name: 'Contact', link: '/contact' },
@@ -142,6 +210,7 @@ const Navbar = () => {
         {/* Center: Navigation Menu */}
         <nav className="header-nav" style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1, justifyContent: 'center', marginRight: '16px' }}>
           {menuItems.map((item, idx) => {
+            const active = isItemActive(item.name);
             if (item.items) {
               const isExecomm = item.name === 'Execomm';
               return (
@@ -152,18 +221,19 @@ const Navbar = () => {
                       display: 'flex',
                       alignItems: 'center',
                       gap: '4px',
-                      padding: '8px 12px',
+                      padding: active ? '8px 12px 6px 12px' : '8px 12px',
                       fontSize: '13px',
                       fontWeight: '600',
-                      color: 'rgba(255, 255, 255, 0.9)',
+                      color: active ? '#ffffff' : 'rgba(255, 255, 255, 0.9)',
                       background: 'transparent',
                       border: 'none',
+                      borderBottom: active ? '2px solid var(--accent-cyan)' : '2px solid transparent',
                       cursor: 'pointer',
-                      borderRadius: '4px',
+                      borderRadius: active ? '0px' : '4px',
                       transition: 'var(--transition-fast)',
                       whiteSpace: 'nowrap'
                     }}
-                    className="nav-link-hover"
+                    className={active ? '' : 'nav-link-hover'}
                   >
                     {item.name}
                     <ChevronDown size={12} style={{ opacity: 0.7 }} />
@@ -283,19 +353,21 @@ const Navbar = () => {
               <NavLink
                 key={idx}
                 to={item.link}
-                style={({ isActive }) => ({
-                  padding: '6px 14px',
+                end={item.link === '/'}
+                style={{
+                  padding: '6px 0',
+                  margin: '0 12px',
                   fontSize: '13px',
                   fontWeight: '600',
-                  color: isActive ? '#ffffff' : 'rgba(255, 255, 255, 0.85)',
-                  background: isActive ? 'var(--gradient-colorful)' : 'transparent',
-                  borderRadius: '20px',
+                  color: active ? '#ffffff' : 'rgba(255, 255, 255, 0.85)',
+                  background: 'transparent',
                   textDecoration: 'none',
                   transition: 'var(--transition-fast)',
                   whiteSpace: 'nowrap',
-                  boxShadow: isActive ? '0 4px 10px rgba(79, 70, 229, 0.3)' : 'none'
-                })}
-                className={({ isActive }) => isActive ? '' : 'nav-link-hover'}
+                  borderBottom: active ? '2px solid var(--accent-cyan)' : '2px solid transparent',
+                  borderRadius: '0px'
+                }}
+                className={active ? '' : 'nav-link-hover'}
               >
                 {item.name}
               </NavLink>
@@ -348,16 +420,16 @@ const Navbar = () => {
           <Link
             to="/admin"
             style={{
+              border: '1.5px solid rgba(255, 255, 255, 0.4)',
               borderRadius: '20px',
               padding: '8px 16px',
               fontSize: '11px',
-              fontWeight: '700',
+              fontWeight: '750',
               color: '#ffffff',
-              background: 'var(--gradient-cyber)',
+              background: 'transparent',
               textDecoration: 'none',
               transition: 'var(--transition-fast)',
-              whiteSpace: 'nowrap',
-              boxShadow: '0 4px 10px rgba(6, 182, 212, 0.3)'
+              whiteSpace: 'nowrap'
             }}
             className="admin-btn-hover"
           >
@@ -403,6 +475,8 @@ const Navbar = () => {
             {menuItems.map((item, idx) => {
               if (item.items) {
                 const isDropdownOpen = activeDropdown === idx;
+                const active = isItemActive(item.name);
+                const shouldHighlight = active || isDropdownOpen;
                 return (
                   <div key={idx} style={{ borderBottom: '1px solid #0f4875' }}>
                     <button
@@ -415,14 +489,14 @@ const Navbar = () => {
                         padding: '12px 0',
                         fontSize: '14px',
                         fontWeight: '600',
-                        color: '#ffffff',
+                        color: shouldHighlight ? '#c9ebff' : '#ffffff',
                         background: 'transparent',
                         border: 'none',
                         cursor: 'pointer'
                       }}
                     >
                       {item.name}
-                      <ChevronDown size={16} style={{ transform: isDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'var(--transition-fast)' }} />
+                      <ChevronDown size={16} style={{ transform: isDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'var(--transition-fast)', color: shouldHighlight ? '#c9ebff' : '#ffffff' }} />
                     </button>
                     {isDropdownOpen && (
                       <div style={{ paddingLeft: '16px', display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
@@ -535,20 +609,21 @@ const Navbar = () => {
                 );
               }
 
+              const active = isItemActive(item.name);
               return (
                 <NavLink
                   key={idx}
                   to={item.link}
                   onClick={() => setIsOpen(false)}
-                  style={({ isActive }) => ({
+                  style={{
                     display: 'block',
                     padding: '12px 0',
                     fontSize: '14px',
                     fontWeight: '600',
-                    color: isActive ? '#c9ebff' : '#ffffff',
+                    color: active ? '#c9ebff' : '#ffffff',
                     textDecoration: 'none',
                     borderBottom: '1px solid #0f4875'
-                  })}
+                  }}
                 >
                   {item.name}
                 </NavLink>
@@ -575,7 +650,8 @@ const Navbar = () => {
                 to="/admin"
                 onClick={() => setIsOpen(false)}
                 style={{
-                  background: 'var(--gradient-cyber)',
+                  border: '1.5px solid rgba(255, 255, 255, 0.3)',
+                  background: 'transparent',
                   color: '#ffffff',
                   borderRadius: '20px',
                   padding: '12px',
@@ -597,21 +673,29 @@ const Navbar = () => {
           background-color: rgba(255,255,255,0.08) !important;
           color: #ffffff !important;
         }
+        .dropdown-parent:hover > button {
+          border-bottom: 2px solid var(--accent-cyan) !important;
+          color: #ffffff !important;
+          border-radius: 0px !important;
+          padding-bottom: 6px !important;
+          background-color: transparent !important;
+        }
         .dropdown-item-hover-light:hover {
           background-color: #f5faff !important;
           color: #02619a !important;
         }
         .rec-btn-hover:hover {
-          background: var(--gradient-colorful) !important;
+          background: rgba(255, 255, 255, 0.08) !important;
           color: #ffffff !important;
-          border-color: transparent !important;
-          box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+          border-color: #ffffff !important;
+          box-shadow: none;
         }
         .admin-btn-hover:hover {
-          background: var(--gradient-colorful) !important;
+          background: rgba(255, 255, 255, 0.08) !important;
           color: #ffffff !important;
-          box-shadow: 0 6px 15px rgba(79, 70, 229, 0.4);
-          transform: translateY(-1px);
+          border-color: #ffffff !important;
+          box-shadow: none;
+          transform: none;
         }
 
         /* Tablet and below */

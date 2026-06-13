@@ -202,9 +202,9 @@ const Media = () => {
               borderRadius: '30px',
               border: 'none',
               cursor: 'pointer',
-              background: activeTab === 'gallery' ? 'var(--gradient-colorful)' : '#ffffff',
+              background: activeTab === 'gallery' ? 'var(--gradient-cyber)' : '#ffffff',
               color: activeTab === 'gallery' ? '#ffffff' : 'var(--text-muted)',
-              boxShadow: activeTab === 'gallery' ? '0 4px 15px rgba(79, 70, 229, 0.35)' : 'var(--shadow-sm)',
+              boxShadow: activeTab === 'gallery' ? '0 4px 15px rgba(6, 182, 212, 0.35)' : 'var(--shadow-sm)',
               transition: 'all 0.25s ease'
             }}
           >
@@ -219,9 +219,9 @@ const Media = () => {
               borderRadius: '30px',
               border: 'none',
               cursor: 'pointer',
-              background: activeTab === 'news' ? 'var(--gradient-colorful)' : '#ffffff',
+              background: activeTab === 'news' ? 'var(--gradient-cyber)' : '#ffffff',
               color: activeTab === 'news' ? '#ffffff' : 'var(--text-muted)',
-              boxShadow: activeTab === 'news' ? '0 4px 15px rgba(79, 70, 229, 0.35)' : 'var(--shadow-sm)',
+              boxShadow: activeTab === 'news' ? '0 4px 15px rgba(6, 182, 212, 0.35)' : 'var(--shadow-sm)',
               transition: 'all 0.25s ease'
             }}
           >
@@ -236,9 +236,9 @@ const Media = () => {
               borderRadius: '30px',
               border: 'none',
               cursor: 'pointer',
-              background: activeTab === 'research' ? 'var(--gradient-colorful)' : '#ffffff',
+              background: activeTab === 'research' ? 'var(--gradient-cyber)' : '#ffffff',
               color: activeTab === 'research' ? '#ffffff' : 'var(--text-muted)',
-              boxShadow: activeTab === 'research' ? '0 4px 15px rgba(79, 70, 229, 0.35)' : 'var(--shadow-sm)',
+              boxShadow: activeTab === 'research' ? '0 4px 15px rgba(6, 182, 212, 0.35)' : 'var(--shadow-sm)',
               transition: 'all 0.25s ease'
             }}
           >

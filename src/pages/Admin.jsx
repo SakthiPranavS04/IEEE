@@ -151,6 +151,7 @@ const Admin = () => {
   const [eventIsUpcoming, setEventIsUpcoming] = useState(true);
   const [eventLink, setEventLink] = useState('');
   const [eventHighlights, setEventHighlights] = useState('');
+  const [eventShowNewBadge, setEventShowNewBadge] = useState(false);
 
   // Modal Form Inputs: Achievements
   const [achTitle, setAchTitle] = useState('');
@@ -276,7 +277,7 @@ const Admin = () => {
       time: "09:00 AM - 04:30 PM",
       venue: "Advanced Computing Lab, KEC",
       tag: "Workshop",
-      link: "https://forms.gle/mockregister"
+      link: "https://forms.gle/KEC-IEEE-Events-Registration"
     },
     {
       id: 2,
@@ -286,7 +287,7 @@ const Admin = () => {
       time: "Starting 10:00 AM",
       venue: "KEC Technology Business Incubator",
       tag: "Hackathon",
-      link: "https://forms.gle/mockregister"
+      link: "https://forms.gle/KEC-IEEE-Events-Registration"
     },
     {
       id: 3,
@@ -296,7 +297,7 @@ const Admin = () => {
       time: "02:00 PM - 04:00 PM",
       venue: "Seminar Hall, CSE Dept, KEC",
       tag: "Seminar",
-      link: "https://forms.gle/mockregister"
+      link: "https://forms.gle/KEC-IEEE-Events-Registration"
     }
   ];
 
@@ -887,8 +888,9 @@ const Admin = () => {
       setEventVenue('');
       setEventTag('Workshop');
       setEventIsUpcoming(true);
-      setEventLink('https://forms.gle/mockregister');
+      setEventLink('https://forms.gle/KEC-IEEE-Events-Registration');
       setEventHighlights('');
+      setEventShowNewBadge(false);
     } else if (type === 'achievement') {
       setAchTitle('');
       setAchCategory('');
@@ -959,6 +961,7 @@ const Admin = () => {
       setEventIsUpcoming(isUpcoming);
       setEventLink(item.link || '');
       setEventHighlights(item.highlights || '');
+      setEventShowNewBadge(item.showNewBadge || false);
     } else if (type === 'achievement') {
       setAchTitle(item.title);
       setAchCategory(item.category);
@@ -1103,7 +1106,8 @@ const Admin = () => {
           time: eventTime,
           venue: eventVenue,
           tag: eventTag,
-          link: eventLink
+          link: eventLink,
+          showNewBadge: eventShowNewBadge
         };
         updatedUpcoming.push(newEvent);
       } else {
@@ -5417,16 +5421,30 @@ const Admin = () => {
                   </div>
 
                   {eventIsUpcoming ? (
-                    <div>
-                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Registration URL</label>
-                      <input
-                        type="text"
-                        required={eventIsUpcoming}
-                        placeholder="https://forms.gle/..."
-                        value={eventLink}
-                        onChange={(e) => setEventLink(e.target.value)}
-                        style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
-                      />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Registration URL</label>
+                        <input
+                          type="text"
+                          required={eventIsUpcoming}
+                          placeholder="https://forms.gle/..."
+                          value={eventLink}
+                          onChange={(e) => setEventLink(e.target.value)}
+                          style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                        />
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <input
+                          type="checkbox"
+                          id="eventShowNewBadge"
+                          checked={eventShowNewBadge}
+                          onChange={(e) => setEventShowNewBadge(e.target.checked)}
+                          style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                        />
+                        <label htmlFor="eventShowNewBadge" style={{ fontSize: '13px', fontWeight: '600', color: '#0f172a', cursor: 'pointer', userSelect: 'none' }}>
+                          Highlight with "NEW" Badge / Sticker
+                        </label>
+                      </div>
                     </div>
                   ) : (
                     <div>

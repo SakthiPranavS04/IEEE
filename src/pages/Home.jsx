@@ -179,14 +179,14 @@ const Home = () => {
           {tickerNotices.map((notice, idx) => (
             <span key={idx} className="ticker-item">{notice}</span>
           ))}
-          {/* Duplicate to ensure seamless looping */}
+          {/* Double map for continuous marquee loop */}
           {tickerNotices.map((notice, idx) => (
             <span key={`dup-${idx}`} className="ticker-item">{notice}</span>
           ))}
         </div>
       </div>
 
-      {/* Hero Banner Section (Matches KSV Screenshot Layout & Font/Positioning) */}
+      {/* Hero Section */}
       <section style={{
         position: 'relative',
         padding: '100px 0 120px',
@@ -405,9 +405,9 @@ const Home = () => {
                     borderRadius: '30px',
                     border: 'none',
                     cursor: 'pointer',
-                    background: activeTab === tab.id ? 'var(--gradient-colorful)' : '#ffffff',
+                    background: activeTab === tab.id ? 'var(--gradient-cyber)' : '#ffffff',
                     color: activeTab === tab.id ? '#ffffff' : 'var(--text-muted)',
-                    boxShadow: activeTab === tab.id ? '0 4px 15px rgba(79, 70, 229, 0.35)' : 'var(--shadow-sm)',
+                    boxShadow: activeTab === tab.id ? '0 4px 15px rgba(6, 182, 212, 0.35)' : 'var(--shadow-sm)',
                     transition: 'var(--transition-fast)'
                   }}
                   className="tab-hover"

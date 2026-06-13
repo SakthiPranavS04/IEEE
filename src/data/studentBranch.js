@@ -128,21 +128,21 @@ export const studentBranchData = {
   ],
   members: [
     { name: "Aditya Verma", year: "II Year", department: "Computer Science and Engineering", photo: "https://i.pravatar.cc/300?img=3" },
-    { name: "Pooja Hegde", year: "II Year", department: "Information Technology", photo: "https://i.pravatar.cc/300?img=5" },
+    { name: "Pooja S.", year: "II Year", department: "Information Technology", photo: "https://i.pravatar.cc/300?img=5" },
     { name: "Rahul Nair", year: "II Year", department: "Electronics and Communication Engineering", photo: "https://i.pravatar.cc/300?img=4" },
     { name: "Ananya Sen", year: "II Year", department: "Electrical and Electronics Engineering", photo: "https://i.pravatar.cc/300?img=9" },
     { name: "Vijay Kumar", year: "II Year", department: "Mechatronics Engineering", photo: "https://i.pravatar.cc/300?img=7" },
     { name: "Shruti Sharma", year: "II Year", department: "Civil Engineering", photo: "https://i.pravatar.cc/300?img=10" },
     { name: "Rohan Das", year: "II Year", department: "Mechanical Engineering", photo: "https://i.pravatar.cc/300?img=8" },
-    { name: "Kriti Sanon", year: "II Year", department: "Artificial Intelligence & Data Science", photo: "https://i.pravatar.cc/300?img=21" },
-    { name: "Madhavan R.", year: "II Year", department: "Chemical Engineering", photo: "https://i.pravatar.cc/300?img=31" },
+    { name: "Keerthana R.", year: "II Year", department: "Artificial Intelligence & Data Science", photo: "https://i.pravatar.cc/300?img=21" },
+    { name: "Madan Kumar V.", year: "II Year", department: "Chemical Engineering", photo: "https://i.pravatar.cc/300?img=31" },
     { name: "Sneha Nair", year: "II Year", department: "Electronics and Instrumentation Engineering", photo: "https://i.pravatar.cc/300?img=23" },
     { name: "Abhishek Singh", year: "II Year", department: "Computer Science and Engineering", photo: "https://i.pravatar.cc/300?img=32" },
     { name: "Neha Sharma", year: "II Year", department: "Information Technology", photo: "https://i.pravatar.cc/300?img=24" },
     { name: "Gautham K.", year: "II Year", department: "Electronics and Communication Engineering", photo: "https://i.pravatar.cc/300?img=35" },
     { name: "Malini R.", year: "II Year", department: "Electrical and Electronics Engineering", photo: "https://i.pravatar.cc/300?img=26" },
-    { name: "Dinesh Karthik", year: "II Year", department: "Mechanical Engineering", photo: "https://i.pravatar.cc/300?img=36" },
-    { name: "Meera Jasmine", year: "II Year", department: "Civil Engineering", photo: "https://i.pravatar.cc/300?img=28" }
+    { name: "Dinesh K.", year: "II Year", department: "Mechanical Engineering", photo: "https://i.pravatar.cc/300?img=36" },
+    { name: "Meera S.", year: "II Year", department: "Civil Engineering", photo: "https://i.pravatar.cc/300?img=28" }
   ],
   gallery: [
     { url: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?q=80&w=600", caption: "IEEE Day Celebration" },

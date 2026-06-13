@@ -29,14 +29,14 @@ const Footer = () => {
                 width: '40px',
                 height: '40px',
                 borderRadius: '12px',
-                background: 'var(--gradient-colorful)',
+                background: 'var(--gradient-cyber)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#fff',
                 fontSize: '16px',
                 fontWeight: '800',
-                boxShadow: '0 4px 10px rgba(79,70,229,0.3)'
+                boxShadow: '0 4px 10px rgba(6, 182, 212, 0.3)'
               }}>
                 🌿
               </div>
@@ -161,11 +161,11 @@ const Footer = () => {
           text-decoration: none;
         }
         .social-icon-btn:hover {
-          background: var(--gradient-colorful);
-          border-color: transparent;
+          background: var(--secondary);
+          border-color: var(--secondary);
           color: #fff;
           transform: translateY(-3px);
-          box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+          box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
         }
         .footer-link-hover:hover {
           color: #fff !important;

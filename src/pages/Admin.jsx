@@ -418,7 +418,8 @@ const Admin = () => {
       yearOfStudy: "IV",
       ieeeNumber: "92837482",
       position: "Chairman",
-      society: "IEEE KEC SB"
+      society: "IEEE KEC SB",
+      image: "/assets/student_male.png"
     },
     {
       id: 2,
@@ -427,79 +428,198 @@ const Admin = () => {
       yearOfStudy: "IV",
       ieeeNumber: "92837483",
       position: "Vice Chairman",
-      society: "IEEE KEC SB"
+      society: "IEEE KEC SB",
+      image: "/assets/student_female.png"
     },
     {
       id: 3,
+      name: "Rajesh Kumar K.",
+      department: "Computer Science and Engineering",
+      yearOfStudy: "IV",
+      ieeeNumber: "92837494",
+      position: "Student Branch Chair",
+      society: "IEEE KEC SB",
+      image: "/assets/student_male_1.png"
+    },
+    {
+      id: 4,
       name: "Karthik Raja V.",
       department: "Electrical and Electronics Engineering",
       yearOfStudy: "IV",
       ieeeNumber: "92837484",
       position: "Society Chairman",
-      society: "Computer Society (CS Society)"
+      society: "Computer Society (CS Society)",
+      image: "/assets/student_male_1.png"
     },
     {
-      id: 4,
+      id: 5,
       name: "Priyanka S.",
       department: "Information Technology",
       yearOfStudy: "IV",
       ieeeNumber: "92837485",
       position: "Society Vice Chairman",
-      society: "Women in Engineering (WIE)"
+      society: "Women in Engineering (WIE)",
+      image: "/assets/faculty_female_4.png"
     },
     {
-      id: 5,
+      id: 6,
+      name: "Manoj Prabhakar S.",
+      department: "Mechanical Engineering",
+      yearOfStudy: "IV",
+      ieeeNumber: "92837495",
+      position: "Society Chairman",
+      society: "Robotics and Automation Society (RAS)",
+      image: "/assets/student_male_2.png"
+    },
+    {
+      id: 7,
       name: "Harish K.",
       department: "Electronics and Instrumentation Engineering",
       yearOfStudy: "III",
       ieeeNumber: "92837486",
       position: "Additional Secretary",
-      society: "IEEE KEC SB"
+      society: "IEEE KEC SB",
+      image: "/assets/student_male_2.png"
     },
     {
-      id: 6,
+      id: 8,
+      name: "Deepa N.",
+      department: "Electronics and Communication Engineering",
+      yearOfStudy: "III",
+      ieeeNumber: "92837496",
+      position: "Additional Secretary",
+      society: "IEEE KEC SB",
+      image: "/assets/student_female.png"
+    },
+    {
+      id: 9,
+      name: "Vijay Anand R.",
+      department: "Information Technology",
+      yearOfStudy: "III",
+      ieeeNumber: "92837497",
+      position: "Additional Secretary",
+      society: "IEEE KEC SB",
+      image: "/assets/student_male_3.png"
+    },
+    {
+      id: 10,
       name: "Naveen S.",
       department: "Mechanical Engineering",
       yearOfStudy: "III",
       ieeeNumber: "92837487",
       position: "Joint Secretary",
-      society: "IEEE KEC SB"
+      society: "IEEE KEC SB",
+      image: "/assets/student_male_3.png"
     },
     {
-      id: 7,
+      id: 11,
+      name: "Keerthana M.",
+      department: "Electrical and Electronics Engineering",
+      yearOfStudy: "III",
+      ieeeNumber: "92837498",
+      position: "Joint Secretary",
+      society: "IEEE KEC SB",
+      image: "/assets/student_female.png"
+    },
+    {
+      id: 12,
+      name: "Rahul E.",
+      department: "Electronics and Instrumentation Engineering",
+      yearOfStudy: "III",
+      ieeeNumber: "92837499",
+      position: "Joint Secretary",
+      society: "IEEE KEC SB",
+      image: "/assets/student_male_4.png"
+    },
+    {
+      id: 13,
       name: "Dharini P.",
       department: "Computer Science and Engineering",
       yearOfStudy: "III",
       ieeeNumber: "92837488",
       position: "Web Team Chairman",
-      society: "IEEE KEC SB"
+      society: "IEEE KEC SB",
+      image: "/assets/faculty_female_3.png"
     },
     {
-      id: 8,
+      id: 14,
       name: "Arun Kumar S.",
       department: "Chemical Engineering",
       yearOfStudy: "III",
       ieeeNumber: "92837489",
       position: "Event Team Chairman",
-      society: "IEEE KEC SB"
+      society: "IEEE KEC SB",
+      image: "/assets/student_male_4.png"
     },
     {
-      id: 9,
+      id: 15,
+      name: "Sanjay B.",
+      department: "Information Technology",
+      yearOfStudy: "III",
+      ieeeNumber: "92837500",
+      position: "Media Team Chairman",
+      society: "IEEE KEC SB",
+      image: "/assets/student_male_1.png"
+    },
+    {
+      id: 16,
       name: "Divya K.",
       department: "Food Technology",
       yearOfStudy: "II",
       ieeeNumber: "92837490",
       position: "Office Bearer",
-      society: "Women in Engineering (WIE)"
+      society: "Women in Engineering (WIE)",
+      image: "/assets/faculty_female_2.png"
     },
     {
-      id: 10,
+      id: 17,
+      name: "Vignesh S.",
+      department: "Electrical and Electronics Engineering",
+      yearOfStudy: "II",
+      ieeeNumber: "92837501",
+      position: "Executive Member",
+      society: "Power & Energy Society (PES)",
+      image: "/assets/student_male.png"
+    },
+    {
+      id: 18,
+      name: "Sandhya R.",
+      department: "Electronics and Communication Engineering",
+      yearOfStudy: "II",
+      ieeeNumber: "92837502",
+      position: "Executive Member",
+      society: "Communications Society (ComSoc)",
+      image: "/assets/student_female.png"
+    },
+    {
+      id: 19,
       name: "Kavya R.",
       department: "Electronics and Communication Engineering",
       yearOfStudy: "II",
       ieeeNumber: "92837491",
       position: "Member",
-      society: "Robotics and Automation Society (RAS)"
+      society: "Robotics and Automation Society (RAS)",
+      image: "/assets/faculty_female_1.png"
+    },
+    {
+      id: 20,
+      name: "Surya K.",
+      department: "Electronics and Communication Engineering",
+      yearOfStudy: "II",
+      ieeeNumber: "92837503",
+      position: "Student Member",
+      society: "AP-S (Antennas and Propagation Society)",
+      image: "/assets/student_male.png"
+    },
+    {
+      id: 21,
+      name: "Shalini D.",
+      department: "Computer Science and Engineering",
+      yearOfStudy: "II",
+      ieeeNumber: "92837504",
+      position: "Student Member",
+      society: "Computer Society (CS Society)",
+      image: "/assets/student_female.png"
     }
   ];
 
@@ -673,20 +793,20 @@ const Admin = () => {
     }
 
     // Load Execomm Societies
-    const storedSocieties = localStorage.getItem('ieee_execomm_societies');
+    const storedSocieties = localStorage.getItem('ieee_execomm_societies_v3');
     if (storedSocieties) {
       setSocieties(JSON.parse(storedSocieties));
     } else {
-      localStorage.setItem('ieee_execomm_societies', JSON.stringify(defaultSocieties));
+      localStorage.setItem('ieee_execomm_societies_v3', JSON.stringify(defaultSocieties));
       setSocieties(defaultSocieties);
     }
 
     // Load Execomm Students
-    const storedStudents = localStorage.getItem('ieee_execomm_students');
+    const storedStudents = localStorage.getItem('ieee_execomm_students_v3');
     if (storedStudents) {
       setStudents(JSON.parse(storedStudents));
     } else {
-      localStorage.setItem('ieee_execomm_students', JSON.stringify(defaultStudents));
+      localStorage.setItem('ieee_execomm_students_v3', JSON.stringify(defaultStudents));
       setStudents(defaultStudents);
     }
 
@@ -1032,11 +1152,11 @@ const Admin = () => {
     } else if (type === 'society') {
       const updated = societies.filter(item => item.id !== id);
       setSocieties(updated);
-      localStorage.setItem('ieee_execomm_societies', JSON.stringify(updated));
+      localStorage.setItem('ieee_execomm_societies_v3', JSON.stringify(updated));
     } else if (type === 'student') {
       const updated = students.filter(item => item.id !== id);
       setStudents(updated);
-      localStorage.setItem('ieee_execomm_students', JSON.stringify(updated));
+      localStorage.setItem('ieee_execomm_students_v3', JSON.stringify(updated));
     } else if (type === 'committee') {
       const updated = committees.filter(item => item.id !== id);
       setCommittees(updated);
@@ -1174,7 +1294,7 @@ const Admin = () => {
         );
       }
       setSocieties(updated);
-      localStorage.setItem('ieee_execomm_societies', JSON.stringify(updated));
+      localStorage.setItem('ieee_execomm_societies_v3', JSON.stringify(updated));
 
     } else if (modalType === 'student') {
       if (!studentName.trim() || !studentDept.trim() || !studentYear.trim() || !studentIeeeNumber.trim() || !studentPosition.trim()) return;
@@ -1208,7 +1328,7 @@ const Admin = () => {
         );
       }
       setStudents(updated);
-      localStorage.setItem('ieee_execomm_students', JSON.stringify(updated));
+      localStorage.setItem('ieee_execomm_students_v3', JSON.stringify(updated));
 
     } else if (modalType === 'committee') {
       if (!commName.trim() || !commDesc.trim() || !commLead.trim() || !commCoLead.trim()) return;
@@ -1316,7 +1436,7 @@ const Admin = () => {
         : item
     );
     setSocieties(updated);
-    localStorage.setItem('ieee_execomm_societies', JSON.stringify(updated));
+    localStorage.setItem('ieee_execomm_societies_v3', JSON.stringify(updated));
     setEditingSocietyId(null);
   };
 
@@ -1348,7 +1468,7 @@ const Admin = () => {
         : item
     );
     setStudents(updated);
-    localStorage.setItem('ieee_execomm_students', JSON.stringify(updated));
+    localStorage.setItem('ieee_execomm_students_v3', JSON.stringify(updated));
     setEditingStudentId(null);
   };
 

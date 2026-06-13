@@ -214,7 +214,7 @@ const SocietyPage = () => {
         <div className="container">
           <div className="about-section-grid">
             
-            <div className="about-info-card scroll-reveal fade-up">
+            <div className="about-info-card scroll-reveal fade-up" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
               <span style={{
                 padding: '6px 14px',
                 backgroundColor: 'rgba(var(--society-primary-rgb), 0.08)',
@@ -226,12 +226,34 @@ const SocietyPage = () => {
                 textTransform: 'uppercase',
                 letterSpacing: '1px',
                 display: 'inline-block',
-                marginBottom: '12px'
+                marginBottom: '12px',
+                alignSelf: 'flex-start'
               }}>
                 Overview
               </span>
               <h2>About the Society</h2>
-              <p>{society.about.overview}</p>
+              <p style={{ marginBottom: '24px' }}>{society.about.overview}</p>
+              
+              {/* Dynamic Bottom Tagline to fill space and align the endings */}
+              {society.tagline && (
+                <div style={{
+                  marginTop: 'auto',
+                  padding: '20px 24px',
+                  backgroundColor: 'rgba(var(--society-primary-rgb), 0.04)',
+                  borderLeft: '4px solid var(--society-primary)',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '6px'
+                }}>
+                  <span style={{ fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--society-primary)' }}>
+                    Focus & Tagline
+                  </span>
+                  <p style={{ fontSize: '13.5px', color: '#475569', margin: 0, lineHeight: '1.5', fontWeight: '500' }}>
+                    {society.tagline}
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="about-cards-stack">

@@ -103,84 +103,64 @@ const FacultyCard = ({ name, position, phone, image, societyName, onClick }) => 
         }
       }}
       style={{
-        padding: '32px 24px',
+        backgroundColor: '#ffffff',
+        borderRadius: '16px',
+        border: '1px solid var(--border-subtle)',
+        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
-        textAlign: 'center',
-        border: '1px solid var(--border-subtle)',
-        borderTop: '5px solid var(--secondary)',
-        borderRadius: '16px',
-        backgroundColor: '#ffffff',
-        position: 'relative',
-        overflow: 'hidden',
         height: '100%',
-        justifyContent: 'space-between',
         boxSizing: 'border-box',
-        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+        overflow: 'hidden',
+        position: 'relative'
       }}
     >
-      {/* subtle background pattern */}
-      <div style={{
-        position: 'absolute', top: 0, right: 0,
-        width: '120px', height: '120px', borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(79,70,229,0.04) 0%, transparent 70%)',
-        pointerEvents: 'none'
-      }} />
+      {/* Rectangular Image Banner */}
+      {image ? (
+        <img 
+          src={image} 
+          alt={name} 
+          style={{
+            width: '100%', 
+            height: '280px', 
+            objectFit: 'cover',
+            objectPosition: 'top',
+            backgroundColor: '#f1f5f9'
+          }} 
+        />
+      ) : (
+        <div 
+          style={{
+            width: '100%', 
+            height: '280px', 
+            background: 'var(--gradient-cyber)',
+            color: '#ffffff',
+            fontSize: '40px', 
+            fontWeight: '800',
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center'
+          }}
+        >
+          {initials}
+        </div>
+      )}
 
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexGrow: 1, width: '100%' }}>
-        {/* Avatar */}
-        {image ? (
-          <img 
-            src={image} 
-            alt={name} 
-            style={{
-              width: '100px', 
-              height: '100px', 
-              borderRadius: '50%',
-              objectFit: 'cover',
-              border: '3px solid #ffffff',
-              boxShadow: '0 6px 16px rgba(79,70,229,0.12)',
-              marginBottom: '20px',
-              backgroundColor: '#f1f5f9',
-              flexShrink: 0
-            }} 
-          />
-        ) : (
-          <div 
-            style={{
-              width: '100px', 
-              height: '100px', 
-              borderRadius: '50%',
-              background: 'var(--gradient-cyber)',
-              color: '#ffffff',
-              fontSize: '32px', 
-              fontWeight: '800',
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              border: '3px solid #ffffff',
-              boxShadow: '0 6px 16px rgba(79,70,229,0.12)',
-              marginBottom: '20px',
-              flexShrink: 0
-            }}
-          >
-            {initials}
-          </div>
-        )}
-
+      {/* Details Container */}
+      <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '4px', flexGrow: 1 }}>
         <div style={{
           display: 'inline-flex', alignItems: 'center', gap: '4px',
           backgroundColor: '#eff6ff', color: '#1e40af',
           padding: '3px 10px', borderRadius: '20px',
           fontSize: '10px', fontWeight: '700',
           textTransform: 'uppercase', letterSpacing: '0.5px',
-          marginBottom: '10px'
+          marginBottom: '6px',
+          alignSelf: 'flex-start'
         }}>
           Faculty Coordinator
         </div>
 
-        <h3 style={{ fontSize: '17px', color: 'var(--primary)', margin: '0 0 6px 0', fontWeight: '800', lineHeight: '1.4' }}>
+        <h3 style={{ fontSize: '17px', color: 'var(--primary)', margin: '0 0 2px 0', fontWeight: '800', lineHeight: '1.4' }}>
           {name}
         </h3>
         <div style={{
@@ -189,42 +169,42 @@ const FacultyCard = ({ name, position, phone, image, societyName, onClick }) => 
           fontWeight: '700',
           textTransform: 'uppercase', 
           letterSpacing: '0.8px',
-          marginBottom: '12px',
-          lineHeight: '1.4'
+          lineHeight: '1.4',
+          marginBottom: '12px'
         }}>
           {position}
         </div>
-      </div>
 
-      <div style={{
-        display: 'flex', gap: '10px', width: '100%', justifyContent: 'center',
-        borderTop: '1px solid #f1f5f9', paddingTop: '16px', marginTop: '12px'
-      }}>
-        {phone && (
-          <a
-            href={`tel:${phone}`}
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              backgroundColor: 'rgba(79, 70, 229, 0.05)',
-              color: 'var(--secondary)',
-              fontSize: '12px',
-              fontWeight: '600',
-              textDecoration: 'none',
-              border: '1px solid var(--border-subtle)',
-              transition: 'all 0.2s ease',
-              width: '100%',
-              justifyContent: 'center'
-            }}
-            className="execomm-contact-btn"
-          >
-            <Phone size={14} /> Call Coordinator
-          </a>
-        )}
+        <div style={{
+          display: 'flex', gap: '10px', width: '100%', justifyContent: 'center',
+          borderTop: '1px solid #f1f5f9', paddingTop: '16px', marginTop: 'auto'
+        }}>
+          {phone && (
+            <a
+              href={`tel:${phone}`}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                backgroundColor: 'rgba(79, 70, 229, 0.05)',
+                color: 'var(--secondary)',
+                fontSize: '12px',
+                fontWeight: '600',
+                textDecoration: 'none',
+                border: '1px solid var(--border-subtle)',
+                transition: 'all 0.2s ease',
+                width: '100%',
+                justifyContent: 'center'
+              }}
+              className="execomm-contact-btn"
+            >
+              <Phone size={14} /> Call Coordinator
+            </a>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -267,8 +247,9 @@ const StudentCard = ({ student, onClick }) => {
           alt={student.name} 
           style={{
             width: '100%', 
-            height: '200px', 
+            height: '260px', 
             objectFit: 'cover',
+            objectPosition: 'top',
             backgroundColor: '#f1f5f9'
           }} 
         />
@@ -276,7 +257,7 @@ const StudentCard = ({ student, onClick }) => {
         <div 
           style={{
             width: '100%', 
-            height: '200px', 
+            height: '260px', 
             background: 'linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)',
             color: '#ffffff',
             fontSize: '40px', 
@@ -432,7 +413,7 @@ const MemberModal = ({ member, onClose }) => {
         {/* Modal Side-by-Side Flex Layout */}
         <div className="execomm-modal-layout" style={{ display: 'flex', flexDirection: 'row', width: '100%', minHeight: '360px' }}>
           {/* Left Column: Profile Image Container */}
-          <div className="modal-left-image-container" style={{ width: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+          <div className="modal-left-image-container" style={{ width: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden', backgroundColor: '#f1f5f9' }}>
             {member.image ? (
               <img 
                 src={member.image} 
@@ -440,7 +421,7 @@ const MemberModal = ({ member, onClose }) => {
                 style={{
                   width: '100%',
                   height: '100%',
-                  objectFit: 'cover'
+                  objectFit: 'contain'
                 }}
               />
             ) : (
@@ -596,6 +577,16 @@ const Execomm = () => {
       },
       {
         id: 3,
+        name: "Rajesh Kumar K.",
+        department: "Computer Science and Engineering",
+        yearOfStudy: "IV",
+        ieeeNumber: "92837494",
+        position: "Student Branch Chair",
+        society: "IEEE KEC SB",
+        image: "/assets/student_male_1.png"
+      },
+      {
+        id: 4,
         name: "Karthik Raja V.",
         department: "Electrical and Electronics Engineering",
         yearOfStudy: "IV",
@@ -605,7 +596,7 @@ const Execomm = () => {
         image: "/assets/student_male_1.png"
       },
       {
-        id: 4,
+        id: 5,
         name: "Priyanka S.",
         department: "Information Technology",
         yearOfStudy: "IV",
@@ -615,7 +606,17 @@ const Execomm = () => {
         image: "/assets/faculty_female_4.png"
       },
       {
-        id: 5,
+        id: 6,
+        name: "Manoj Prabhakar S.",
+        department: "Mechanical Engineering",
+        yearOfStudy: "IV",
+        ieeeNumber: "92837495",
+        position: "Society Chairman",
+        society: "Robotics and Automation Society (RAS)",
+        image: "/assets/student_male_2.png"
+      },
+      {
+        id: 7,
         name: "Harish K.",
         department: "Electronics and Instrumentation Engineering",
         yearOfStudy: "III",
@@ -625,7 +626,27 @@ const Execomm = () => {
         image: "/assets/student_male_2.png"
       },
       {
-        id: 6,
+        id: 8,
+        name: "Deepa N.",
+        department: "Electronics and Communication Engineering",
+        yearOfStudy: "III",
+        ieeeNumber: "92837496",
+        position: "Additional Secretary",
+        society: "IEEE KEC SB",
+        image: "/assets/student_female.png"
+      },
+      {
+        id: 9,
+        name: "Vijay Anand R.",
+        department: "Information Technology",
+        yearOfStudy: "III",
+        ieeeNumber: "92837497",
+        position: "Additional Secretary",
+        society: "IEEE KEC SB",
+        image: "/assets/student_male_3.png"
+      },
+      {
+        id: 10,
         name: "Naveen S.",
         department: "Mechanical Engineering",
         yearOfStudy: "III",
@@ -635,7 +656,27 @@ const Execomm = () => {
         image: "/assets/student_male_3.png"
       },
       {
-        id: 7,
+        id: 11,
+        name: "Keerthana M.",
+        department: "Electrical and Electronics Engineering",
+        yearOfStudy: "III",
+        ieeeNumber: "92837498",
+        position: "Joint Secretary",
+        society: "IEEE KEC SB",
+        image: "/assets/student_female.png"
+      },
+      {
+        id: 12,
+        name: "Rahul E.",
+        department: "Electronics and Instrumentation Engineering",
+        yearOfStudy: "III",
+        ieeeNumber: "92837499",
+        position: "Joint Secretary",
+        society: "IEEE KEC SB",
+        image: "/assets/student_male_4.png"
+      },
+      {
+        id: 13,
         name: "Dharini P.",
         department: "Computer Science and Engineering",
         yearOfStudy: "III",
@@ -645,7 +686,7 @@ const Execomm = () => {
         image: "/assets/faculty_female_3.png"
       },
       {
-        id: 8,
+        id: 14,
         name: "Arun Kumar S.",
         department: "Chemical Engineering",
         yearOfStudy: "III",
@@ -655,7 +696,17 @@ const Execomm = () => {
         image: "/assets/student_male_4.png"
       },
       {
-        id: 9,
+        id: 15,
+        name: "Sanjay B.",
+        department: "Information Technology",
+        yearOfStudy: "III",
+        ieeeNumber: "92837500",
+        position: "Media Team Chairman",
+        society: "IEEE KEC SB",
+        image: "/assets/student_male_1.png"
+      },
+      {
+        id: 16,
         name: "Divya K.",
         department: "Food Technology",
         yearOfStudy: "II",
@@ -665,7 +716,27 @@ const Execomm = () => {
         image: "/assets/faculty_female_2.png"
       },
       {
-        id: 10,
+        id: 17,
+        name: "Vignesh S.",
+        department: "Electrical and Electronics Engineering",
+        yearOfStudy: "II",
+        ieeeNumber: "92837501",
+        position: "Executive Member",
+        society: "Power & Energy Society (PES)",
+        image: "/assets/student_male.png"
+      },
+      {
+        id: 18,
+        name: "Sandhya R.",
+        department: "Electronics and Communication Engineering",
+        yearOfStudy: "II",
+        ieeeNumber: "92837502",
+        position: "Executive Member",
+        society: "Communications Society (ComSoc)",
+        image: "/assets/student_female.png"
+      },
+      {
+        id: 19,
         name: "Kavya R.",
         department: "Electronics and Communication Engineering",
         yearOfStudy: "II",
@@ -673,23 +744,43 @@ const Execomm = () => {
         position: "Member",
         society: "Robotics and Automation Society (RAS)",
         image: "/assets/faculty_female_1.png"
+      },
+      {
+        id: 20,
+        name: "Surya K.",
+        department: "Electronics and Communication Engineering",
+        yearOfStudy: "II",
+        ieeeNumber: "92837503",
+        position: "Student Member",
+        society: "AP-S (Antennas and Propagation Society)",
+        image: "/assets/student_male.png"
+      },
+      {
+        id: 21,
+        name: "Shalini D.",
+        department: "Computer Science and Engineering",
+        yearOfStudy: "II",
+        ieeeNumber: "92837504",
+        position: "Student Member",
+        society: "Computer Society (CS Society)",
+        image: "/assets/student_female.png"
       }
     ];
 
-    // Load from localStorage, version 2 keys to reset sample images for better viewing
-    const storedSocieties = localStorage.getItem('ieee_execomm_societies_v2');
+    // Load from localStorage, version 3 keys
+    const storedSocieties = localStorage.getItem('ieee_execomm_societies_v3');
     if (storedSocieties) {
       setSocieties(JSON.parse(storedSocieties));
     } else {
-      localStorage.setItem('ieee_execomm_societies_v2', JSON.stringify(defaultSocieties));
+      localStorage.setItem('ieee_execomm_societies_v3', JSON.stringify(defaultSocieties));
       setSocieties(defaultSocieties);
     }
 
-    const storedStudents = localStorage.getItem('ieee_execomm_students_v2');
+    const storedStudents = localStorage.getItem('ieee_execomm_students_v3');
     if (storedStudents) {
       setStudents(JSON.parse(storedStudents));
     } else {
-      localStorage.setItem('ieee_execomm_students_v2', JSON.stringify(defaultStudents));
+      localStorage.setItem('ieee_execomm_students_v3', JSON.stringify(defaultStudents));
       setStudents(defaultStudents);
     }
   }, []);

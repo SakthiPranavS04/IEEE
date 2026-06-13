@@ -149,6 +149,7 @@ const SocietyPageLayout = ({ data }) => {
         mission={data.about.mission}
         vision={data.about.vision}
         objectives={data.about.objectives}
+        tagline={data.tagline}
       />
 
       {/* Statistics Section */}
@@ -375,7 +376,7 @@ const SocietyPageLayout = ({ data }) => {
               <img 
                 src={selectedMember.photo} 
                 alt={selectedMember.name} 
-                style={{ width: '100%', height: '100%', minHeight: '250px', objectFit: 'cover' }} 
+                style={{ width: '100%', height: '100%', minHeight: '250px', objectFit: 'contain' }} 
               />
             </div>
 

@@ -379,51 +379,91 @@ const Home = () => {
 
           <div style={{
             display: 'grid',
-            gridTemplateColumns: '1fr',
-            gap: '40px'
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: '40px',
+            alignItems: 'center'
           }}>
-            {/* Tab navigation */}
-            <div style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              justifyContent: 'center',
-              gap: '12px',
-              borderBottom: '2px solid var(--border-subtle)',
-              paddingBottom: '16px'
-            }}>
-              {[
-                { id: 'mission', label: 'Mission' },
-                { id: 'vision', label: 'Vision' },
-              ].map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+            {/* Left Column: YouTube Video */}
+            <div className="scroll-reveal slide-right" style={{ width: '100%' }}>
+              <div className="video-frame-container" style={{
+                position: 'relative',
+                paddingBottom: '56.25%', // 16:9 aspect ratio
+                height: 0,
+                borderRadius: '16px',
+                border: '6px solid #ffffff',
+                boxShadow: '0 20px 40px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.04)',
+                overflow: 'hidden',
+                backgroundColor: '#0f172a'
+              }}>
+                <iframe
+                  src="https://www.youtube.com/embed/S_T1VwN7Gic"
+                  title="IEEE KEC SB Promotional Video"
                   style={{
-                    padding: '12px 28px',
-                    fontSize: '15px',
-                    fontWeight: '600',
-                    borderRadius: '30px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    background: activeTab === tab.id ? 'var(--gradient-cyber)' : '#ffffff',
-                    color: activeTab === tab.id ? '#ffffff' : 'var(--text-muted)',
-                    boxShadow: activeTab === tab.id ? '0 4px 15px rgba(6, 182, 212, 0.35)' : 'var(--shadow-sm)',
-                    transition: 'var(--transition-fast)'
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    border: 'none'
                   }}
-                  className="tab-hover"
-                >
-                  {tab.label}
-                </button>
-              ))}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
             </div>
 
-            {/* Tab Panel content */}
-            <div className="card animate-fade-in" style={{ key: activeTab, padding: '40px', minHeight: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-              <h3 style={{ fontSize: '24px', marginBottom: '16px', color: 'var(--primary)', borderLeft: '4px solid var(--secondary)', paddingLeft: '16px' }}>
-                {tabContent[activeTab].title}
-              </h3>
-              <div style={{ color: 'var(--text-dark)' }}>
-                {tabContent[activeTab].content}
+            {/* Right Column: Mission / Vision Tabs & Content */}
+            <div className="scroll-reveal slide-left" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              {/* Tab Navigation */}
+              <div style={{
+                display: 'flex',
+                gap: '12px',
+                borderBottom: '2px solid var(--border-subtle)',
+                paddingBottom: '16px'
+              }}>
+                {[
+                  { id: 'mission', label: 'Mission' },
+                  { id: 'vision', label: 'Vision' },
+                ].map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    style={{
+                      padding: '10px 24px',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      borderRadius: '30px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      background: activeTab === tab.id ? 'var(--gradient-cyber)' : '#ffffff',
+                      color: activeTab === tab.id ? '#ffffff' : 'var(--text-muted)',
+                      boxShadow: activeTab === tab.id ? '0 4px 12px rgba(6, 182, 212, 0.35)' : 'var(--shadow-sm)',
+                      transition: 'var(--transition-fast)'
+                    }}
+                    className="tab-hover"
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Tab Content Card */}
+              <div className="card animate-fade-in" style={{ 
+                key: activeTab, 
+                padding: '36px', 
+                minHeight: '220px', 
+                display: 'flex', 
+                flexDirection: 'column', 
+                justifyContent: 'center',
+                margin: 0,
+                border: '1px solid var(--border-subtle)'
+              }}>
+                <h3 style={{ fontSize: '20px', marginBottom: '12px', color: 'var(--primary)', borderLeft: '4px solid var(--secondary)', paddingLeft: '12px', fontWeight: '800' }}>
+                  {tabContent[activeTab].title}
+                </h3>
+                <div style={{ color: 'var(--text-dark)' }}>
+                  {tabContent[activeTab].content}
+                </div>
               </div>
             </div>
           </div>
@@ -547,6 +587,13 @@ const Home = () => {
       </section>
 
       <style>{`
+        .video-frame-container {
+          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .video-frame-container:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 30px 60px rgba(15, 23, 42, 0.18), 0 0 25px rgba(79, 70, 229, 0.15) !important;
+        }
         .tab-hover:hover {
           transform: translateY(-2px);
           box-shadow: 0 6px 20px rgba(79, 70, 229, 0.2) !important;

@@ -844,7 +844,7 @@ const Admin = () => {
   // Load current branch details on selected branch key changes
   useEffect(() => {
     const key = selectedBranchKey;
-    const stored = localStorage.getItem(`ieee_society_data_${key}_v4`);
+    const stored = localStorage.getItem(`ieee_society_data_${key}_v5`);
     if (stored) {
       try {
         setBranchData(JSON.parse(stored));
@@ -3356,7 +3356,7 @@ const Admin = () => {
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button
                   onClick={() => {
-                    localStorage.setItem(`ieee_society_data_${selectedBranchKey}_v4`, JSON.stringify(branchData));
+                    localStorage.setItem(`ieee_society_data_${selectedBranchKey}_v5`, JSON.stringify(branchData));
                     setBranchSaved(true);
                     setTimeout(() => setBranchSaved(false), 3000);
                   }}
@@ -3380,7 +3380,7 @@ const Admin = () => {
                 <button
                   onClick={() => {
                     if (window.confirm("Are you sure you want to revert all changes for this branch to default settings? This cannot be undone.")) {
-                      localStorage.removeItem(`ieee_society_data_${selectedBranchKey}_v4`);
+                      localStorage.removeItem(`ieee_society_data_${selectedBranchKey}_v5`);
                       const key = selectedBranchKey;
                       if (key === 'ap-s') setBranchData(JSON.parse(JSON.stringify(apsData)));
                       else if (key === 'computer-society') setBranchData(JSON.parse(JSON.stringify(computerSocietyData)));
@@ -3571,6 +3571,81 @@ const Admin = () => {
                         onChange={(e) => setBranchData({
                           ...branchData,
                           theme: { ...branchData.theme, secondary: e.target.value }
+                        })}
+                        style={{ flexGrow: 1, padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>Badge Background Color (HEX):</label>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input
+                        type="color"
+                        value={branchData.theme?.badgeBg || branchData.theme?.secondary || '#ffffff'}
+                        onChange={(e) => setBranchData({
+                          ...branchData,
+                          theme: { ...branchData.theme, badgeBg: e.target.value }
+                        })}
+                        style={{ width: '42px', height: '42px', padding: '0', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+                      />
+                      <input
+                        type="text"
+                        value={branchData.theme?.badgeBg || ''}
+                        placeholder={branchData.theme?.secondary || '#ffffff'}
+                        onChange={(e) => setBranchData({
+                          ...branchData,
+                          theme: { ...branchData.theme, badgeBg: e.target.value }
+                        })}
+                        style={{ flexGrow: 1, padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none' }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>Badge Text Color (HEX):</label>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input
+                        type="color"
+                        value={branchData.theme?.badgeText || '#ffffff'}
+                        onChange={(e) => setBranchData({
+                          ...branchData,
+                          theme: { ...branchData.theme, badgeText: e.target.value }
+                        })}
+                        style={{ width: '42px', height: '42px', padding: '0', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+                      />
+                      <input
+                        type="text"
+                        value={branchData.theme?.badgeText || ''}
+                        placeholder="#ffffff"
+                        onChange={(e) => setBranchData({
+                          ...branchData,
+                          theme: { ...branchData.theme, badgeText: e.target.value }
+                        })}
+                        style={{ flexGrow: 1, padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none' }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>Stats Box Background (HEX):</label>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input
+                        type="color"
+                        value={branchData.theme?.statsBg || '#f8fafc'}
+                        onChange={(e) => setBranchData({
+                          ...branchData,
+                          theme: { ...branchData.theme, statsBg: e.target.value }
+                        })}
+                        style={{ width: '42px', height: '42px', padding: '0', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+                      />
+                      <input
+                        type="text"
+                        value={branchData.theme?.statsBg || ''}
+                        placeholder="e.g. #f1f5f9"
+                        onChange={(e) => setBranchData({
+                          ...branchData,
+                          theme: { ...branchData.theme, statsBg: e.target.value }
                         })}
                         style={{ flexGrow: 1, padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none' }}
                       />

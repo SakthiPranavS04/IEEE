@@ -270,61 +270,61 @@ const Media = () => {
                     ← Back to Albums
                   </button>
                   
-                  <div style={{
-                    backgroundColor: '#ffffff',
-                    borderRadius: '16px',
-                    padding: '24px 32px',
-                    border: '1px solid var(--border-subtle)',
-                    boxShadow: 'var(--shadow-sm)',
-                    position: 'relative',
-                    overflow: 'hidden'
-                  }}>
-                    <div style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      width: '4px',
-                      height: '100%',
-                      background: 'var(--gradient-cyber)'
-                    }} />
-                    <span style={{
-                      fontSize: '11px',
-                      fontWeight: '750',
-                      color: 'var(--secondary)',
-                      textTransform: 'uppercase',
-                      letterSpacing: '1px',
-                      display: 'inline-block',
-                      backgroundColor: 'rgba(6, 182, 212, 0.08)',
-                      padding: '4px 12px',
-                      borderRadius: '12px',
-                      marginBottom: '12px'
-                    }}>
-                      {activeFolder.cat}
-                    </span>
-                    <h2 className="font-serif" style={{ fontSize: '28px', color: 'var(--primary)', margin: '0 0 8px 0', fontWeight: '800' }}>
-                      {activeFolder.title}
-                    </h2>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '15px', margin: 0, lineHeight: '1.6' }}>
-                      {activeFolder.text}
-                    </p>
+                  <div className="album-header-card">
+                    {/* Left side: Text contents */}
+                    <div className="album-header-text-side">
+                      <span style={{
+                        fontSize: '11px',
+                        fontWeight: '800',
+                        color: '#ffffff',
+                        textTransform: 'uppercase',
+                        letterSpacing: '1px',
+                        display: 'inline-block',
+                        backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                        backdropFilter: 'blur(8px)',
+                        padding: '4px 12px',
+                        borderRadius: '12px',
+                        marginBottom: '12px',
+                        alignSelf: 'flex-start'
+                      }}>
+                        {activeFolder.cat}
+                      </span>
+                      <h2 className="font-serif" style={{ fontSize: '30px', color: '#ffffff', margin: '0 0 8px 0', fontWeight: '800' }}>
+                        {activeFolder.title}
+                      </h2>
+                      <p style={{ color: 'rgba(255, 255, 255, 0.85)', fontSize: '15px', margin: 0, lineHeight: '1.6' }}>
+                        {activeFolder.text}
+                      </p>
+                    </div>
+
+                    {/* Right side: Cover photo (uncropped, fitting container) */}
+                    {activeFolder.images && activeFolder.images[0] && (
+                      <div className="album-header-img-side">
+                        <img 
+                          src={activeFolder.images[0]} 
+                          alt={activeFolder.title} 
+                          className="album-header-cover-img"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {/* Grid of images in this folder */}
+                {/* Grid of images in this folder (excluding cover photo) */}
                 <div className="folder-images-grid">
-                  {activeFolder.images && activeFolder.images.length > 0 ? (
-                    activeFolder.images.map((imgUrl, imgIdx) => (
+                  {activeFolder.images && activeFolder.images.length > 1 ? (
+                    activeFolder.images.slice(1).map((imgUrl, imgIdx) => (
                       <div 
                         key={imgIdx}
                         onClick={() => {
                           setSelectedImage(activeFolder);
-                          setLightboxIndex(imgIdx);
+                          setLightboxIndex(imgIdx + 1);
                         }}
                         className="folder-image-card"
                       >
                         <img 
                           src={imgUrl} 
-                          alt={`${activeFolder.title} - ${imgIdx + 1}`} 
+                          alt={`${activeFolder.title} - ${imgIdx + 2}`} 
                           className="folder-image"
                         />
                         <div className="folder-image-overlay">
@@ -337,7 +337,7 @@ const Media = () => {
                   ) : (
                     <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
                       <Image size={48} style={{ opacity: 0.4, marginBottom: '16px' }} />
-                      <p style={{ fontSize: '15px', fontWeight: '600' }}>No pictures in this folder yet</p>
+                      <p style={{ fontSize: '15px', fontWeight: '600' }}>No other pictures in this album yet</p>
                     </div>
                   )}
                 </div>

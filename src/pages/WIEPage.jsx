@@ -6,7 +6,7 @@ const WIEPage = () => {
   const [data, setData] = useState(wieData);
 
   useEffect(() => {
-    const stored = localStorage.getItem('ieee_society_data_wie_v4');
+    const stored = localStorage.getItem('ieee_society_data_wie_v5');
     if (stored) {
       try {
         setData(JSON.parse(stored));

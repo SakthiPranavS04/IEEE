@@ -89,7 +89,7 @@ const SocietyPage = () => {
   const [society, setSociety] = useState(societiesData[societyId] || null);
 
   useEffect(() => {
-    const stored = localStorage.getItem(`ieee_society_data_${societyId}_v4`);
+    const stored = localStorage.getItem(`ieee_society_data_${societyId}_v5`);
     if (stored) {
       try {
         setSociety(JSON.parse(stored));
@@ -138,6 +138,10 @@ const SocietyPage = () => {
     '--society-primary': society.theme.primary,
     '--society-secondary': society.theme.secondary,
     '--society-primary-rgb': hexToRgb(society.theme.primary),
+    '--society-badge-bg': society.theme.badgeBg || society.theme.secondary,
+    '--society-badge-text': society.theme.badgeText || (society.theme.secondary && society.theme.secondary.toLowerCase() === '#ffffff' ? '#000000' : '#ffffff'),
+    '--society-stats-bg': society.theme.statsBg || `rgba(${hexToRgb(society.theme.primary)}, 0.08)`,
+    '--society-stats-border': society.theme.statsBg ? '1px solid rgba(0,0,0,0.06)' : `1px solid rgba(${hexToRgb(society.theme.primary)}, 0.15)`,
   };
 
   const handleEnquirySubmit = (e) => {

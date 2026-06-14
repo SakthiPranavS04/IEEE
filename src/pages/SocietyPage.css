@@ -255,8 +255,8 @@
 
 /* Statistics Section */
 .stats-section {
-  background: rgba(var(--society-primary-rgb), 0.08);
-  border: 1px solid rgba(var(--society-primary-rgb), 0.15);
+  background: var(--society-stats-bg, rgba(var(--society-primary-rgb), 0.08));
+  border: var(--society-stats-border, 1px solid rgba(var(--society-primary-rgb), 0.15));
   padding: 60px 0;
   position: relative;
   overflow: hidden;
@@ -1105,8 +1105,8 @@
   align-self: flex-start;
   font-size: 10px;
   font-weight: 800;
-  background-color: var(--society-secondary, var(--society-primary));
-  color: #ffffff;
+  background-color: var(--society-badge-bg, var(--society-secondary, var(--society-primary)));
+  color: var(--society-badge-text, #ffffff);
   padding: 4px 10px;
   border-radius: 20px;
   text-transform: uppercase;

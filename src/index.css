@@ -941,6 +941,60 @@ input, textarea, select {
   border-bottom-right-radius: 12px !important;
 }
 
+/* Album Header Card Layout Styles */
+.album-header-card {
+  display: flex;
+  flex-direction: row;
+  border-radius: 16px;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  background-color: #0f172a;
+  min-height: 220px;
+  color: #ffffff;
+  margin-bottom: 32px;
+}
+
+.album-header-text-side {
+  flex: 1 1 60%;
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+  position: relative;
+}
+
+.album-header-img-side {
+  flex: 1 1 40%;
+  background-color: #051726;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  position: relative;
+  min-height: 200px;
+}
+
+.album-header-cover-img {
+  max-width: 100%;
+  max-height: 190px;
+  border-radius: 8px;
+  object-fit: contain;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+@media (max-width: 768px) {
+  .album-header-card {
+    flex-direction: column !important;
+  }
+  .album-header-text-side,
+  .album-header-img-side {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+  }
+}
+
 /* Folder Gallery Layout Styles */
 .folder-images-grid {
   display: grid;

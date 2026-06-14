@@ -5,7 +5,10 @@ export const societiesData = {
     tagline: "Advancing Electromagnetics, Antennas, and Propagation Technologies",
     theme: {
       primary: "#000000",
-      secondary: "#ffffff"
+      secondary: "#ffffff",
+      badgeBg: "#000000",
+      badgeText: "#ffffff",
+      statsBg: "#f1f5f9"
     },
     heroImage: "https://images.unsplash.com/photo-1544256718-3bcf237f3974?q=80&w=1200",
     logoText: "IEEE APS",

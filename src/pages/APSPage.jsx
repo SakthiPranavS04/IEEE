@@ -6,7 +6,7 @@ const APSPage = () => {
   const [data, setData] = useState(apsData);
 
   useEffect(() => {
-    const stored = localStorage.getItem('ieee_society_data_ap-s_v4');
+    const stored = localStorage.getItem('ieee_society_data_ap-s_v5');
     if (stored) {
       try {
         setData(JSON.parse(stored));

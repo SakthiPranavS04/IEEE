@@ -240,7 +240,7 @@ const Navbar = () => {
                     borderRadius: '12px', 
                     boxShadow: 'var(--shadow-lg)', 
                     overflow: 'visible',
-                    minWidth: isExecomm ? '260px' : '220px'
+                    minWidth: isExecomm ? '260px' : (item.name === 'About' ? '250px' : '220px')
                   }}>
                     {item.items.map((subItem, sIdx) => {
                       if (subItem.subItems) {
@@ -261,7 +261,8 @@ const Navbar = () => {
                                 cursor: 'pointer',
                                 textAlign: 'left',
                                 borderBottom: '1px solid var(--border-subtle)',
-                                borderLeft: '3px solid transparent'
+                                borderLeft: '3px solid transparent',
+                                whiteSpace: 'nowrap'
                               }}
                               className="dropdown-item-hover-light"
                             >
@@ -275,7 +276,7 @@ const Navbar = () => {
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.9 19.1 14.2-14.2"/><path d="M12 2v20"/><path d="M20.2 6.8a10 10 0 0 0-16.4 0"/><path d="M3.8 17.2a10 10 0 0 0 16.4 0"/></svg>
                                   </span>
                                 )}
-                                <span>{subItem.name}</span>
+                                <span style={{ whiteSpace: 'nowrap' }}>{subItem.name}</span>
                               </div>
                               <ChevronRight size={12} style={{ opacity: 0.7 }} />
                             </button>
@@ -307,7 +308,7 @@ const Navbar = () => {
                                   className="dropdown-item-hover-light"
                                 >
                                   {nestedItem.icon && <span style={{ display: 'flex', alignItems: 'center', color: 'var(--secondary)' }}>{nestedItem.icon}</span>}
-                                  <span>{nestedItem.name}</span>
+                                  <span style={{ whiteSpace: 'nowrap' }}>{nestedItem.name}</span>
                                 </NavLink>
                               ))}
                             </div>
@@ -330,12 +331,13 @@ const Navbar = () => {
                             backgroundColor: isActive ? 'rgba(79, 70, 229, 0.05)' : 'transparent',
                             textDecoration: 'none',
                             borderBottom: '1px solid var(--border-subtle)',
-                            borderLeft: isActive ? '3px solid var(--secondary)' : '3px solid transparent'
+                            borderLeft: isActive ? '3px solid var(--secondary)' : '3px solid transparent',
+                            whiteSpace: 'nowrap'
                           })}
                           className="dropdown-item-hover-light"
                         >
                           {subItem.icon && <span style={{ display: 'flex', alignItems: 'center', color: 'var(--secondary)' }}>{subItem.icon}</span>}
-                          <span>{subItem.name}</span>
+                          <span style={{ whiteSpace: 'nowrap' }}>{subItem.name}</span>
                         </NavLink>
                       );
                     })}

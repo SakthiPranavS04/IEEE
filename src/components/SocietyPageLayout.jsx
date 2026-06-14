@@ -80,6 +80,10 @@ const SocietyPageLayout = ({ data }) => {
     '--society-primary': data.theme.primary,
     '--society-secondary': data.theme.secondary,
     '--society-primary-rgb': hexToRgb(data.theme.primary),
+    '--society-badge-bg': data.theme.badgeBg || data.theme.secondary,
+    '--society-badge-text': data.theme.badgeText || (data.theme.secondary && data.theme.secondary.toLowerCase() === '#ffffff' ? '#000000' : '#ffffff'),
+    '--society-stats-bg': data.theme.statsBg || `rgba(${hexToRgb(data.theme.primary)}, 0.08)`,
+    '--society-stats-border': data.theme.statsBg ? '1px solid rgba(0,0,0,0.06)' : `1px solid rgba(${hexToRgb(data.theme.primary)}, 0.15)`,
   };
 
   const repeatedMilestones = data.milestones ? (() => {

@@ -6,7 +6,7 @@ const RASPage = () => {
   const [data, setData] = useState(rasData);
 
   useEffect(() => {
-    const stored = localStorage.getItem('ieee_society_data_ras_v4');
+    const stored = localStorage.getItem('ieee_society_data_ras_v5');
     if (stored) {
       try {
         setData(JSON.parse(stored));

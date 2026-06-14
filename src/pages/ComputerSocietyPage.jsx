@@ -6,7 +6,7 @@ const ComputerSocietyPage = () => {
   const [data, setData] = useState(computerSocietyData);
 
   useEffect(() => {
-    const stored = localStorage.getItem('ieee_society_data_computer-society_v4');
+    const stored = localStorage.getItem('ieee_society_data_computer-society_v5');
     if (stored) {
       try {
         setData(JSON.parse(stored));

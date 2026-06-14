@@ -291,23 +291,13 @@ const Media = () => {
                   </button>
                   
                   <div className="album-header-card">
-                    {/* Blurred background container */}
+                    {/* Background image covering the entire container */}
                     {activeFolder.images && activeFolder.images[0] && (
-                      <div 
-                        className="album-header-bg-blur"
-                        style={{ backgroundImage: `url(${activeFolder.images[0]})` }}
+                      <img 
+                        src={activeFolder.images[0]} 
+                        alt={activeFolder.title} 
+                        className="album-header-cover-img" 
                       />
-                    )}
-
-                    {/* Crisp centered image container */}
-                    {activeFolder.images && activeFolder.images[0] && (
-                      <div className="album-header-bg-crisp-center">
-                        <img 
-                          src={activeFolder.images[0]} 
-                          alt={activeFolder.title} 
-                          className="album-header-crisp-img" 
-                        />
-                      </div>
                     )}
 
                     {/* Gradient overlay for readability */}

@@ -291,42 +291,42 @@ const Media = () => {
                   </button>
                   
                   <div className="album-header-card">
-                    {/* Left side: Text contents */}
-                    <div className="album-header-text-side">
-                      <span style={{
-                        fontSize: '11px',
-                        fontWeight: '800',
-                        color: '#ffffff',
-                        textTransform: 'uppercase',
-                        letterSpacing: '1px',
-                        display: 'inline-block',
-                        backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                        backdropFilter: 'blur(8px)',
-                        padding: '4px 12px',
-                        borderRadius: '12px',
-                        marginBottom: '12px',
-                        alignSelf: 'flex-start'
-                      }}>
-                        {activeFolder.cat}
-                      </span>
-                      <h2 className="font-serif" style={{ fontSize: '30px', color: '#ffffff', margin: '0 0 8px 0', fontWeight: '800' }}>
-                        {activeFolder.title}
-                      </h2>
-                      <p style={{ color: 'rgba(255, 255, 255, 0.85)', fontSize: '15px', margin: 0, lineHeight: '1.6' }}>
-                        {activeFolder.text}
-                      </p>
-                    </div>
-
-                    {/* Right side: Cover photo (uncropped, fitting container) */}
+                    {/* Blurred background container */}
                     {activeFolder.images && activeFolder.images[0] && (
-                      <div className="album-header-img-side">
+                      <div 
+                        className="album-header-bg-blur"
+                        style={{ backgroundImage: `url(${activeFolder.images[0]})` }}
+                      />
+                    )}
+
+                    {/* Crisp centered image container */}
+                    {activeFolder.images && activeFolder.images[0] && (
+                      <div className="album-header-bg-crisp-center">
                         <img 
                           src={activeFolder.images[0]} 
                           alt={activeFolder.title} 
-                          className="album-header-cover-img"
+                          className="album-header-crisp-img" 
                         />
                       </div>
                     )}
+
+                    {/* Gradient overlay for readability */}
+                    <div className="album-header-overlay" />
+
+                    {/* Category pill badge in top-right */}
+                    <span className="album-header-badge-tr">
+                      {activeFolder.cat}
+                    </span>
+
+                    {/* Bottom-left aligned text content */}
+                    <div className="album-header-text-bottom-left">
+                      <h2 className="font-serif album-header-title-premium">
+                        {activeFolder.title}
+                      </h2>
+                      <p className="album-header-subtitle-premium">
+                        {activeFolder.text}
+                      </p>
+                    </div>
                   </div>
                 </div>
 

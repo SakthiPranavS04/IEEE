@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, LogOut, Check, Trash2, Edit3, Plus, Image as ImageIcon, BarChart3, Database, X, Calendar, Award, Users, Target, Settings, Link as LinkIcon, AlertCircle, FileText, Compass, Layers, Save, RefreshCw } from 'lucide-react';
+import { Lock, LogOut, Check, Trash2, Edit3, Plus, Image as ImageIcon, BarChart3, Database, X, Calendar, Award, Users, Target, Settings, Link as LinkIcon, AlertCircle, FileText, Compass, Layers, Save, RefreshCw, MessageSquare, ArrowUp, ArrowDown } from 'lucide-react';
 import { apsData } from '../data/aps';
 import { computerSocietyData } from '../data/computerSociety';
 import { wieData } from '../data/wie';
@@ -78,6 +78,38 @@ const Admin = () => {
   const [vision, setVision] = useState('');
   const [tickerNoticesText, setTickerNoticesText] = useState('');
   const [statsSaved, setStatsSaved] = useState(false);
+
+  // New Media Content States
+  const [aboutImage, setAboutImage] = useState('/assets/kec_itpark.jpg');
+  const [keystonesVideoUrl, setKeystonesVideoUrl] = useState('https://www.youtube.com/embed/S_T1VwN7Gic');
+  const [heroImages, setHeroImages] = useState([]);
+  const [newHeroImageUrl, setNewHeroImageUrl] = useState('');
+
+  // Impact Statistics States
+  const [impactStats, setImpactStats] = useState([]);
+  const [editingImpactId, setEditingImpactId] = useState(null);
+  const [impactValueInput, setImpactValueInput] = useState('');
+  const [impactLabelInput, setImpactLabelInput] = useState('');
+  const [newImpactValue, setNewImpactValue] = useState('');
+  const [newImpactLabel, setNewImpactLabel] = useState('');
+
+  // Testimonials States
+  const [testimonials, setTestimonials] = useState([]);
+  const [editingTestimonialId, setEditingTestimonialId] = useState(null);
+  const [testimonialTextInput, setTestimonialTextInput] = useState('');
+  const [testimonialAuthorInput, setTestimonialAuthorInput] = useState('');
+  const [testimonialRoleInput, setTestimonialRoleInput] = useState('');
+  const [newTestimonialText, setNewTestimonialText] = useState('');
+  const [newTestimonialAuthor, setNewTestimonialAuthor] = useState('');
+  const [newTestimonialRole, setNewTestimonialRole] = useState('');
+
+  // Partner Logos States
+  const [partnerLogos, setPartnerLogos] = useState([]);
+  const [editingPartnerId, setEditingPartnerId] = useState(null);
+  const [partnerNameInput, setPartnerNameInput] = useState('');
+  const [partnerLogoInput, setPartnerLogoInput] = useState('');
+  const [newPartnerName, setNewPartnerName] = useState('');
+  const [newPartnerLogo, setNewPartnerLogo] = useState('');
 
   // Gallery CRUD State
   const [galleryItems, setGalleryItems] = useState([]);
@@ -839,6 +871,66 @@ const Admin = () => {
       parsedNews = defaultNews;
     }
     setNewsItems(parsedNews);
+
+    // Load dynamic media content
+    setAboutImage(localStorage.getItem('ieee_about_image') || '/assets/kec_itpark.jpg');
+    setKeystonesVideoUrl(localStorage.getItem('ieee_keystones_video_url') || 'https://www.youtube.com/embed/S_T1VwN7Gic');
+
+    const storedHero = localStorage.getItem('ieee_hero_images');
+    if (storedHero) {
+      setHeroImages(JSON.parse(storedHero));
+    } else {
+      const defaultHeroImages = ['/assets/kec_gate.jpg', '/assets/kec_itpark.jpg', '/assets/kec_admin.jpg'];
+      localStorage.setItem('ieee_hero_images', JSON.stringify(defaultHeroImages));
+      setHeroImages(defaultHeroImages);
+    }
+
+    // Load impact stats
+    const storedImpact = localStorage.getItem('ieee_impact_stats');
+    if (storedImpact) {
+      setImpactStats(JSON.parse(storedImpact));
+    } else {
+      const defaultImpactStats = [
+        { id: 1, value: "45+", label: "Active Members" },
+        { id: 2, value: "75+", label: "Technical Events Organized" },
+        { id: 3, value: "18+", label: "National Awards" },
+        { id: 4, value: "3+", label: "Research Publications" },
+        { id: 5, value: "20+", label: "Workshops Conducted" },
+        { id: 6, value: "10+", label: "Industry Collaborations" }
+      ];
+      localStorage.setItem('ieee_impact_stats', JSON.stringify(defaultImpactStats));
+      setImpactStats(defaultImpactStats);
+    }
+
+    // Load testimonials
+    const storedTestimonials = localStorage.getItem('ieee_testimonials');
+    if (storedTestimonials) {
+      setTestimonials(JSON.parse(storedTestimonials));
+    } else {
+      const defaultTestimonials = [
+        { id: 1, text: "IEEE helped me improve my leadership skills and technical confidence through hands-on event organization.", author: "Student Member", role: "KEC IEEE SB" },
+        { id: 2, text: "The networking opportunities and workshops provided valuable industry exposure and practical knowledge.", author: "IEEE Alumni", role: "KEC IEEE SB" },
+        { id: 3, text: "Being part of IEEE motivated me to explore research, innovation, and professional development beyond academics.", author: "IEEE Graduate", role: "KEC IEEE SB" }
+      ];
+      localStorage.setItem('ieee_testimonials', JSON.stringify(defaultTestimonials));
+      setTestimonials(defaultTestimonials);
+    }
+
+    // Load partner logos
+    const storedLogos = localStorage.getItem('ieee_partner_logos');
+    if (storedLogos) {
+      setPartnerLogos(JSON.parse(storedLogos));
+    } else {
+      const defaultPartnerLogos = [
+        { id: 1, name: "IEEE", logo: "/assets/ieee_logo.png" },
+        { id: 2, name: "IEEE Computer Society", logo: "/assets/ieee_kec_logo.png" },
+        { id: 3, name: "IEEE Women in Engineering (WIE)", logo: "/assets/ieee_kec_logo.png" },
+        { id: 4, name: "Kongu Engineering College", logo: "/assets/kec_logo.png" },
+        { id: 5, name: "Industry Partners", logo: "/assets/ieee_logo.png" }
+      ];
+      localStorage.setItem('ieee_partner_logos', JSON.stringify(defaultPartnerLogos));
+      setPartnerLogos(defaultPartnerLogos);
+    }
   }, []);
 
   // Load current branch details on selected branch key changes
@@ -945,6 +1037,9 @@ const Admin = () => {
     localStorage.setItem('ieee_papers_count', papersCount);
     localStorage.setItem('ieee_mission', mission);
     localStorage.setItem('ieee_vision', vision);
+    localStorage.setItem('ieee_about_image', aboutImage);
+    localStorage.setItem('ieee_keystones_video_url', keystonesVideoUrl);
+    localStorage.setItem('ieee_hero_images', JSON.stringify(heroImages));
 
     // Convert ticker notices from lines to string array
     const tickerArray = tickerNoticesText
@@ -1641,6 +1736,177 @@ const Admin = () => {
     setEditingResearchPaperId(null);
   };
 
+  // Helper functions for Impact Stats
+  const startInlineEditImpact = (item) => {
+    setImpactValueInput(item.value || '');
+    setImpactLabelInput(item.label || '');
+    setEditingImpactId(item.id);
+  };
+
+  const saveInlineImpact = (id) => {
+    if (!impactValueInput.trim() || !impactLabelInput.trim()) return;
+    const updated = impactStats.map(item =>
+      item.id === id
+        ? { ...item, value: impactValueInput, label: impactLabelInput }
+        : item
+    );
+    setImpactStats(updated);
+    localStorage.setItem('ieee_impact_stats', JSON.stringify(updated));
+    setEditingImpactId(null);
+  };
+
+  const handleDeleteImpact = (id) => {
+    if (!window.confirm("Are you sure you want to delete this statistic?")) return;
+    const updated = impactStats.filter(item => item.id !== id);
+    setImpactStats(updated);
+    localStorage.setItem('ieee_impact_stats', JSON.stringify(updated));
+  };
+
+  const handleAddImpact = (e) => {
+    e.preventDefault();
+    if (!newImpactValue.trim() || !newImpactLabel.trim()) return;
+    const newItem = {
+      id: impactStats.length > 0 ? Math.max(...impactStats.map(i => i.id)) + 1 : 1,
+      value: newImpactValue.trim(),
+      label: newImpactLabel.trim()
+    };
+    const updated = [...impactStats, newItem];
+    setImpactStats(updated);
+    localStorage.setItem('ieee_impact_stats', JSON.stringify(updated));
+    setNewImpactValue('');
+    setNewImpactLabel('');
+  };
+
+  const handleMoveImpactUp = (index) => {
+    if (index === 0) return;
+    const updated = [...impactStats];
+    const temp = updated[index];
+    updated[index] = updated[index - 1];
+    updated[index - 1] = temp;
+    setImpactStats(updated);
+    localStorage.setItem('ieee_impact_stats', JSON.stringify(updated));
+  };
+
+  const handleMoveImpactDown = (index) => {
+    if (index === impactStats.length - 1) return;
+    const updated = [...impactStats];
+    const temp = updated[index];
+    updated[index] = updated[index + 1];
+    updated[index + 1] = temp;
+    setImpactStats(updated);
+    localStorage.setItem('ieee_impact_stats', JSON.stringify(updated));
+  };
+
+  // Helper functions for Testimonials
+  const startInlineEditTestimonial = (item) => {
+    setTestimonialTextInput(item.text || '');
+    setTestimonialAuthorInput(item.author || '');
+    setTestimonialRoleInput(item.role || '');
+    setEditingTestimonialId(item.id);
+  };
+
+  const saveInlineTestimonial = (id) => {
+    if (!testimonialTextInput.trim() || !testimonialAuthorInput.trim() || !testimonialRoleInput.trim()) return;
+    const updated = testimonials.map(item =>
+      item.id === id
+        ? { ...item, text: testimonialTextInput, author: testimonialAuthorInput, role: testimonialRoleInput }
+        : item
+    );
+    setTestimonials(updated);
+    localStorage.setItem('ieee_testimonials', JSON.stringify(updated));
+    setEditingTestimonialId(null);
+  };
+
+  const handleDeleteTestimonial = (id) => {
+    if (!window.confirm("Are you sure you want to delete this testimonial?")) return;
+    const updated = testimonials.filter(item => item.id !== id);
+    setTestimonials(updated);
+    localStorage.setItem('ieee_testimonials', JSON.stringify(updated));
+  };
+
+  const handleAddTestimonial = (e) => {
+    e.preventDefault();
+    if (!newTestimonialText.trim() || !newTestimonialAuthor.trim() || !newTestimonialRole.trim()) return;
+    const newItem = {
+      id: testimonials.length > 0 ? Math.max(...testimonials.map(i => i.id)) + 1 : 1,
+      text: newTestimonialText.trim(),
+      author: newTestimonialAuthor.trim(),
+      role: newTestimonialRole.trim()
+    };
+    const updated = [...testimonials, newItem];
+    setTestimonials(updated);
+    localStorage.setItem('ieee_testimonials', JSON.stringify(updated));
+    setNewTestimonialText('');
+    setNewTestimonialAuthor('');
+    setNewTestimonialRole('');
+  };
+
+  // Helper functions for Partner Logos
+  const startInlineEditPartner = (item) => {
+    setPartnerNameInput(item.name || '');
+    setPartnerLogoInput(item.logo || '');
+    setEditingPartnerId(item.id);
+  };
+
+  const saveInlinePartner = (id) => {
+    if (!partnerNameInput.trim() || !partnerLogoInput.trim()) return;
+    const updated = partnerLogos.map(item =>
+      item.id === id
+        ? { ...item, name: partnerNameInput, logo: partnerLogoInput }
+        : item
+    );
+    setPartnerLogos(updated);
+    localStorage.setItem('ieee_partner_logos', JSON.stringify(updated));
+    setEditingPartnerId(null);
+  };
+
+  const handleDeletePartner = (id) => {
+    if (!window.confirm("Are you sure you want to delete this partner logo?")) return;
+    const updated = partnerLogos.filter(item => item.id !== id);
+    setPartnerLogos(updated);
+    localStorage.setItem('ieee_partner_logos', JSON.stringify(updated));
+  };
+
+  const handleAddPartner = (e) => {
+    e.preventDefault();
+    if (!newPartnerName.trim() || !newPartnerLogo.trim()) return;
+    const newItem = {
+      id: partnerLogos.length > 0 ? Math.max(...partnerLogos.map(i => i.id)) + 1 : 1,
+      name: newPartnerName.trim(),
+      logo: newPartnerLogo.trim()
+    };
+    const updated = [...partnerLogos, newItem];
+    setPartnerLogos(updated);
+    localStorage.setItem('ieee_partner_logos', JSON.stringify(updated));
+    setNewPartnerName('');
+    setNewPartnerLogo('');
+  };
+
+  const handlePartnerLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      try {
+        const base64 = await compressImage(file);
+        setNewPartnerLogo(base64);
+      } catch (err) {
+        console.error("Error compressing partner logo:", err);
+      }
+    }
+  };
+
+  const handleEditPartnerLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      try {
+        const base64 = await compressImage(file);
+        setPartnerLogoInput(base64);
+      } catch (err) {
+        console.error("Error compressing partner logo:", err);
+      }
+    }
+  };
+
+
   if (!isLoggedIn) {
     return (
       <div style={{
@@ -2029,7 +2295,10 @@ const Admin = () => {
             { id: 'branches', label: 'ExeComm Branches', icon: <Layers size={16} /> },
             { id: 'committees', label: 'Committees', icon: <Target size={16} /> },
             { id: 'news', label: 'News Clippings', icon: <FileText size={16} /> },
-            { id: 'researchpapers', label: 'Research Papers', icon: <FileText size={16} /> }
+            { id: 'researchpapers', label: 'Research Papers', icon: <FileText size={16} /> },
+            { id: 'impact_stats', label: 'Impact Numbers', icon: <BarChart3 size={16} /> },
+            { id: 'testimonials', label: 'Testimonials', icon: <MessageSquare size={16} /> },
+            { id: 'partner_logos', label: 'Partner Logos', icon: <LinkIcon size={16} /> }
           ].map(tab => (
             <button
               key={tab.id}
@@ -2127,6 +2396,57 @@ const Admin = () => {
                     style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }}
                   />
                 </div>
+
+                <div style={{ marginTop: '24px', borderTop: '1px solid #e2e8f0', paddingTop: '20px' }}>
+                  <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '750', marginBottom: '16px' }}>About & Keystones Media</h3>
+                  
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>About Section Illustration Image</label>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '8px' }}>
+                      {aboutImage ? (
+                        <img src={aboutImage} alt="About preview" style={{ width: '80px', height: '50px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
+                      ) : (
+                        <div style={{ width: '80px', height: '50px', backgroundColor: '#e2e8f0', borderRadius: '4px' }}></div>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={async (e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            try {
+                              const base64 = await compressImage(file);
+                              setAboutImage(base64);
+                            } catch (err) {
+                              console.error(err);
+                            }
+                          }
+                        }}
+                        style={{ fontSize: '11px', width: 'auto' }}
+                      />
+                    </div>
+                    <input
+                      type="text"
+                      value={aboutImage}
+                      onChange={(e) => setAboutImage(e.target.value)}
+                      placeholder="Or enter image URL"
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Operational Keystones YouTube Video Embed URL</label>
+                    <input
+                      type="text"
+                      required
+                      value={keystonesVideoUrl}
+                      onChange={(e) => setKeystonesVideoUrl(e.target.value)}
+                      placeholder="e.g. https://www.youtube.com/embed/S_T1VwN7Gic"
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
+                    />
+                    <p style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>💡 Embed URLs must be in the format: <code>https://www.youtube.com/embed/VIDEO_ID</code></p>
+                  </div>
+                </div>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -2162,6 +2482,87 @@ const Admin = () => {
                     placeholder="🌿 Membership drive 2026 is live!"
                     style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', resize: 'vertical', fontFamily: 'inherit' }}
                   />
+                </div>
+
+                <div style={{ marginTop: '24px', borderTop: '1px solid #e2e8f0', paddingTop: '20px' }}>
+                  <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '750', marginBottom: '16px' }}>Hero Carousel Images</h3>
+                  
+                  <div style={{ display: 'flex', flextype: 'column', gap: '8px', marginBottom: '16px', flexDirection: 'column' }}>
+                    {heroImages.map((img, index) => (
+                      <div key={index} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', backgroundColor: '#f8fafc' }}>
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                          <img src={img} alt={`Hero ${index}`} style={{ width: '50px', height: '30px', objectFit: 'cover', borderRadius: '4px' }} />
+                          <span style={{ fontSize: '11px', color: '#64748b', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{img.startsWith('data:') ? 'Custom Uploaded Image' : img}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setHeroImages(heroImages.filter((_, idx) => idx !== index))}
+                          style={{ border: 'none', background: 'transparent', color: '#ef4444', cursor: 'pointer', padding: '4px' }}
+                          title="Remove image"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    ))}
+                    {heroImages.length === 0 && (
+                      <p style={{ fontSize: '13px', color: '#64748b', fontStyle: 'italic' }}>No hero images configured.</p>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b' }}>Add Hero Carousel Image</label>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input
+                        type="text"
+                        value={newHeroImageUrl}
+                        onChange={(e) => setNewHeroImageUrl(e.target.value)}
+                        placeholder="Paste image URL here"
+                        style={{ flex: 1, padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (newHeroImageUrl.trim()) {
+                            setHeroImages([...heroImages, newHeroImageUrl.trim()]);
+                            setNewHeroImageUrl('');
+                          }
+                        }}
+                        style={{ padding: '8px 14px', backgroundColor: '#02619a', color: '#ffffff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                      >
+                        Add URL
+                      </button>
+                    </div>
+                    
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={async (e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            try {
+                              const base64 = await compressImage(file);
+                              setHeroImages([...heroImages, base64]);
+                            } catch (err) {
+                              console.error(err);
+                            }
+                          }
+                        }}
+                        style={{ fontSize: '11px', width: 'auto' }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (window.confirm("Reset hero images to default values?")) {
+                            setHeroImages(['/assets/kec_gate.jpg', '/assets/kec_itpark.jpg', '/assets/kec_admin.jpg']);
+                          }
+                        }}
+                        style={{ padding: '6px 12px', backgroundColor: '#64748b', color: '#ffffff', border: 'none', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}
+                      >
+                        Reset Defaults
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -5390,6 +5791,487 @@ const Admin = () => {
                 <p style={{ fontSize: '15px', fontWeight: '600' }}>No research papers added yet</p>
                 <p style={{ fontSize: '13px', marginTop: '8px' }}>Click "Add Paper" to submit student research work</p>
               </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab 8: Impact Stats Panel */}
+        {activeTab === 'impact_stats' && (
+          <div className="animate-fade-in card" style={{ padding: '36px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+              <div>
+                <h2 style={{ fontSize: '20px', color: '#0a385b', fontWeight: '800' }}>Manage Our Impact in Numbers</h2>
+                <p style={{ color: '#64748b', fontSize: '13px', marginTop: '2px' }}>Add, edit, reorder, or delete the statistics displayed on the homepage.</p>
+              </div>
+            </div>
+
+            {/* Inline Add Form */}
+            <form onSubmit={handleAddImpact} style={{ display: 'flex', gap: '12px', marginBottom: '24px', backgroundColor: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #cbd5e1', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: '150px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Stat Value (e.g., 45+)</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g., 500+"
+                  value={newImpactValue}
+                  onChange={(e) => setNewImpactValue(e.target.value)}
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
+                />
+              </div>
+              <div style={{ flex: 2, minWidth: '200px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Stat Label</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g., Active Volunteers"
+                  value={newImpactLabel}
+                  onChange={(e) => setNewImpactLabel(e.target.value)}
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
+                />
+              </div>
+              <button
+                type="submit"
+                style={{ padding: '8px 20px', backgroundColor: '#02619a', color: '#ffffff', border: 'none', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', height: '38px', display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                <Plus size={16} /> Add Stat
+              </button>
+            </form>
+
+            <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '1px solid #cbd5e1' }}>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '80px', textAlign: 'center' }}>Order</th>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '150px' }}>Value</th>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Label</th>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', textAlign: 'center', width: '180px' }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {impactStats.map((item, idx) => {
+                      const isEditing = editingImpactId === item.id;
+                      return (
+                        <tr key={item.id} style={{ borderBottom: idx < impactStats.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
+                          <td style={{ padding: '16px 20px', textAlign: 'center', verticalAlign: 'middle' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+                              <button
+                                type="button"
+                                disabled={idx === 0}
+                                onClick={() => handleMoveImpactUp(idx)}
+                                style={{ border: 'none', background: 'transparent', color: idx === 0 ? '#cbd5e1' : '#02619a', cursor: idx === 0 ? 'not-allowed' : 'pointer', padding: '2px' }}
+                              >
+                                <ArrowUp size={16} />
+                              </button>
+                              <button
+                                type="button"
+                                disabled={idx === impactStats.length - 1}
+                                onClick={() => handleMoveImpactDown(idx)}
+                                style={{ border: 'none', background: 'transparent', color: idx === impactStats.length - 1 ? '#cbd5e1' : '#02619a', cursor: idx === impactStats.length - 1 ? 'not-allowed' : 'pointer', padding: '2px' }}
+                              >
+                                <ArrowDown size={16} />
+                              </button>
+                            </div>
+                          </td>
+                          {isEditing ? (
+                            <>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                                <input
+                                  type="text"
+                                  value={impactValueInput}
+                                  onChange={(e) => setImpactValueInput(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                                />
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                                <input
+                                  type="text"
+                                  value={impactLabelInput}
+                                  onChange={(e) => setImpactLabelInput(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                                />
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center' }}>
+                                <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                                  <button
+                                    onClick={() => saveInlineImpact(item.id)}
+                                    style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                                  >
+                                    Save
+                                  </button>
+                                  <button
+                                    onClick={() => setEditingImpactId(null)}
+                                    style={{ backgroundColor: '#64748b', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </td>
+                            </>
+                          ) : (
+                            <>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle', fontWeight: '700', color: 'var(--secondary)' }}>
+                                {item.value}
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle', color: '#0a385b', fontWeight: '600' }}>
+                                {item.label}
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center' }}>
+                                <div style={{ display: 'inline-flex', gap: '8px' }}>
+                                  <button
+                                    onClick={() => startInlineEditImpact(item)}
+                                    style={{ color: '#02619a', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
+                                    className="action-btn-hover-edit"
+                                  >
+                                    <Edit3 size={15} />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteImpact(item.id)}
+                                    style={{ color: '#ef4444', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
+                                    className="action-btn-hover-delete"
+                                  >
+                                    <Trash2 size={15} />
+                                  </button>
+                                </div>
+                              </td>
+                            </>
+                          )}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            {impactStats.length === 0 && (
+              <p style={{ textAlign: 'center', color: '#64748b', fontSize: '14px', marginTop: '16px' }}>No impact stats configured.</p>
+            )}
+          </div>
+        )}
+
+        {/* Tab 9: Testimonials Panel */}
+        {activeTab === 'testimonials' && (
+          <div className="animate-fade-in card" style={{ padding: '36px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+              <div>
+                <h2 style={{ fontSize: '20px', color: '#0a385b', fontWeight: '800' }}>Manage Member Testimonials</h2>
+                <p style={{ color: '#64748b', fontSize: '13px', marginTop: '2px' }}>Configure reviews and testimonials shown on the member slider.</p>
+              </div>
+            </div>
+
+            {/* Inline Add Form */}
+            <form onSubmit={handleAddTestimonial} style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px', backgroundColor: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Testimonial Quote</label>
+                <textarea
+                  required
+                  rows="3"
+                  placeholder="Enter the testimonial quote here..."
+                  value={newTestimonialText}
+                  onChange={(e) => setNewTestimonialText(e.target.value)}
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }}
+                />
+              </div>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                <div style={{ flex: 1, minWidth: '200px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Author Name</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g., Rajesh Kumar"
+                    value={newTestimonialAuthor}
+                    onChange={(e) => setNewTestimonialAuthor(e.target.value)}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
+                  />
+                </div>
+                <div style={{ flex: 1, minWidth: '200px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Role / Designation</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g., IEEE Student Chair"
+                    value={newTestimonialRole}
+                    onChange={(e) => setNewTestimonialRole(e.target.value)}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
+                  />
+                </div>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '6px' }}>
+                <button
+                  type="submit"
+                  style={{ padding: '8px 20px', backgroundColor: '#02619a', color: '#ffffff', border: 'none', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <Plus size={16} /> Add Testimonial
+                </button>
+              </div>
+            </form>
+
+            <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '1px solid #cbd5e1' }}>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '45%' }}>Quote Text</th>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '20%' }}>Author</th>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '20%' }}>Role</th>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', textAlign: 'center', width: '15%' }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {testimonials.map((item, idx) => {
+                      const isEditing = editingTestimonialId === item.id;
+                      return (
+                        <tr key={item.id} style={{ borderBottom: idx < testimonials.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
+                          {isEditing ? (
+                            <>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                                <textarea
+                                  value={testimonialTextInput}
+                                  onChange={(e) => setTestimonialTextInput(e.target.value)}
+                                  rows="2"
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', fontSize: '13px', resize: 'vertical', fontFamily: 'inherit' }}
+                                />
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                                <input
+                                  type="text"
+                                  value={testimonialAuthorInput}
+                                  onChange={(e) => setTestimonialAuthorInput(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                                />
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                                <input
+                                  type="text"
+                                  value={testimonialRoleInput}
+                                  onChange={(e) => setTestimonialRoleInput(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                                />
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center' }}>
+                                <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                                  <button
+                                    onClick={() => saveInlineTestimonial(item.id)}
+                                    style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                                  >
+                                    Save
+                                  </button>
+                                  <button
+                                    onClick={() => setEditingTestimonialId(null)}
+                                    style={{ backgroundColor: '#64748b', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </td>
+                            </>
+                          ) : (
+                            <>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle', color: '#475569', fontSize: '13px', lineHeight: '1.4' }}>
+                                "{item.text}"
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle', fontWeight: '700', color: '#0a385b' }}>
+                                {item.author}
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle', color: 'var(--secondary)', fontWeight: '600' }}>
+                                {item.role}
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center' }}>
+                                <div style={{ display: 'inline-flex', gap: '8px' }}>
+                                  <button
+                                    onClick={() => startInlineEditTestimonial(item)}
+                                    style={{ color: '#02619a', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
+                                    className="action-btn-hover-edit"
+                                  >
+                                    <Edit3 size={15} />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteTestimonial(item.id)}
+                                    style={{ color: '#ef4444', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
+                                    className="action-btn-hover-delete"
+                                  >
+                                    <Trash2 size={15} />
+                                  </button>
+                                </div>
+                              </td>
+                            </>
+                          )}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            {testimonials.length === 0 && (
+              <p style={{ textAlign: 'center', color: '#64748b', fontSize: '14px', marginTop: '16px' }}>No testimonials configured.</p>
+            )}
+          </div>
+        )}
+
+        {/* Tab 10: Partner Logos Panel */}
+        {activeTab === 'partner_logos' && (
+          <div className="animate-fade-in card" style={{ padding: '36px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+              <div>
+                <h2 style={{ fontSize: '20px', color: '#0a385b', fontWeight: '800' }}>Manage Partner & Collaborator Logos</h2>
+                <p style={{ color: '#64748b', fontSize: '13px', marginTop: '2px' }}>Upload base64 logos or paste links for partners showcased at the footer grid.</p>
+              </div>
+            </div>
+
+            {/* Inline Add Form */}
+            <form onSubmit={handleAddPartner} style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px', backgroundColor: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                <div style={{ flex: 1, minWidth: '200px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Partner Name</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g., IEEE Computer Society"
+                    value={newPartnerName}
+                    onChange={(e) => setNewPartnerName(e.target.value)}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
+                  />
+                </div>
+                <div style={{ flex: 1, minWidth: '250px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Logo URL</label>
+                  <input
+                    type="text"
+                    placeholder="Paste logo URL here"
+                    value={newPartnerLogo}
+                    onChange={(e) => setNewPartnerLogo(e.target.value)}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
+                  />
+                </div>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginTop: '6px' }}>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <label style={{ fontSize: '12px', fontWeight: '700', color: '#0a385b' }}>Or Upload File:</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePartnerLogoUpload}
+                    style={{ fontSize: '11px', width: 'auto' }}
+                  />
+                  {newPartnerLogo && (
+                    <div style={{ border: '1px solid #cbd5e1', borderRadius: '4px', overflow: 'hidden', width: '50px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f1f5f9' }}>
+                      <img src={newPartnerLogo} alt="Preview" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                    </div>
+                  )}
+                </div>
+                <button
+                  type="submit"
+                  style={{ padding: '8px 20px', backgroundColor: '#02619a', color: '#ffffff', border: 'none', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <Plus size={16} /> Add Partner
+                </button>
+              </div>
+            </form>
+
+            <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '1px solid #cbd5e1' }}>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '120px' }}>Logo Image</th>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '30%' }}>Partner Name</th>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Logo URL / base64</th>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', textAlign: 'center', width: '150px' }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {partnerLogos.map((item, idx) => {
+                      const isEditing = editingPartnerId === item.id;
+                      return (
+                        <tr key={item.id} style={{ borderBottom: idx < partnerLogos.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
+                          {isEditing ? (
+                            <>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
+                                  <img src={partnerLogoInput} alt="Preview" style={{ width: '60px', height: '40px', objectFit: 'contain', border: '1px solid #cbd5e1', borderRadius: '4px', padding: '2px' }} />
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleEditPartnerLogoUpload}
+                                    style={{ fontSize: '9px', width: '90px' }}
+                                  />
+                                </div>
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                                <input
+                                  type="text"
+                                  value={partnerNameInput}
+                                  onChange={(e) => setPartnerNameInput(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                                />
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                                <input
+                                  type="text"
+                                  value={partnerLogoInput}
+                                  onChange={(e) => setPartnerLogoInput(e.target.value)}
+                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', fontSize: '12px' }}
+                                />
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center' }}>
+                                <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                                  <button
+                                    onClick={() => saveInlinePartner(item.id)}
+                                    style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                                  >
+                                    Save
+                                  </button>
+                                  <button
+                                    onClick={() => setEditingPartnerId(null)}
+                                    style={{ backgroundColor: '#64748b', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </td>
+                            </>
+                          ) : (
+                            <>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                                <div style={{ width: '80px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '4px' }}>
+                                  <img src={item.logo} alt={item.name} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                                </div>
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle', fontWeight: '700', color: '#0a385b' }}>
+                                {item.name}
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle', color: '#64748b', fontSize: '11px', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {item.logo}
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center' }}>
+                                <div style={{ display: 'inline-flex', gap: '8px' }}>
+                                  <button
+                                    onClick={() => startInlineEditPartner(item)}
+                                    style={{ color: '#02619a', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
+                                    className="action-btn-hover-edit"
+                                  >
+                                    <Edit3 size={15} />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeletePartner(item.id)}
+                                    style={{ color: '#ef4444', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
+                                    className="action-btn-hover-delete"
+                                  >
+                                    <Trash2 size={15} />
+                                  </button>
+                                </div>
+                              </td>
+                            </>
+                          )}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            {partnerLogos.length === 0 && (
+              <p style={{ textAlign: 'center', color: '#64748b', fontSize: '14px', marginTop: '16px' }}>No partner logos configured.</p>
             )}
           </div>
         )}

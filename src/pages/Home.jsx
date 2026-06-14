@@ -1,17 +1,77 @@
 import React, { useState, useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { Award, BookOpen, Calendar, Users, ArrowRight, ShieldCheck, Flame, Zap } from 'lucide-react';
+import { Award, BookOpen, Calendar, Users, ArrowRight, ShieldCheck, Flame, Zap, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 
 const Home = () => {
   const [activeTab, setActiveTab] = useState('mission');
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
-  const [memberCount, setMemberCount] = useState(() => localStorage.getItem('ieee_member_count') || '45');
-  const [eventsCount, setEventsCount] = useState(() => localStorage.getItem('ieee_events_count') || '75+');
-  const [awardsCount, setAwardsCount] = useState(() => localStorage.getItem('ieee_awards_count') || '18+');
-  const [papersCount, setPapersCount] = useState(() => localStorage.getItem('ieee_papers_count') || '15');
 
-  // Google Sheet URL for Member Count
-  // File > Share > Publish to web > Select Link, choose CSV from the dropdown list.
+  // Dynamic state hooks for admin-editable components
+  const [heroImages, setHeroImages] = useState(() => {
+    const stored = localStorage.getItem('ieee_hero_images');
+    return stored ? JSON.parse(stored) : [
+      '/assets/kec_gate.jpg',
+      '/assets/kec_itpark.jpg',
+      '/assets/kec_admin.jpg'
+    ];
+  });
+
+  const [aboutImage, setAboutImage] = useState(() => {
+    return localStorage.getItem('ieee_about_image') || '/assets/kec_itpark.jpg';
+  });
+
+  const [keystonesVideoUrl, setKeystonesVideoUrl] = useState(() => {
+    return localStorage.getItem('ieee_keystones_video_url') || 'https://www.youtube.com/embed/S_T1VwN7Gic';
+  });
+
+  const [impactStats, setImpactStats] = useState(() => {
+    const stored = localStorage.getItem('ieee_impact_stats');
+    return stored ? JSON.parse(stored) : [
+      { id: 1, value: "45+", label: "Active Members" },
+      { id: 2, value: "75+", label: "Technical Events Organized" },
+      { id: 3, value: "18+", label: "National Awards" },
+      { id: 4, value: "3+", label: "Research Publications" },
+      { id: 5, value: "20+", label: "Workshops Conducted" },
+      { id: 6, value: "10+", label: "Industry Collaborations" }
+    ];
+  });
+
+  const [testimonials, setTestimonials] = useState(() => {
+    const stored = localStorage.getItem('ieee_testimonials');
+    return stored ? JSON.parse(stored) : [
+      { id: 1, text: "IEEE helped me improve my leadership skills and technical confidence through hands-on event organization.", author: "Student Member", role: "KEC IEEE SB" },
+      { id: 2, text: "The networking opportunities and workshops provided valuable industry exposure and practical knowledge.", author: "IEEE Alumni", role: "KEC IEEE SB" },
+      { id: 3, text: "Being part of IEEE motivated me to explore research, innovation, and professional development beyond academics.", author: "IEEE Graduate", role: "KEC IEEE SB" }
+    ];
+  });
+
+  const [partnerLogos, setPartnerLogos] = useState(() => {
+    const stored = localStorage.getItem('ieee_partner_logos');
+    return stored ? JSON.parse(stored) : [
+      { id: 1, name: "IEEE", logo: "/assets/ieee_logo.png" },
+      { id: 2, name: "IEEE Computer Society", logo: "/assets/ieee_kec_logo.png" },
+      { id: 3, name: "IEEE Women in Engineering (WIE)", logo: "/assets/ieee_kec_logo.png" },
+      { id: 4, name: "Kongu Engineering College", logo: "/assets/kec_logo.png" },
+      { id: 5, name: "Industry Partners", logo: "/assets/ieee_logo.png" }
+    ];
+  });
+
+  const [memberCount, setMemberCount] = useState(() => {
+    return localStorage.getItem('ieee_member_count') || '45';
+  });
+  const [eventsCount, setEventsCount] = useState(() => {
+    return localStorage.getItem('ieee_events_count') || '75+';
+  });
+  const [awardsCount, setAwardsCount] = useState(() => {
+    return localStorage.getItem('ieee_awards_count') || '18+';
+  });
+  const [papersCount, setPapersCount] = useState(() => {
+    return localStorage.getItem('ieee_papers_count') || '15';
+  });
+
+  const [currentTestimonialIdx, setCurrentTestimonialIdx] = useState(0);
+
+  // Google Sheet URL for Member Count (retained for backward compatibility or future fallback, not currently mapped to UI stats)
   const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS-R4zV8G4N1iA8oD5H1fB8G3C2n2o1K7p_example/pub?output=csv';
 
   useEffect(() => {
@@ -24,29 +84,17 @@ const Home = () => {
         if (rows.length > 0 && rows[0].length > 0) {
           const firstVal = rows[0][0].replace(/"/g, '').trim();
           if (firstVal && !isNaN(firstVal.replace(/[+,\s]/g, ''))) {
-            setMemberCount(firstVal.includes('+') ? firstVal : firstVal + '+');
-          } else if (rows.length > 1 && rows[1].length > 0) {
-            const secondVal = rows[1][0].replace(/"/g, '').trim();
-            if (secondVal && !isNaN(secondVal.replace(/[+,\s]/g, ''))) {
-              setMemberCount(secondVal.includes('+') ? secondVal : secondVal + '+');
-            }
+            // Keep stats array sync if needed, otherwise skip
           }
         }
       } catch (e) {
-        console.warn("Could not load member count from Google Sheet, using default.", e);
+        console.warn("Could not load member count from Google Sheet", e);
       }
     };
-    // Only load from Google Sheet if there is no local override from the Admin
     if (GOOGLE_SHEET_CSV_URL && !GOOGLE_SHEET_CSV_URL.includes('_example') && !localStorage.getItem('ieee_member_count')) {
       fetchMemberCount();
     }
   }, []);
-
-  const heroImages = [
-    '/assets/kec_gate.jpg',
-    '/assets/kec_itpark.jpg',
-    '/assets/kec_admin.jpg'
-  ];
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -170,6 +218,60 @@ const Home = () => {
     }));
     setHighlights(formatted);
   }, []);
+
+  const getStatIconAndColor = (label, index) => {
+    const text = (label || '').toLowerCase();
+    
+    // Choose icon based on keyword or index
+    const styles = [
+      {
+        icon: <Users size={28} />,
+        color: '#4f46e5', // Indigo
+        bgColor: 'rgba(79, 70, 229, 0.08)'
+      },
+      {
+        icon: <Calendar size={28} />,
+        color: '#06b6d4', // Cyan
+        bgColor: 'rgba(6, 182, 212, 0.08)'
+      },
+      {
+        icon: <Award size={28} />,
+        color: '#f59e0b', // Amber
+        bgColor: 'rgba(245, 158, 11, 0.08)'
+      },
+      {
+        icon: <BookOpen size={28} />,
+        color: '#10b981', // Emerald
+        bgColor: 'rgba(16, 185, 129, 0.08)'
+      },
+      {
+        icon: <Flame size={28} />,
+        color: '#f43f5e', // Rose
+        bgColor: 'rgba(244, 63, 94, 0.08)'
+      },
+      {
+        icon: <Zap size={28} />,
+        color: '#8b5cf6', // Violet
+        bgColor: 'rgba(139, 92, 246, 0.08)'
+      }
+    ];
+
+    if (text.includes('member') || text.includes('volunteer') || text.includes('people') || text.includes('student')) {
+      return styles[0];
+    } else if (text.includes('event') || text.includes('conducted') || text.includes('seminar')) {
+      return styles[1];
+    } else if (text.includes('award') || text.includes('won') || text.includes('national')) {
+      return styles[2];
+    } else if (text.includes('paper') || text.includes('publication') || text.includes('research') || text.includes('book')) {
+      return styles[3];
+    } else if (text.includes('workshop') || text.includes('hackathon') || text.includes('session')) {
+      return styles[4];
+    } else if (text.includes('collaboration') || text.includes('partner') || text.includes('industry')) {
+      return styles[5];
+    }
+
+    return styles[index % styles.length];
+  };
 
   return (
     <div className="animate-fade-in">
@@ -339,27 +441,87 @@ const Home = () => {
         `}</style>
       </section>
 
-      {/* Metrics Section */}
-      <section style={{ backgroundColor: '#ffffff', padding: '50px 0', borderBottom: '1px solid var(--border-subtle)' }}>
+      {/* About IEEE KEC Student Branch Section */}
+      <section className="section-padding scroll-reveal" style={{ backgroundColor: '#ffffff', borderBottom: '1px solid var(--border-subtle)' }}>
         <div className="container">
-          <div className="home-stats-grid">
-            {stats.map((stat, idx) => (
-              <div key={idx} className="stat-card-hover home-stat-item">
-                <div className="home-stat-icon-wrapper" style={{
-                  width: '60px',
-                  height: '60px',
-                  borderRadius: '12px',
-                  backgroundColor: 'rgba(79, 70, 229, 0.06)',
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: '40px',
+            alignItems: 'center'
+          }}>
+            {/* Left Column: Text */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <h2 style={{ fontSize: '32px', color: 'var(--primary)', fontWeight: '800', borderLeft: '4px solid var(--secondary)', paddingLeft: '12px' }}>
+                About IEEE KEC Student Branch
+              </h2>
+              <p style={{ fontSize: '15px', lineHeight: '1.7', color: 'var(--text-muted)' }}>
+                IEEE Student Branch at Kongu Engineering College is a vibrant community of innovators, researchers, developers, and technology enthusiasts committed to advancing technical knowledge and professional growth. Through workshops, seminars, hackathons, competitions, industry interactions, and research initiatives, the branch empowers students to develop technical expertise, leadership skills, and global perspectives.
+              </p>
+              <p style={{ fontSize: '15px', lineHeight: '1.7', color: 'var(--text-muted)' }}>
+                The student branch serves as a platform for collaboration, innovation, and continuous learning while connecting students with the vast global IEEE network.
+              </p>
+            </div>
+            {/* Right Column: Illustration/Image */}
+            <div style={{ textAlign: 'center' }}>
+              <img 
+                src={aboutImage} 
+                alt="About IEEE KEC Student Branch" 
+                style={{ 
+                  width: '100%', 
+                  maxHeight: '360px', 
+                  objectFit: 'cover', 
+                  borderRadius: '16px',
+                  boxShadow: 'var(--shadow-md)',
+                  border: '1.5px solid var(--border-subtle)',
+                  transition: 'all 0.3s ease'
+                }} 
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Why Join IEEE Section */}
+      <section className="section-padding scroll-reveal" style={{ backgroundColor: 'var(--bg-light)', borderBottom: '1px solid var(--border-subtle)' }}>
+        <div className="container">
+          <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+            <h2 style={{ fontSize: '32px', marginBottom: '12px', fontWeight: '800', color: 'var(--primary)' }}>Why Join IEEE?</h2>
+            <div style={{ width: '60px', height: '3px', backgroundColor: 'var(--secondary)', margin: '0 auto 16px' }}></div>
+            <p style={{ color: 'var(--text-muted)', maxWidth: '600px', marginInline: 'auto' }}>
+              Being part of the world's largest technical professional organization offers unparalleled benefits.
+            </p>
+          </div>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '30px'
+          }}>
+            {[
+              { title: "Global Networking", text: "Connect with students, professionals, and researchers worldwide.", icon: <Users size={24} /> },
+              { title: "Technical Learning", text: "Access workshops, technical resources, competitions, and certifications.", icon: <BookOpen size={24} /> },
+              { title: "Leadership Development", text: "Build communication, management, and teamwork skills.", icon: <Award size={24} /> },
+              { title: "Research Opportunities", text: "Participate in innovation projects, conferences, and publications.", icon: <ShieldCheck size={24} /> },
+              { title: "Career Growth", text: "Gain industry exposure, mentorship, and internship opportunities.", icon: <Flame size={24} /> },
+              { title: "Exclusive Resources", text: "Access IEEE standards, publications, and professional communities.", icon: <Zap size={24} /> }
+            ].map((card, idx) => (
+              <div key={idx} className="card stat-card-hover" style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '24px' }}>
+                <div style={{
+                  width: '50px',
+                  height: '50px',
+                  borderRadius: '10px',
+                  backgroundColor: 'rgba(79, 70, 229, 0.08)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  color: 'var(--secondary)',
                   boxShadow: 'inset 0 0 10px rgba(79, 70, 229, 0.02)'
                 }}>
-                  {stat.icon}
+                  {card.icon}
                 </div>
                 <div>
-                  <div className="home-stat-value" style={{ fontSize: '28px', fontWeight: '800', color: 'var(--primary)', lineHeight: '1.2' }}>{stat.value}</div>
-                  <div className="home-stat-label" style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: '500' }}>{stat.label}</div>
+                  <h3 style={{ fontSize: '18px', fontWeight: '750', marginBottom: '8px', color: 'var(--primary)' }}>{card.title}</h3>
+                  <p style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: '1.6' }}>{card.text}</p>
                 </div>
               </div>
             ))}
@@ -367,8 +529,47 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Our Impact In Numbers Section */}
+      <section className="section-padding scroll-reveal" style={{ backgroundColor: '#ffffff', borderBottom: '1px solid var(--border-subtle)' }}>
+        <div className="container">
+          <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+            <h2 style={{ fontSize: '32px', marginBottom: '12px', fontWeight: '800', color: 'var(--primary)' }}>Our Impact in Numbers</h2>
+            <div style={{ width: '60px', height: '3px', backgroundColor: 'var(--secondary)', margin: '0 auto 16px' }}></div>
+            <p style={{ color: 'var(--text-muted)', maxWidth: '600px', marginInline: 'auto' }}>
+              Discover our accomplishments and active role in driving technical education.
+            </p>
+          </div>
+          <div className="home-stats-grid">
+            {impactStats.map((stat, idx) => {
+              const { icon, color, bgColor } = getStatIconAndColor(stat.label, idx);
+              return (
+                <div key={stat.id || idx} className="stat-card-hover home-stat-item">
+                  <div className="home-stat-icon-wrapper" style={{
+                    width: '60px',
+                    height: '60px',
+                    borderRadius: '12px',
+                    backgroundColor: bgColor,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: color,
+                    boxShadow: `inset 0 0 10px rgba(${color === '#4f46e5' ? '79, 70, 229' : '0, 0, 0'}, 0.02)`
+                  }}>
+                    {icon}
+                  </div>
+                  <div>
+                    <div className="home-stat-value" style={{ fontSize: '28px', fontWeight: '800', color: 'var(--primary)', lineHeight: '1.2' }}>{stat.value}</div>
+                    <div className="home-stat-label" style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: '500' }}>{stat.label}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
       {/* About Tabs Section (Adaptive Content) */}
-      <section className="section-padding" style={{ backgroundColor: 'var(--bg-light)' }}>
+      <section className="section-padding scroll-reveal" style={{ backgroundColor: 'var(--bg-light)' }}>
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: '48px' }}>
             <h2 style={{ fontSize: '32px', marginBottom: '12px' }}>Operational Keystones</h2>
@@ -384,7 +585,7 @@ const Home = () => {
             alignItems: 'center'
           }}>
             {/* Left Column: YouTube Video */}
-            <div className="scroll-reveal slide-right" style={{ width: '100%' }}>
+            <div style={{ width: '100%' }}>
               <div className="video-frame-container" style={{
                 position: 'relative',
                 paddingBottom: '56.25%', // 16:9 aspect ratio
@@ -396,7 +597,7 @@ const Home = () => {
                 backgroundColor: '#0f172a'
               }}>
                 <iframe
-                  src="https://www.youtube.com/embed/S_T1VwN7Gic"
+                  src={keystonesVideoUrl}
                   title="IEEE KEC SB Promotional Video"
                   style={{
                     position: 'absolute',
@@ -413,7 +614,7 @@ const Home = () => {
             </div>
 
             {/* Right Column: Mission / Vision Tabs & Content */}
-            <div className="scroll-reveal slide-left" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               {/* Tab Navigation */}
               <div style={{
                 display: 'flex',
@@ -470,8 +671,136 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Member Testimonials Section */}
+      <section className="section-padding scroll-reveal" style={{ backgroundColor: 'var(--bg-light)', borderBottom: '1px solid var(--border-subtle)' }}>
+        <div className="container">
+          <div style={{ textAlign: 'center', marginBottom: '44px' }}>
+            <h2 style={{ fontSize: '32px', marginBottom: '12px', fontWeight: '800', color: 'var(--primary)' }}>What Our Members Say</h2>
+            <div style={{ width: '60px', height: '3px', backgroundColor: 'var(--secondary)', margin: '0 auto' }}></div>
+          </div>
+
+          <div style={{ position: 'relative', maxWidth: '800px', margin: '0 auto', padding: '0 40px' }}>
+            {testimonials.length > 0 && (
+              <div className="card" style={{
+                position: 'relative',
+                padding: '40px',
+                borderRadius: '16px',
+                backgroundColor: '#ffffff',
+                border: '1px solid var(--border-subtle)',
+                boxShadow: 'var(--shadow-md)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+                minHeight: '220px',
+                justifyContent: 'center'
+              }}>
+                <Quote size={40} style={{ color: 'rgba(79, 70, 229, 0.15)', marginBottom: '16px' }} />
+                <p style={{
+                  fontSize: '16px',
+                  lineHeight: '1.7',
+                  color: 'var(--text-dark)',
+                  fontStyle: 'italic',
+                  marginBottom: '20px',
+                  fontWeight: '500'
+                }}>
+                  "{testimonials[currentTestimonialIdx].text}"
+                </p>
+                <div>
+                  <h4 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--primary)' }}>
+                    {testimonials[currentTestimonialIdx].author}
+                  </h4>
+                  <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600' }}>
+                    {testimonials[currentTestimonialIdx].role}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Carousel Navigation Buttons */}
+            {testimonials.length > 1 && (
+              <>
+                <button
+                  onClick={() => setCurrentTestimonialIdx((prev) => (prev - 1 + testimonials.length) % testimonials.length)}
+                  style={{
+                    position: 'absolute',
+                    left: '-10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    backgroundColor: '#ffffff',
+                    border: '1px solid var(--border-subtle)',
+                    boxShadow: 'var(--shadow-sm)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    color: 'var(--primary)',
+                    zIndex: 2,
+                    transition: 'all 0.2s ease'
+                  }}
+                  className="carousel-btn"
+                  title="Previous testimonial"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+                <button
+                  onClick={() => setCurrentTestimonialIdx((prev) => (prev + 1) % testimonials.length)}
+                  style={{
+                    position: 'absolute',
+                    right: '-10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    backgroundColor: '#ffffff',
+                    border: '1px solid var(--border-subtle)',
+                    boxShadow: 'var(--shadow-sm)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    color: 'var(--primary)',
+                    zIndex: 2,
+                    transition: 'all 0.2s ease'
+                  }}
+                  className="carousel-btn"
+                  title="Next testimonial"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              </>
+            )}
+
+            {/* Dots indicator */}
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '24px' }}>
+              {testimonials.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentTestimonialIdx(idx)}
+                  style={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    border: 'none',
+                    backgroundColor: idx === currentTestimonialIdx ? 'var(--secondary)' : 'rgba(79, 70, 229, 0.2)',
+                    cursor: 'pointer',
+                    padding: 0,
+                    transition: 'all 0.3s ease'
+                  }}
+                  title={`Go to testimonial ${idx + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Flagship Events Section */}
-      <section className="section-padding" style={{ backgroundColor: '#ffffff' }}>
+      <section style={{ backgroundColor: '#ffffff', padding: '40px 0 80px' }} className="scroll-reveal">
         <div className="container">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '48px', flexWrap: 'wrap', gap: '20px' }}>
             <div>
@@ -582,6 +911,60 @@ const Home = () => {
               referrerPolicy="no-referrer-when-downgrade"
               title="Kongu Engineering College Map"
             />
+          </div>
+        </div>
+      </section>
+
+      {/* Partners & Collaborations Section */}
+      <section className="section-padding scroll-reveal" style={{ backgroundColor: '#ffffff', borderTop: '1px solid var(--border-subtle)' }}>
+        <div className="container">
+          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+            <h2 style={{ fontSize: '32px', marginBottom: '12px', fontWeight: '800', color: 'var(--primary)' }}>Partners & Collaborations</h2>
+            <div style={{ width: '60px', height: '3px', backgroundColor: 'var(--secondary)', margin: '0 auto' }}></div>
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+            gap: '24px',
+            justifyItems: 'center',
+            alignItems: 'center',
+            marginTop: '32px'
+          }}>
+            {partnerLogos.map((partner, idx) => (
+              <div key={partner.id || idx} className="card stat-card-hover" style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '24px 16px',
+                width: '100%',
+                maxWidth: '220px',
+                height: '140px',
+                borderRadius: '12px',
+                backgroundColor: 'var(--bg-light)',
+                border: '1px solid var(--border-subtle)',
+                transition: 'all 0.3s ease',
+                cursor: 'pointer'
+              }}>
+                <img
+                  src={partner.logo}
+                  alt={partner.name}
+                  style={{
+                    maxHeight: '60px',
+                    maxWidth: '130px',
+                    objectFit: 'contain',
+                    filter: 'grayscale(10%) contrast(90%)',
+                    transition: 'all 0.3s ease',
+                    marginBottom: '10px'
+                  }}
+                  className="partner-logo-img"
+                />
+                <span style={{ fontSize: '12px', fontWeight: '750', color: 'var(--primary)', textAlign: 'center' }}>
+                  {partner.name}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </section>

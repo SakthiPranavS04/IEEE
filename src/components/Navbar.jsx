@@ -180,7 +180,7 @@ const Navbar = () => {
 
   return (
     <header style={{
-      background: 'rgba(15, 23, 42, 0.85)',
+      background: 'linear-gradient(180deg, #0f172a 0%, #030712 100%)',
       backdropFilter: 'blur(16px)',
       borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
       position: 'sticky',
@@ -219,7 +219,7 @@ const Navbar = () => {
                       padding: active ? '8px 12px 6px 12px' : '8px 12px',
                       fontSize: '13px',
                       fontWeight: '600',
-                      color: active ? '#ffffff' : 'rgba(255, 255, 255, 0.9)',
+                      color: active ? '#ffffff' : '#c2d5e3',
                       background: 'transparent',
                       border: 'none',
                       borderBottom: active ? '2px solid var(--accent-cyan)' : '2px solid transparent',
@@ -356,7 +356,7 @@ const Navbar = () => {
                   margin: '0 12px',
                   fontSize: '13px',
                   fontWeight: '600',
-                  color: active ? '#ffffff' : 'rgba(255, 255, 255, 0.85)',
+                  color: active ? '#ffffff' : '#c2d5e3',
                   background: 'transparent',
                   textDecoration: 'none',
                   transition: 'var(--transition-fast)',
@@ -459,7 +459,7 @@ const Navbar = () => {
           top: '80px',
           left: 0,
           right: 0,
-          background: 'rgba(15, 23, 42, 0.95)',
+          background: 'linear-gradient(180deg, #0f172a 0%, #030712 100%)',
           backdropFilter: 'blur(16px)',
           borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
           padding: '16px',

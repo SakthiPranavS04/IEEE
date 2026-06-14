@@ -201,70 +201,70 @@ const Admin = () => {
       title: "Sports & Athletics",
       cat: "Campus Life",
       text: "State-level facilities",
-      images: ["https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=800&auto=format&fit=crop"]
+      images: ["https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=800&auto=format&fit=max"]
     },
     {
       id: 2,
       title: "Cultural Events",
       cat: "Events",
       text: "Annual tech fest & symposiums",
-      images: ["https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=800&auto=format&fit=crop"]
+      images: ["https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=800&auto=format&fit=max"]
     },
     {
       id: 3,
       title: "Learning Spaces",
       cat: "Academic",
       text: "24/7 library access",
-      images: ["https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=800&auto=format&fit=crop"]
+      images: ["https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=800&auto=format&fit=max"]
     },
     {
       id: 4,
       title: "Student Clubs",
       cat: "Engagement",
       text: "50+ active clubs",
-      images: ["https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800&auto=format&fit=crop"]
+      images: ["https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800&auto=format&fit=max"]
     },
     {
       id: 5,
       title: "World-Class Hostel Facilities",
       cat: "Living",
       text: "Separate hostels for boys & girls with modern amenities, Wi-Fi, and 24/7 security",
-      images: ["https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=1200&auto=format&fit=crop"]
+      images: ["https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=1200&auto=format&fit=max"]
     },
     {
       id: 6,
       title: "Transport Facilities",
       cat: "Services",
       text: "Extensive bus network for easy commute",
-      images: ["https://images.unsplash.com/photo-1557223562-6c77ef16210f?q=80&w=800&auto=format&fit=crop"]
+      images: ["https://images.unsplash.com/photo-1557223562-6c77ef16210f?q=80&w=800&auto=format&fit=max"]
     },
     {
       id: 7,
       title: "Smart Auditoriums",
       cat: "Infrastructure",
       text: "Air-conditioned seminar halls with advanced AV systems",
-      images: ["https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=800&auto=format&fit=crop"]
+      images: ["https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=800&auto=format&fit=max"]
     },
     {
       id: 8,
       title: "Research Labs",
       cat: "Innovation",
       text: "Advanced centers for computing and hardware testing",
-      images: ["https://images.unsplash.com/photo-1507413245164-6160d8298b31?q=80&w=800&auto=format&fit=crop"]
+      images: ["https://images.unsplash.com/photo-1507413245164-6160d8298b31?q=80&w=800&auto=format&fit=max"]
     },
     {
       id: 9,
       title: "Green Campus",
       cat: "Environment",
       text: "Solar energy grids and eco-friendly spaces",
-      images: ["https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?q=80&w=800&auto=format&fit=crop"]
+      images: ["https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?q=80&w=800&auto=format&fit=max"]
     },
     {
       id: 10,
       title: "Main Campus Gateway",
       cat: "KEC",
       text: "Welcome to Kongu Engineering College autonomous campus",
-      images: ["https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=800&auto=format&fit=crop"]
+      images: ["https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=800&auto=format&fit=max"]
     }
   ];
 

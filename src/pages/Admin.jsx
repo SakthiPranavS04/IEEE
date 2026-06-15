@@ -89,7 +89,7 @@ const Admin = () => {
 
   // New Media Content States
   const [aboutImage, setAboutImage] = useState('/assets/kec_itpark.jpg');
-  const [keystonesVideoUrl, setKeystonesVideoUrl] = useState('https://www.youtube.com/embed/S_T1VwN7Gic');
+  const [keystonesVideoUrl, setKeystonesVideoUrl] = useState('https://www.youtube.com/embed/dQw4w9WgXcQ');
   const [heroImages, setHeroImages] = useState([]);
   const [newHeroImageUrl, setNewHeroImageUrl] = useState('');
 
@@ -118,6 +118,16 @@ const Admin = () => {
   const [partnerLogoInput, setPartnerLogoInput] = useState('');
   const [newPartnerName, setNewPartnerName] = useState('');
   const [newPartnerLogo, setNewPartnerLogo] = useState('');
+
+  // Media Videos States
+  const [mediaVideos, setMediaVideos] = useState([]);
+  const [newVideoTitle, setNewVideoTitle] = useState('');
+  const [newVideoUrl, setNewVideoUrl] = useState('');
+  const [newVideoDesc, setNewVideoDesc] = useState('');
+  const [editingVideoIndex, setEditingVideoIndex] = useState(null);
+  const [videoTitleInput, setVideoTitleInput] = useState('');
+  const [videoUrlInput, setVideoUrlInput] = useState('');
+  const [videoDescInput, setVideoDescInput] = useState('');
 
   // Gallery CRUD State
   const [galleryItems, setGalleryItems] = useState([]);
@@ -161,10 +171,19 @@ const Admin = () => {
   const [editingAchievementId, setEditingAchievementId] = useState(null);
   const [editingCommitteeId, setEditingCommitteeId] = useState(null);
   const [editingNewsId, setEditingNewsId] = useState(null);
-  const [editingResearchPaperId, setEditingResearchPaperId] = useState(null);
-
-  // Committees CRUD State
   const [committees, setCommittees] = useState([]);
+
+  // Custom Page States
+  const [aboutKecSb, setAboutKecSb] = useState(null);
+  const [contactPage, setContactPage] = useState(null);
+  const [eventsStats, setEventsStats] = useState([]);
+  const [eventPhilosophy, setEventPhilosophy] = useState(null);
+  const [achievementsStats, setAchievementsStats] = useState([]);
+  const [successStories, setSuccessStories] = useState([]);
+  const [committeesPhilosophy, setCommitteesPhilosophy] = useState(null);
+  const [committeesCta, setCommitteesCta] = useState(null);
+  const [aboutSaved, setAboutSaved] = useState(false);
+  const [contactSaved, setContactSaved] = useState(false);
 
   // Research Papers CRUD State
   const [researchPapers, setResearchPapers] = useState([]);
@@ -826,6 +845,27 @@ const Admin = () => {
     }
     setGalleryItems(parsedGallery);
 
+    // Load Media Videos
+    const storedVideos = localStorage.getItem('ieee_media_videos_v1');
+    if (storedVideos) {
+      setMediaVideos(JSON.parse(storedVideos));
+    } else {
+      const defaultMediaVideos = [
+        {
+          title: "IEEE KEC SB Decade Celebration Promo",
+          url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          desc: "An overview reel capturing 10 years of student leadership, technical symposiums, and outreach drives."
+        },
+        {
+          title: "GreenTech Hackathon Pitch Finalists",
+          url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          desc: "Recap video showcasing student project prototypes and presentation pitches at Perundurai."
+        }
+      ];
+      localStorage.setItem('ieee_media_videos_v1', JSON.stringify(defaultMediaVideos));
+      setMediaVideos(defaultMediaVideos);
+    }
+
     // Load Events
     const storedUpcoming = localStorage.getItem('ieee_events_upcoming');
     if (storedUpcoming) {
@@ -902,7 +942,7 @@ const Admin = () => {
 
     // Load dynamic media content
     setAboutImage(localStorage.getItem('ieee_about_image') || '/assets/kec_itpark.jpg');
-    setKeystonesVideoUrl(localStorage.getItem('ieee_keystones_video_url') || 'https://www.youtube.com/embed/S_T1VwN7Gic');
+    setKeystonesVideoUrl(localStorage.getItem('ieee_keystones_video_url') || 'https://www.youtube.com/embed/dQw4w9WgXcQ');
 
     const storedHero = localStorage.getItem('ieee_hero_images');
     if (storedHero) {
@@ -958,6 +998,183 @@ const Admin = () => {
       ];
       localStorage.setItem('ieee_partner_logos', JSON.stringify(defaultPartnerLogos));
       setPartnerLogos(defaultPartnerLogos);
+    }
+
+    // Load About KEC SB data
+    const storedAboutSb = localStorage.getItem('ieee_about_kec_sb_v1');
+    if (storedAboutSb) {
+      setAboutKecSb(JSON.parse(storedAboutSb));
+    } else {
+      const defaultAboutKecSb = {
+        whoWeAre: {
+          title: "Who We Are",
+          intro: "The IEEE Kongu Engineering College Student Branch (IEEE KEC SB) was established to inspire technical innovation among students and provide them with a platform for professional growth. We regularly organize workshops, hackathons, and guest lectures on cutting-edge technologies.",
+          introSecondary: "As part of the IEEE Madras Section, our branch acts as a gateway for students to interact with global researchers, participate in international contests, and access IEEE's vast digital libraries and resources.",
+          mission: "To build a world-class center of technical learning and professional excellence that empowers young minds to create engineering solutions for a sustainable and technologically advanced society.",
+          vision: "To cultivate a culture of innovation, foster teamwork, and enhance student capability in research and design through seminars, hands-on workshops, student-led projects, and professional networking."
+        },
+        stats: [
+          { label: "Student Members", count: "120+" },
+          { label: "Professional Chapters", count: "6" },
+          { label: "Events Conducted", count: "80+" },
+          { label: "Awards Received", count: "15+" },
+          { label: "Years of Impact", count: "10" }
+        ],
+        impact: [
+          { title: "Technical Growth", desc: "Hands-on experience with emerging technologies like AI, IoT, VLSI, and cloud computing through workshops.", icon: "Cpu" },
+          { title: "Leadership Development", desc: "Steering roles inside operational committees, planning conferences, and heading volunteer chapters.", icon: "Target" },
+          { title: "Community Service", desc: "Promoting digital literacy, energy auditing, and assistive technologies in nearby rural schools.", icon: "Heart" },
+          { title: "Professional Networking", desc: "Direct channels to connect with international researchers, industry stalwarts, and Anna University peers.", icon: "Users" },
+          { title: "Research Exposure", desc: "Direct funding and mentorship for publishing in indexed journals and presenting at IEEE conferences.", icon: "BookOpen" },
+          { title: "Industry Collaboration", desc: "Industrial visits, guest lectures by tech giants, and internships backed by IEEE member associations.", icon: "Globe" }
+        ],
+        whyJoin: [
+          { title: "Global Networking", desc: "Access a massive community of professionals, engineers, and scientists across 160+ countries." },
+          { title: "IEEE Resources", desc: "Free/discounted access to IEEE Spectrum, Xplore Digital Library, and academic publications." },
+          { title: "Leadership Opportunities", desc: "Build team management, event execution, and administrative leadership skills early in your career." },
+          { title: "International Exposure", desc: "Submit papers and participate in international competitions like IEEE Extreme, Congresses, etc." },
+          { title: "Technical Workshops", desc: "Free or highly subsidized tickets to advanced hands-on training sessions and hackathons." },
+          { title: "Career Development", desc: "Gain edge in placements, graduate school applications, and research fellowship selections." }
+        ],
+        timeline: [
+          { year: "2015", title: "Student Branch Inauguration", desc: "IEEE KEC Student Branch officially established under Madras Section with 35 charter student members." },
+          { year: "2018", title: "Society Additions", desc: "Established Computer Society and Women in Engineering affinity groups to cater to specialized domains." },
+          { year: "2021", title: "Regional Recognitions", desc: "Awarded the Outstanding Student Branch Award from the IEEE Madras Section for high volunteer activity." },
+          { year: "2024", title: "Decade of Impact & Expansion", desc: "Expanded to 6 active technical societies, cross-border hackathons, and over 120 registered active members." }
+        ],
+        cta: {
+          title: "Ready to Shape the Future of Technology?",
+          text: "Join the IEEE KEC Student Branch family today. Unlock global networking, resources, and career-defining opportunities.",
+          btn1Text: "Become a Member",
+          btn1Link: "https://www.ieee.org/membership/join/index.html",
+          btn2Text: "Explore Societies",
+          btn2Link: "/execomm"
+        }
+      };
+      setAboutKecSb(defaultAboutKecSb);
+      localStorage.setItem('ieee_about_kec_sb_v1', JSON.stringify(defaultAboutKecSb));
+    }
+
+    // Load Contact Page data
+    const storedContactPage = localStorage.getItem('ieee_contact_page_v1');
+    if (storedContactPage) {
+      setContactPage(JSON.parse(storedContactPage));
+    } else {
+      const defaultContact = {
+        faqs: [
+          { q: "How do I become an IEEE KEC Student Member?", a: "You can register through the official IEEE Portal (ieee.org/membership/join) and select Kongu Engineering College as your Student Branch. Keep your IEEE member ID handy to update in our student branch records." },
+          { q: "What are the benefits of joining technical societies?", a: "Technical societies (like Computer Society, Power & Energy, or Signal Processing) provide domain-specific newsletters, global competition invites, and highly subsidized entries to specialized hands-on bootcamps." },
+          { q: "Can non-IEEE members attend KEC IEEE events?", a: "Yes, most of our general seminars and national hackathons are open to all branches and colleges. However, IEEE members receive discount perks and priority seats in high-demand workshops." },
+          { q: "How do I join an operational committee?", a: "Committee recruitments happen twice a year (at the beginning of each semester). Active student members can submit applications specifying their interest areas (Technical, Creative, PR, Editorial)." }
+        ],
+        officeHours: {
+          timings: "Monday - Friday: 04:30 PM - 06:00 PM",
+          venue: "IEEE Student Branch Office, EEE Dept (Ground Floor)",
+          coordinator: "Dr. A. Albert (Faculty Advisor) / Student Coordinators"
+        },
+        socials: {
+          linkedin: "https://linkedin.com/company/ieee-kec-sb",
+          instagram: "https://instagram.com/ieee_kec_sb",
+          facebook: "https://facebook.com/ieee.kec.sb",
+          twitter: "https://twitter.com/ieee_kec_sb",
+          youtube: "https://youtube.com/@ieee_kec_sb"
+        }
+      };
+      setContactPage(defaultContact);
+      localStorage.setItem('ieee_contact_page_v1', JSON.stringify(defaultContact));
+    }
+
+    // Load Events stats and philosophy
+    const storedEventsStats = localStorage.getItem('ieee_events_stats_v1');
+    if (storedEventsStats) {
+      setEventsStats(JSON.parse(storedEventsStats));
+    } else {
+      const defaultEventsStats = [
+        { label: "Total Events Conducted", count: "80+" },
+        { label: "Technical Workshops", count: "45" },
+        { label: "Hackathons Conducted", count: "15" },
+        { label: "Total Participants", count: "3000+" }
+      ];
+      setEventsStats(defaultEventsStats);
+      localStorage.setItem('ieee_events_stats_v1', JSON.stringify(defaultEventsStats));
+    }
+
+    const storedEventsPhilosophy = localStorage.getItem('ieee_events_philosophy_v1');
+    if (storedEventsPhilosophy) {
+      setEventPhilosophy(JSON.parse(storedEventsPhilosophy));
+    } else {
+      const defaultPhilosophy = {
+        title: "Learn, Create & Collaborate",
+        description: "At IEEE KEC SB, our events are designed around practical engineering experience. We bridge the gap between academic theory and active technology deployment through hands-on hackathons, research publications, and peer-to-peer programming."
+      };
+      setEventPhilosophy(defaultPhilosophy);
+      localStorage.setItem('ieee_events_philosophy_v1', JSON.stringify(defaultPhilosophy));
+    }
+
+    // Load Achievements stats and success stories
+    const storedAchievementsStats = localStorage.getItem('ieee_achievements_stats_v1');
+    if (storedAchievementsStats) {
+      setAchievementsStats(JSON.parse(storedAchievementsStats));
+    } else {
+      const defaultAchievementsStats = [
+        { label: "Total Section Awards", count: "15+" },
+        { label: "Global Travel Grants", count: "3" },
+        { label: "Project Expo Prizes", count: "12+" },
+        { label: "Indexed Research Papers", count: "25+" }
+      ];
+      setAchievementsStats(defaultAchievementsStats);
+      localStorage.setItem('ieee_achievements_stats_v1', JSON.stringify(defaultAchievementsStats));
+    }
+
+    const storedSuccessStories = localStorage.getItem('ieee_success_stories_v1');
+    if (storedSuccessStories) {
+      setSuccessStories(JSON.parse(storedSuccessStories));
+    } else {
+      const defaultSuccessStories = [
+        {
+          title: "From Perundurai to Seoul: A Research Journey",
+          category: "Research Highlight",
+          story: "Karthik Raja V., a final-year EEE student, developed an embedded edge AI voice filter for local speech waveforms under KEC SRC mentorship. His paper was accepted at the prestigious ICASSP 2025 conference in South Korea, earning him an IEEE travel grant. 'Volunteering at the student branch gave me exposure to global standards,' he shares.",
+          media: "Featured in Erode Local Press, March 2025"
+        },
+        {
+          title: "Smart Assistive Glove Wins First Place at Zonal Expo",
+          category: "Innovation Success",
+          story: "A team of 4 ECE student members designed a glove prototype with flex sensors and text-to-speech firmware to assist quadriplegic users. Backed by seed funding of ₹10,000 from KEC Student Research Cell, the prototype took 1st place among 80 competing colleges. The team is now filing an Indian utility patent.",
+          media: "Featured in Daily Express, April 2025"
+        }
+      ];
+      setSuccessStories(defaultSuccessStories);
+      localStorage.setItem('ieee_success_stories_v1', JSON.stringify(defaultSuccessStories));
+    }
+
+    // Load Committees philosophy and CTA
+    const storedCommitteesPhilosophy = localStorage.getItem('ieee_committees_philosophy_v1');
+    if (storedCommitteesPhilosophy) {
+      setCommitteesPhilosophy(JSON.parse(storedCommitteesPhilosophy));
+    } else {
+      const defaultPhilosophy = {
+        title: "The Spirit of Volunteering",
+        text: "Volunteering is at the core of IEEE's mission. At KEC, we believe that real engineering skills are forged by organizing, leading, and serving. Our committees offer students an experimental workspace to practice project management, professional communication, and group dynamics while working on real community initiatives."
+      };
+      setCommitteesPhilosophy(defaultPhilosophy);
+      localStorage.setItem('ieee_committees_philosophy_v1', JSON.stringify(defaultPhilosophy));
+    }
+
+    const storedCommitteesCta = localStorage.getItem('ieee_committees_cta_v1');
+    if (storedCommitteesCta) {
+      setCommitteesCta(JSON.parse(storedCommitteesCta));
+    } else {
+      const defaultCta = {
+        title: "Become an Active Volunteer",
+        text: "Want to lead technical events, design state-of-the-art posters, or publish our newsletters? Applications for operational roles are open to all active IEEE student members.",
+        btnText: "Apply for Committee Role",
+        btnLink: "https://forms.gle/mockvolunteer",
+        btnMailText: "Inquire via Email",
+        btnMailLink: "mailto:ieee@kongu.edu"
+      };
+      setCommitteesCta(defaultCta);
+      localStorage.setItem('ieee_committees_cta_v1', JSON.stringify(defaultCta));
     }
   }, []);
 
@@ -1961,6 +2178,49 @@ const Admin = () => {
     }
   };
 
+  // Helper functions for Media Videos
+  const handleAddVideo = (e) => {
+    e.preventDefault();
+    if (!newVideoTitle.trim() || !newVideoUrl.trim() || !newVideoDesc.trim()) return;
+    const newItem = {
+      title: newVideoTitle.trim(),
+      url: newVideoUrl.trim(),
+      desc: newVideoDesc.trim()
+    };
+    const updated = [...mediaVideos, newItem];
+    setMediaVideos(updated);
+    localStorage.setItem('ieee_media_videos_v1', JSON.stringify(updated));
+    setNewVideoTitle('');
+    setNewVideoUrl('');
+    setNewVideoDesc('');
+  };
+
+  const startInlineEditVideo = (index, item) => {
+    setVideoTitleInput(item.title || '');
+    setVideoUrlInput(item.url || '');
+    setVideoDescInput(item.desc || '');
+    setEditingVideoIndex(index);
+  };
+
+  const saveInlineVideo = (index) => {
+    if (!videoTitleInput.trim() || !videoUrlInput.trim() || !videoDescInput.trim()) return;
+    const updated = mediaVideos.map((item, idx) =>
+      idx === index
+        ? { ...item, title: videoTitleInput.trim(), url: videoUrlInput.trim(), desc: videoDescInput.trim() }
+        : item
+    );
+    setMediaVideos(updated);
+    localStorage.setItem('ieee_media_videos_v1', JSON.stringify(updated));
+    setEditingVideoIndex(null);
+  };
+
+  const handleDeleteVideo = (index) => {
+    if (!window.confirm("Are you sure you want to delete this video highlight?")) return;
+    const updated = mediaVideos.filter((_, idx) => idx !== index);
+    setMediaVideos(updated);
+    localStorage.setItem('ieee_media_videos_v1', JSON.stringify(updated));
+  };
+
 
   if (!isLoggedIn) {
     return (
@@ -2470,9 +2730,11 @@ const Admin = () => {
             { id: 'achievements', label: 'Achievements', icon: <Award size={16} /> },
             { id: 'execomm', label: 'Execomm SB Leaders', icon: <Users size={16} /> },
             { id: 'branches', label: 'ExeComm Branches', icon: <Layers size={16} /> },
+            { id: 'about_kec_sb', label: 'About KEC SB Page', icon: <Compass size={16} /> },
             { id: 'committees', label: 'Committees', icon: <Target size={16} /> },
             { id: 'news', label: 'News Clippings', icon: <FileText size={16} /> },
-            { id: 'researchpapers', label: 'Research Papers', icon: <FileText size={16} /> },
+            { id: 'researchpapers', label: 'Research Papers & Projects', icon: <FileText size={16} /> },
+            { id: 'contact_page', label: 'Contact & FAQ Page', icon: <MessageSquare size={16} /> },
             { id: 'impact_stats', label: 'Impact Numbers', icon: <BarChart3 size={16} /> },
             { id: 'testimonials', label: 'Testimonials', icon: <MessageSquare size={16} /> },
             { id: 'partner_logos', label: 'Partner Logos', icon: <LinkIcon size={16} /> }
@@ -2564,7 +2826,7 @@ const Admin = () => {
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Research Papers Count</label>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Research Papers & Projects Count</label>
                   <input
                     type="text"
                     required
@@ -2944,6 +3206,168 @@ const Admin = () => {
                 </table>
               </div>
             </div>
+
+            <div style={{ margin: '36px 0', borderTop: '1px solid #cbd5e1' }} />
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+              <div>
+                <h2 style={{ fontSize: '20px', color: '#0a385b', fontWeight: '800' }}>Manage Video Highlights & Memories</h2>
+                <p style={{ color: '#64748b', fontSize: '13px', marginTop: '2px' }}>Configure video highlights displayed on the Media page (Total: {mediaVideos.length})</p>
+              </div>
+            </div>
+
+            {/* Inline Add Video Form */}
+            <form onSubmit={handleAddVideo} style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px', backgroundColor: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                <div style={{ flex: '1 1 300px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Video Title</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g., GreenTech Hackathon Pitch Finalists"
+                    value={newVideoTitle}
+                    onChange={(e) => setNewVideoTitle(e.target.value)}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
+                  />
+                </div>
+                <div style={{ flex: '1 1 300px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>YouTube Embed URL</label>
+                  <input
+                    type="url"
+                    required
+                    placeholder="e.g., https://www.youtube.com/embed/..."
+                    value={newVideoUrl}
+                    onChange={(e) => setNewVideoUrl(e.target.value)}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
+                  />
+                </div>
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Description</label>
+                <textarea
+                  required
+                  rows="2"
+                  placeholder="Enter video description..."
+                  value={newVideoDesc}
+                  onChange={(e) => setNewVideoDesc(e.target.value)}
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }}
+                />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '6px' }}>
+                <button
+                  type="submit"
+                  style={{ backgroundColor: '#02619a', color: '#ffffff', border: 'none', borderRadius: '30px', padding: '10px 20px', fontSize: '13.5px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(2,97,154,0.2)' }}
+                >
+                  <Plus size={16} /> Add Video
+                </button>
+              </div>
+            </form>
+
+            {/* Video List Table */}
+            <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '1px solid #cbd5e1' }}>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '25%' }}>Title</th>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '30%' }}>Embed URL</th>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '30%' }}>Description</th>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', textAlign: 'center', width: '15%' }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {mediaVideos.length > 0 ? (
+                      mediaVideos.map((video, idx) => {
+                        const isEditing = editingVideoIndex === idx;
+                        return (
+                          <tr key={idx} style={{ borderBottom: idx < mediaVideos.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
+                            {isEditing ? (
+                              <>
+                                <td style={{ padding: '16px 20px', verticalAlign: 'top' }}>
+                                  <input
+                                    type="text"
+                                    value={videoTitleInput}
+                                    onChange={(e) => setVideoTitleInput(e.target.value)}
+                                    style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px' }}
+                                  />
+                                </td>
+                                <td style={{ padding: '16px 20px', verticalAlign: 'top' }}>
+                                  <input
+                                    type="url"
+                                    value={videoUrlInput}
+                                    onChange={(e) => setVideoUrlInput(e.target.value)}
+                                    style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px' }}
+                                  />
+                                </td>
+                                <td style={{ padding: '16px 20px', verticalAlign: 'top' }}>
+                                  <textarea
+                                    value={videoDescInput}
+                                    onChange={(e) => setVideoDescInput(e.target.value)}
+                                    style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px', fontFamily: 'inherit', resize: 'vertical' }}
+                                    rows="2"
+                                  />
+                                </td>
+                                <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center' }}>
+                                  <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                                    <button
+                                      onClick={() => saveInlineVideo(idx)}
+                                      style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                                    >
+                                      Save
+                                    </button>
+                                    <button
+                                      onClick={() => setEditingVideoIndex(null)}
+                                      style={{ backgroundColor: '#64748b', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                </td>
+                              </>
+                            ) : (
+                              <>
+                                <td style={{ padding: '16px 20px', fontWeight: '600', color: '#0a385b', verticalAlign: 'top' }}>
+                                  {video.title}
+                                </td>
+                                <td style={{ padding: '16px 20px', color: '#64748b', verticalAlign: 'top', fontSize: '13px', wordBreak: 'break-all' }}>
+                                  {video.url}
+                                </td>
+                                <td style={{ padding: '16px 20px', color: '#64748b', verticalAlign: 'top', fontSize: '13.5px' }}>
+                                  {video.desc}
+                                </td>
+                                <td style={{ padding: '16px 20px', verticalAlign: 'top', textAlign: 'center' }}>
+                                  <div style={{ display: 'inline-flex', gap: '8px' }}>
+                                    <button
+                                      onClick={() => startInlineEditVideo(idx, video)}
+                                      style={{ color: '#02619a', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
+                                    >
+                                      <Edit3 size={15} />
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeleteVideo(idx)}
+                                      style={{ color: '#ef4444', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
+                                    >
+                                      <Trash2 size={15} />
+                                    </button>
+                                  </div>
+                                </td>
+                              </>
+                            )}
+                          </tr>
+                        );
+                      })
+                    ) : (
+                      <tr>
+                        <td colSpan="4" style={{ padding: '24px', textAlign: 'center', color: '#64748b' }}>
+                          No video highlights configured.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
           </div>
         )}
 
@@ -2977,6 +3401,74 @@ const Admin = () => {
               >
                 <Plus size={16} /> Add Event Record
               </button>
+            </div>
+
+            {/* Scale Stats & Philosophy Editor */}
+            <div style={{ backgroundColor: '#f8fafc', padding: '20px', borderRadius: '10px', border: '1px solid #cbd5e1', marginBottom: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>
+                <h3 style={{ fontSize: '15px', color: '#0a385b', fontWeight: '800', margin: 0 }}>Events Philosophy & Statistics</h3>
+                <button
+                  type="button"
+                  onClick={() => {
+                    localStorage.setItem('ieee_events_stats_v1', JSON.stringify(eventsStats));
+                    localStorage.setItem('ieee_events_philosophy_v1', JSON.stringify(eventPhilosophy));
+                    alert("Events stats & philosophy saved successfully!");
+                  }}
+                  style={{ padding: '6px 14px', fontSize: '12px', fontWeight: '750', cursor: 'pointer', border: 'none', borderRadius: '4px', backgroundColor: '#e0f2fe', color: '#0369a1' }}
+                >
+                  Save Stats & Philosophy
+                </button>
+              </div>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
+                {eventsStats.map((stat, idx) => (
+                  <div key={idx} style={{ backgroundColor: '#ffffff', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Stat Label:</label>
+                    <input
+                      type="text"
+                      value={stat.label}
+                      onChange={(e) => {
+                        const newStats = [...eventsStats];
+                        newStats[idx].label = e.target.value;
+                        setEventsStats(newStats);
+                      }}
+                      style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1', marginBottom: '8px' }}
+                    />
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Count (e.g. 80+):</label>
+                    <input
+                      type="text"
+                      value={stat.count}
+                      onChange={(e) => {
+                        const newStats = [...eventsStats];
+                        newStats[idx].count = e.target.value;
+                        setEventsStats(newStats);
+                      }}
+                      style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                    />
+                  </div>
+                ))}
+              </div>
+ 
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>Philosophy Title:</label>
+                  <input
+                    type="text"
+                    value={eventPhilosophy?.title || ''}
+                    onChange={(e) => setEventPhilosophy({ ...eventPhilosophy, title: e.target.value })}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>Philosophy Description:</label>
+                  <textarea
+                    rows="2"
+                    value={eventPhilosophy?.description || ''}
+                    onChange={(e) => setEventPhilosophy({ ...eventPhilosophy, description: e.target.value })}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', fontFamily: 'inherit' }}
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Combined Scrollable Table for Events */}
@@ -3626,6 +4118,145 @@ const Admin = () => {
               >
                 <Plus size={16} /> Add Achievement
               </button>
+            </div>
+
+            {/* Achievements Stats & Success Stories Editor */}
+            <div style={{ backgroundColor: '#f8fafc', padding: '20px', borderRadius: '10px', border: '1px solid #cbd5e1', marginBottom: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>
+                <h3 style={{ fontSize: '15px', color: '#0a385b', fontWeight: '800', margin: 0 }}>Achievements Statistics & Success Stories</h3>
+                <button
+                  type="button"
+                  onClick={() => {
+                    localStorage.setItem('ieee_achievements_stats_v1', JSON.stringify(achievementsStats));
+                    localStorage.setItem('ieee_success_stories_v1', JSON.stringify(successStories));
+                    alert("Achievements stats & success stories saved successfully!");
+                  }}
+                  style={{ padding: '6px 14px', fontSize: '12px', fontWeight: '750', cursor: 'pointer', border: 'none', borderRadius: '4px', backgroundColor: '#e0f2fe', color: '#0369a1' }}
+                >
+                  Save Stats & Stories
+                </button>
+              </div>
+
+              {/* Stats Counters */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
+                {achievementsStats.map((stat, idx) => (
+                  <div key={idx} style={{ backgroundColor: '#ffffff', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Stat Label:</label>
+                    <input
+                      type="text"
+                      value={stat.label}
+                      onChange={(e) => {
+                        const newStats = [...achievementsStats];
+                        newStats[idx].label = e.target.value;
+                        setAchievementsStats(newStats);
+                      }}
+                      style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1', marginBottom: '8px' }}
+                    />
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Count (e.g. 15+):</label>
+                    <input
+                      type="text"
+                      value={stat.count}
+                      onChange={(e) => {
+                        const newStats = [...achievementsStats];
+                        newStats[idx].count = e.target.value;
+                        setAchievementsStats(newStats);
+                      }}
+                      style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Success Stories */}
+              <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '16px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                  <label style={{ fontSize: '13px', fontWeight: '700', color: '#475569' }}>Breakthrough Success Stories</label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const stories = [...successStories];
+                      stories.push({ title: 'New Breakthrough Story', category: 'Innovation Highlight', story: '', media: '' });
+                      setSuccessStories(stories);
+                    }}
+                    style={{ padding: '4px 10px', fontSize: '11.5px', fontWeight: '700', cursor: 'pointer', border: 'none', borderRadius: '4px', backgroundColor: '#e2fbe8', color: '#15803d' }}
+                  >
+                    + Add Success Story
+                  </button>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {successStories.map((story, idx) => (
+                    <div key={idx} style={{ display: 'flex', gap: '12px', backgroundColor: '#ffffff', padding: '16px', borderRadius: '8px', border: '1px solid #cbd5e1', position: 'relative' }}>
+                      <div style={{ flexGrow: 1 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '8px' }}>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Story Title:</label>
+                            <input
+                              type="text"
+                              value={story.title}
+                              onChange={(e) => {
+                                const stories = [...successStories];
+                                stories[idx].title = e.target.value;
+                                setSuccessStories(stories);
+                              }}
+                              style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Category Tag:</label>
+                            <input
+                              type="text"
+                              value={story.category}
+                              onChange={(e) => {
+                                const stories = [...successStories];
+                                stories[idx].category = e.target.value;
+                                setSuccessStories(stories);
+                              }}
+                              style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                            />
+                          </div>
+                        </div>
+                        <div style={{ marginBottom: '8px' }}>
+                          <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Detailed Story / Quote:</label>
+                          <textarea
+                            rows="3"
+                            value={story.story}
+                            onChange={(e) => {
+                              const stories = [...successStories];
+                              stories[idx].story = e.target.value;
+                              setSuccessStories(stories);
+                            }}
+                            style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1', fontFamily: 'inherit' }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Press Media Mention (e.g. Daily Express, April 2025):</label>
+                          <input
+                            type="text"
+                            value={story.media || ''}
+                            onChange={(e) => {
+                              const stories = [...successStories];
+                              stories[idx].media = e.target.value;
+                              setSuccessStories(stories);
+                            }}
+                            style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                          />
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const stories = successStories.filter((_, i) => i !== idx);
+                          setSuccessStories(stories);
+                        }}
+                        style={{ alignSelf: 'start', padding: '8px', border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: '#fee2e2', color: '#ef4444' }}
+                        title="Delete Story"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
 
             <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
@@ -4838,6 +5469,156 @@ const Admin = () => {
                   </div>
                 </div>
 
+                {/* Advisor & Coordinator Messages */}
+                <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '20px', marginTop: '10px' }}>
+                  <label style={{ display: 'block', fontSize: '14.5px', fontWeight: '800', color: '#0a385b', marginBottom: '12px' }}>Leadership Messages</label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>Faculty Advisor Message:</label>
+                      <textarea
+                        rows="4"
+                        value={branchData.advisorMessage || ''}
+                        onChange={(e) => setBranchData({ ...branchData, advisorMessage: e.target.value })}
+                        placeholder="Message from Faculty Advisor..."
+                        style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', resize: 'vertical', fontFamily: 'inherit', fontSize: '13px' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>Student Coordinator Message:</label>
+                      <textarea
+                        rows="4"
+                        value={branchData.coordinatorMessage || ''}
+                        onChange={(e) => setBranchData({ ...branchData, coordinatorMessage: e.target.value })}
+                        placeholder="Message from Student Coordinator..."
+                        style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', resize: 'vertical', fontFamily: 'inherit', fontSize: '13px' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Benefits of Joining */}
+                <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '20px', marginTop: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                    <label style={{ display: 'block', fontSize: '14.5px', fontWeight: '800', color: '#0a385b', margin: 0 }}>Society Benefits</label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const benefits = branchData.benefits ? [...branchData.benefits] : [];
+                        benefits.push("New benefit item...");
+                        setBranchData({ ...branchData, benefits });
+                      }}
+                      style={{ padding: '4px 10px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', border: 'none', borderRadius: '4px', backgroundColor: '#e0f2fe', color: '#0369a1' }}
+                    >
+                      + Add Benefit
+                    </button>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {branchData.benefits && branchData.benefits.map((benefit, index) => (
+                      <div key={index} style={{ display: 'flex', gap: '8px' }}>
+                        <input
+                          type="text"
+                          value={benefit || ''}
+                          onChange={(e) => {
+                            const benefits = [...branchData.benefits];
+                            benefits[index] = e.target.value;
+                            setBranchData({ ...branchData, benefits });
+                          }}
+                          style={{ flexGrow: 1, padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px' }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const benefits = branchData.benefits.filter((_, i) => i !== index);
+                            setBranchData({ ...branchData, benefits });
+                          }}
+                          style={{ padding: '8px 12px', border: 'none', borderRadius: '6px', cursor: 'pointer', backgroundColor: '#fee2e2', color: '#ef4444' }}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Signature Events */}
+                <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '20px', marginTop: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                    <label style={{ display: 'block', fontSize: '14.5px', fontWeight: '800', color: '#0a385b', margin: 0 }}>Signature Events & Flagship Activities</label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const signatureEvents = branchData.signatureEvents ? [...branchData.signatureEvents] : [];
+                        signatureEvents.push({ icon: '🚀', title: 'New Signature Event', description: '' });
+                        setBranchData({ ...branchData, signatureEvents });
+                      }}
+                      style={{ padding: '6px 12px', fontSize: '12.2px', fontWeight: '700', cursor: 'pointer', border: 'none', borderRadius: '4px', backgroundColor: '#e2fbe8', color: '#15803d' }}
+                    >
+                      + Add Signature Event
+                    </button>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    {branchData.signatureEvents && branchData.signatureEvents.map((evt, idx) => (
+                      <div key={idx} style={{ padding: '20px', backgroundColor: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', position: 'relative' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                          <h4 style={{ fontSize: '13px', color: '#0a385b', fontWeight: '800', margin: 0 }}>Signature Event #{idx + 1}</h4>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const signatureEvents = branchData.signatureEvents.filter((_, i) => i !== idx);
+                              setBranchData({ ...branchData, signatureEvents });
+                            }}
+                            style={{ border: 'none', background: 'none', color: '#ef4444', cursor: 'pointer', padding: 0 }}
+                            title="Delete Signature Event"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 3fr', gap: '12px', marginBottom: '12px' }}>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Icon (Emoji):</label>
+                            <input
+                              type="text"
+                              value={evt.icon || '🚀'}
+                              onChange={(e) => {
+                                const signatureEvents = [...branchData.signatureEvents];
+                                signatureEvents[idx].icon = e.target.value;
+                                setBranchData({ ...branchData, signatureEvents });
+                              }}
+                              style={{ width: '100%', padding: '8px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Title:</label>
+                            <input
+                              type="text"
+                              value={evt.title || ''}
+                              onChange={(e) => {
+                                const signatureEvents = [...branchData.signatureEvents];
+                                signatureEvents[idx].title = e.target.value;
+                                setBranchData({ ...branchData, signatureEvents });
+                              }}
+                              style={{ width: '100%', padding: '8px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Description:</label>
+                          <textarea
+                            rows="2"
+                            value={evt.description || ''}
+                            onChange={(e) => {
+                              const signatureEvents = [...branchData.signatureEvents];
+                              signatureEvents[idx].description = e.target.value;
+                              setBranchData({ ...branchData, signatureEvents });
+                            }}
+                            style={{ width: '100%', padding: '8px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1', resize: 'vertical', fontFamily: 'inherit' }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
               </div>
             )}
 
@@ -5994,6 +6775,109 @@ const Admin = () => {
               </button>
             </div>
 
+            {/* Committees Philosophy & CTA Editor */}
+            <div style={{ backgroundColor: '#f8fafc', padding: '20px', borderRadius: '10px', border: '1px solid #cbd5e1', marginBottom: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>
+                <h3 style={{ fontSize: '15px', color: '#0a385b', fontWeight: '800', margin: 0 }}>Committees Volunteer Philosophy & Recruitment CTA</h3>
+                <button
+                  type="button"
+                  onClick={() => {
+                    localStorage.setItem('ieee_committees_philosophy_v1', JSON.stringify(committeesPhilosophy));
+                    localStorage.setItem('ieee_committees_cta_v1', JSON.stringify(committeesCta));
+                    alert("Committees philosophy & CTA saved successfully!");
+                  }}
+                  style={{ padding: '6px 14px', fontSize: '12px', fontWeight: '750', cursor: 'pointer', border: 'none', borderRadius: '4px', backgroundColor: '#e0f2fe', color: '#0369a1' }}
+                >
+                  Save Philosophy & CTA
+                </button>
+              </div>
+
+              {/* Philosophy block */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>Philosophy Title:</label>
+                  <input
+                    type="text"
+                    value={committeesPhilosophy?.title || ''}
+                    onChange={(e) => setCommitteesPhilosophy({ ...committeesPhilosophy, title: e.target.value })}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>Philosophy Text:</label>
+                  <textarea
+                    rows="2"
+                    value={committeesPhilosophy?.text || ''}
+                    onChange={(e) => setCommitteesPhilosophy({ ...committeesPhilosophy, text: e.target.value })}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', fontFamily: 'inherit' }}
+                  />
+                </div>
+              </div>
+
+              {/* CTA block */}
+              <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '16px' }}>
+                <h4 style={{ fontSize: '13.5px', color: '#0a385b', fontWeight: '800', margin: '0 0 12px 0' }}>Recruitment Call-To-Action</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '16px', marginBottom: '12px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>CTA Title:</label>
+                    <input
+                      type="text"
+                      value={committeesCta?.title || ''}
+                      onChange={(e) => setCommitteesCta({ ...committeesCta, title: e.target.value })}
+                      style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>CTA Text:</label>
+                    <textarea
+                      rows="2"
+                      value={committeesCta?.text || ''}
+                      onChange={(e) => setCommitteesCta({ ...committeesCta, text: e.target.value })}
+                      style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', fontFamily: 'inherit' }}
+                    />
+                  </div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Btn 1 Text:</label>
+                    <input
+                      type="text"
+                      value={committeesCta?.btnText || ''}
+                      onChange={(e) => setCommitteesCta({ ...committeesCta, btnText: e.target.value })}
+                      style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Btn 1 Link:</label>
+                    <input
+                      type="text"
+                      value={committeesCta?.btnLink || ''}
+                      onChange={(e) => setCommitteesCta({ ...committeesCta, btnLink: e.target.value })}
+                      style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Btn 2 Text:</label>
+                    <input
+                      type="text"
+                      value={committeesCta?.btnMailText || ''}
+                      onChange={(e) => setCommitteesCta({ ...committeesCta, btnMailText: e.target.value })}
+                      style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Btn 2 Link:</label>
+                    <input
+                      type="text"
+                      value={committeesCta?.btnMailLink || ''}
+                      onChange={(e) => setCommitteesCta({ ...committeesCta, btnMailLink: e.target.value })}
+                      style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
@@ -6194,7 +7078,7 @@ const Admin = () => {
           <div className="animate-fade-in card" style={{ padding: '36px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
               <div>
-                <h2 style={{ fontSize: '20px', color: '#0a385b', fontWeight: '800' }}>Research Papers Repository</h2>
+                <h2 style={{ fontSize: '20px', color: '#0a385b', fontWeight: '800' }}>Research Papers & Projects Repository</h2>
                 <p style={{ color: '#64748b', fontSize: '13px', marginTop: '2px' }}>Student research work submissions and publications (Total: {researchPapers.length})</p>
               </div>
               <button
@@ -6300,8 +7184,8 @@ const Admin = () => {
             {researchPapers.length === 0 && (
               <div style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b' }}>
                 <FileText size={48} style={{ opacity: 0.4, marginBottom: '16px' }} />
-                <p style={{ fontSize: '15px', fontWeight: '600' }}>No research papers added yet</p>
-                <p style={{ fontSize: '13px', marginTop: '8px' }}>Click "Add Paper" to submit student research work</p>
+                <p style={{ fontSize: '15px', fontWeight: '600' }}>No research papers or projects added yet</p>
+                <p style={{ fontSize: '13px', marginTop: '8px' }}>Click "Add Item" to submit student research work or projects</p>
               </div>
             )}
           </div>
@@ -6785,6 +7669,545 @@ const Admin = () => {
             {partnerLogos.length === 0 && (
               <p style={{ textAlign: 'center', color: '#64748b', fontSize: '14px', marginTop: '16px' }}>No partner logos configured.</p>
             )}
+          </div>
+        )}
+
+        {/* Tab: About KEC SB Page Editor */}
+        {activeTab === 'about_kec_sb' && aboutKecSb && (
+          <div className="animate-fade-in card" style={{ padding: '36px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+              <div>
+                <h2 style={{ fontSize: '20px', color: '#0a385b', fontWeight: '800' }}>Manage About KEC SB Page</h2>
+                <p style={{ color: '#64748b', fontSize: '13px', marginTop: '2px' }}>Customize the Who We Are introductions, Glance Statistics counters, Journey Milestones, Impact Cards, and recruitment CTA banners.</p>
+              </div>
+              <button
+                onClick={() => {
+                  localStorage.setItem('ieee_about_kec_sb_v1', JSON.stringify(aboutKecSb));
+                  setAboutSaved(true);
+                  setTimeout(() => setAboutSaved(false), 3000);
+                }}
+                style={{
+                  backgroundColor: '#10b981',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '30px',
+                  padding: '10px 22px',
+                  fontSize: '13.5px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: '0 4px 12px rgba(16,185,129,0.25)'
+                }}
+              >
+                <Save size={15} /> Save Page Content
+              </button>
+            </div>
+
+            {aboutSaved && (
+              <div style={{ padding: '12px 16px', backgroundColor: '#dcfce7', color: '#15803d', borderRadius: '8px', fontSize: '14px', fontWeight: '600', marginBottom: '24px', border: '1px solid #bbf7d0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Check size={16} /> About Page settings saved successfully!
+              </div>
+            )}
+
+            {/* Who We Are Sub-block */}
+            <div style={{ backgroundColor: '#f8fafc', padding: '24px', borderRadius: '10px', border: '1px solid #cbd5e1', marginBottom: '24px' }}>
+              <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '800', marginBottom: '16px', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>Who We Are Overview</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>Section Title:</label>
+                  <input
+                    type="text"
+                    value={aboutKecSb.whoWeAre.title}
+                    onChange={(e) => setAboutKecSb({
+                      ...aboutKecSb,
+                      whoWeAre: { ...aboutKecSb.whoWeAre, title: e.target.value }
+                    })}
+                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>Primary Introduction Text:</label>
+                  <textarea
+                    rows="4"
+                    value={aboutKecSb.whoWeAre.intro}
+                    onChange={(e) => setAboutKecSb({
+                      ...aboutKecSb,
+                      whoWeAre: { ...aboutKecSb.whoWeAre, intro: e.target.value }
+                    })}
+                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', fontFamily: 'inherit' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>Secondary Introduction Text:</label>
+                  <textarea
+                    rows="3"
+                    value={aboutKecSb.whoWeAre.introSecondary}
+                    onChange={(e) => setAboutKecSb({
+                      ...aboutKecSb,
+                      whoWeAre: { ...aboutKecSb.whoWeAre, introSecondary: e.target.value }
+                    })}
+                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', fontFamily: 'inherit' }}
+                  />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>Mission statement:</label>
+                    <textarea
+                      rows="3"
+                      value={aboutKecSb.whoWeAre.mission}
+                      onChange={(e) => setAboutKecSb({
+                        ...aboutKecSb,
+                        whoWeAre: { ...aboutKecSb.whoWeAre, mission: e.target.value }
+                      })}
+                      style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', fontFamily: 'inherit' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>Vision statement:</label>
+                    <textarea
+                      rows="3"
+                      value={aboutKecSb.whoWeAre.vision}
+                      onChange={(e) => setAboutKecSb({
+                        ...aboutKecSb,
+                        whoWeAre: { ...aboutKecSb.whoWeAre, vision: e.target.value }
+                      })}
+                      style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', fontFamily: 'inherit' }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Glance Statistics */}
+            <div style={{ backgroundColor: '#f8fafc', padding: '24px', borderRadius: '10px', border: '1px solid #cbd5e1', marginBottom: '24px' }}>
+              <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '800', marginBottom: '16px', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>At a Glance Statistics</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px' }}>
+                {aboutKecSb.stats.map((stat, idx) => (
+                  <div key={idx} style={{ backgroundColor: '#ffffff', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Label:</label>
+                    <input
+                      type="text"
+                      value={stat.label}
+                      onChange={(e) => {
+                        const stats = [...aboutKecSb.stats];
+                        stats[idx].label = e.target.value;
+                        setAboutKecSb({ ...aboutKecSb, stats });
+                      }}
+                      style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1', marginBottom: '8px' }}
+                    />
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Value (e.g. 120+):</label>
+                    <input
+                      type="text"
+                      value={stat.count}
+                      onChange={(e) => {
+                        const stats = [...aboutKecSb.stats];
+                        stats[idx].count = e.target.value;
+                        setAboutKecSb({ ...aboutKecSb, stats });
+                      }}
+                      style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Journey Timeline */}
+            <div style={{ backgroundColor: '#f8fafc', padding: '24px', borderRadius: '10px', border: '1px solid #cbd5e1', marginBottom: '24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>
+                <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '800', margin: 0 }}>Journey Timeline Milestones</h3>
+                <button
+                  onClick={() => {
+                    const timeline = [...aboutKecSb.timeline];
+                    timeline.push({ year: '2026', title: 'New Milestone', desc: '' });
+                    setAboutKecSb({ ...aboutKecSb, timeline });
+                  }}
+                  style={{ padding: '4px 10px', fontSize: '11.5px', fontWeight: '700', cursor: 'pointer', border: 'none', borderRadius: '4px', backgroundColor: '#e2fbe8', color: '#15803d' }}
+                >
+                  + Add Milestone
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {aboutKecSb.timeline.map((item, idx) => (
+                  <div key={idx} style={{ display: 'flex', gap: '12px', backgroundColor: '#ffffff', padding: '16px', borderRadius: '8px', border: '1px solid #cbd5e1', position: 'relative' }}>
+                    <div style={{ width: '80px', flexShrink: 0 }}>
+                      <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Year:</label>
+                      <input
+                        type="text"
+                        value={item.year}
+                        onChange={(e) => {
+                          const timeline = [...aboutKecSb.timeline];
+                          timeline[idx].year = e.target.value;
+                          setAboutKecSb({ ...aboutKecSb, timeline });
+                        }}
+                        style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                      />
+                    </div>
+                    <div style={{ flexGrow: 1 }}>
+                      <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Milestone Title:</label>
+                      <input
+                        type="text"
+                        value={item.title}
+                        onChange={(e) => {
+                          const timeline = [...aboutKecSb.timeline];
+                          timeline[idx].title = e.target.value;
+                          setAboutKecSb({ ...aboutKecSb, timeline });
+                        }}
+                        style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1', marginBottom: '8px' }}
+                      />
+                      <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Description:</label>
+                      <textarea
+                        rows="2"
+                        value={item.desc}
+                        onChange={(e) => {
+                          const timeline = [...aboutKecSb.timeline];
+                          timeline[idx].desc = e.target.value;
+                          setAboutKecSb({ ...aboutKecSb, timeline });
+                        }}
+                        style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1', fontFamily: 'inherit' }}
+                      />
+                    </div>
+                    <button
+                      onClick={() => {
+                        const timeline = aboutKecSb.timeline.filter((_, i) => i !== idx);
+                        setAboutKecSb({ ...aboutKecSb, timeline });
+                      }}
+                      style={{ alignSelf: 'start', padding: '8px', border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: '#fee2e2', color: '#ef4444' }}
+                      title="Delete Milestone"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Impact Areas */}
+            <div style={{ backgroundColor: '#f8fafc', padding: '24px', borderRadius: '10px', border: '1px solid #cbd5e1', marginBottom: '24px' }}>
+              <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '800', marginBottom: '16px', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>Branch Impact Cards</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                {aboutKecSb.impact.map((imp, idx) => (
+                  <div key={idx} style={{ backgroundColor: '#ffffff', padding: '16px', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '10px', marginBottom: '8px' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Title:</label>
+                        <input
+                          type="text"
+                          value={imp.title}
+                          onChange={(e) => {
+                            const impact = [...aboutKecSb.impact];
+                            impact[idx].title = e.target.value;
+                            setAboutKecSb({ ...aboutKecSb, impact });
+                          }}
+                          style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Icon:</label>
+                        <select
+                          value={imp.icon || 'Cpu'}
+                          onChange={(e) => {
+                            const impact = [...aboutKecSb.impact];
+                            impact[idx].icon = e.target.value;
+                            setAboutKecSb({ ...aboutKecSb, impact });
+                          }}
+                          style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#ffffff' }}
+                        >
+                          {['Cpu', 'Target', 'Heart', 'Users', 'BookOpen', 'Globe', 'Award'].map(opt => (
+                            <option key={opt} value={opt}>{opt}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Description:</label>
+                    <textarea
+                      rows="2"
+                      value={imp.desc}
+                      onChange={(e) => {
+                        const impact = [...aboutKecSb.impact];
+                        impact[idx].desc = e.target.value;
+                        setAboutKecSb({ ...aboutKecSb, impact });
+                      }}
+                      style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1', resize: 'vertical', fontFamily: 'inherit' }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Why Join IEEE Benefits */}
+            <div style={{ backgroundColor: '#f8fafc', padding: '24px', borderRadius: '10px', border: '1px solid #cbd5e1', marginBottom: '24px' }}>
+              <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '800', marginBottom: '16px', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>Why Join IEEE Perks</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                {aboutKecSb.whyJoin.map((item, idx) => (
+                  <div key={idx} style={{ backgroundColor: '#ffffff', padding: '16px', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Perk Title:</label>
+                    <input
+                      type="text"
+                      value={item.title}
+                      onChange={(e) => {
+                        const whyJoin = [...aboutKecSb.whyJoin];
+                        whyJoin[idx].title = e.target.value;
+                        setAboutKecSb({ ...aboutKecSb, whyJoin });
+                      }}
+                      style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1', marginBottom: '8px' }}
+                    />
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Description:</label>
+                    <textarea
+                      rows="2"
+                      value={item.desc}
+                      onChange={(e) => {
+                        const whyJoin = [...aboutKecSb.whyJoin];
+                        whyJoin[idx].desc = e.target.value;
+                        setAboutKecSb({ ...aboutKecSb, whyJoin });
+                      }}
+                      style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1', resize: 'vertical', fontFamily: 'inherit' }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* CTA Banner */}
+            <div style={{ backgroundColor: '#f8fafc', padding: '24px', borderRadius: '10px', border: '1px solid #cbd5e1' }}>
+              <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '800', marginBottom: '16px', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>Registration CTA Banner</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>CTA Banner Title:</label>
+                  <input
+                    type="text"
+                    value={aboutKecSb.cta.title}
+                    onChange={(e) => setAboutKecSb({
+                      ...aboutKecSb,
+                      cta: { ...aboutKecSb.cta, title: e.target.value }
+                    })}
+                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>CTA Banner Text:</label>
+                  <textarea
+                    rows="3"
+                    value={aboutKecSb.cta.text}
+                    onChange={(e) => setAboutKecSb({
+                      ...aboutKecSb,
+                      cta: { ...aboutKecSb.cta, text: e.target.value }
+                    })}
+                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', fontFamily: 'inherit' }}
+                  />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Button 1 Label:</label>
+                    <input
+                      type="text"
+                      value={aboutKecSb.cta.btn1Text}
+                      onChange={(e) => setAboutKecSb({
+                        ...aboutKecSb,
+                        cta: { ...aboutKecSb.cta, btn1Text: e.target.value }
+                      })}
+                      style={{ width: '100%', padding: '8px', fontSize: '12.5px', borderRadius: '4px', border: '1px solid #cbd5e1', marginBottom: '8px' }}
+                    />
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Button 1 Link:</label>
+                    <input
+                      type="text"
+                      value={aboutKecSb.cta.btn1Link}
+                      onChange={(e) => setAboutKecSb({
+                        ...aboutKecSb,
+                        cta: { ...aboutKecSb.cta, btn1Link: e.target.value }
+                      })}
+                      style={{ width: '100%', padding: '8px', fontSize: '12.5px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Button 2 Label:</label>
+                    <input
+                      type="text"
+                      value={aboutKecSb.cta.btn2Text}
+                      onChange={(e) => setAboutKecSb({
+                        ...aboutKecSb,
+                        cta: { ...aboutKecSb.cta, btn2Text: e.target.value }
+                      })}
+                      style={{ width: '100%', padding: '8px', fontSize: '12.5px', borderRadius: '4px', border: '1px solid #cbd5e1', marginBottom: '8px' }}
+                    />
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Button 2 Link:</label>
+                    <input
+                      type="text"
+                      value={aboutKecSb.cta.btn2Link}
+                      onChange={(e) => setAboutKecSb({
+                        ...aboutKecSb,
+                        cta: { ...aboutKecSb.cta, btn2Link: e.target.value }
+                      })}
+                      style={{ width: '100%', padding: '8px', fontSize: '12.5px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab: Contact & FAQ Page Editor */}
+        {activeTab === 'contact_page' && contactPage && (
+          <div className="animate-fade-in card" style={{ padding: '36px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+              <div>
+                <h2 style={{ fontSize: '20px', color: '#0a385b', fontWeight: '800' }}>Manage Contact & FAQ Page</h2>
+                <p style={{ color: '#64748b', fontSize: '13px', marginTop: '2px' }}>Edit office timing schedules, update social media link integrations, and compile accordion-style Frequently Asked Questions.</p>
+              </div>
+              <button
+                onClick={() => {
+                  localStorage.setItem('ieee_contact_page_v1', JSON.stringify(contactPage));
+                  setContactSaved(true);
+                  setTimeout(() => setContactSaved(false), 3000);
+                }}
+                style={{
+                  backgroundColor: '#10b981',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '30px',
+                  padding: '10px 22px',
+                  fontSize: '13.5px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: '0 4px 12px rgba(16,185,129,0.25)'
+                }}
+              >
+                <Save size={15} /> Save Contact Details
+              </button>
+            </div>
+
+            {contactSaved && (
+              <div style={{ padding: '12px 16px', backgroundColor: '#dcfce7', color: '#15803d', borderRadius: '8px', fontSize: '14px', fontWeight: '600', marginBottom: '24px', border: '1px solid #bbf7d0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Check size={16} /> Contact & FAQ page settings saved!
+              </div>
+            )}
+
+            {/* Office Hours Details */}
+            <div style={{ backgroundColor: '#f8fafc', padding: '24px', borderRadius: '10px', border: '1px solid #cbd5e1', marginBottom: '24px' }}>
+              <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '800', marginBottom: '16px', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>Office Hours Coordinates</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>Office Timings Schedule:</label>
+                  <input
+                    type="text"
+                    value={contactPage.officeHours.timings}
+                    onChange={(e) => setContactPage({
+                      ...contactPage,
+                      officeHours: { ...contactPage.officeHours, timings: e.target.value }
+                    })}
+                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>Office Venue / Room:</label>
+                  <input
+                    type="text"
+                    value={contactPage.officeHours.venue}
+                    onChange={(e) => setContactPage({
+                      ...contactPage,
+                      officeHours: { ...contactPage.officeHours, venue: e.target.value }
+                    })}
+                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>Available Advisors / Coordinators:</label>
+                  <input
+                    type="text"
+                    value={contactPage.officeHours.coordinator}
+                    onChange={(e) => setContactPage({
+                      ...contactPage,
+                      officeHours: { ...contactPage.officeHours, coordinator: e.target.value }
+                    })}
+                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Social Media Connections */}
+            <div style={{ backgroundColor: '#f8fafc', padding: '24px', borderRadius: '10px', border: '1px solid #cbd5e1', marginBottom: '24px' }}>
+              <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '800', marginBottom: '16px', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>Social Media Channel Integrations</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                {Object.keys(contactPage.socials).map((key) => (
+                  <div key={key}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '6px', textTransform: 'capitalize' }}>{key} Profile URL:</label>
+                    <input
+                      type="text"
+                      value={contactPage.socials[key]}
+                      onChange={(e) => {
+                        const socials = { ...contactPage.socials, [key]: e.target.value };
+                        setContactPage({ ...contactPage, socials });
+                      }}
+                      placeholder={`https://${key}.com/...`}
+                      style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* FAQs Accordion Manager */}
+            <div style={{ backgroundColor: '#f8fafc', padding: '24px', borderRadius: '10px', border: '1px solid #cbd5e1' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>
+                <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '800', margin: 0 }}>Frequently Asked Questions</h3>
+                <button
+                  onClick={() => {
+                    const faqs = [...contactPage.faqs];
+                    faqs.push({ q: 'New question?', a: 'Response answer...' });
+                    setContactPage({ ...contactPage, faqs });
+                  }}
+                  style={{ padding: '4px 10px', fontSize: '11.5px', fontWeight: '700', cursor: 'pointer', border: 'none', borderRadius: '4px', backgroundColor: '#e2fbe8', color: '#15803d' }}
+                >
+                  + Add FAQ Accordion Item
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {contactPage.faqs.map((faq, idx) => (
+                  <div key={idx} style={{ display: 'flex', gap: '12px', backgroundColor: '#ffffff', padding: '16px', borderRadius: '8px', border: '1px solid #cbd5e1', position: 'relative' }}>
+                    <div style={{ flexGrow: 1 }}>
+                      <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Question:</label>
+                      <input
+                        type="text"
+                        value={faq.q}
+                        onChange={(e) => {
+                          const faqs = [...contactPage.faqs];
+                          faqs[idx].q = e.target.value;
+                          setContactPage({ ...contactPage, faqs });
+                        }}
+                        style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1', marginBottom: '8px', fontWeight: '600' }}
+                      />
+                      <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>Answer:</label>
+                      <textarea
+                        rows="3"
+                        value={faq.a}
+                        onChange={(e) => {
+                          const faqs = [...contactPage.faqs];
+                          faqs[idx].a = e.target.value;
+                          setContactPage({ ...contactPage, faqs });
+                        }}
+                        style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1', fontFamily: 'inherit' }}
+                      />
+                    </div>
+                    <button
+                      onClick={() => {
+                        const faqs = contactPage.faqs.filter((_, i) => i !== idx);
+                        setContactPage({ ...contactPage, faqs });
+                      }}
+                      style={{ alignSelf: 'start', padding: '8px', border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: '#fee2e2', color: '#ef4444' }}
+                      title="Delete FAQ"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
       </div>

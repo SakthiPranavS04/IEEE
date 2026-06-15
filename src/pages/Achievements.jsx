@@ -118,6 +118,47 @@ const Achievements = () => {
     }
   }, []);
 
+  const defaultAchievementsStats = [
+    { label: "Total Section Awards", count: "15+" },
+    { label: "Global Travel Grants", count: "3" },
+    { label: "Project Expo Prizes", count: "12+" },
+    { label: "Indexed Research Papers", count: "25+" }
+  ];
+
+  const defaultSuccessStories = [
+    {
+      title: "From Perundurai to Seoul: A Research Journey",
+      category: "Research Highlight",
+      story: "Karthik Raja V., a final-year EEE student, developed an embedded edge AI voice filter for local speech waveforms under KEC SRC mentorship. His paper was accepted at the prestigious ICASSP 2025 conference in South Korea, earning him an IEEE travel grant. 'Volunteering at the student branch gave me exposure to global standards,' he shares.",
+      media: "Featured in Erode Local Press, March 2025"
+    },
+    {
+      title: "Smart Assistive Glove Wins First Place at Zonal Expo",
+      category: "Innovation Success",
+      story: "A team of 4 ECE student members designed a glove prototype with flex sensors and text-to-speech firmware to assist quadriplegic users. Backed by seed funding of ₹10,000 from KEC Student Research Cell, the prototype took 1st place among 80 competing colleges. The team is now filing an Indian utility patent.",
+      media: "Featured in Daily Express, April 2025"
+    }
+  ];
+
+  const [achStats, setAchStats] = useState(defaultAchievementsStats);
+  const [successStories, setSuccessStories] = useState(defaultSuccessStories);
+
+  useEffect(() => {
+    const storedStats = localStorage.getItem('ieee_achievements_stats_v1');
+    if (storedStats) {
+      setAchStats(JSON.parse(storedStats));
+    } else {
+      localStorage.setItem('ieee_achievements_stats_v1', JSON.stringify(defaultAchievementsStats));
+    }
+
+    const storedStories = localStorage.getItem('ieee_success_stories_v1');
+    if (storedStories) {
+      setSuccessStories(JSON.parse(storedStories));
+    } else {
+      localStorage.setItem('ieee_success_stories_v1', JSON.stringify(defaultSuccessStories));
+    }
+  }, []);
+
   const selectedAch = achievements.find(a => a.id === selectedId) || achievements[0];
 
   return (
@@ -442,6 +483,49 @@ const Achievements = () => {
               </div>
             );
           })}
+        </div>
+
+        {/* Student Success Stories & Media Mentions */}
+        <div style={{ marginTop: '64px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+            <span style={{
+              padding: '4px 12px',
+              backgroundColor: 'var(--accent-light)',
+              color: 'var(--primary)',
+              borderRadius: '20px',
+              fontSize: '12px',
+              fontWeight: '700',
+              textTransform: 'uppercase',
+              letterSpacing: '1px'
+            }}>
+              Success Narratives
+            </span>
+            <h2 className="font-serif" style={{ fontSize: '26px', color: 'var(--primary)', marginTop: '10px' }}>Student Breakthrough Stories</h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '6px' }}>Detailed accounts of research milestones and local press mentions</p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '30px' }}>
+            {successStories.map((item, idx) => (
+              <div key={idx} className="card scroll-reveal fade-up" style={{ padding: '32px', backgroundColor: '#ffffff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderTop: '4px solid var(--secondary)', boxShadow: 'var(--shadow-sm)' }}>
+                <div>
+                  <span style={{ fontSize: '11px', fontWeight: '800', color: 'var(--secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', display: 'block', marginBottom: '8px' }}>
+                    {item.category}
+                  </span>
+                  <h3 style={{ fontSize: '18px', color: 'var(--primary)', margin: '0 0 12px 0', fontWeight: '800' }}>
+                    {item.title}
+                  </h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', lineHeight: '1.65', margin: '0 0 20px 0' }}>
+                    {item.story}
+                  </p>
+                </div>
+                {item.media && (
+                  <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '16px', fontSize: '12px', color: '#64748b', fontWeight: '600' }}>
+                    📰 {item.media}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
 
       </div>

@@ -49,6 +49,69 @@ const Media = () => {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [newsCarouselIndex, setNewsCarouselIndex] = useState(0);
 
+  const defaultMediaVideos = [
+    {
+      title: "IEEE KEC SB Decade Celebration Promo",
+      url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      desc: "An overview reel capturing 10 years of student leadership, technical symposiums, and outreach drives."
+    },
+    {
+      title: "GreenTech Hackathon Pitch Finalists",
+      url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      desc: "Recap video showcasing student project prototypes and presentation pitches at Perundurai."
+    }
+  ];
+
+  const [selectedCat, setSelectedCat] = useState('All');
+  const [mediaVideos, setMediaVideos] = useState(defaultMediaVideos);
+
+  const formatEmbedUrl = (url) => {
+    if (!url) return '';
+    const cleanUrl = url.trim();
+    if (cleanUrl.includes('youtube.com/embed/')) {
+      return cleanUrl;
+    }
+    let videoId = '';
+    if (cleanUrl.includes('youtube.com/watch')) {
+      try {
+        const urlObj = new URL(cleanUrl);
+        videoId = urlObj.searchParams.get('v');
+      } catch (e) {
+        const match = cleanUrl.match(/[?&]v=([^&#]+)/);
+        if (match) videoId = match[1];
+      }
+    } else if (cleanUrl.includes('youtu.be/')) {
+      const parts = cleanUrl.split('youtu.be/');
+      if (parts.length > 1) {
+        videoId = parts[1].split(/[?#]/)[0];
+      }
+    } else if (cleanUrl.includes('youtube.com/shorts/')) {
+      const parts = cleanUrl.split('youtube.com/shorts/');
+      if (parts.length > 1) {
+        videoId = parts[1].split(/[?#]/)[0];
+      }
+    } else if (cleanUrl.includes('youtube.com/v/')) {
+      const parts = cleanUrl.split('youtube.com/v/');
+      if (parts.length > 1) {
+        videoId = parts[1].split(/[?#]/)[0];
+      }
+    }
+
+    if (videoId) {
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+    return cleanUrl;
+  };
+
+  useEffect(() => {
+    const storedVideos = localStorage.getItem('ieee_media_videos_v1');
+    if (storedVideos) {
+      setMediaVideos(JSON.parse(storedVideos));
+    } else {
+      localStorage.setItem('ieee_media_videos_v1', JSON.stringify(defaultMediaVideos));
+    }
+  }, []);
+
   // Predefined default gallery fallback
   const defaultGallery = [
     {
@@ -210,8 +273,10 @@ const Media = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
-
-
+  const uniqueCats = ['All', ...new Set(galleryItems.map(item => item.cat || 'General'))];
+  const filteredGallery = selectedCat === 'All'
+    ? galleryItems
+    : galleryItems.filter(item => item.cat === selectedCat);
 
   return (
     <div className="animate-fade-in" style={{ backgroundColor: 'var(--bg-light)', paddingBottom: '80px', minHeight: '70vh' }}>
@@ -272,7 +337,7 @@ const Media = () => {
               transition: 'all 0.25s ease'
             }}
           >
-            Research Papers
+            Research Papers & Projects
           </button>
         </div>
 
@@ -354,9 +419,11 @@ const Media = () => {
               </div>
             ) : (
               <>
-                {galleryItems.length > 0 ? (
+
+
+                {filteredGallery.length > 0 ? (
                   <div className="gallery-bento-grid">
-                    {galleryItems.map((item, idx) => (
+                    {filteredGallery.map((item, idx) => (
                       <div
                         key={item.id}
                         className={`gallery-bento-card ${idx === 4 ? 'span-3' : 'span-1'}`}
@@ -397,8 +464,48 @@ const Media = () => {
                 ) : (
                   <div style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b' }}>
                     <Image size={48} style={{ opacity: 0.4, marginBottom: '16px' }} />
-                    <p style={{ fontSize: '15px', fontWeight: '600' }}>No gallery items yet</p>
-                    <p style={{ fontSize: '13px', marginTop: '8px' }}>Photo galleries will appear here</p>
+                    <p style={{ fontSize: '15px', fontWeight: '600' }}>No albums found in category "{selectedCat}"</p>
+                  </div>
+                )}
+
+                {/* Video Highlights & Memories */}
+                {mediaVideos && mediaVideos.length > 0 && (
+                  <div style={{ marginTop: '64px', paddingTop: '40px', borderTop: '1px solid var(--border-subtle)' }}>
+                    <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+                      <span style={{
+                        padding: '4px 12px',
+                        backgroundColor: 'var(--accent-light)',
+                        color: 'var(--primary)',
+                        borderRadius: '20px',
+                        fontSize: '12px',
+                        fontWeight: '700',
+                        textTransform: 'uppercase',
+                        letterSpacing: '1px'
+                      }}>
+                        Media Stream
+                      </span>
+                      <h2 className="font-serif" style={{ fontSize: '26px', color: 'var(--primary)', marginTop: '10px' }}>Video Highlights & Memories</h2>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '6px' }}>Watch recap reels and student presentations from flagship events</p>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '30px' }}>
+                      {mediaVideos.map((video, idx) => (
+                        <div key={idx} className="card scroll-reveal fade-up" style={{ padding: '16px', backgroundColor: '#ffffff', border: '1px solid var(--border-subtle)', borderRadius: '12px', boxShadow: 'var(--shadow-sm)' }}>
+                          <div style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-subtle)', marginBottom: '16px' }}>
+                            <iframe
+                              src={formatEmbedUrl(video.url)}
+                              width="100%"
+                              height="200"
+                              style={{ border: 0, display: 'block' }}
+                              allowFullScreen=""
+                              title={video.title}
+                            />
+                          </div>
+                          <h3 style={{ fontSize: '15.5px', color: 'var(--primary)', fontWeight: '800', margin: '0 0 6px 0' }}>{video.title}</h3>
+                          <p style={{ color: 'var(--text-muted)', fontSize: '13px', lineHeight: '1.5', margin: 0 }}>{video.desc}</p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </>
@@ -636,8 +743,8 @@ const Media = () => {
                 color: 'var(--text-muted)'
               }}>
                 <FileText size={48} style={{ opacity: 0.4, marginBottom: '16px' }} />
-                <p style={{ fontSize: '15px', fontWeight: '600' }}>No research papers published yet</p>
-                <p style={{ fontSize: '13px', marginTop: '8px' }}>Student research work will be showcased here</p>
+                <p style={{ fontSize: '15px', fontWeight: '600' }}>No research papers or projects published yet</p>
+                <p style={{ fontSize: '13px', marginTop: '8px' }}>Student research and project work will be showcased here</p>
               </div>
             )}
           </div>

@@ -156,8 +156,104 @@ const SocietyPageLayout = ({ data }) => {
         tagline={data.tagline}
       />
 
+      {/* Message from Leadership Section */}
+      {(data.advisorMessage || data.coordinatorMessage) && (
+        <section className="society-section" style={{ paddingBottom: '40px', borderBottom: '1px solid var(--border-subtle)' }}>
+          <div className="container">
+            <h2 className="committee-section-title font-serif scroll-reveal fade-up" style={{ textAlign: 'center', marginBottom: '8px' }}>Messages from Leadership</h2>
+            <p className="committee-section-subtitle scroll-reveal fade-up" style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '36px' }}>Words of guidance and inspiration from our coordinators</p>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px' }}>
+              {data.advisorMessage && (
+                <div className="card scroll-reveal slide-right" style={{ padding: '32px', backgroundColor: '#ffffff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderLeft: '4px solid var(--society-primary)', boxShadow: 'var(--shadow-sm)' }}>
+                  <div>
+                    <span style={{ fontSize: '48px', color: 'var(--society-primary)', opacity: 0.15, lineHeight: 0, display: 'block', height: '16px', fontFamily: 'serif' }}>“</span>
+                    <p style={{ fontStyle: 'italic', color: '#475569', fontSize: '14.5px', lineHeight: '1.7', margin: '0 0 24px 0' }}>
+                      {data.advisorMessage}
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', borderTop: '1px solid #f1f5f9', paddingTop: '16px' }}>
+                    <img 
+                      src={data.facultyIncharge?.photo || 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=150'} 
+                      alt={data.facultyIncharge?.name} 
+                      style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover' }} 
+                    />
+                    <div>
+                      <h4 style={{ fontSize: '15px', fontWeight: '800', color: '#0f172a', margin: 0 }}>{data.facultyIncharge?.name}</h4>
+                      <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Faculty Advisor, {data.name}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {data.coordinatorMessage && (
+                <div className="card scroll-reveal slide-left" style={{ padding: '32px', backgroundColor: '#ffffff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderLeft: '4px solid var(--society-secondary)', boxShadow: 'var(--shadow-sm)' }}>
+                  <div>
+                    <span style={{ fontSize: '48px', color: 'var(--society-secondary)', opacity: 0.15, lineHeight: 0, display: 'block', height: '16px', fontFamily: 'serif' }}>“</span>
+                    <p style={{ fontStyle: 'italic', color: '#475569', fontSize: '14.5px', lineHeight: '1.7', margin: '0 0 24px 0' }}>
+                      {data.coordinatorMessage}
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', borderTop: '1px solid #f1f5f9', paddingTop: '16px' }}>
+                    <img 
+                      src={data.chairman?.photo || 'https://i.pravatar.cc/150'} 
+                      alt={data.chairman?.name} 
+                      style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover' }} 
+                    />
+                    <div>
+                      <h4 style={{ fontSize: '15px', fontWeight: '800', color: '#0f172a', margin: 0 }}>{data.chairman?.name}</h4>
+                      <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Student Chairman, {data.name}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Statistics Section */}
       <StatisticsSection statistics={data.statistics} />
+
+      {/* Benefits of Joining Section */}
+      {data.benefits && data.benefits.length > 0 && (
+        <section className="society-section alt-bg" style={{ borderBottom: '1px solid var(--border-subtle)', paddingBottom: '50px' }}>
+          <div className="container">
+            <h2 className="committee-section-title font-serif scroll-reveal fade-up" style={{ textAlign: 'center', marginBottom: '8px' }}>Benefits of Joining</h2>
+            <p className="committee-section-subtitle scroll-reveal fade-up" style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '36px' }}>Why you should become a member of {data.name}</p>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+              {data.benefits.map((benefit, idx) => (
+                <div key={idx} className="card scroll-reveal fade-up" style={{ padding: '24px', backgroundColor: '#ffffff', borderLeft: '4px solid var(--society-primary)', boxShadow: 'var(--shadow-sm)' }}>
+                  <p style={{ color: '#475569', fontSize: '14px', lineHeight: '1.6', margin: 0, fontWeight: '500' }}>
+                    {benefit}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Signature Events Section */}
+      {data.signatureEvents && data.signatureEvents.length > 0 && (
+        <section className="society-section" style={{ borderBottom: '1px solid var(--border-subtle)', paddingBottom: '50px' }}>
+          <div className="container">
+            <h2 className="committee-section-title font-serif scroll-reveal fade-up" style={{ textAlign: 'center', marginBottom: '8px' }}>Signature Events & Flagship Activities</h2>
+            <p className="committee-section-subtitle scroll-reveal fade-up" style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '36px' }}>Our calendar highlights and hallmark annual gatherings</p>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+              {data.signatureEvents.map((evt, idx) => (
+                <div key={idx} className="card scroll-reveal fade-up" style={{ padding: '28px', backgroundColor: '#ffffff', borderTop: '3px solid var(--society-secondary)', display: 'flex', flexDirection: 'column', gap: '10px', transition: 'all 0.3s ease' }}>
+                  <span style={{ fontSize: '24px', alignSelf: 'flex-start', margin: 0 }}>{evt.icon || '🚀'}</span>
+                  <h3 style={{ fontSize: '17px', fontWeight: '800', color: '#0f172a', margin: 0 }}>{evt.title}</h3>
+                  <p style={{ color: '#475569', fontSize: '13.5px', lineHeight: '1.6', margin: 0 }}>{evt.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Flagship Initiatives & Focus Areas */}
       {data.initiatives && data.initiatives.length > 0 && (

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Calendar, MapPin, Clock, ExternalLink, CheckCircle2, Sparkles } from 'lucide-react';
+import { Calendar, MapPin, Clock, ExternalLink, CheckCircle2, Sparkles, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const PageHeader = ({ title, subtitle }) => (
   <div style={{
@@ -233,8 +233,53 @@ const Events = () => {
     }
   }, []);
 
+  const defaultEventsStats = [
+    { label: "Total Events Conducted", count: "80+" },
+    { label: "Technical Workshops", count: "45" },
+    { label: "Hackathons Conducted", count: "15" },
+    { label: "Total Participants", count: "3000+" }
+  ];
+
+  const [selectedTag, setSelectedTag] = useState('All');
+  const [eventsStats, setEventsStats] = useState(defaultEventsStats);
+  const [currentHighlightIdx, setCurrentHighlightIdx] = useState(0);
+
+  const highlightItems = [
+    { quote: "The Edge AI seminar gave me the exact code model I needed to deploy on my final year Arduino project.", student: "Abirami R.", role: "IV Year CSE" },
+    { quote: "Flutter bootcamp was extremely hands-on. We deployed a live app to our devices by the end of the day.", student: "Gautham V.", role: "III Year IT" },
+    { quote: "Winning the GreenTech expo provided us with ₹10,000 seed funding and SRC incubation office workspace.", student: "Vijay R.", role: "IV Year ECE" }
+  ];
+  const [eventPhilosophy, setEventPhilosophy] = useState({
+    title: "Learn, Create & Collaborate",
+    description: "At IEEE KEC SB, our events are designed around practical engineering experience. We bridge the gap between academic theory and active technology deployment through hands-on hackathons, research publications, and peer-to-peer programming."
+  });
+
+  useEffect(() => {
+    setSelectedTag('All');
+  }, [isUpcoming]);
+
+  useEffect(() => {
+    const storedStats = localStorage.getItem('ieee_events_stats_v1');
+    if (storedStats) {
+      setEventsStats(JSON.parse(storedStats));
+    } else {
+      localStorage.setItem('ieee_events_stats_v1', JSON.stringify(defaultEventsStats));
+    }
+
+    const storedPhilosophy = localStorage.getItem('ieee_events_philosophy_v1');
+    if (storedPhilosophy) {
+      setEventPhilosophy(JSON.parse(storedPhilosophy));
+    } else {
+      localStorage.setItem('ieee_events_philosophy_v1', JSON.stringify({
+        title: "Learn, Create & Collaborate",
+        description: "At IEEE KEC SB, our events are designed around practical engineering experience. We bridge the gap between academic theory and active technology deployment through hands-on hackathons, research publications, and peer-to-peer programming."
+      }));
+    }
+  }, []);
+
   const currentEvents = isUpcoming ? upcomingEvents : pastEvents;
-  const displayedEvents = showAll ? currentEvents : currentEvents.slice(0, 3);
+  const filteredEvents = currentEvents;
+  const displayedEvents = showAll ? filteredEvents : filteredEvents.slice(0, 3);
 
   return (
     <div className="animate-fade-in" style={{ backgroundColor: 'var(--bg-light)', paddingBottom: '90px', minHeight: '60vh' }}>
@@ -250,7 +295,7 @@ const Events = () => {
       <div className="container">
 
         {/* Toggle Tabs */}
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '40px', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', gap: '12px', marginBottom: '28px', justifyContent: 'center' }}>
           {[
             { to: '/events/upcoming', label: 'Upcoming Events', active: isUpcoming },
             { to: '/events/past',     label: 'Past Events',     active: !isUpcoming },
@@ -279,6 +324,7 @@ const Events = () => {
             </Link>
           ))}
         </div>
+
 
         {/* Section intro label */}
         <div style={{
@@ -314,7 +360,7 @@ const Events = () => {
             </p>
           </div>
 
-          {currentEvents.length > 3 && (
+          {filteredEvents.length > 3 && (
             <button
               onClick={() => setShowAll(!showAll)}
               style={{
@@ -337,169 +383,342 @@ const Events = () => {
         </div>
 
         {/* Event Cards Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: '28px'
-        }}>
-          {displayedEvents.map((evt, idx) => {
-            const isPast = isEventCompleted(evt.date);
-            const isNear = isEventNear(evt.date);
-            const shouldShowNewBadge = !isPast && (evt.showNewBadge || isNear);
-            const tagStyle = getTagStyle(evt.tag);
-            return (
-              <div
-                key={idx}
-                className="card event-card"
-                style={{
-                  position: 'relative',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  height: '100%',
-                  opacity: isPast ? 0.82 : 1,
-                  backgroundColor: '#ffffff',
-                  border: '1px solid var(--border-subtle)',
-                  transition: 'all 0.3s ease',
-                  overflow: 'hidden',
-                  padding: 0,
-                }}
-              >
-                {/* NEW Badge / Sticker */}
-                {shouldShowNewBadge && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '12px',
-                    right: '12px',
-                    zIndex: 3,
-                    filter: 'drop-shadow(0 2px 6px rgba(239, 68, 68, 0.45))',
-                  }} className="new-badge-pulse">
-                    <svg viewBox="0 0 100 100" width="38" height="38">
-                      <path d="M 50 5 L 62 18 L 79 12 L 82 30 L 98 33 L 90 50 L 98 67 L 82 70 L 79 88 L 62 82 L 50 95 L 38 82 L 21 88 L 18 70 L 2 67 L 10 50 L 2 33 L 18 30 L 21 12 L 38 18 Z" fill="#ef4444" />
-                      <text x="50" y="55" fill="white" fontSize="16" fontWeight="900" textAnchor="middle" transform="rotate(-15 50 55)">NEW</text>
-                    </svg>
-                  </div>
-                )}
-                {/* Card Top Accent Bar */}
-                <div style={{
-                  height: '4px',
-                  background: isPast
-                    ? 'linear-gradient(90deg, #cbd5e1 0%, #94a3b8 100%)'
-                    : 'var(--gradient-colorful)'
-                }} />
-
-                <div style={{ padding: '28px', display: 'flex', flexDirection: 'column', flex: 1, gap: '0' }}>
-                  {/* Tag + Status Row */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                    <span style={{
-                      backgroundColor: tagStyle.bg,
-                      color: tagStyle.color,
-                      border: `1px solid ${tagStyle.border}`,
-                      padding: '4px 12px',
-                      borderRadius: '20px',
-                      fontSize: '11px',
-                      fontWeight: '700',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px'
-                    }}>
-                      {evt.tag}
-                    </span>
-                    {isPast && (
-                      <span style={{
-                        display: 'flex', alignItems: 'center', gap: '4px',
-                        fontSize: '11px', fontWeight: '700',
-                        color: '#64748b', backgroundColor: '#f1f5f9',
-                        padding: '4px 10px', borderRadius: '20px',
-                        border: '1px solid #e2e8f0',
-                        textTransform: 'uppercase', letterSpacing: '0.5px'
-                      }}>
-                        <CheckCircle2 size={11} />
-                        Completed
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Title */}
-                  <h3 style={{
-                    fontSize: '17px',
-                    marginBottom: '10px',
-                    color: isPast ? '#475569' : 'var(--primary)',
-                    lineHeight: '1.45',
-                    fontWeight: '750'
-                  }}>
-                    {evt.title}
-                  </h3>
-
-                  {/* Description */}
-                  <p style={{
-                    color: 'var(--text-muted)',
-                    fontSize: '13.5px',
-                    marginBottom: '20px',
-                    lineHeight: '1.65',
-                    flex: 1
-                  }}>
-                    {evt.desc}
-                  </p>
-
-                  {/* Meta Info */}
-                  <div style={{
-                    display: 'flex', flexDirection: 'column', gap: '8px',
-                    borderTop: '1px solid var(--border-subtle)', paddingTop: '16px',
-                    marginBottom: '20px'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-muted)' }}>
-                      <Calendar size={13} style={{ color: isPast ? '#94a3b8' : 'var(--secondary)', flexShrink: 0 }} />
-                      <span>{evt.date}</span>
-                    </div>
-                    {evt.time && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-muted)' }}>
-                        <Clock size={13} style={{ color: isPast ? '#94a3b8' : 'var(--secondary)', flexShrink: 0 }} />
-                        <span>{evt.time}</span>
-                      </div>
-                    )}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-muted)' }}>
-                      <MapPin size={13} style={{ color: isPast ? '#94a3b8' : 'var(--secondary)', flexShrink: 0 }} />
-                      <span>{evt.venue}</span>
-                    </div>
-                  </div>
-
-                  {/* CTA or Highlight */}
-                  {isUpcoming ? (
-                    <a
-                       href={evt.link}
-                       target="_blank"
-                       rel="noopener noreferrer"
-                       style={{
-                         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                         background: 'var(--gradient-colorful)', color: '#ffffff',
-                         padding: '11px 20px', borderRadius: '8px',
-                         fontSize: '14px', fontWeight: '700',
-                         textDecoration: 'none',
-                         transition: 'all 0.25s ease',
-                         letterSpacing: '0.3px',
-                         boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)'
-                       }}
-                       className="event-register-btn"
-                     >
-                       Register Now <ExternalLink size={14} />
-                     </a>
-                  ) : (
+        {filteredEvents.length > 0 ? (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: '28px'
+          }}>
+            {displayedEvents.map((evt, idx) => {
+              const isPast = isEventCompleted(evt.date);
+              const isNear = isEventNear(evt.date);
+              const shouldShowNewBadge = !isPast && (evt.showNewBadge || isNear);
+              const tagStyle = getTagStyle(evt.tag);
+              return (
+                <div
+                  key={idx}
+                  className="card event-card"
+                  style={{
+                    position: 'relative',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    height: '100%',
+                    opacity: isPast ? 0.82 : 1,
+                    backgroundColor: '#ffffff',
+                    border: '1px solid var(--border-subtle)',
+                    transition: 'all 0.3s ease',
+                    overflow: 'hidden',
+                    padding: 0,
+                  }}
+                >
+                  {/* NEW Badge / Sticker */}
+                  {shouldShowNewBadge && (
                     <div style={{
-                      backgroundColor: '#f8fafc',
-                      borderLeft: '3px solid #94a3b8',
-                      padding: '12px 14px',
-                      borderRadius: '0 6px 6px 0',
-                      fontSize: '13px', color: '#475569', fontWeight: '500',
-                      lineHeight: '1.55'
-                    }}>
-                      <strong style={{ color: '#334155', display: 'block', marginBottom: '2px', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Event Highlight</strong>
-                      {evt.highlights}
+                      position: 'absolute',
+                      top: '12px',
+                      right: '12px',
+                      zIndex: 3,
+                      filter: 'drop-shadow(0 2px 6px rgba(239, 68, 68, 0.45))',
+                    }} className="new-badge-pulse">
+                      <svg viewBox="0 0 100 100" width="38" height="38">
+                        <path d="M 50 5 L 62 18 L 79 12 L 82 30 L 98 33 L 90 50 L 98 67 L 82 70 L 79 88 L 62 82 L 50 95 L 38 82 L 21 88 L 18 70 L 2 67 L 10 50 L 2 33 L 18 30 L 21 12 L 38 18 Z" fill="#ef4444" />
+                        <text x="50" y="55" fill="white" fontSize="16" fontWeight="900" textAnchor="middle" transform="rotate(-15 50 55)">NEW</text>
+                      </svg>
                     </div>
                   )}
+                  {/* Card Top Accent Bar */}
+                  <div style={{
+                    height: '4px',
+                    background: isPast
+                      ? 'linear-gradient(90deg, #cbd5e1 0%, #94a3b8 100%)'
+                      : 'var(--gradient-colorful)'
+                  }} />
+
+                  <div style={{ padding: '28px', display: 'flex', flexDirection: 'column', flex: 1, gap: '0' }}>
+                    {/* Tag + Status Row */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                      <span style={{
+                        backgroundColor: tagStyle.bg,
+                        color: tagStyle.color,
+                        border: `1px solid ${tagStyle.border}`,
+                        padding: '4px 12px',
+                        borderRadius: '20px',
+                        fontSize: '11px',
+                        fontWeight: '700',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
+                        {evt.tag}
+                      </span>
+                      {isPast && (
+                        <span style={{
+                          display: 'flex', alignItems: 'center', gap: '4px',
+                          fontSize: '11px', fontWeight: '700',
+                          color: '#64748b', backgroundColor: '#f1f5f9',
+                          padding: '4px 10px', borderRadius: '20px',
+                          border: '1px solid #e2e8f0',
+                          textTransform: 'uppercase', letterSpacing: '0.5px'
+                        }}>
+                          <CheckCircle2 size={11} />
+                          Completed
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Title */}
+                    <h3 style={{
+                      fontSize: '17px',
+                      marginBottom: '10px',
+                      color: isPast ? '#475569' : 'var(--primary)',
+                      lineHeight: '1.45',
+                      fontWeight: '750'
+                    }}>
+                      {evt.title}
+                    </h3>
+
+                    {/* Description */}
+                    <p style={{
+                      color: 'var(--text-muted)',
+                      fontSize: '13.5px',
+                      marginBottom: '20px',
+                      lineHeight: '1.65',
+                      flex: 1
+                    }}>
+                      {evt.desc}
+                    </p>
+
+                    {/* Meta Info */}
+                    <div style={{
+                      display: 'flex', flexDirection: 'column', gap: '8px',
+                      borderTop: '1px solid var(--border-subtle)', paddingTop: '16px',
+                      marginBottom: '20px'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-muted)' }}>
+                        <Calendar size={13} style={{ color: isPast ? '#94a3b8' : 'var(--secondary)', flexShrink: 0 }} />
+                        <span>{evt.date}</span>
+                      </div>
+                      {evt.time && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-muted)' }}>
+                          <Clock size={13} style={{ color: isPast ? '#94a3b8' : 'var(--secondary)', flexShrink: 0 }} />
+                          <span>{evt.time}</span>
+                        </div>
+                      )}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-muted)' }}>
+                        <MapPin size={13} style={{ color: isPast ? '#94a3b8' : 'var(--secondary)', flexShrink: 0 }} />
+                        <span>{evt.venue}</span>
+                      </div>
+                    </div>
+
+                    {/* CTA or Highlight */}
+                    {isUpcoming ? (
+                      <a
+                         href={evt.link}
+                         target="_blank"
+                         rel="noopener noreferrer"
+                         style={{
+                           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                           background: 'var(--gradient-colorful)', color: '#ffffff',
+                           padding: '11px 20px', borderRadius: '8px',
+                           fontSize: '14px', fontWeight: '700',
+                           textDecoration: 'none',
+                           transition: 'all 0.25s ease',
+                           letterSpacing: '0.3px',
+                           boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)'
+                         }}
+                         className="event-register-btn"
+                       >
+                         Register Now <ExternalLink size={14} />
+                       </a>
+                    ) : (
+                      <div style={{
+                        backgroundColor: '#f8fafc',
+                        borderLeft: '3px solid #94a3b8',
+                        padding: '12px 14px',
+                        borderRadius: '0 6px 6px 0',
+                        fontSize: '13px', color: '#475569', fontWeight: '500',
+                        lineHeight: '1.55'
+                      }}>
+                        <strong style={{ color: '#334155', display: 'block', marginBottom: '2px', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Event Highlight</strong>
+                        {evt.highlights}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="card" style={{ padding: '48px', textAlign: 'center', color: 'var(--text-muted)' }}>
+            No events found matching category "{selectedTag}"
+          </div>
+        )}
+
+        {/* IEEE Event Philosophy Section */}
+        {eventPhilosophy && (
+          <div className="card scroll-reveal fade-up" style={{
+            marginTop: '56px',
+            marginBottom: '56px',
+            padding: '40px 36px',
+            background: 'rgba(79, 70, 229, 0.03)',
+            borderLeft: '4px solid var(--secondary)',
+            borderRadius: '0 12px 12px 0',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '32px',
+            alignItems: 'center'
+          }}>
+            <div>
+              <span style={{ fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--secondary)' }}>Our Philosophy</span>
+              <h3 style={{ fontSize: '22px', fontWeight: '800', color: 'var(--primary)', marginTop: '8px', marginBottom: '14px' }}>
+                {eventPhilosophy.title}
+              </h3>
+              <p style={{ color: 'var(--text-muted)', fontSize: '14px', lineHeight: '1.65', margin: 0 }}>
+                {eventPhilosophy.description}
+              </p>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div style={{ padding: '20px', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid var(--border-subtle)', boxShadow: 'var(--shadow-sm)' }}>
+                <h4 style={{ fontSize: '14px', color: 'var(--primary)', fontWeight: '800', margin: '0 0 6px 0' }}>Practical First</h4>
+                <p style={{ color: 'var(--text-muted)', fontSize: '12.5px', margin: 0 }}>All workshops involve hardware assembly or live code compilation.</p>
+              </div>
+              <div style={{ padding: '20px', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid var(--border-subtle)', boxShadow: 'var(--shadow-sm)' }}>
+                <h4 style={{ fontSize: '14px', color: 'var(--primary)', fontWeight: '800', margin: '0 0 6px 0' }}>Global Standards</h4>
+                <p style={{ color: 'var(--text-muted)', fontSize: '12.5px', margin: 0 }}>Curriculums review official IEEE publications and documentation.</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Participation Highlights Section */}
+        <div style={{ marginTop: '64px', borderTop: '1px solid var(--border-subtle)', paddingTop: '40px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+            <h2 className="font-serif" style={{ fontSize: '26px', color: 'var(--primary)', fontWeight: '800', marginBottom: '8px' }}>
+              Participation Highlights
+            </h2>
+            <div style={{ width: '60px', height: '3px', backgroundColor: 'var(--secondary)', margin: '0 auto 16px' }}></div>
+            <p style={{ color: 'var(--text-muted)', fontSize: '14px', maxWidth: '600px', margin: '0 auto' }}>
+              Hear what student members have to say about our recent tech bootcamps
+            </p>
+          </div>
+
+          <div style={{ position: 'relative', maxWidth: '800px', margin: '0 auto', padding: '0 40px' }}>
+            {highlightItems.length > 0 && (
+              <div className="card" style={{
+                position: 'relative',
+                padding: '40px',
+                borderRadius: '16px',
+                backgroundColor: '#ffffff',
+                border: '1px solid var(--border-subtle)',
+                boxShadow: 'var(--shadow-md)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+                minHeight: '200px',
+                justifyContent: 'center'
+              }}>
+                <Quote size={40} style={{ color: 'rgba(79, 70, 229, 0.15)', marginBottom: '16px' }} />
+                <p style={{
+                  fontSize: '15.5px',
+                  lineHeight: '1.7',
+                  color: 'var(--text-dark)',
+                  fontStyle: 'italic',
+                  marginBottom: '20px',
+                  fontWeight: '500'
+                }}>
+                  "{highlightItems[currentHighlightIdx].quote}"
+                </p>
+                <div>
+                  <h4 style={{ fontSize: '15px', fontWeight: '800', color: 'var(--primary)', margin: '0 0 2px 0' }}>
+                    — {highlightItems[currentHighlightIdx].student}
+                  </h4>
+                  <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600' }}>
+                    {highlightItems[currentHighlightIdx].role}
+                  </span>
                 </div>
               </div>
-            );
-          })}
+            )}
+
+            {/* Carousel Navigation Buttons */}
+            {highlightItems.length > 1 && (
+              <>
+                <button
+                  onClick={() => setCurrentHighlightIdx((prev) => (prev - 1 + highlightItems.length) % highlightItems.length)}
+                  style={{
+                    position: 'absolute',
+                    left: '-10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    backgroundColor: '#ffffff',
+                    border: '1px solid var(--border-subtle)',
+                    boxShadow: 'var(--shadow-sm)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    color: 'var(--primary)',
+                    zIndex: 2,
+                    transition: 'all 0.2s ease'
+                  }}
+                  className="carousel-btn"
+                  title="Previous highlight"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+                <button
+                  onClick={() => setCurrentHighlightIdx((prev) => (prev + 1) % highlightItems.length)}
+                  style={{
+                    position: 'absolute',
+                    right: '-10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    backgroundColor: '#ffffff',
+                    border: '1px solid var(--border-subtle)',
+                    boxShadow: 'var(--shadow-sm)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    color: 'var(--primary)',
+                    zIndex: 2,
+                    transition: 'all 0.2s ease'
+                  }}
+                  className="carousel-btn"
+                  title="Next highlight"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              </>
+            )}
+
+            {/* Dots indicator */}
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '24px' }}>
+              {highlightItems.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentHighlightIdx(idx)}
+                  style={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    border: 'none',
+                    backgroundColor: idx === currentHighlightIdx ? 'var(--secondary)' : 'rgba(79, 70, 229, 0.2)',
+                    cursor: 'pointer',
+                    padding: 0,
+                    transition: 'all 0.3s ease'
+                  }}
+                  title={`Go to highlight ${idx + 1}`}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 

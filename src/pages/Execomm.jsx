@@ -506,7 +506,19 @@ const MemberModal = ({ member, onClose }) => {
 const Execomm = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const activeTab = location.pathname.includes('/students') ? 'students' : 'faculties';
+  const facultiesRef = React.useRef(null);
+  const studentsRef = React.useRef(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (location.pathname.includes('/students')) {
+        studentsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else if (location.pathname.includes('/faculties')) {
+        facultiesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
 
   const [societies, setSocieties] = useState([]);
   const [students, setStudents] = useState([]);
@@ -813,10 +825,6 @@ const Execomm = () => {
     return (a.name || '').localeCompare(b.name || '');
   });
 
-  const handleTabClick = (tabId) => {
-    navigate(`/execomm/${tabId}`);
-  };
-
   return (
     <div className="animate-fade-in" style={{ backgroundColor: 'var(--bg-light)', paddingBottom: '90px' }}>
       <PageHeader
@@ -824,132 +832,91 @@ const Execomm = () => {
         subtitle="Meet the professional advisors and student leaders steering the IEEE KEC Student Branch"
       />
 
-      {/* Tab Switcher */}
+      {/* ExeComm Content Container */}
       <div className="container">
-        <div style={{
-          display: 'flex', justifyContent: 'center', gap: '12px',
-          marginBottom: '50px', flexWrap: 'wrap'
-        }}>
-          <button
-            onClick={() => handleTabClick('faculties')}
-            style={{
-              padding: '12px 30px',
-              fontSize: '14px', fontWeight: '700',
-              borderRadius: '30px', border: 'none', cursor: 'pointer',
-              letterSpacing: '0.5px',
-              transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-              background: activeTab === 'faculties' ? 'var(--gradient-cyber)' : '#ffffff',
-              color: activeTab === 'faculties' ? '#ffffff' : '#64748b',
-              boxShadow: activeTab === 'faculties'
-                ? '0 6px 20px rgba(6,182,212,0.3)'
-                : '0 2px 8px rgba(0,0,0,0.06)',
-              transform: activeTab === 'faculties' ? 'translateY(-1px)' : 'none'
-            }}
-          >
-            Faculties
-          </button>
-          <button
-            onClick={() => handleTabClick('students')}
-            style={{
-              padding: '12px 30px',
-              fontSize: '14px', fontWeight: '700',
-              borderRadius: '30px', border: 'none', cursor: 'pointer',
-              letterSpacing: '0.5px',
-              transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-              background: activeTab === 'students' ? 'var(--gradient-cyber)' : '#ffffff',
-              color: activeTab === 'students' ? '#ffffff' : '#64748b',
-              boxShadow: activeTab === 'students'
-                ? '0 6px 20px rgba(6,182,212,0.3)'
-                : '0 2px 8px rgba(0,0,0,0.06)',
-              transform: activeTab === 'students' ? 'translateY(-1px)' : 'none'
-            }}
-          >
-            Students
-          </button>
+        {/* ── FACULTIES SECTION ────────────────────────────────────── */}
+        <div ref={facultiesRef} style={{ scrollMarginTop: '100px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+            <SectionLabel text="Advisory Board" />
+            <h2 className="font-serif" style={{ fontSize: '28px', color: 'var(--primary)', fontWeight: '800', marginTop: '8px' }}>
+              Faculty Coordinators
+            </h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '14px', maxWidth: '600px', margin: '0 auto' }}>
+              Experienced advisors providing leadership, technical guidance, and administrative support across core IEEE societies.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
+            {sortedSocieties.map((soc) => {
+              // Determine order of faculty in-charges within the society by hierarchy
+              const fac1Level = getHierarchyLevel(soc.faculty1?.position);
+              const fac2Level = getHierarchyLevel(soc.faculty2?.position);
+              
+              const showFac1First = fac1Level <= fac2Level;
+              const coordList = showFac1First
+                ? [soc.faculty1, soc.faculty2]
+                : [soc.faculty2, soc.faculty1];
+
+              return (
+                <div key={soc.id} style={{
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '16px',
+                  padding: '32px',
+                  backgroundColor: '#ffffff',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
+                }}>
+                  <h3 style={{
+                    fontSize: '20px',
+                    color: 'var(--primary)',
+                    fontWeight: '800',
+                    marginBottom: '24px',
+                    textAlign: 'left',
+                    borderBottom: '2px solid var(--border-subtle)',
+                    paddingBottom: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px'
+                  }}>
+                    <span style={{ fontSize: '24px' }}>🏫</span> {soc.name}
+                  </h3>
+                  
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                    gap: '24px'
+                  }}>
+                    {coordList.map((fac, fIdx) => (
+                      fac && fac.name ? (
+                        <FacultyCard
+                          key={fIdx}
+                          name={fac.name}
+                          position={fac.position}
+                          phone={fac.phone}
+                          image={fac.image}
+                          societyName={soc.name}
+                          onClick={() => setSelectedMember({
+                            name: fac.name,
+                            position: fac.position,
+                            phone: fac.phone,
+                            image: fac.image,
+                            branch: soc.name,
+                            type: 'Faculty'
+                          })}
+                        />
+                      ) : null
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
-        {/* ── FACULTIES TAB CONTENT ────────────────────────────────────── */}
-        {activeTab === 'faculties' && (
-          <div>
-            <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-              <SectionLabel text="Advisory Board" />
-              <h2 className="font-serif" style={{ fontSize: '28px', color: 'var(--primary)', fontWeight: '800', marginTop: '8px' }}>
-                Faculty Coordinators
-              </h2>
-              <p style={{ color: 'var(--text-muted)', fontSize: '14px', maxWidth: '600px', margin: '0 auto' }}>
-                Experienced advisors providing leadership, technical guidance, and administrative support across core IEEE societies.
-              </p>
-            </div>
+        {/* ── SECTION DIVIDER ────────────────────────────────────────── */}
+        <div style={{ margin: '60px 0', borderTop: '2px dashed var(--border-subtle)' }} />
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
-              {sortedSocieties.map((soc) => {
-                // Determine order of faculty in-charges within the society by hierarchy
-                const fac1Level = getHierarchyLevel(soc.faculty1?.position);
-                const fac2Level = getHierarchyLevel(soc.faculty2?.position);
-                
-                const showFac1First = fac1Level <= fac2Level;
-                const coordList = showFac1First
-                  ? [soc.faculty1, soc.faculty2]
-                  : [soc.faculty2, soc.faculty1];
-
-                return (
-                  <div key={soc.id} style={{
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '16px',
-                    padding: '32px',
-                    backgroundColor: '#ffffff',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
-                  }}>
-                    <h3 style={{
-                      fontSize: '20px',
-                      color: 'var(--primary)',
-                      fontWeight: '800',
-                      marginBottom: '24px',
-                      textAlign: 'left',
-                      borderBottom: '2px solid var(--border-subtle)',
-                      paddingBottom: '12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px'
-                    }}>
-                      <span style={{ fontSize: '24px' }}>🏫</span> {soc.name}
-                    </h3>
-                    
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                      gap: '24px'
-                    }}>
-                      {coordList.map((fac, fIdx) => (
-                        fac && fac.name ? (
-                          <FacultyCard
-                            key={fIdx}
-                            name={fac.name}
-                            position={fac.position}
-                            phone={fac.phone}
-                            image={fac.image}
-                            societyName={soc.name}
-                            onClick={() => setSelectedMember({
-                              name: fac.name,
-                              position: fac.position,
-                              phone: fac.phone,
-                              image: fac.image,
-                              branch: soc.name,
-                              type: 'Faculty'
-                            })}
-                          />
-                        ) : null
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* ── STUDENTS TAB CONTENT ─────────────────────────────────────── */}
-        {activeTab === 'students' && (() => {
+        {/* ── STUDENTS SECTION ─────────────────────────────────────── */}
+        {(() => {
           const HIERARCHY_LEVEL_LABELS = {
             1: "Student Branch Chairpersons",
             2: "Society Chairpersons",
@@ -962,7 +929,7 @@ const Execomm = () => {
           const levels = [1, 2, 3, 4, 5, 6, 7];
           
           return (
-            <div>
+            <div ref={studentsRef} style={{ scrollMarginTop: '100px' }}>
               <div style={{ textAlign: 'center', marginBottom: '40px' }}>
                 <SectionLabel text="Student Leadership" />
                 <h2 className="font-serif" style={{ fontSize: '28px', color: 'var(--primary)', fontWeight: '800', marginTop: '8px' }}>

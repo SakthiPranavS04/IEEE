@@ -21,7 +21,7 @@ const Home = () => {
   });
 
   const [keystonesVideoUrl, setKeystonesVideoUrl] = useState(() => {
-    return localStorage.getItem('ieee_keystones_video_url') || 'https://www.youtube.com/embed/S_T1VwN7Gic';
+    return localStorage.getItem('ieee_keystones_video_url') || 'https://www.youtube.com/embed/dQw4w9WgXcQ';
   });
 
   const [impactStats, setImpactStats] = useState(() => {
@@ -119,7 +119,7 @@ const Home = () => {
     { icon: <Users size={32} style={{ color: 'var(--secondary)' }} />, value: memberCount, label: 'Active Members' },
     { icon: <Calendar size={32} style={{ color: 'var(--accent-cyan)' }} />, value: eventsCount, label: 'Events Yearly' },
     { icon: <Award size={32} style={{ color: '#f59e0b' }} />, value: awardsCount, label: 'National Awards' },
-    { icon: <BookOpen size={32} style={{ color: 'var(--accent)' }} />, value: papersCount, label: 'Research Papers' },
+    { icon: <BookOpen size={32} style={{ color: 'var(--accent)' }} />, value: papersCount, label: 'Research Papers & Projects' },
   ];
 
   const tabContent = {
@@ -367,6 +367,44 @@ const Home = () => {
     }
 
     return styles[index % styles.length];
+  };
+
+  const formatEmbedUrl = (url) => {
+    if (!url) return '';
+    const cleanUrl = url.trim();
+    if (cleanUrl.includes('youtube.com/embed/')) {
+      return cleanUrl;
+    }
+    let videoId = '';
+    if (cleanUrl.includes('youtube.com/watch')) {
+      try {
+        const urlObj = new URL(cleanUrl);
+        videoId = urlObj.searchParams.get('v');
+      } catch (e) {
+        const match = cleanUrl.match(/[?&]v=([^&#]+)/);
+        if (match) videoId = match[1];
+      }
+    } else if (cleanUrl.includes('youtu.be/')) {
+      const parts = cleanUrl.split('youtu.be/');
+      if (parts.length > 1) {
+        videoId = parts[1].split(/[?#]/)[0];
+      }
+    } else if (cleanUrl.includes('youtube.com/shorts/')) {
+      const parts = cleanUrl.split('youtube.com/shorts/');
+      if (parts.length > 1) {
+        videoId = parts[1].split(/[?#]/)[0];
+      }
+    } else if (cleanUrl.includes('youtube.com/v/')) {
+      const parts = cleanUrl.split('youtube.com/v/');
+      if (parts.length > 1) {
+        videoId = parts[1].split(/[?#]/)[0];
+      }
+    }
+
+    if (videoId) {
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+    return cleanUrl;
   };
 
   return (
@@ -693,7 +731,7 @@ const Home = () => {
                 backgroundColor: '#0f172a'
               }}>
                 <iframe
-                  src={keystonesVideoUrl}
+                  src={formatEmbedUrl(keystonesVideoUrl)}
                   title="IEEE KEC SB Promotional Video"
                   style={{
                     position: 'absolute',

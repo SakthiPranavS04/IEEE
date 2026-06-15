@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, LogOut, Check, Trash2, Edit3, Plus, Image as ImageIcon, BarChart3, Database, X, Calendar, Award, Users, Target, Settings, Link as LinkIcon, AlertCircle, FileText, Compass, Layers, Save, RefreshCw, MessageSquare, ArrowUp, ArrowDown } from 'lucide-react';
+import { Lock, LogOut, Check, Trash2, Edit3, Plus, Image as ImageIcon, BarChart3, Database, X, Calendar, Award, Users, Target, Settings, Link as LinkIcon, AlertCircle, FileText, Compass, Layers, Save, RefreshCw, MessageSquare, ArrowUp, ArrowDown, Flame } from 'lucide-react';
 import { apsData } from '../data/aps';
 import { computerSocietyData } from '../data/computerSociety';
 import { wieData } from '../data/wie';
@@ -53,7 +53,15 @@ const Admin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [activeTab, setActiveTab] = useState('stats'); // 'stats' | 'events' | 'achievements' | 'execomm' | 'committees' | 'gallery' | 'researchpapers' | 'news' | 'branches'
+  const [activeTab, setActiveTab] = useState('stats'); // 'stats' | 'events' | 'achievements' | 'execomm' | 'committees' | 'gallery' | 'researchpapers' | 'news' | 'branches' | 'highlighted_events'
+  
+  // Highlighted Events State Hooks
+  const [highlightDescription, setHighlightDescription] = useState('');
+  const [highlightImage, setHighlightImage] = useState(null);
+  const [highlightTheme, setHighlightTheme] = useState('Purple');
+  const [isEventHighlighted, setIsEventHighlighted] = useState(false);
+  const [draggedIndex, setDraggedIndex] = useState(null);
+  const [editingHighlightEventId, setEditingHighlightEventId] = useState(null);
 
   // Execomm Society Branches Management States
   const [selectedBranchKey, setSelectedBranchKey] = useState('ap-s');
@@ -341,7 +349,12 @@ const Admin = () => {
       date: "May 18, 2026",
       venue: "DSP Lab, ECE Dept, KEC",
       tag: "SPS Chapter",
-      highlights: "50+ participants built smart ECG filter prototypes."
+      highlights: "50+ participants built smart ECG filter prototypes.",
+      isHighlighted: true,
+      highlightOrder: 1,
+      highlightDescription: "A 3-day practical bootcamp focusing on capturing and processing real-time sensor waveforms using ESP32 and DSP filtering algorithms. 50+ participants built smart ECG filter prototypes.",
+      highlightImage: null,
+      highlightTheme: "Purple"
     },
     {
       id: 102,
@@ -350,7 +363,12 @@ const Admin = () => {
       date: "April 24, 2026",
       venue: "Internet Lab, KEC",
       tag: "WIE Group",
-      highlights: "Participated by 80 girls, 5 projects were selected for incubation support."
+      highlights: "Participated by 80 girls, 5 projects were selected for incubation support.",
+      isHighlighted: true,
+      highlightOrder: 2,
+      highlightDescription: "A bootcamp dedicated to teaching web building, database structure, and frontend hosting to young female engineers. Participated by 80 girls, 5 projects were selected for incubation support.",
+      highlightImage: null,
+      highlightTheme: "Cyan"
     },
     {
       id: 103,
@@ -359,7 +377,12 @@ const Admin = () => {
       date: "March 15, 2026",
       venue: "Maharaja Auditorium, KEC",
       tag: "Conference",
-      highlights: "30+ research papers published in local IEEE digital archives."
+      highlights: "30+ research papers published in local IEEE digital archives.",
+      isHighlighted: true,
+      highlightOrder: 3,
+      highlightDescription: "Flagship paper presentation event featuring research papers from student groups across the region, judged by Anna University faculty. 30+ research papers published in local IEEE digital archives.",
+      highlightImage: null,
+      highlightTheme: "IEEE Blue"
     },
     {
       id: 104,
@@ -368,7 +391,12 @@ const Admin = () => {
       date: "February 12, 2026",
       venue: "Mechanical Dept Seminar Hall, KEC",
       tag: "Guest Lecture",
-      highlights: "Delivered by senior R&D engineer from Intel India."
+      highlights: "Delivered by senior R&D engineer from Intel India.",
+      isHighlighted: false,
+      highlightOrder: 4,
+      highlightDescription: "A seminar on running micro neural-network models directly on resource-constrained microcontrollers. Delivered by senior R&D engineer from Intel India.",
+      highlightImage: null,
+      highlightTheme: "Green"
     }
   ];
 
@@ -1106,6 +1134,10 @@ const Admin = () => {
       setEventLink('https://forms.gle/KEC-IEEE-Events-Registration');
       setEventHighlights('');
       setEventShowNewBadge(false);
+      setIsEventHighlighted(false);
+      setHighlightDescription('');
+      setHighlightImage(null);
+      setHighlightTheme('Purple');
     } else if (type === 'achievement') {
       setAchTitle('');
       setAchCategory('');
@@ -1177,6 +1209,10 @@ const Admin = () => {
       setEventLink(item.link || '');
       setEventHighlights(item.highlights || '');
       setEventShowNewBadge(item.showNewBadge || false);
+      setIsEventHighlighted(item.isHighlighted || false);
+      setHighlightDescription(item.highlightDescription || item.desc || '');
+      setHighlightImage(item.highlightImage || null);
+      setHighlightTheme(item.highlightTheme || 'Purple');
     } else if (type === 'achievement') {
       setAchTitle(item.title);
       setAchCategory(item.category);
@@ -1326,6 +1362,20 @@ const Admin = () => {
         };
         updatedUpcoming.push(newEvent);
       } else {
+        // Limit check
+        if (isEventHighlighted) {
+          const currentlyHighlighted = updatedPast.filter(e => e.isHighlighted && e.id !== combinedId);
+          if (currentlyHighlighted.length >= 5) {
+            alert("A maximum of 5 highlighted events is allowed. Please remove another event from highlights first.");
+            return;
+          }
+        }
+
+        const oldEvent = pastEvents.find(e => e.id === combinedId) || {};
+        const nextOrder = oldEvent.highlightOrder !== undefined 
+          ? oldEvent.highlightOrder 
+          : (pastEvents.filter(e => e.isHighlighted).length + 1);
+
         const newEvent = {
           id: combinedId,
           title: eventTitle,
@@ -1333,7 +1383,12 @@ const Admin = () => {
           date: eventDate,
           venue: eventVenue,
           tag: eventTag,
-          highlights: eventHighlights
+          highlights: eventHighlights,
+          isHighlighted: isEventHighlighted,
+          highlightOrder: nextOrder,
+          highlightDescription: highlightDescription || eventDesc,
+          highlightImage: highlightImage,
+          highlightTheme: highlightTheme
         };
         updatedPast.push(newEvent);
       }
@@ -2225,6 +2280,127 @@ const Admin = () => {
     );
   }
 
+  const toggleHighlightStatus = (item) => {
+    let updated = [];
+    if (item.isHighlighted) {
+      // Remove from highlights
+      updated = pastEvents.map(evt => {
+        if (evt.id === item.id) {
+          return { ...evt, isHighlighted: false, highlightOrder: undefined };
+        }
+        return evt;
+      });
+      // Recalculate orders for remaining highlighted events
+      const highlighted = updated.filter(e => e.isHighlighted).sort((a, b) => a.highlightOrder - b.highlightOrder);
+      highlighted.forEach((e, idx) => {
+        e.highlightOrder = idx + 1;
+      });
+    } else {
+      // Add to highlights
+      const currentCount = pastEvents.filter(e => e.isHighlighted).length;
+      if (currentCount >= 5) {
+        alert("A maximum of 5 highlighted events is allowed. Please remove another event from highlights first.");
+        return;
+      }
+      updated = pastEvents.map(evt => {
+        if (evt.id === item.id) {
+          return {
+            ...evt,
+            isHighlighted: true,
+            highlightOrder: currentCount + 1,
+            highlightDescription: evt.highlightDescription || evt.desc || '',
+            highlightTheme: evt.highlightTheme || 'Purple',
+            highlightImage: evt.highlightImage || null
+          };
+        }
+        return evt;
+      });
+    }
+    setPastEvents(updated);
+    localStorage.setItem('ieee_events_past', JSON.stringify(updated));
+  };
+
+  const moveHighlightItemManual = (index, direction) => {
+    const highlighted = pastEvents.filter(e => e.isHighlighted).sort((a, b) => a.highlightOrder - b.highlightOrder);
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= highlighted.length) return;
+    
+    // Swap orders
+    const temp = highlighted[index].highlightOrder;
+    highlighted[index].highlightOrder = highlighted[newIndex].highlightOrder;
+    highlighted[newIndex].highlightOrder = temp;
+    
+    // Update pastEvents list
+    const updated = pastEvents.map(evt => {
+      const hlMatch = highlighted.find(h => h.id === evt.id);
+      if (hlMatch) {
+        return { ...evt, highlightOrder: hlMatch.highlightOrder };
+      }
+      return evt;
+    });
+    
+    setPastEvents(updated);
+    localStorage.setItem('ieee_events_past', JSON.stringify(updated));
+  };
+
+  const saveHighlightDetails = (id, desc, theme, img) => {
+    const updated = pastEvents.map(evt => {
+      if (evt.id === id) {
+        return {
+          ...evt,
+          highlightDescription: desc,
+          highlightTheme: theme,
+          highlightImage: img
+        };
+      }
+      return evt;
+    });
+    setPastEvents(updated);
+    localStorage.setItem('ieee_events_past', JSON.stringify(updated));
+    setEditingHighlightEventId(null);
+  };
+
+  const handleDragStartHighlight = (e, index) => {
+    e.dataTransfer.setData('text/plain', index);
+    setDraggedIndex(index);
+  };
+
+  const handleDragOverHighlight = (e, index) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) return;
+    
+    const highlighted = pastEvents.filter(evt => evt.isHighlighted).sort((a, b) => a.highlightOrder - b.highlightOrder);
+    const draggedItem = highlighted[draggedIndex];
+    
+    // Reorder
+    const temp = [...highlighted];
+    temp.splice(draggedIndex, 1);
+    temp.splice(index, 0, draggedItem);
+    
+    // Update indices
+    temp.forEach((item, idx) => {
+      item.highlightOrder = idx + 1;
+    });
+    
+    setDraggedIndex(index);
+    
+    // Merge back
+    const updated = pastEvents.map(evt => {
+      const hlMatch = temp.find(h => h.id === evt.id);
+      if (hlMatch) {
+        return { ...evt, highlightOrder: hlMatch.highlightOrder };
+      }
+      return evt;
+    });
+    
+    setPastEvents(updated);
+    localStorage.setItem('ieee_events_past', JSON.stringify(updated));
+  };
+
+  const handleDragEndHighlight = () => {
+    setDraggedIndex(null);
+  };
+
   return (
     <div className="admin-dashboard-container" style={{ backgroundColor: 'var(--bg-light)', minHeight: '85vh', paddingBottom: '80px', fontFamily: 'var(--font-sans)' }}>
       {/* Header Panel */}
@@ -2290,6 +2466,7 @@ const Admin = () => {
             { id: 'stats', label: 'Stats & Site Info', icon: <Settings size={16} /> },
             { id: 'gallery', label: 'Photo Gallery', icon: <ImageIcon size={16} /> },
             { id: 'events', label: 'Events List', icon: <Calendar size={16} /> },
+            { id: 'highlighted_events', label: 'Highlighted Events', icon: <Flame size={16} /> },
             { id: 'achievements', label: 'Achievements', icon: <Award size={16} /> },
             { id: 'execomm', label: 'Execomm SB Leaders', icon: <Users size={16} /> },
             { id: 'branches', label: 'ExeComm Branches', icon: <Layers size={16} /> },
@@ -3081,6 +3258,341 @@ const Admin = () => {
                     })}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab: Highlighted Events Management */}
+        {activeTab === 'highlighted_events' && (
+          <div className="animate-fade-in card" style={{ padding: '36px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+            <div style={{ marginBottom: '28px' }}>
+              <h2 style={{ fontSize: '20px', color: '#0a385b', fontWeight: '800' }}>Configure Homepage Featured Highlights</h2>
+              <p style={{ color: '#64748b', fontSize: '13px', marginTop: '2px' }}>
+                Select up to 5 completed past events to showcase in the interactive sliding carousel on the website. Reorder them using drag-and-drop or the manual order controls.
+              </p>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '30px' }} className="flex-responsive">
+              
+              {/* Left Column: Drag & Drop Reordering and Details Editing */}
+              <div>
+                <h3 style={{ fontSize: '15px', color: '#0a385b', fontWeight: '750', marginBottom: '16px', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Flame size={18} color="var(--secondary)" /> Featured Highlights Carousel Order ({pastEvents.filter(e => e.isHighlighted).length}/5)
+                </h3>
+
+                {pastEvents.filter(e => e.isHighlighted).length === 0 ? (
+                  <div style={{ padding: '40px', textAlign: 'center', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1.5px dashed #cbd5e1', color: '#64748b' }}>
+                    <p style={{ fontWeight: '600', fontSize: '14px' }}>No events featured in highlights yet.</p>
+                    <p style={{ fontSize: '12.5px', marginTop: '4px' }}>Select events from the Completed Events Roster on the right to build your carousel.</p>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {pastEvents
+                      .filter(e => e.isHighlighted)
+                      .sort((a, b) => a.highlightOrder - b.highlightOrder)
+                      .map((item, idx, arr) => {
+                        const isEditingDetails = editingHighlightEventId === item.id;
+                        return (
+                          <div
+                            key={item.id}
+                            draggable={!isEditingDetails}
+                            onDragStart={(e) => handleDragStartHighlight(e, idx)}
+                            onDragOver={(e) => handleDragOverHighlight(e, idx)}
+                            onDragEnd={handleDragEndHighlight}
+                            style={{
+                              border: '1.5px solid var(--border-subtle)',
+                              borderRadius: '12px',
+                              backgroundColor: draggedIndex === idx ? '#f1f5f9' : '#ffffff',
+                              opacity: draggedIndex === idx ? 0.5 : 1,
+                              padding: '16px',
+                              boxShadow: 'var(--shadow-sm)',
+                              transition: 'all 0.2s ease',
+                              cursor: isEditingDetails ? 'default' : 'grab'
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+                              
+                              {/* Drag handle & Order info */}
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                {!isEditingDetails && (
+                                  <div style={{ color: '#94a3b8', fontSize: '18px', fontWeight: 'bold', userSelect: 'none' }} title="Drag to reorder">
+                                    ⋮⋮
+                                  </div>
+                                )}
+                                <span style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  width: '28px',
+                                  height: '28px',
+                                  borderRadius: '50%',
+                                  backgroundColor: 'rgba(79, 70, 229, 0.08)',
+                                  color: 'var(--secondary)',
+                                  fontWeight: '800',
+                                  fontSize: '13px'
+                                }}>
+                                  {idx + 1}
+                                </span>
+                                <div>
+                                  <h4 style={{ fontSize: '14px', fontWeight: '750', color: '#0f172a', margin: '0' }}>{item.title}</h4>
+                                  <div style={{ display: 'flex', gap: '8px', marginTop: '4px', alignItems: 'center', flexWrap: 'wrap' }}>
+                                    <span style={{ fontSize: '11px', padding: '2px 8px', backgroundColor: '#e2e8f0', color: '#475569', borderRadius: '4px', fontWeight: '600' }}>
+                                      {item.tag}
+                                    </span>
+                                    <span style={{ fontSize: '11.5px', color: '#64748b' }}>
+                                      📅 {item.date}
+                                    </span>
+                                    <span style={{ fontSize: '11px', color: 'var(--secondary)', fontWeight: '700' }}>
+                                      🎨 {item.highlightImage ? 'Custom Cover Image' : `Theme: ${item.highlightTheme || 'Purple'}`}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Manual Reordering & Action Buttons */}
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                {/* Up / Down Reordering Buttons */}
+                                {!isEditingDetails && (
+                                  <div style={{ display: 'flex', gap: '4px' }}>
+                                    <button
+                                      disabled={idx === 0}
+                                      onClick={() => moveHighlightItemManual(idx, 'up')}
+                                      style={{ padding: '6px 10px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', cursor: idx === 0 ? 'not-allowed' : 'pointer', opacity: idx === 0 ? 0.3 : 1, display: 'flex', alignItems: 'center' }}
+                                      title="Move Up"
+                                    >
+                                      <ArrowUp size={14} />
+                                    </button>
+                                    <button
+                                      disabled={idx === arr.length - 1}
+                                      onClick={() => moveHighlightItemManual(idx, 'down')}
+                                      style={{ padding: '6px 10px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', cursor: idx === arr.length - 1 ? 'not-allowed' : 'pointer', opacity: idx === arr.length - 1 ? 0.3 : 1, display: 'flex', alignItems: 'center' }}
+                                      title="Move Down"
+                                    >
+                                      <ArrowDown size={14} />
+                                    </button>
+                                  </div>
+                                )}
+
+                                {/* Configure Detail Form Toggle */}
+                                <button
+                                  onClick={() => {
+                                    if (isEditingDetails) {
+                                      setEditingHighlightEventId(null);
+                                    } else {
+                                      setEditingHighlightEventId(item.id);
+                                      setHighlightDescription(item.highlightDescription || item.desc || '');
+                                      setHighlightTheme(item.highlightTheme || 'Purple');
+                                      setHighlightImage(item.highlightImage || null);
+                                    }
+                                  }}
+                                  style={{
+                                    padding: '6px 12px',
+                                    fontSize: '12px',
+                                    fontWeight: '700',
+                                    borderRadius: '6px',
+                                    border: '1px solid var(--border-subtle)',
+                                    backgroundColor: isEditingDetails ? 'var(--primary)' : '#ffffff',
+                                    color: isEditingDetails ? '#ffffff' : 'var(--primary)',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  {isEditingDetails ? 'Close Edit' : 'Edit Details'}
+                                </button>
+
+                                {/* Remove Button */}
+                                <button
+                                  onClick={() => toggleHighlightStatus(item)}
+                                  style={{
+                                    padding: '6px 12px',
+                                    fontSize: '12px',
+                                    fontWeight: '700',
+                                    borderRadius: '6px',
+                                    border: '1px solid #fee2e2',
+                                    backgroundColor: '#fef2f2',
+                                    color: '#ef4444',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Details Editor Form */}
+                            {isEditingDetails && (
+                              <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #cbd5e1', display: 'flex', flexDirection: 'column', gap: '14px' }} className="animate-fade-in">
+                                <div>
+                                  <label style={{ display: 'block', fontSize: '11.5px', fontWeight: '750', color: '#0a385b', marginBottom: '4px', textTransform: 'uppercase' }}>Highlight Card Extended Description</label>
+                                  <textarea
+                                    rows="2"
+                                    value={highlightDescription}
+                                    onChange={(e) => setHighlightDescription(e.target.value)}
+                                    style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none', fontFamily: 'inherit', resize: 'none' }}
+                                    placeholder="Write a highlight-specific snippet..."
+                                  />
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                  <div>
+                                    <label style={{ display: 'block', fontSize: '11.5px', fontWeight: '750', color: '#0a385b', marginBottom: '4px', textTransform: 'uppercase' }}>Theme Selection (No-Image Fallback)</label>
+                                    <select
+                                      value={highlightTheme}
+                                      onChange={(e) => setHighlightTheme(e.target.value)}
+                                      style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none', backgroundColor: '#ffffff' }}
+                                    >
+                                      <option value="IEEE Blue">IEEE Blue</option>
+                                      <option value="Purple">Purple</option>
+                                      <option value="Cyan">Cyan</option>
+                                      <option value="Green">Green</option>
+                                      <option value="Teal">Teal</option>
+                                    </select>
+                                  </div>
+
+                                  <div>
+                                    <label style={{ display: 'block', fontSize: '11.5px', fontWeight: '750', color: '#0a385b', marginBottom: '4px', textTransform: 'uppercase' }}>Cover Image Upload</label>
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      onChange={async (e) => {
+                                        const file = e.target.files[0];
+                                        if (file) {
+                                          try {
+                                            const imgBase64 = await compressImage(file);
+                                            setHighlightImage(imgBase64);
+                                          } catch (err) {
+                                            console.error("Compression error:", err);
+                                          }
+                                        }
+                                      }}
+                                      style={{ fontSize: '11.5px' }}
+                                    />
+                                  </div>
+                                </div>
+
+                                {/* Image Preview Container */}
+                                {highlightImage && (
+                                  <div style={{ position: 'relative', width: '120px', height: '80px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #cbd5e1', marginTop: '4px' }}>
+                                    <img src={highlightImage} alt="Highlight Cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    <button
+                                      type="button"
+                                      onClick={() => setHighlightImage(null)}
+                                      style={{ position: 'absolute', top: '4px', right: '4px', backgroundColor: 'rgba(239, 68, 68, 0.9)', color: '#ffffff', border: 'none', borderRadius: '50%', width: '18px', height: '18px', fontSize: '9px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
+                                      title="Remove cover photo"
+                                    >
+                                      ✕
+                                    </button>
+                                  </div>
+                                )}
+
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '6px' }}>
+                                  <button
+                                    onClick={() => setEditingHighlightEventId(null)}
+                                    style={{ padding: '6px 12px', fontSize: '12px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', cursor: 'pointer', fontWeight: '600' }}
+                                  >
+                                    Cancel
+                                  </button>
+                                  <button
+                                    onClick={() => saveHighlightDetails(item.id, highlightDescription, highlightTheme, highlightImage)}
+                                    style={{ padding: '6px 12px', fontSize: '12px', borderRadius: '4px', border: 'none', backgroundColor: '#10b981', color: '#ffffff', cursor: 'pointer', fontWeight: '700' }}
+                                  >
+                                    Save Changes
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                  </div>
+                )}
+              </div>
+
+              {/* Right Column: Historical Completed Events Roster */}
+              <div style={{ borderLeft: '1px solid #e2e8f0', paddingLeft: '24px' }}>
+                <h3 style={{ fontSize: '15px', color: '#0a385b', fontWeight: '750', marginBottom: '16px', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Database size={18} color="var(--primary)" /> Completed Past Events Roster
+                </h3>
+
+                {pastEvents.length === 0 ? (
+                  <p style={{ color: '#64748b', fontSize: '13px', fontStyle: 'italic' }}>No completed events available in records.</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '550px', overflowY: 'auto', paddingRight: '8px' }}>
+                    {pastEvents.map(item => {
+                      const isHighlighted = item.isHighlighted;
+                      const activeHighlightCount = pastEvents.filter(e => e.isHighlighted).length;
+                      const isLimitReached = activeHighlightCount >= 5;
+
+                      return (
+                        <div
+                          key={item.id}
+                          style={{
+                            padding: '12px',
+                            borderRadius: '8px',
+                            border: isHighlighted ? '1.5px solid rgba(16, 185, 129, 0.4)' : '1px solid #cbd5e1',
+                            backgroundColor: isHighlighted ? 'rgba(16, 185, 129, 0.03)' : '#ffffff',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            gap: '12px',
+                            transition: 'all 0.2s ease'
+                          }}
+                        >
+                          <div style={{ flex: 1 }}>
+                            <span style={{ fontSize: '10px', padding: '1px 6px', backgroundColor: '#e2e8f0', color: '#475569', borderRadius: '3px', fontWeight: '700', textTransform: 'uppercase', marginRight: '6px' }}>
+                              {item.tag}
+                            </span>
+                            <h4 style={{ fontSize: '13px', fontWeight: '700', color: '#0f172a', display: 'inline', margin: 0 }}>
+                              {item.title}
+                            </h4>
+                            <p style={{ fontSize: '11px', color: '#64748b', margin: '2px 0 0 0' }}>
+                              📅 {item.date}
+                            </p>
+                          </div>
+
+                          <div>
+                            {isHighlighted ? (
+                              <button
+                                onClick={() => toggleHighlightStatus(item)}
+                                style={{
+                                  padding: '5px 10px',
+                                  fontSize: '11px',
+                                  fontWeight: '700',
+                                  borderRadius: '4px',
+                                  border: 'none',
+                                  backgroundColor: '#fee2e2',
+                                  color: '#ef4444',
+                                  cursor: 'pointer'
+                                }}
+                                title="Remove from featured highlights carousel"
+                              >
+                                Remove
+                              </button>
+                            ) : (
+                              <button
+                                disabled={isLimitReached}
+                                onClick={() => toggleHighlightStatus(item)}
+                                style={{
+                                  padding: '5px 10px',
+                                  fontSize: '11px',
+                                  fontWeight: '700',
+                                  borderRadius: '4px',
+                                  border: isLimitReached ? '1px solid #cbd5e1' : '1px solid var(--secondary)',
+                                  backgroundColor: isLimitReached ? '#f1f5f9' : '#ffffff',
+                                  color: isLimitReached ? '#94a3b8' : 'var(--secondary)',
+                                  cursor: isLimitReached ? 'not-allowed' : 'pointer'
+                                }}
+                                title={isLimitReached ? "Highlight limit of 5 events reached" : "Feature in highlights carousel"}
+                              >
+                                + Feature
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -6524,16 +7036,98 @@ const Admin = () => {
                       </div>
                     </div>
                   ) : (
-                    <div>
-                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Completed Highlight / Summary</label>
-                      <input
-                        type="text"
-                        required={!eventIsUpcoming}
-                        placeholder="e.g. 50+ participants built smart IoT nodes."
-                        value={eventHighlights}
-                        onChange={(e) => setEventHighlights(e.target.value)}
-                        style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
-                      />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Completed Highlight / Summary</label>
+                        <input
+                          type="text"
+                          required={!eventIsUpcoming}
+                          placeholder="e.g. 50+ participants built smart IoT nodes."
+                          value={eventHighlights}
+                          onChange={(e) => setEventHighlights(e.target.value)}
+                          style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                        />
+                      </div>
+                      
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+                        <input
+                          type="checkbox"
+                          id="isEventHighlighted"
+                          checked={isEventHighlighted}
+                          onChange={(e) => setIsEventHighlighted(e.target.checked)}
+                          style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                        />
+                        <label htmlFor="isEventHighlighted" style={{ fontSize: '13px', fontWeight: '700', color: '#0a385b', cursor: 'pointer', userSelect: 'none' }}>
+                          Feature in Event Highlights Carousel (Max 5)
+                        </label>
+                      </div>
+
+                      {isEventHighlighted && (
+                        <div style={{ padding: '16px', border: '1.5px solid var(--border-subtle)', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '16px', backgroundColor: '#ffffff' }} className="animate-fade-in">
+                          <div>
+                            <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Highlight Description</label>
+                            <textarea
+                              rows="3"
+                              placeholder="Write a custom description specifically for the highlight card..."
+                              value={highlightDescription}
+                              onChange={(e) => setHighlightDescription(e.target.value)}
+                              style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px', resize: 'none', fontFamily: 'inherit' }}
+                            />
+                          </div>
+
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                            <div>
+                              <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Card Header Cover Image</label>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={async (e) => {
+                                  const file = e.target.files[0];
+                                  if (file) {
+                                    try {
+                                      const compressed = await compressImage(file);
+                                      setHighlightImage(compressed);
+                                    } catch (err) {
+                                      console.error("Compression error:", err);
+                                    }
+                                  }
+                                }}
+                                style={{ fontSize: '12px' }}
+                              />
+                              <p style={{ fontSize: '10.5px', color: '#64748b', marginTop: '4px' }}>Recommended size: 800x600px. Upload overrides gradient theme.</p>
+                            </div>
+                            
+                            <div>
+                              <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Fallback Gradient Theme</label>
+                              <select
+                                value={highlightTheme}
+                                onChange={(e) => setHighlightTheme(e.target.value)}
+                                style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px', backgroundColor: '#ffffff' }}
+                              >
+                                <option value="IEEE Blue">IEEE Blue</option>
+                                <option value="Purple">Purple</option>
+                                <option value="Cyan">Cyan</option>
+                                <option value="Green">Green</option>
+                                <option value="Teal">Teal</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          {highlightImage && (
+                            <div style={{ position: 'relative', width: '120px', height: '90px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #cbd5e1', marginTop: '8px' }}>
+                              <img src={highlightImage} alt="Highlight Cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              <button
+                                type="button"
+                                onClick={() => setHighlightImage(null)}
+                                style={{ position: 'absolute', top: '4px', right: '4px', backgroundColor: 'rgba(239, 68, 68, 0.9)', color: '#ffffff', border: 'none', borderRadius: '50%', width: '20px', height: '20px', fontSize: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
+                                title="Remove Cover Image"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                 </>

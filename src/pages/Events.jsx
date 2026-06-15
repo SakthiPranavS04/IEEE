@@ -165,7 +165,12 @@ const Events = () => {
         date: "May 18, 2026",
         venue: "DSP Lab, ECE Dept, KEC",
         tag: "SPS Chapter",
-        highlights: "50+ participants built smart ECG filter prototypes."
+        highlights: "50+ participants built smart ECG filter prototypes.",
+        isHighlighted: true,
+        highlightOrder: 1,
+        highlightDescription: "A 3-day practical bootcamp focusing on capturing and processing real-time sensor waveforms using ESP32 and DSP filtering algorithms. 50+ participants built smart ECG filter prototypes.",
+        highlightImage: null,
+        highlightTheme: "Purple"
       },
       {
         id: 102,
@@ -174,7 +179,12 @@ const Events = () => {
         date: "April 24, 2026",
         venue: "Internet Lab, KEC",
         tag: "WIE Group",
-        highlights: "Participated by 80 girls, 5 projects were selected for incubation support."
+        highlights: "Participated by 80 girls, 5 projects were selected for incubation support.",
+        isHighlighted: true,
+        highlightOrder: 2,
+        highlightDescription: "A bootcamp dedicated to teaching web building, database structure, and frontend hosting to young female engineers. Participated by 80 girls, 5 projects were selected for incubation support.",
+        highlightImage: null,
+        highlightTheme: "Cyan"
       },
       {
         id: 103,
@@ -183,7 +193,12 @@ const Events = () => {
         date: "March 15, 2026",
         venue: "Maharaja Auditorium, KEC",
         tag: "Conference",
-        highlights: "30+ research papers published in local IEEE digital archives."
+        highlights: "30+ research papers published in local IEEE digital archives.",
+        isHighlighted: true,
+        highlightOrder: 3,
+        highlightDescription: "Flagship paper presentation event featuring research papers from student groups across the region, judged by Anna University faculty. 30+ research papers published in local IEEE digital archives.",
+        highlightImage: null,
+        highlightTheme: "IEEE Blue"
       },
       {
         id: 104,
@@ -192,7 +207,12 @@ const Events = () => {
         date: "February 12, 2026",
         venue: "Mechanical Dept Seminar Hall, KEC",
         tag: "Guest Lecture",
-        highlights: "Delivered by senior R&D engineer from Intel India."
+        highlights: "Delivered by senior R&D engineer from Intel India.",
+        isHighlighted: false,
+        highlightOrder: 4,
+        highlightDescription: "A seminar on running micro neural-network models directly on resource-constrained microcontrollers. Delivered by senior R&D engineer from Intel India.",
+        highlightImage: null,
+        highlightTheme: "Green"
       }
     ];
 

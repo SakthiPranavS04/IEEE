@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { Award, BookOpen, Calendar, Users, ArrowRight, ShieldCheck, Flame, Zap, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
+import { Award, BookOpen, Calendar, Users, ArrowRight, ShieldCheck, Flame, Zap, ChevronLeft, ChevronRight, Quote, MessageSquare } from 'lucide-react';
 
 const Home = () => {
   const [activeTab, setActiveTab] = useState('mission');
@@ -172,32 +172,119 @@ const Home = () => {
   };
 
   const [highlights, setHighlights] = useState([]);
+  const [carouselIndex, setCarouselIndex] = useState(0);
+
+  const THEME_GRADIENTS = {
+    'IEEE Blue': 'linear-gradient(135deg, #00629B 0%, #0a385b 100%)',
+    'Purple': 'linear-gradient(135deg, #8b5cf6 0%, #4f46e5 100%)',
+    'Cyan': 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+    'Green': 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+    'Teal': 'linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)'
+  };
+
+  const getEventIcon = (tag) => {
+    const t = (tag || '').toLowerCase();
+    if (t.includes('sps') || t.includes('signal') || t.includes('iot')) return <Zap size={44} color="#ffffff" style={{ opacity: 0.9, zIndex: 1 }} />;
+    if (t.includes('wie') || t.includes('women') || t.includes('group')) return <Users size={44} color="#ffffff" style={{ opacity: 0.9, zIndex: 1 }} />;
+    if (t.includes('conference') || t.includes('symposium') || t.includes('award')) return <Award size={44} color="#ffffff" style={{ opacity: 0.9, zIndex: 1 }} />;
+    if (t.includes('workshop') || t.includes('bootcamp') || t.includes('hands')) return <BookOpen size={44} color="#ffffff" style={{ opacity: 0.9, zIndex: 1 }} />;
+    if (t.includes('hackathon') || t.includes('code')) return <Flame size={44} color="#ffffff" style={{ opacity: 0.9, zIndex: 1 }} />;
+    if (t.includes('lecture') || t.includes('seminar') || t.includes('talk')) return <MessageSquare size={44} color="#ffffff" style={{ opacity: 0.9, zIndex: 1 }} />;
+    return <Calendar size={44} color="#ffffff" style={{ opacity: 0.9, zIndex: 1 }} />;
+  };
+
+  const autoplayRef = useRef(null);
+
+  const resetAutoplay = () => {
+    if (autoplayRef.current) {
+      clearInterval(autoplayRef.current);
+    }
+    if (highlights.length > 1) {
+      autoplayRef.current = setInterval(() => {
+        setCarouselIndex((prev) => (prev + 1) % highlights.length);
+      }, 5000);
+    }
+  };
+
+  useEffect(() => {
+    resetAutoplay();
+    return () => {
+      if (autoplayRef.current) clearInterval(autoplayRef.current);
+    };
+  }, [highlights.length]);
+
+  const handlePrevSlide = () => {
+    setCarouselIndex((prev) => (prev === 0 ? highlights.length - 1 : prev - 1));
+    resetAutoplay();
+  };
+
+  const handleNextSlide = () => {
+    setCarouselIndex((prev) => (prev + 1) % highlights.length);
+    resetAutoplay();
+  };
+
+  const handleDotClick = (idx) => {
+    setCarouselIndex(idx);
+    resetAutoplay();
+  };
 
   useEffect(() => {
     const defaultPast = [
       {
+        id: 101,
         title: "Workshop on Digital Signal Processing & IoT",
         desc: "A 3-day practical bootcamp focusing on capturing and processing real-time sensor waveforms using ESP32 and DSP filtering algorithms.",
         date: "May 18, 2026",
         venue: "DSP Lab, ECE Dept, KEC",
         tag: "SPS Chapter",
-        highlights: "50+ participants built smart ECG filter prototypes."
+        highlights: "50+ participants built smart ECG filter prototypes.",
+        isHighlighted: true,
+        highlightOrder: 1,
+        highlightDescription: "A 3-day practical bootcamp focusing on capturing and processing real-time sensor waveforms using ESP32 and DSP filtering algorithms. 50+ participants built smart ECG filter prototypes.",
+        highlightImage: null,
+        highlightTheme: "Purple"
       },
       {
+        id: 102,
         title: "WIE CodeQuest: Coding Bootcamp for Girls",
         desc: "A bootcamp dedicated to teaching web building, database structure, and frontend hosting to young female engineers.",
         date: "April 24, 2026",
         venue: "Internet Lab, KEC",
         tag: "WIE Group",
-        highlights: "Participated by 80 girls, 5 projects were selected for incubation support."
+        highlights: "Participated by 80 girls, 5 projects were selected for incubation support.",
+        isHighlighted: true,
+        highlightOrder: 2,
+        highlightDescription: "A bootcamp dedicated to teaching web building, database structure, and frontend hosting to young female engineers. Participated by 80 girls, 5 projects were selected for incubation support.",
+        highlightImage: null,
+        highlightTheme: "Cyan"
       },
       {
+        id: 103,
         title: "National Conference on Computing & Communication (NCCC 2026)",
         desc: "Flagship paper presentation event featuring research papers from student groups across the region, judged by Anna University faculty.",
         date: "March 15, 2026",
         venue: "Maharaja Auditorium, KEC",
         tag: "Conference",
-        highlights: "30+ research papers published in local IEEE digital archives."
+        highlights: "30+ research papers published in local IEEE digital archives.",
+        isHighlighted: true,
+        highlightOrder: 3,
+        highlightDescription: "Flagship paper presentation event featuring research papers from student groups across the region, judged by Anna University faculty. 30+ research papers published in local IEEE digital archives.",
+        highlightImage: null,
+        highlightTheme: "IEEE Blue"
+      },
+      {
+        id: 104,
+        title: "Guest Lecture: Opportunities in Edge AI & TinyML",
+        desc: "A seminar on running micro neural-network models directly on resource-constrained microcontrollers.",
+        date: "February 12, 2026",
+        venue: "Mechanical Dept Seminar Hall, KEC",
+        tag: "Guest Lecture",
+        highlights: "Delivered by senior R&D engineer from Intel India.",
+        isHighlighted: false,
+        highlightOrder: 4,
+        highlightDescription: "A seminar on running micro neural-network models directly on resource-constrained microcontrollers. Delivered by senior R&D engineer from Intel India.",
+        highlightImage: null,
+        highlightTheme: "Green"
       }
     ];
 
@@ -206,17 +293,26 @@ const Home = () => {
     if (storedPast) {
       pastList = JSON.parse(storedPast);
     } else {
+      localStorage.setItem('ieee_events_past', JSON.stringify(defaultPast));
       pastList = defaultPast;
     }
 
-    const formatted = pastList.slice(0, 3).map(evt => ({
-      title: evt.title,
-      desc: evt.desc,
-      tag: evt.tag,
-      date: evt.date,
-      link: "/events/past"
-    }));
-    setHighlights(formatted);
+    // Filter and sort highlights
+    let filtered = pastList.filter(evt => evt.isHighlighted);
+    
+    // If no highlighted items are found, default to first 3 completed past events
+    if (filtered.length === 0) {
+      filtered = pastList.slice(0, 3).map((evt, idx) => ({
+        ...evt,
+        isHighlighted: true,
+        highlightOrder: idx + 1,
+        highlightDescription: evt.highlightDescription || evt.desc || '',
+        highlightTheme: idx === 0 ? 'Purple' : idx === 1 ? 'Cyan' : 'IEEE Blue'
+      }));
+    }
+
+    filtered.sort((a, b) => (a.highlightOrder || 0) - (b.highlightOrder || 0));
+    setHighlights(filtered);
   }, []);
 
   const getStatIconAndColor = (label, index) => {
@@ -800,7 +896,7 @@ const Home = () => {
       </section>
 
       {/* Flagship Events Section */}
-      <section style={{ backgroundColor: '#ffffff', padding: '40px 0 80px' }} className="scroll-reveal">
+      <section style={{ backgroundColor: '#ffffff', padding: '40px 0 80px', overflow: 'hidden' }} className="scroll-reveal">
         <div className="container">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '48px', flexWrap: 'wrap', gap: '20px' }}>
             <div>
@@ -812,71 +908,142 @@ const Home = () => {
             </RouterLink>
           </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: '30px'
-          }}>
-            {highlights.map((hl, idx) => {
-              const isPast = isEventCompleted(hl.date);
-              return (
-                <div 
-                  key={idx} 
-                  className="card" 
-                  style={{ 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    justifyContent: 'space-between', 
-                    height: '100%',
-                    filter: isPast ? 'grayscale(45%) opacity(0.85)' : 'none',
-                    backgroundColor: isPast ? '#f8fafc' : '#ffffff',
-                    border: isPast ? '1px solid #cbd5e1' : '1px solid var(--border-subtle)',
-                    transition: 'all 0.3s ease'
-                  }}
-                >
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                      <span style={{
-                        display: 'inline-block',
-                        backgroundColor: isPast ? '#e2e8f0' : 'rgba(79, 70, 229, 0.1)',
-                        color: isPast ? '#64748b' : 'var(--secondary)',
-                        padding: '4px 12px',
-                        borderRadius: '4px',
-                        fontSize: '12px',
-                        fontWeight: '700',
-                        textTransform: 'uppercase'
-                      }}>
-                        {hl.tag}
-                      </span>
-                      {isPast && (
-                        <span style={{
-                          fontSize: '11px',
-                          fontWeight: '750',
-                          color: '#64748b',
-                          backgroundColor: '#f1f5f9',
-                          padding: '4px 10px',
-                          borderRadius: '20px',
-                          border: '1px solid #cbd5e1',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.5px'
-                        }}>
-                          Completed
+          {highlights.length > 0 ? (
+            <div style={{ position: 'relative', width: '100%', margin: '0 auto', paddingBottom: '20px' }}>
+              {/* Navigation Arrows */}
+              {highlights.length > 1 && (
+                <>
+                  <button
+                    onClick={handlePrevSlide}
+                    className="event-slider-arrow left"
+                    title="Previous Slide"
+                  >
+                    ‹
+                  </button>
+                  <button
+                    onClick={handleNextSlide}
+                    className="event-slider-arrow right"
+                    title="Next Slide"
+                  >
+                    ›
+                  </button>
+                </>
+              )}
+
+              {/* Carousel Track */}
+              <div className="event-slider-track">
+                {[...Array(Math.min(3, highlights.length))].map((_, offset) => {
+                  if (highlights.length === 0) return null;
+                  
+                  let itemIndex;
+                  if (highlights.length === 1) {
+                    itemIndex = 0;
+                  } else {
+                    itemIndex = (carouselIndex + offset - 1 + highlights.length) % highlights.length;
+                  }
+                  
+                  const evt = highlights[itemIndex];
+                  const isCenter = offset === 1 || highlights.length === 1;
+                  
+                  if (!evt) return null;
+                  
+                  return (
+                    <div
+                      key={`${evt.id}-${offset}`}
+                      className={`event-slide-card ${isCenter ? 'center' : 'side'}`}
+                      onClick={() => {
+                        if (!isCenter && highlights.length > 1) {
+                          setCarouselIndex(itemIndex);
+                          resetAutoplay();
+                        }
+                      }}
+                      style={{
+                        backgroundColor: '#ffffff',
+                        border: isCenter ? '2px solid var(--border-focus)' : '1px solid var(--border-subtle)',
+                        boxShadow: isCenter ? '0 20px 45px rgba(79, 70, 229, 0.22)' : 'var(--shadow-sm)'
+                      }}
+                    >
+                      {/* Cover Image or pre-defined Gradient Theme */}
+                      <div className="event-slide-cover">
+                        {evt.highlightImage ? (
+                          <img src={evt.highlightImage} alt={evt.title} className="event-slide-cover-img" />
+                        ) : (
+                          <div className="event-slide-cover-gradient" style={{
+                            background: THEME_GRADIENTS[evt.highlightTheme] || THEME_GRADIENTS['Purple']
+                          }}>
+                            <div className="event-slide-cover-circle" />
+                            {getEventIcon(evt.tag)}
+                          </div>
+                        )}
+
+                        {/* Event Category Tag */}
+                        <span className="event-card-badge">
+                          {evt.tag}
                         </span>
-                      )}
+                      </div>
+
+                      {/* Content Section */}
+                      <div className="event-slide-content">
+                        <div>
+                          {/* Date & Completed status */}
+                          <div className="event-slide-meta" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                            <span style={{ fontSize: '11.5px', color: 'var(--text-muted)', fontWeight: '500' }}>{evt.date}</span>
+                            <span style={{
+                              fontSize: '10px',
+                              fontWeight: '750',
+                              color: '#166534',
+                              backgroundColor: '#f0fdf4',
+                              border: '1px solid #bbf7d0',
+                              padding: '2px 8px',
+                              borderRadius: '20px',
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.5px'
+                            }}>
+                              Completed
+                            </span>
+                          </div>
+                          
+                          <h3 className="event-slide-title">
+                            {evt.title}
+                          </h3>
+                          
+                          {isCenter && (
+                            <p className="event-slide-snippet" style={{ marginTop: '8px' }}>
+                              {evt.highlightDescription || evt.desc}
+                            </p>
+                          )}
+                        </div>
+
+                        {isCenter && (
+                          <RouterLink to="/events/past" className="event-slide-link">
+                            Learn more →
+                          </RouterLink>
+                        )}
+                      </div>
                     </div>
-                    <h3 style={{ fontSize: '20px', marginBottom: '12px', fontWeight: '700', color: isPast ? '#475569' : 'inherit' }}>{hl.title}</h3>
-                    <p style={{ color: isPast ? '#64748b' : 'var(--text-muted)', fontSize: '14px', marginBottom: '24px', lineHeight: '1.6' }}>{hl.desc}</p>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-subtle)', paddingTop: '16px' }}>
-                    <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: '500' }}>{hl.date}</span>
-                    <RouterLink to={hl.link} style={{ color: isPast ? '#64748b' : 'var(--secondary)', textDecoration: 'none', fontWeight: '600', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      Details →
-                    </RouterLink>
-                  </div>
+                  );
+                })}
+              </div>
+
+              {/* Carousel Indicators (Dots) */}
+              {highlights.length > 1 && (
+                <div className="event-slider-dots">
+                  {highlights.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => handleDotClick(idx)}
+                      className={`event-slider-dot ${carouselIndex === idx ? 'active' : ''}`}
+                      title={`Go to slide ${idx + 1}`}
+                    />
+                  ))}
                 </div>
-              );
-            })}
-          </div>
+              )}
+            </div>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b' }}>
+              <p style={{ fontSize: '16px', fontWeight: '600' }}>No highlighted events found.</p>
+            </div>
+          )}
         </div>
       </section>
 

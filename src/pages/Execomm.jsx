@@ -506,19 +506,28 @@ const MemberModal = ({ member, onClose }) => {
 const Execomm = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const facultiesRef = React.useRef(null);
-  const studentsRef = React.useRef(null);
+
+  const getTabFromPath = (path) => {
+    if (path.includes('/students')) {
+      return 'students';
+    }
+    return 'faculties';
+  };
+
+  const [activeTab, setActiveTab] = useState(() => getTabFromPath(location.pathname));
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (location.pathname.includes('/students')) {
-        studentsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      } else if (location.pathname.includes('/faculties')) {
-        facultiesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 200);
-    return () => clearTimeout(timer);
+    setActiveTab(getTabFromPath(location.pathname));
   }, [location.pathname]);
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    if (tab === 'students') {
+      navigate('/execomm/students');
+    } else {
+      navigate('/execomm/faculties');
+    }
+  };
 
   const [societies, setSocieties] = useState([]);
   const [students, setStudents] = useState([]);
@@ -832,121 +841,93 @@ const Execomm = () => {
         subtitle="Meet the professional advisors and student leaders steering the IEEE KEC Student Branch"
       />
 
-      {/* ExeComm Content Container */}
-      <div className="container">
-        {/* ── FACULTIES SECTION ────────────────────────────────────── */}
-        <div ref={facultiesRef} style={{ scrollMarginTop: '100px' }}>
-          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-            <SectionLabel text="Advisory Board" />
-            <h2 className="font-serif" style={{ fontSize: '28px', color: 'var(--primary)', fontWeight: '800', marginTop: '8px' }}>
-              Faculty Coordinators
-            </h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '14px', maxWidth: '600px', margin: '0 auto' }}>
-              Experienced advisors providing leadership, technical guidance, and administrative support across core IEEE societies.
-            </p>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
-            {sortedSocieties.map((soc) => {
-              // Determine order of faculty in-charges within the society by hierarchy
-              const fac1Level = getHierarchyLevel(soc.faculty1?.position);
-              const fac2Level = getHierarchyLevel(soc.faculty2?.position);
-              
-              const showFac1First = fac1Level <= fac2Level;
-              const coordList = showFac1First
-                ? [soc.faculty1, soc.faculty2]
-                : [soc.faculty2, soc.faculty1];
-
-              return (
-                <div key={soc.id} style={{
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '16px',
-                  padding: '32px',
-                  backgroundColor: '#ffffff',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
-                }}>
-                  <h3 style={{
-                    fontSize: '20px',
-                    color: 'var(--primary)',
-                    fontWeight: '800',
-                    marginBottom: '24px',
-                    textAlign: 'left',
-                    borderBottom: '2px solid var(--border-subtle)',
-                    paddingBottom: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px'
-                  }}>
-                    <span style={{ fontSize: '24px' }}>🏫</span> {soc.name}
-                  </h3>
-                  
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                    gap: '24px'
-                  }}>
-                    {coordList.map((fac, fIdx) => (
-                      fac && fac.name ? (
-                        <FacultyCard
-                          key={fIdx}
-                          name={fac.name}
-                          position={fac.position}
-                          phone={fac.phone}
-                          image={fac.image}
-                          societyName={soc.name}
-                          onClick={() => setSelectedMember({
-                            name: fac.name,
-                            position: fac.position,
-                            phone: fac.phone,
-                            image: fac.image,
-                            branch: soc.name,
-                            type: 'Faculty'
-                          })}
-                        />
-                      ) : null
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
+      {/* ExeComm Tabs Navigation */}
+      <div className="container" style={{ marginBottom: '40px' }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+          <div style={{
+            display: 'inline-flex',
+            backgroundColor: 'rgba(79, 70, 229, 0.05)',
+            border: '1px solid rgba(79, 70, 229, 0.15)',
+            borderRadius: '30px',
+            padding: '6px',
+            boxShadow: 'var(--shadow-sm)',
+            backdropFilter: 'blur(10px)',
+          }}>
+            <button
+              onClick={() => handleTabChange('faculties')}
+              className={`execomm-tab-button ${activeTab === 'faculties' ? 'active' : ''}`}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 24px',
+                borderRadius: '24px',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '700',
+                outline: 'none',
+                backgroundColor: 'transparent',
+                color: 'var(--text-muted)',
+              }}
+            >
+              <Award size={16} /> Faculty Coordinators
+            </button>
+            <button
+              onClick={() => handleTabChange('students')}
+              className={`execomm-tab-button ${activeTab === 'students' ? 'active' : ''}`}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 24px',
+                borderRadius: '24px',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '700',
+                outline: 'none',
+                backgroundColor: 'transparent',
+                color: 'var(--text-muted)',
+              }}
+            >
+              <Shield size={16} /> Student Office Bearers
+            </button>
           </div>
         </div>
+      </div>
 
-        {/* ── SECTION DIVIDER ────────────────────────────────────────── */}
-        <div style={{ margin: '60px 0', borderTop: '2px dashed var(--border-subtle)' }} />
-
-        {/* ── STUDENTS SECTION ─────────────────────────────────────── */}
-        {(() => {
-          const HIERARCHY_LEVEL_LABELS = {
-            1: "Student Branch Chairpersons",
-            2: "Society Chairpersons",
-            3: "Additional Secretaries",
-            4: "Joint Secretaries",
-            5: "Committee Heads",
-            6: "Executive Members",
-            7: "Student Members"
-          };
-          const levels = [1, 2, 3, 4, 5, 6, 7];
-          
-          return (
-            <div ref={studentsRef} style={{ scrollMarginTop: '100px' }}>
+      {/* ExeComm Content Container */}
+      <div className="container">
+        <div key={activeTab} className="animate-fade-in">
+          {activeTab === 'faculties' && (
+            <div>
               <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-                <SectionLabel text="Student Leadership" />
+                <SectionLabel text="Advisory Board" />
                 <h2 className="font-serif" style={{ fontSize: '28px', color: 'var(--primary)', fontWeight: '800', marginTop: '8px' }}>
-                  Student Office Bearers
+                  Faculty Coordinators
                 </h2>
                 <p style={{ color: 'var(--text-muted)', fontSize: '14px', maxWidth: '600px', margin: '0 auto' }}>
-                  Active student coordinators managing chapter operations, workshops, project expos, and community outreach.
+                  Experienced advisors providing leadership, technical guidance, and administrative support across core IEEE societies.
                 </p>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
-                {levels.map(level => {
-                  const levelStudents = sortedStudents.filter(stud => getHierarchyLevel(stud.position) === level);
-                  if (levelStudents.length === 0) return null;
+                {sortedSocieties.map((soc) => {
+                  const fac1Level = getHierarchyLevel(soc.faculty1?.position);
+                  const fac2Level = getHierarchyLevel(soc.faculty2?.position);
+                  
+                  const showFac1First = fac1Level <= fac2Level;
+                  const coordList = showFac1First
+                    ? [soc.faculty1, soc.faculty2]
+                    : [soc.faculty2, soc.faculty1];
 
                   return (
-                    <div key={level} style={{
+                    <div key={soc.id} style={{
                       border: '1px solid #e2e8f0',
                       borderRadius: '16px',
                       padding: '32px',
@@ -965,28 +946,33 @@ const Execomm = () => {
                         alignItems: 'center',
                         gap: '10px'
                       }}>
-                        <span style={{ fontSize: '24px' }}>🛡️</span> {HIERARCHY_LEVEL_LABELS[level]}
+                        <span style={{ fontSize: '24px' }}>🏫</span> {soc.name}
                       </h3>
                       
-                      <div className="execomm-students-grid" style={{
+                      <div style={{
                         display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
                         gap: '24px'
                       }}>
-                        {levelStudents.map((stud) => (
-                          <StudentCard 
-                            key={stud.id} 
-                            student={stud} 
-                            onClick={() => setSelectedMember({
-                              name: stud.name,
-                              position: stud.position,
-                              branch: stud.society || 'IEEE KEC SB',
-                              department: stud.department,
-                              ieeeNumber: stud.ieeeNumber,
-                              year: stud.yearOfStudy,
-                              image: stud.image,
-                              type: 'Student'
-                            })}
-                          />
+                        {coordList.map((fac, fIdx) => (
+                          fac && fac.name ? (
+                            <FacultyCard
+                              key={fIdx}
+                              name={fac.name}
+                              position={fac.position}
+                              phone={fac.phone}
+                              image={fac.image}
+                              societyName={soc.name}
+                              onClick={() => setSelectedMember({
+                                name: fac.name,
+                                position: fac.position,
+                                phone: fac.phone,
+                                image: fac.image,
+                                branch: soc.name,
+                                type: 'Faculty'
+                              })}
+                            />
+                          ) : null
                         ))}
                       </div>
                     </div>
@@ -994,8 +980,89 @@ const Execomm = () => {
                 })}
               </div>
             </div>
-          );
-        })()}
+          )}
+
+          {activeTab === 'students' && (() => {
+            const HIERARCHY_LEVEL_LABELS = {
+              1: "Student Branch Chairpersons",
+              2: "Society Chairpersons",
+              3: "Additional Secretaries",
+              4: "Joint Secretaries",
+              5: "Committee Heads",
+              6: "Executive Members",
+              7: "Student Members"
+            };
+            const levels = [1, 2, 3, 4, 5, 6, 7];
+            
+            return (
+              <div>
+                <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+                  <SectionLabel text="Student Leadership" />
+                  <h2 className="font-serif" style={{ fontSize: '28px', color: 'var(--primary)', fontWeight: '800', marginTop: '8px' }}>
+                    Student Office Bearers
+                  </h2>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '14px', maxWidth: '600px', margin: '0 auto' }}>
+                    Active student coordinators managing chapter operations, workshops, project expos, and community outreach.
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
+                  {levels.map(level => {
+                    const levelStudents = sortedStudents.filter(stud => getHierarchyLevel(stud.position) === level);
+                    if (levelStudents.length === 0) return null;
+
+                    return (
+                      <div key={level} style={{
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '16px',
+                        padding: '32px',
+                        backgroundColor: '#ffffff',
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
+                      }}>
+                        <h3 style={{
+                          fontSize: '20px',
+                          color: 'var(--primary)',
+                          fontWeight: '800',
+                          marginBottom: '24px',
+                          textAlign: 'left',
+                          borderBottom: '2px solid var(--border-subtle)',
+                          paddingBottom: '12px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '10px'
+                        }}>
+                          <span style={{ fontSize: '24px' }}>🛡️</span> {HIERARCHY_LEVEL_LABELS[level]}
+                        </h3>
+                        
+                        <div className="execomm-students-grid" style={{
+                          display: 'grid',
+                          gap: '24px'
+                        }}>
+                          {levelStudents.map((stud) => (
+                            <StudentCard 
+                              key={stud.id} 
+                              student={stud} 
+                              onClick={() => setSelectedMember({
+                                name: stud.name,
+                                position: stud.position,
+                                branch: stud.society || 'IEEE KEC SB',
+                                department: stud.department,
+                                ieeeNumber: stud.ieeeNumber,
+                                year: stud.yearOfStudy,
+                                image: stud.image,
+                                type: 'Student'
+                              })}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
+        </div>
 
         {/* Modal Portal/Conditional rendering */}
         {selectedMember && (
@@ -1007,6 +1074,18 @@ const Execomm = () => {
       </div>
 
       <style>{`
+        .execomm-tab-button {
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .execomm-tab-button:hover {
+          color: var(--secondary) !important;
+          background-color: rgba(255, 255, 255, 0.5) !important;
+        }
+        .execomm-tab-button.active {
+          background-color: #ffffff !important;
+          color: var(--secondary) !important;
+          box-shadow: 0 4px 12px rgba(79, 70, 229, 0.12) !important;
+        }
         .execomm-students-grid {
           grid-template-columns: repeat(3, 1fr);
         }

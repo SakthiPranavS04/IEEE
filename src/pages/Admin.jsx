@@ -200,6 +200,10 @@ const Admin = () => {
   const [formDescInput, setFormDescInput] = useState('');
   const [formActiveInput, setFormActiveInput] = useState(true);
   const [previewFormUrl, setPreviewFormUrl] = useState('');
+  const [requestFormsSubTab, setRequestFormsSubTab] = useState('templates'); // 'templates' | 'submissions'
+  const [submissions, setSubmissions] = useState([]);
+  const [selectedSubmission, setSelectedSubmission] = useState(null);
+  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
 
   // Research Papers CRUD State
   const [researchPapers, setResearchPapers] = useState([]);
@@ -1050,6 +1054,15 @@ const Admin = () => {
       setRequestForms(defaultRequestForms);
     }
 
+    // Load Request Form Submissions
+    const storedSubmissions = localStorage.getItem('ieee_form_submissions');
+    if (storedSubmissions) {
+      setSubmissions(JSON.parse(storedSubmissions));
+    } else {
+      localStorage.setItem('ieee_form_submissions', JSON.stringify([]));
+      setSubmissions([]);
+    }
+
     // Load About KEC SB data
     const storedAboutSb = localStorage.getItem('ieee_about_kec_sb_v1');
     if (storedAboutSb) {
@@ -1366,6 +1379,13 @@ const Admin = () => {
     localStorage.setItem('ieee_request_forms', JSON.stringify(updatedForms));
     setEditingFormId(null);
     setPreviewFormUrl('');
+  };
+
+  const handleDeleteSubmission = (id) => {
+    if (!window.confirm("Are you sure you want to delete this submission?")) return;
+    const updated = submissions.filter(s => s.id !== id);
+    setSubmissions(updated);
+    localStorage.setItem('ieee_form_submissions', JSON.stringify(updated));
   };
 
   // Stats & Site Settings Save
@@ -8679,215 +8699,555 @@ const Admin = () => {
               </div>
             </div>
 
-            {/* Editing Card - visible when editing */}
-            {editingFormId ? (
-              <form onSubmit={handleSaveRequestForm} className="card" style={{ padding: '24px', backgroundColor: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '12px', marginBottom: '32px' }}>
-                <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '800', marginBottom: '16px', borderBottom: '1px solid #cbd5e1', paddingBottom: '8px' }}>
-                  Edit Form: {formNameInput || 'New Form'}
-                </h3>
-                
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px' }}>Form Name</label>
-                    <input
-                      type="text"
-                      required
-                      value={formNameInput}
-                      onChange={(e) => setFormNameInput(e.target.value)}
-                      style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px' }}>Route Slug (slug used in URL)</label>
-                    <input
-                      type="text"
-                      required
-                      value={formSlugInput}
-                      onChange={(e) => setFormSlugInput(e.target.value)}
-                      style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
-                      placeholder="e.g. event-pre-proposal"
-                    />
-                  </div>
-                </div>
+            {/* Sub-tabs for Requests */}
+            <div style={{ display: 'flex', gap: '12px', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px', marginBottom: '24px' }}>
+              <button
+                type="button"
+                onClick={() => setRequestFormsSubTab('templates')}
+                style={{
+                  padding: '6px 16px',
+                  borderRadius: '20px',
+                  fontSize: '12.5px',
+                  fontWeight: '700',
+                  border: 'none',
+                  cursor: 'pointer',
+                  backgroundColor: requestFormsSubTab === 'templates' ? 'rgba(79, 70, 229, 0.08)' : 'transparent',
+                  color: requestFormsSubTab === 'templates' ? 'var(--secondary)' : 'var(--text-muted)'
+                }}
+              >
+                Form Templates
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setRequestFormsSubTab('submissions');
+                  const stored = localStorage.getItem('ieee_form_submissions');
+                  if (stored) setSubmissions(JSON.parse(stored));
+                }}
+                style={{
+                  padding: '6px 16px',
+                  borderRadius: '20px',
+                  fontSize: '12.5px',
+                  fontWeight: '700',
+                  border: 'none',
+                  cursor: 'pointer',
+                  backgroundColor: requestFormsSubTab === 'submissions' ? 'rgba(79, 70, 229, 0.08)' : 'transparent',
+                  color: requestFormsSubTab === 'submissions' ? 'var(--secondary)' : 'var(--text-muted)'
+                }}
+              >
+                Form Submissions ({submissions.length})
+              </button>
+            </div>
 
-                <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px' }}>Google Form URL (Publish/Viewform Link)</label>
-                  <input
-                    type="text"
-                    required
-                    value={formUrlInput}
-                    onChange={(e) => {
-                      setFormUrlInput(e.target.value);
-                      setPreviewFormUrl(e.target.value);
-                    }}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
-                    placeholder="https://docs.google.com/forms/d/e/.../viewform?embedded=true"
-                  />
-                  {formUrlInput.includes('forms.gle') && (
-                    <p style={{ fontSize: '11px', color: '#b45309', marginTop: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      ⚠️ <strong>Note:</strong> Short URLs (forms.gle) might be blocked from embedding in iframes due to security redirect headers. It is highly recommended to use the full <code>docs.google.com/forms</code> link.
-                    </p>
-                  )}
-                </div>
-
-                <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px' }}>Form Purpose / Description</label>
-                  <textarea
-                    rows="2"
-                    value={formDescInput}
-                    onChange={(e) => setFormDescInput(e.target.value)}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none', resize: 'vertical' }}
-                    placeholder="Describe what this form is for..."
-                  />
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
-                  <input
-                    type="checkbox"
-                    id="formActiveInput"
-                    checked={formActiveInput}
-                    onChange={(e) => setFormActiveInput(e.target.checked)}
-                    style={{ cursor: 'pointer' }}
-                  />
-                  <label htmlFor="formActiveInput" style={{ fontSize: '13px', fontWeight: '700', color: '#475569', cursor: 'pointer' }}>
-                    Active (Show in Request navigation dropdown)
-                  </label>
-                </div>
-
-                {/* Live Preview Section */}
-                {previewFormUrl && (
-                  <div style={{ marginBottom: '20px', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
-                    <div style={{ backgroundColor: '#f1f5f9', padding: '8px 16px', fontSize: '12px', color: '#475569', fontWeight: '700', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between' }}>
-                      <span>Live Preview (Form Iframe Container)</span>
-                      <span>{formUrlInput.includes('forms.gle') ? '❌ Short URL preview disabled' : '✅ Load preview'}</span>
+            {requestFormsSubTab === 'templates' && (
+              <>
+                {/* Editing Card - visible when editing */}
+                {editingFormId ? (
+                  <form onSubmit={handleSaveRequestForm} className="card" style={{ padding: '24px', backgroundColor: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '12px', marginBottom: '32px' }}>
+                    <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '800', marginBottom: '16px', borderBottom: '1px solid #cbd5e1', paddingBottom: '8px' }}>
+                      Edit Form: {formNameInput || 'New Form'}
+                    </h3>
+                    
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px' }}>Form Name</label>
+                        <input
+                          type="text"
+                          required
+                          value={formNameInput}
+                          onChange={(e) => setFormNameInput(e.target.value)}
+                          style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px' }}>Route Slug (slug used in URL)</label>
+                        <input
+                          type="text"
+                          required
+                          value={formSlugInput}
+                          onChange={(e) => setFormSlugInput(e.target.value)}
+                          style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
+                          placeholder="e.g. event-pre-proposal"
+                        />
+                      </div>
                     </div>
-                    {!formUrlInput.includes('forms.gle') ? (
-                      <iframe
-                        src={formUrlInput.includes('embedded=true') ? formUrlInput : `${formUrlInput}${formUrlInput.includes('?') ? '&' : '?'}embedded=true`}
-                        width="100%"
-                        height="300"
-                        style={{ border: 'none', display: 'block', backgroundColor: '#ffffff' }}
-                        title="Form Preview"
+
+                    <div style={{ marginBottom: '16px' }}>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px' }}>Google Form URL (Publish/Viewform Link)</label>
+                      <input
+                        type="text"
+                        required
+                        value={formUrlInput}
+                        onChange={(e) => {
+                          setFormUrlInput(e.target.value);
+                          setPreviewFormUrl(e.target.value);
+                        }}
+                        style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
+                        placeholder="https://docs.google.com/forms/d/e/.../viewform?embedded=true"
                       />
-                    ) : (
-                      <div style={{ padding: '30px', textAlign: 'center', color: '#b45309', fontSize: '13px', backgroundColor: '#fef3c7' }}>
-                        Iframe previews for <code>forms.gle</code> short URLs are restricted by browser policies. Save this form to verify loading in public routes.
+                      {formUrlInput.includes('forms.gle') && (
+                        <p style={{ fontSize: '11px', color: '#b45309', marginTop: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          ⚠️ <strong>Note:</strong> Short URLs (forms.gle) might be blocked from embedding in iframes due to security redirect headers. It is highly recommended to use the full <code>docs.google.com/forms</code> link.
+                        </p>
+                      )}
+                    </div>
+
+                    <div style={{ marginBottom: '16px' }}>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px' }}>Form Purpose / Description</label>
+                      <textarea
+                        rows="2"
+                        value={formDescInput}
+                        onChange={(e) => setFormDescInput(e.target.value)}
+                        style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none', resize: 'vertical' }}
+                        placeholder="Describe what this form is for..."
+                      />
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
+                      <input
+                        type="checkbox"
+                        id="formActiveInput"
+                        checked={formActiveInput}
+                        onChange={(e) => setFormActiveInput(e.target.checked)}
+                        style={{ cursor: 'pointer' }}
+                      />
+                      <label htmlFor="formActiveInput" style={{ fontSize: '13px', fontWeight: '700', color: '#475569', cursor: 'pointer' }}>
+                        Active (Show in Request navigation dropdown)
+                      </label>
+                    </div>
+
+                    {/* Live Preview Section */}
+                    {previewFormUrl && (
+                      <div style={{ marginBottom: '20px', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
+                        <div style={{ backgroundColor: '#f1f5f9', padding: '8px 16px', fontSize: '12px', color: '#475569', fontWeight: '700', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between' }}>
+                          <span>Live Preview (Form Iframe Container)</span>
+                          <span>{formUrlInput.includes('forms.gle') ? '❌ Short URL preview disabled' : '✅ Load preview'}</span>
+                        </div>
+                        {!formUrlInput.includes('forms.gle') ? (
+                          <iframe
+                            src={formUrlInput.includes('embedded=true') ? formUrlInput : `${formUrlInput}${formUrlInput.includes('?') ? '&' : '?'}embedded=true`}
+                            width="100%"
+                            height="300"
+                            style={{ border: 'none', display: 'block', backgroundColor: '#ffffff' }}
+                            title="Form Preview"
+                          />
+                        ) : (
+                          <div style={{ padding: '30px', textAlign: 'center', color: '#b45309', fontSize: '13px', backgroundColor: '#fef3c7' }}>
+                            Iframe previews for <code>forms.gle</code> short URLs are restricted by browser policies. Save this form to verify loading in public routes.
+                          </div>
+                        )}
                       </div>
                     )}
+
+                    <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                      <button
+                        type="button"
+                        onClick={() => { setEditingFormId(null); setPreviewFormUrl(''); }}
+                        style={{ padding: '8px 18px', backgroundColor: '#e2e8f0', border: 'none', borderRadius: '20px', fontSize: '12.5px', fontWeight: 'bold', color: '#475569', cursor: 'pointer' }}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        style={{ padding: '8px 18px', backgroundColor: '#02619a', border: 'none', borderRadius: '20px', fontSize: '12.5px', fontWeight: 'bold', color: '#ffffff', cursor: 'pointer' }}
+                      >
+                        Save Changes
+                      </button>
+                    </div>
+                  </form>
+                ) : null}
+
+                {/* List Table */}
+                <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+                      <thead>
+                        <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '1px solid #cbd5e1' }}>
+                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Form Name</th>
+                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Route Slug</th>
+                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Description</th>
+                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '90px', textAlign: 'center' }}>Status</th>
+                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', textAlign: 'center', width: '180px' }}>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {requestForms.length > 0 ? (
+                          requestForms.map(form => (
+                            <tr key={form.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                              <td style={{ padding: '16px 20px', fontWeight: '600' }}>{form.form_name}</td>
+                              <td style={{ padding: '16px 20px', color: '#02619a', fontFamily: 'monospace', fontSize: '12.5px' }}>
+                                /request/{form.route_slug}
+                              </td>
+                              <td style={{ padding: '16px 20px', color: '#64748b', fontSize: '13px' }}>{form.description}</td>
+                              <td style={{ padding: '16px 20px', textAlign: 'center' }}>
+                                <span style={{
+                                  display: 'inline-block',
+                                  padding: '3px 8px',
+                                  borderRadius: '12px',
+                                  fontSize: '11px',
+                                  fontWeight: '700',
+                                  backgroundColor: form.is_active ? '#dcfce7' : '#fee2e2',
+                                  color: form.is_active ? '#15803d' : '#b91c1c'
+                                }}>
+                                  {form.is_active ? 'Active' : 'Inactive'}
+                                </span>
+                              </td>
+                              <td style={{ padding: '16px 20px', textAlign: 'center' }}>
+                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                  <button
+                                    onClick={() => handleEditFormClick(form)}
+                                    style={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '4px',
+                                      padding: '6px 12px',
+                                      border: '1px solid #cbd5e1',
+                                      borderRadius: '6px',
+                                      backgroundColor: '#ffffff',
+                                      color: 'var(--secondary)',
+                                      fontSize: '12px',
+                                      fontWeight: '600',
+                                      cursor: 'pointer'
+                                    }}
+                                    className="action-btn-hover-edit"
+                                  >
+                                    <Edit3 size={12} /> Edit / Link
+                                  </button>
+                                  <a
+                                    href={`/request/${form.route_slug}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '4px',
+                                      padding: '6px 12px',
+                                      border: '1px solid #cbd5e1',
+                                      borderRadius: '6px',
+                                      backgroundColor: '#ffffff',
+                                      color: '#475569',
+                                      fontSize: '12px',
+                                      fontWeight: '600',
+                                      textDecoration: 'none',
+                                      cursor: 'pointer'
+                                    }}
+                                    className="action-btn-hover-edit"
+                                  >
+                                    Preview Page
+                                  </a>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan="5" style={{ textAlign: 'center', padding: '30px', color: '#94a3b8' }}>
+                              No request forms configured.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {requestFormsSubTab === 'submissions' && (
+              <>
+                <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+                      <thead>
+                        <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '1px solid #cbd5e1' }}>
+                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Ref Number</th>
+                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Form Type</th>
+                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Title / Event</th>
+                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Submitted By</th>
+                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Submitted At</th>
+                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', textAlign: 'center', width: '200px' }}>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {submissions.length > 0 ? (
+                          submissions.map((sub, idx) => (
+                            <tr key={sub.id} style={{ borderBottom: idx < submissions.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
+                              <td style={{ padding: '16px 20px', fontWeight: '700', color: 'var(--secondary)', fontFamily: 'monospace' }}>
+                                {sub.refNum || 'N/A'}
+                              </td>
+                              <td style={{ padding: '16px 20px', fontWeight: '600' }}>{sub.form_name}</td>
+                              <td style={{ padding: '16px 20px', color: '#334155' }}>
+                                {sub.form_slug === 'event-pre-proposal' ? sub.data?.title : sub.data?.eventName}
+                              </td>
+                              <td style={{ padding: '16px 20px', fontSize: '13px' }}>
+                                <div style={{ fontWeight: '600' }}>{sub.data?.coordinatorName}</div>
+                                <div style={{ color: '#64748b' }}>{sub.data?.coordinatorEmail}</div>
+                              </td>
+                              <td style={{ padding: '16px 20px', color: '#64748b', fontSize: '13px' }}>
+                                {new Date(sub.submitted_at).toLocaleString()}
+                              </td>
+                              <td style={{ padding: '16px 20px', textAlign: 'center' }}>
+                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                  <button
+                                    onClick={() => {
+                                      setSelectedSubmission(sub);
+                                      setIsSubModalOpen(true);
+                                    }}
+                                    style={{
+                                      padding: '6px 12px',
+                                      border: '1px solid #cbd5e1',
+                                      borderRadius: '6px',
+                                      backgroundColor: '#ffffff',
+                                      color: 'var(--secondary)',
+                                      fontSize: '12px',
+                                      fontWeight: '600',
+                                      cursor: 'pointer'
+                                    }}
+                                  >
+                                    View Details
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteSubmission(sub.id)}
+                                    style={{
+                                      padding: '6px 12px',
+                                      border: '1px solid #fee2e2',
+                                      borderRadius: '6px',
+                                      backgroundColor: '#fef2f2',
+                                      color: '#ef4444',
+                                      fontSize: '12px',
+                                      fontWeight: '600',
+                                      cursor: 'pointer'
+                                    }}
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan="6" style={{ textAlign: 'center', padding: '40px 20px', color: '#94a3b8', fontStyle: 'italic' }}>
+                              No onscreen submissions recorded yet.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Submission Detail Modal */}
+                {isSubModalOpen && selectedSubmission && (
+                  <div 
+                    style={{
+                      position: 'fixed',
+                      top: 0, left: 0, right: 0, bottom: 0,
+                      backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                      backdropFilter: 'blur(8px)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      zIndex: 99999,
+                      padding: '20px'
+                    }}
+                    onClick={() => setIsSubModalOpen(false)}
+                  >
+                    <div 
+                      style={{
+                        maxWidth: '650px',
+                        width: '100%',
+                        backgroundColor: '#ffffff',
+                        borderRadius: '16px',
+                        boxShadow: 'var(--shadow-premium)',
+                        border: '1px solid var(--border-subtle)',
+                        overflow: 'hidden',
+                        maxHeight: '90vh',
+                        display: 'flex',
+                        flexDirection: 'column'
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div style={{
+                        padding: '20px 24px',
+                        background: 'var(--gradient-primary)',
+                        color: '#ffffff',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}>
+                        <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#ffffff' }}>
+                          Submission Details: {selectedSubmission.refNum}
+                        </h3>
+                        <button
+                          onClick={() => setIsSubModalOpen(false)}
+                          style={{ background: 'transparent', border: 'none', color: '#ffffff', cursor: 'pointer', display: 'flex' }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+
+                      <div style={{ padding: '24px', overflowY: 'auto', flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '16px', fontSize: '14.5px', textAlign: 'left' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '8px', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
+                          <span style={{ fontWeight: '750', color: 'var(--secondary)' }}>Form Type:</span>
+                          <span style={{ fontWeight: '600' }}>{selectedSubmission.form_name}</span>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '8px', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
+                          <span style={{ fontWeight: '750', color: 'var(--secondary)' }}>Submitted At:</span>
+                          <span>{new Date(selectedSubmission.submitted_at).toLocaleString()}</span>
+                        </div>
+
+                        <h4 style={{ fontSize: '15px', fontWeight: '800', color: '#0a385b', marginTop: '12px', marginBottom: '4px', textTransform: 'uppercase' }}>Collected Data:</h4>
+                        
+                        {selectedSubmission.form_slug === 'event-pre-proposal' ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Event Title:</span>
+                              <span style={{ fontWeight: '600', color: 'var(--primary)' }}>{selectedSubmission.data?.title}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Society:</span>
+                              <span>{selectedSubmission.data?.society}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Coordinator:</span>
+                              <span>{selectedSubmission.data?.coordinatorName} ({selectedSubmission.data?.coordinatorPhone})</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Coordinator Email:</span>
+                              <span>{selectedSubmission.data?.coordinatorEmail}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Proposed Date:</span>
+                              <span>{selectedSubmission.data?.eventDate}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Venue:</span>
+                              <span>{selectedSubmission.data?.venue}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Expected Attendees:</span>
+                              <span>{selectedSubmission.data?.participantCount || 'N/A'}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Estimated Budget:</span>
+                              <span style={{ fontWeight: '700', color: '#16a34a' }}>INR {selectedSubmission.data?.budget}</span>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', borderTop: '1px solid #f1f5f9', paddingTop: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Guest Speaker Details:</span>
+                              <span style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f8fafc', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13.5px' }}>
+                                {selectedSubmission.data?.speakerDetails || 'No speaker details provided.'}
+                              </span>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Description & Syllabus:</span>
+                              <span style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f8fafc', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13.5px' }}>
+                                {selectedSubmission.data?.description}
+                              </span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Event Name:</span>
+                              <span style={{ fontWeight: '600', color: 'var(--primary)' }}>{selectedSubmission.data?.eventName}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Society:</span>
+                              <span>{selectedSubmission.data?.society}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Coordinator:</span>
+                              <span>{selectedSubmission.data?.coordinatorName} ({selectedSubmission.data?.coordinatorPhone})</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Coordinator Email:</span>
+                              <span>{selectedSubmission.data?.coordinatorEmail}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Event Date:</span>
+                              <span>{selectedSubmission.data?.eventDate}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Total Attendees:</span>
+                              <span>{selectedSubmission.data?.actualParticipants}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Total Expenses:</span>
+                              <span style={{ fontWeight: '700', color: '#dc2626' }}>INR {selectedSubmission.data?.expenses}</span>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', borderTop: '1px solid #f1f5f9', paddingTop: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Bank Account Details:</span>
+                              <span style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f8fafc', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13.5px', fontFamily: 'monospace' }}>
+                                {selectedSubmission.data?.bankDetails}
+                              </span>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Settlement Remarks:</span>
+                              <span style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f8fafc', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13.5px' }}>
+                                {selectedSubmission.data?.remarks || 'No remarks provided.'}
+                              </span>
+                            </div>
+                            {selectedSubmission.data?.voucherUrl && (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                <span style={{ fontWeight: '700', color: '#475569' }}>Uploaded Voucher/Invoice:</span>
+                                <div>
+                                  <a
+                                    href={selectedSubmission.data.voucherUrl}
+                                    download={selectedSubmission.data.voucherName || 'voucher'}
+                                    style={{
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '8px',
+                                      padding: '8px 16px',
+                                      backgroundColor: 'rgba(79, 70, 229, 0.05)',
+                                      border: '1px solid var(--border-subtle)',
+                                      borderRadius: '8px',
+                                      color: 'var(--secondary)',
+                                      fontWeight: '600',
+                                      textDecoration: 'none',
+                                      fontSize: '13px',
+                                      cursor: 'pointer'
+                                    }}
+                                  >
+                                    <FileText size={16} /> Download {selectedSubmission.data.voucherName || 'Attachment'}
+                                  </a>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      <div style={{
+                        padding: '16px 24px',
+                        borderTop: '1px solid #e2e8f0',
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        backgroundColor: '#f8fafc'
+                      }}>
+                        <button
+                          onClick={() => setIsSubModalOpen(false)}
+                          style={{
+                            padding: '8px 20px',
+                            backgroundColor: 'var(--secondary)',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '20px',
+                            fontWeight: '700',
+                            fontSize: '13px',
+                            cursor: 'pointer',
+                            boxShadow: 'var(--shadow-glow)'
+                          }}
+                        >
+                          Close Details
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 )}
-
-                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                  <button
-                    type="button"
-                    onClick={() => { setEditingFormId(null); setPreviewFormUrl(''); }}
-                    style={{ padding: '8px 18px', backgroundColor: '#e2e8f0', border: 'none', borderRadius: '20px', fontSize: '12.5px', fontWeight: 'bold', color: '#475569', cursor: 'pointer' }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    style={{ padding: '8px 18px', backgroundColor: '#02619a', border: 'none', borderRadius: '20px', fontSize: '12.5px', fontWeight: 'bold', color: '#ffffff', cursor: 'pointer' }}
-                  >
-                    Save Changes
-                  </button>
-                </div>
-              </form>
-            ) : null}
-
-            {/* List Table */}
-            <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
-                  <thead>
-                    <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '1px solid #cbd5e1' }}>
-                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Form Name</th>
-                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Route Slug</th>
-                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Description</th>
-                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '90px', textAlign: 'center' }}>Status</th>
-                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', textAlign: 'center', width: '180px' }}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {requestForms.length > 0 ? (
-                      requestForms.map(form => (
-                        <tr key={form.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                          <td style={{ padding: '16px 20px', fontWeight: '600' }}>{form.form_name}</td>
-                          <td style={{ padding: '16px 20px', color: '#02619a', fontFamily: 'monospace', fontSize: '12.5px' }}>
-                            /request/{form.route_slug}
-                          </td>
-                          <td style={{ padding: '16px 20px', color: '#64748b', fontSize: '13px' }}>{form.description}</td>
-                          <td style={{ padding: '16px 20px', textAlign: 'center' }}>
-                            <span style={{
-                              display: 'inline-block',
-                              padding: '3px 8px',
-                              borderRadius: '12px',
-                              fontSize: '11px',
-                              fontWeight: '700',
-                              backgroundColor: form.is_active ? '#dcfce7' : '#fee2e2',
-                              color: form.is_active ? '#15803d' : '#b91c1c'
-                            }}>
-                              {form.is_active ? 'Active' : 'Inactive'}
-                            </span>
-                          </td>
-                          <td style={{ padding: '16px 20px', textAlign: 'center' }}>
-                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                              <button
-                                onClick={() => handleEditFormClick(form)}
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '4px',
-                                  padding: '6px 12px',
-                                  border: '1px solid #cbd5e1',
-                                  borderRadius: '6px',
-                                  backgroundColor: '#ffffff',
-                                  color: 'var(--secondary)',
-                                  fontSize: '12px',
-                                  fontWeight: '600',
-                                  cursor: 'pointer'
-                                }}
-                                className="action-btn-hover-edit"
-                              >
-                                <Edit3 size={12} /> Edit / Link
-                              </button>
-                              <a
-                                href={`/request/${form.route_slug}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '4px',
-                                  padding: '6px 12px',
-                                  border: '1px solid #cbd5e1',
-                                  borderRadius: '6px',
-                                  backgroundColor: '#ffffff',
-                                  color: '#475569',
-                                  fontSize: '12px',
-                                  fontWeight: '600',
-                                  textDecoration: 'none',
-                                  cursor: 'pointer'
-                                }}
-                                className="action-btn-hover-edit"
-                              >
-                                Preview Page
-                              </a>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="5" style={{ textAlign: 'center', padding: '30px', color: '#94a3b8' }}>
-                          No request forms configured.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+              </>
+            )}
           </div>
         )}
       </div>

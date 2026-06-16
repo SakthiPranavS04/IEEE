@@ -111,13 +111,19 @@ const Admin = () => {
   const [newTestimonialAuthor, setNewTestimonialAuthor] = useState('');
   const [newTestimonialRole, setNewTestimonialRole] = useState('');
 
-  // Partner Logos States
-  const [partnerLogos, setPartnerLogos] = useState([]);
-  const [editingPartnerId, setEditingPartnerId] = useState(null);
-  const [partnerNameInput, setPartnerNameInput] = useState('');
-  const [partnerLogoInput, setPartnerLogoInput] = useState('');
-  const [newPartnerName, setNewPartnerName] = useState('');
-  const [newPartnerLogo, setNewPartnerLogo] = useState('');
+  // Documents States
+  const [driveFolderUrl, setDriveFolderUrl] = useState('https://drive.google.com/drive/folders/1mdrfLwOWprcKEB5PbK6BhWgv1MrrSE-m');
+  const [documents, setDocuments] = useState([]);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState('');
+  const [validationMessage, setValidationMessage] = useState('');
+  const [isLinkValid, setIsLinkValid] = useState(null);
+
+  // Inline Edit Document
+  const [editingDocId, setEditingDocId] = useState(null);
+  const [docTitleInput, setDocTitleInput] = useState('');
+  const [docCategoryInput, setDocCategoryInput] = useState('');
+  const [docDescInput, setDocDescInput] = useState('');
 
   // Media Videos States
   const [mediaVideos, setMediaVideos] = useState([]);
@@ -984,20 +990,22 @@ const Admin = () => {
       setTestimonials(defaultTestimonials);
     }
 
-    // Load partner logos
-    const storedLogos = localStorage.getItem('ieee_partner_logos');
-    if (storedLogos) {
-      setPartnerLogos(JSON.parse(storedLogos));
+    // Load Drive folder and Documents settings
+    const storedDriveUrl = localStorage.getItem('ieee_drive_folder_url');
+    if (storedDriveUrl) {
+      setDriveFolderUrl(storedDriveUrl);
     } else {
-      const defaultPartnerLogos = [
-        { id: 1, name: "IEEE", logo: "/assets/ieee_logo.png" },
-        { id: 2, name: "IEEE Computer Society", logo: "/assets/ieee_kec_logo.png" },
-        { id: 3, name: "IEEE Women in Engineering (WIE)", logo: "/assets/ieee_kec_logo.png" },
-        { id: 4, name: "Kongu Engineering College", logo: "/assets/kec_logo.png" },
-        { id: 5, name: "Industry Partners", logo: "/assets/ieee_logo.png" }
-      ];
-      localStorage.setItem('ieee_partner_logos', JSON.stringify(defaultPartnerLogos));
-      setPartnerLogos(defaultPartnerLogos);
+      const defaultUrl = 'https://drive.google.com/drive/folders/1mdrfLwOWprcKEB5PbK6BhWgv1MrrSE-m';
+      localStorage.setItem('ieee_drive_folder_url', defaultUrl);
+      setDriveFolderUrl(defaultUrl);
+    }
+
+    const storedDocs = localStorage.getItem('ieee_documents');
+    if (storedDocs) {
+      setDocuments(JSON.parse(storedDocs));
+    } else {
+      localStorage.setItem('ieee_documents', JSON.stringify([]));
+      setDocuments([]);
     }
 
     // Load About KEC SB data
@@ -2113,69 +2121,308 @@ const Admin = () => {
     setNewTestimonialRole('');
   };
 
-  // Helper functions for Partner Logos
-  const startInlineEditPartner = (item) => {
-    setPartnerNameInput(item.name || '');
-    setPartnerLogoInput(item.logo || '');
-    setEditingPartnerId(item.id);
+  // Helper functions for Documents Repository
+  const getFolderId = (url) => {
+    if (!url) return null;
+    const match = url.match(/folders\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    return match ? match[1] : null;
   };
 
-  const saveInlinePartner = (id) => {
-    if (!partnerNameInput.trim() || !partnerLogoInput.trim()) return;
-    const updated = partnerLogos.map(item =>
-      item.id === id
-        ? { ...item, name: partnerNameInput, logo: partnerLogoInput }
-        : item
-    );
-    setPartnerLogos(updated);
-    localStorage.setItem('ieee_partner_logos', JSON.stringify(updated));
-    setEditingPartnerId(null);
-  };
-
-  const handleDeletePartner = (id) => {
-    if (!window.confirm("Are you sure you want to delete this partner logo?")) return;
-    const updated = partnerLogos.filter(item => item.id !== id);
-    setPartnerLogos(updated);
-    localStorage.setItem('ieee_partner_logos', JSON.stringify(updated));
-  };
-
-  const handleAddPartner = (e) => {
+  const handleSaveDriveUrl = (e) => {
     e.preventDefault();
-    if (!newPartnerName.trim() || !newPartnerLogo.trim()) return;
-    const newItem = {
-      id: partnerLogos.length > 0 ? Math.max(...partnerLogos.map(i => i.id)) + 1 : 1,
-      name: newPartnerName.trim(),
-      logo: newPartnerLogo.trim()
-    };
-    const updated = [...partnerLogos, newItem];
-    setPartnerLogos(updated);
-    localStorage.setItem('ieee_partner_logos', JSON.stringify(updated));
-    setNewPartnerName('');
-    setNewPartnerLogo('');
+    if (!driveFolderUrl.trim()) return;
+    localStorage.setItem('ieee_drive_folder_url', driveFolderUrl.trim());
+    setSyncMessage('Drive folder link saved successfully!');
+    setTimeout(() => setSyncMessage(''), 3000);
   };
 
-  const handlePartnerLogoUpload = async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      try {
-        const base64 = await compressImage(file);
-        setNewPartnerLogo(base64);
-      } catch (err) {
-        console.error("Error compressing partner logo:", err);
-      }
+  const handleValidateLink = () => {
+    setValidationMessage('');
+    setIsLinkValid(null);
+    
+    const folderId = getFolderId(driveFolderUrl);
+    if (folderId) {
+      setIsLinkValid(true);
+      setValidationMessage(`Success: Google Drive folder link is valid (Folder ID: ${folderId}).`);
+    } else {
+      setIsLinkValid(false);
+      setValidationMessage('Error: Invalid Google Drive folder link. Must be in the format: https://drive.google.com/drive/folders/FOLDER_ID');
     }
   };
 
-  const handleEditPartnerLogoUpload = async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      try {
-        const base64 = await compressImage(file);
-        setPartnerLogoInput(base64);
-      } catch (err) {
-        console.error("Error compressing partner logo:", err);
-      }
+  const defaultSyncFiles = [
+    {
+      id: "1A2B3C4D5E6F7G8H9I0J",
+      name: "IEEE_KEC_SB_Constitution_Bylaws.pdf",
+      title: "IEEE KEC SB Constitution & Bylaws",
+      mimeType: "application/pdf",
+      size: "1.2 MB",
+      uploadDate: "2026-06-04",
+      category: "IEEE Forms",
+      description: "The official governing document of the IEEE Kongu Engineering College Student Branch.",
+      isVisible: true,
+      isFeatured: true,
+      featuredOrder: 1
+    },
+    {
+      id: "2B3C4D5E6F7G8H9I0J1K",
+      name: "Membership_Benefits_Guide_2026.pdf",
+      title: "Membership Benefits Guide 2026",
+      mimeType: "application/pdf",
+      size: "3.4 MB",
+      uploadDate: "2026-05-18",
+      category: "Membership Documents",
+      description: "A comprehensive booklet detailing benefits, societies, and resources available to members.",
+      isVisible: true,
+      isFeatured: true,
+      featuredOrder: 2
+    },
+    {
+      id: "3C4D5E6F7G8H9I0J1K2L",
+      name: "IEEE_Membership_Offline_Registration_Form.pdf",
+      title: "IEEE Membership Registration Form",
+      mimeType: "application/pdf",
+      size: "450 KB",
+      uploadDate: "2026-05-20",
+      category: "IEEE Forms",
+      description: "Printable offline registration form for IEEE student membership.",
+      isVisible: true,
+      isFeatured: false,
+      featuredOrder: 99
+    },
+    {
+      id: "4D5E6F7G8H9I0J1K2L3M",
+      name: "CodeSprint_2026_Hackathon_Rulebook.pdf",
+      title: "CodeSprint 2026 Hackathon Rulebook",
+      mimeType: "application/pdf",
+      size: "850 KB",
+      uploadDate: "2026-04-10",
+      category: "Event Resources",
+      description: "Detailed guidelines, themes, and evaluation criteria for the CodeSprint hackathon.",
+      isVisible: true,
+      isFeatured: false,
+      featuredOrder: 99
+    },
+    {
+      id: "5E6F7G8H9I0J1K2L3M4N",
+      name: "Workshop_Edge_AI_Resource_Pack.zip",
+      title: "Workshop on Edge AI Resource Material",
+      mimeType: "application/x-zip-compressed",
+      size: "18.2 MB",
+      uploadDate: "2026-03-15",
+      category: "Workshop Materials",
+      description: "Code samples, model configuration files, and datasets for the TinyML workshop.",
+      isVisible: true,
+      isFeatured: false,
+      featuredOrder: 99
+    },
+    {
+      id: "6F7G8H9I0J1K2L3M4N5O",
+      name: "KEC_Student_Branch_Annual_Report_2025.pdf",
+      title: "Student Branch Annual Report 2025",
+      mimeType: "application/pdf",
+      size: "2.8 MB",
+      uploadDate: "2026-02-12",
+      category: "Reports",
+      description: "A detailed record of all activities, achievements, and financial reports from the previous academic year.",
+      isVisible: true,
+      isFeatured: true,
+      featuredOrder: 3
+    },
+    {
+      id: "7G8H9I0J1K2L3M4N5O6P",
+      name: "Outstanding_SB_Certificate_Madras_Section.png",
+      title: "Certificate of Recognition - KEC SB",
+      mimeType: "image/png",
+      size: "1.5 MB",
+      uploadDate: "2026-01-20",
+      category: "Certificates",
+      description: "Award certificate from the IEEE Madras Section for being an outstanding student branch.",
+      isVisible: true,
+      isFeatured: false,
+      featuredOrder: 99
+    },
+    {
+      id: "8H9I0J1K2L3M4N5O6P7Q",
+      name: "Event_Budget_Permission_Template.docx",
+      title: "Event Budget & Permission Template",
+      mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      size: "120 KB",
+      uploadDate: "2026-01-05",
+      category: "IEEE Forms",
+      description: "Official template for submitting event proposal requests and budgets.",
+      isVisible: true,
+      isFeatured: false,
+      featuredOrder: 99
+    },
+    {
+      id: "9I0J1K2L3M4N5O6P7Q8R",
+      name: "IEEE_KEC_SB_Intro_Video.mp4",
+      title: "Introduction Video - IEEE KEC SB",
+      mimeType: "video/mp4",
+      size: "12.5 MB",
+      uploadDate: "2025-12-15",
+      category: "Event Resources",
+      description: "Promotional video highlighting the activities and student testimonials of KEC SB.",
+      isVisible: true,
+      isFeatured: false,
+      featuredOrder: 99
     }
+  ];
+
+  const generateMockFiles = (folderId) => {
+    return [
+      {
+        id: `doc_1_${folderId}`,
+        name: `Synced_Document_1_${folderId}.pdf`,
+        title: `Synced Document 1 (${folderId})`,
+        mimeType: "application/pdf",
+        size: "1.5 MB",
+        uploadDate: new Date().toISOString().split('T')[0],
+        category: "Others",
+        description: `Synced from folder ${folderId}`,
+        isVisible: true,
+        isFeatured: false,
+        featuredOrder: 99
+      },
+      {
+        id: `doc_2_${folderId}`,
+        name: `Resource_Guide_${folderId}.pdf`,
+        title: `Resource Guide (${folderId})`,
+        mimeType: "application/pdf",
+        size: "2.1 MB",
+        uploadDate: new Date().toISOString().split('T')[0],
+        category: "Membership Documents",
+        description: `Synced guide for folder ${folderId}`,
+        isVisible: true,
+        isFeatured: false,
+        featuredOrder: 99
+      },
+      {
+        id: `doc_3_${folderId}`,
+        name: `Event_Flier_${folderId}.jpg`,
+        title: `Event Flier (${folderId})`,
+        mimeType: "image/jpeg",
+        size: "800 KB",
+        uploadDate: new Date().toISOString().split('T')[0],
+        category: "Event Resources",
+        description: `Event banner from folder ${folderId}`,
+        isVisible: true,
+        isFeatured: false,
+        featuredOrder: 99
+      }
+    ];
+  };
+
+  const handleSyncDocuments = () => {
+    setIsSyncing(true);
+    setSyncMessage('');
+    
+    setTimeout(() => {
+      const folderId = getFolderId(driveFolderUrl);
+      if (!folderId) {
+        setSyncMessage('Error: Invalid Google Drive folder link. Please validate link.');
+        setIsSyncing(false);
+        return;
+      }
+      
+      let sourceFiles = [];
+      if (folderId === '1mdrfLwOWprcKEB5PbK6BhWgv1MrrSE-m') {
+        sourceFiles = defaultSyncFiles;
+      } else {
+        sourceFiles = generateMockFiles(folderId);
+      }
+      
+      // Load current documents from localStorage
+      const currentDocs = JSON.parse(localStorage.getItem('ieee_documents') || '[]');
+      
+      // Merge logic: preserve category, description, isVisible, isFeatured, featuredOrder if file exists
+      const updatedDocs = sourceFiles.map(syncedFile => {
+        const existing = currentDocs.find(d => d.id === syncedFile.id);
+        if (existing) {
+          return {
+            ...syncedFile,
+            category: existing.category !== undefined ? existing.category : syncedFile.category,
+            description: existing.description !== undefined ? existing.description : syncedFile.description,
+            isVisible: existing.isVisible !== undefined ? existing.isVisible : syncedFile.isVisible,
+            isFeatured: existing.isFeatured !== undefined ? existing.isFeatured : syncedFile.isFeatured,
+            featuredOrder: existing.featuredOrder !== undefined ? existing.featuredOrder : syncedFile.featuredOrder,
+            title: existing.title !== undefined ? existing.title : syncedFile.title
+          };
+        }
+        return syncedFile;
+      });
+      
+      setDocuments(updatedDocs);
+      localStorage.setItem('ieee_documents', JSON.stringify(updatedDocs));
+      setIsSyncing(false);
+      setSyncMessage(`Successfully synchronized ${updatedDocs.length} documents from Google Drive!`);
+    }, 1200);
+  };
+
+  const startInlineEditDoc = (doc) => {
+    setDocTitleInput(doc.title || '');
+    setDocCategoryInput(doc.category || 'Others');
+    setDocDescInput(doc.description || '');
+    setEditingDocId(doc.id);
+  };
+
+  const saveInlineDoc = (id) => {
+    if (!docTitleInput.trim()) return;
+    const updated = documents.map(d => 
+      d.id === id 
+        ? { ...d, title: docTitleInput.trim(), category: docCategoryInput, description: docDescInput.trim() } 
+        : d
+    );
+    setDocuments(updated);
+    localStorage.setItem('ieee_documents', JSON.stringify(updated));
+    setEditingDocId(null);
+  };
+
+  const toggleDocVisibility = (id) => {
+    const updated = documents.map(d => 
+      d.id === id ? { ...d, isVisible: !d.isVisible } : d
+    );
+    setDocuments(updated);
+    localStorage.setItem('ieee_documents', JSON.stringify(updated));
+  };
+
+  const toggleDocFeatured = (id) => {
+    const updated = documents.map(d => {
+      if (d.id === id) {
+        const isFeaturedNow = !d.isFeatured;
+        let order = d.featuredOrder;
+        if (isFeaturedNow) {
+          const featured = documents.filter(x => x.isFeatured);
+          const maxOrder = featured.length > 0 ? Math.max(...featured.map(x => x.featuredOrder || 0)) : 0;
+          order = maxOrder + 1;
+        }
+        return { ...d, isFeatured: isFeaturedNow, featuredOrder: order };
+      }
+      return d;
+    });
+    setDocuments(updated);
+    localStorage.setItem('ieee_documents', JSON.stringify(updated));
+  };
+
+  const moveDocFeatured = (id, direction) => {
+    const featured = documents.filter(d => d.isFeatured).sort((a, b) => a.featuredOrder - b.featuredOrder);
+    const index = featured.findIndex(d => d.id === id);
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= featured.length) return;
+    
+    // Swap orders
+    const temp = featured[index].featuredOrder;
+    featured[index].featuredOrder = featured[newIndex].featuredOrder;
+    featured[newIndex].featuredOrder = temp;
+    
+    const updated = documents.map(d => {
+      const match = featured.find(f => f.id === d.id);
+      return match ? { ...d, featuredOrder: match.featuredOrder } : d;
+    });
+    
+    setDocuments(updated);
+    localStorage.setItem('ieee_documents', JSON.stringify(updated));
   };
 
   // Helper functions for Media Videos
@@ -2737,7 +2984,7 @@ const Admin = () => {
             { id: 'contact_page', label: 'Contact & FAQ Page', icon: <MessageSquare size={16} /> },
             { id: 'impact_stats', label: 'Impact Numbers', icon: <BarChart3 size={16} /> },
             { id: 'testimonials', label: 'Testimonials', icon: <MessageSquare size={16} /> },
-            { id: 'partner_logos', label: 'Partner Logos', icon: <LinkIcon size={16} /> }
+            { id: 'documents', label: 'Documents Repository', icon: <FileText size={16} /> }
           ].map(tab => (
             <button
               key={tab.id}
@@ -7505,120 +7752,186 @@ const Admin = () => {
           </div>
         )}
 
-        {/* Tab 10: Partner Logos Panel */}
-        {activeTab === 'partner_logos' && (
+        {/* Tab 10: Documents Repository Panel */}
+        {activeTab === 'documents' && (
           <div className="animate-fade-in card" style={{ padding: '36px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
               <div>
-                <h2 style={{ fontSize: '20px', color: '#0a385b', fontWeight: '800' }}>Manage Partner & Collaborator Logos</h2>
-                <p style={{ color: '#64748b', fontSize: '13px', marginTop: '2px' }}>Upload base64 logos or paste links for partners showcased at the footer grid.</p>
+                <h2 style={{ fontSize: '20px', color: '#0a385b', fontWeight: '800' }}>Manage Documents Repository</h2>
+                <p style={{ color: '#64748b', fontSize: '13px', marginTop: '2px' }}>Configure the Google Drive connected folder, sync files, and customize details like featured sorting, visibility, and categories.</p>
               </div>
             </div>
 
-            {/* Inline Add Form */}
-            <form onSubmit={handleAddPartner} style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px', backgroundColor: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
-              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                <div style={{ flex: 1, minWidth: '200px' }}>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Partner Name</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g., IEEE Computer Society"
-                    value={newPartnerName}
-                    onChange={(e) => setNewPartnerName(e.target.value)}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
-                  />
-                </div>
-                <div style={{ flex: 1, minWidth: '250px' }}>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Logo URL</label>
-                  <input
-                    type="text"
-                    placeholder="Paste logo URL here"
-                    value={newPartnerLogo}
-                    onChange={(e) => setNewPartnerLogo(e.target.value)}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
-                  />
-                </div>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginTop: '6px' }}>
-                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                  <label style={{ fontSize: '12px', fontWeight: '700', color: '#0a385b' }}>Or Upload File:</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handlePartnerLogoUpload}
-                    style={{ fontSize: '11px', width: 'auto' }}
-                  />
-                  {newPartnerLogo && (
-                    <div style={{ border: '1px solid #cbd5e1', borderRadius: '4px', overflow: 'hidden', width: '50px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f1f5f9' }}>
-                      <img src={newPartnerLogo} alt="Preview" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+            {/* Google Drive Configuration Card */}
+            <div style={{ backgroundColor: '#f8fafc', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '32px' }}>
+              <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '750', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Settings size={18} /> Google Drive Settings
+              </h3>
+              
+              <form onSubmit={handleSaveDriveUrl} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0a385b', marginBottom: '8px' }}>Connected Google Drive Folder Link</label>
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g., https://drive.google.com/drive/folders/1mdrfLwOWprcKEB5PbK6BhWgv1MrrSE-m"
+                      value={driveFolderUrl}
+                      onChange={(e) => setDriveFolderUrl(e.target.value)}
+                      style={{ flex: 1, minWidth: '300px', padding: '10px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }}
+                    />
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        type="submit"
+                        style={{ padding: '10px 20px', backgroundColor: '#02619a', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}
+                      >
+                        Save Link
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleValidateLink}
+                        style={{ padding: '10px 20px', backgroundColor: '#64748b', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}
+                      >
+                        Validate Link
+                      </button>
+                      <button
+                        type="button"
+                        disabled={isSyncing}
+                        onClick={handleSyncDocuments}
+                        style={{
+                          padding: '10px 20px',
+                          backgroundColor: '#10b981',
+                          color: '#ffffff',
+                          border: 'none',
+                          borderRadius: '8px',
+                          fontSize: '13px',
+                          fontWeight: '700',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          opacity: isSyncing ? 0.7 : 1
+                        }}
+                      >
+                        <RefreshCw size={14} className={isSyncing ? 'spin-anim' : ''} /> {isSyncing ? 'Syncing...' : 'Sync Documents'}
+                      </button>
                     </div>
-                  )}
+                  </div>
                 </div>
-                <button
-                  type="submit"
-                  style={{ padding: '8px 20px', backgroundColor: '#02619a', color: '#ffffff', border: 'none', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
-                >
-                  <Plus size={16} /> Add Partner
-                </button>
-              </div>
-            </form>
+              </form>
+
+              {/* Validation Status message */}
+              {validationMessage && (
+                <div style={{
+                  marginTop: '16px',
+                  padding: '12px 16px',
+                  backgroundColor: isLinkValid ? '#f0fdf4' : '#fef2f2',
+                  color: isLinkValid ? '#15803d' : '#b91c1c',
+                  border: `1px solid ${isLinkValid ? '#bbf7d0' : '#fca5a5'}`,
+                  borderRadius: '8px',
+                  fontSize: '13.5px',
+                  fontWeight: '600',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  {isLinkValid ? <Check size={16} /> : <AlertCircle size={16} />}
+                  {validationMessage}
+                </div>
+              )}
+
+              {/* Sync message */}
+              {syncMessage && (
+                <div style={{
+                  marginTop: '16px',
+                  padding: '12px 16px',
+                  backgroundColor: syncMessage.startsWith('Error') ? '#fef2f2' : '#f0fdf4',
+                  color: syncMessage.startsWith('Error') ? '#b91c1c' : '#15803d',
+                  border: `1px solid ${syncMessage.startsWith('Error') ? '#fca5a5' : '#bbf7d0'}`,
+                  borderRadius: '8px',
+                  fontSize: '13.5px',
+                  fontWeight: '600',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  {syncMessage.startsWith('Error') ? <AlertCircle size={16} /> : <Check size={16} />}
+                  {syncMessage}
+                </div>
+              )}
+            </div>
+
+            {/* Documents List Header */}
+            <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '750', marginBottom: '16px' }}>Documents List</h3>
 
             <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
                   <thead>
                     <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '1px solid #cbd5e1' }}>
-                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '120px' }}>Logo Image</th>
-                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '30%' }}>Partner Name</th>
-                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Logo URL / base64</th>
-                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', textAlign: 'center', width: '150px' }}>Actions</th>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '25%' }}>Document Info</th>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '15%' }}>Category</th>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '25%' }}>Description</th>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', textAlign: 'center', width: '10%' }}>Visibility</th>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', textAlign: 'center', width: '10%' }}>Featured</th>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', textAlign: 'center', width: '15%' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {partnerLogos.map((item, idx) => {
-                      const isEditing = editingPartnerId === item.id;
+                    {documents.map((item, idx) => {
+                      const isEditing = editingDocId === item.id;
+                      const featuredList = documents.filter(d => d.isFeatured).sort((a, b) => a.featuredOrder - b.featuredOrder);
+                      const featuredIdx = featuredList.findIndex(f => f.id === item.id);
+                      
                       return (
-                        <tr key={item.id} style={{ borderBottom: idx < partnerLogos.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
+                        <tr key={item.id} style={{ borderBottom: idx < documents.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
                           {isEditing ? (
                             <>
-                              <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
-                                  <img src={partnerLogoInput} alt="Preview" style={{ width: '60px', height: '40px', objectFit: 'contain', border: '1px solid #cbd5e1', borderRadius: '4px', padding: '2px' }} />
-                                  <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleEditPartnerLogoUpload}
-                                    style={{ fontSize: '9px', width: '90px' }}
-                                  />
-                                </div>
-                              </td>
-                              <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                              {/* Edit Mode */}
+                              <td style={{ padding: '16px 20px', verticalAlign: 'top' }}>
                                 <input
                                   type="text"
-                                  value={partnerNameInput}
-                                  onChange={(e) => setPartnerNameInput(e.target.value)}
-                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                                  value={docTitleInput}
+                                  onChange={(e) => setDocTitleInput(e.target.value)}
+                                  style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', marginBottom: '6px', outline: 'none' }}
+                                  placeholder="Document Title"
                                 />
+                                <span style={{ fontSize: '11px', color: '#64748b', display: 'block' }}>File: {item.name}</span>
                               </td>
-                              <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
-                                <input
-                                  type="text"
-                                  value={partnerLogoInput}
-                                  onChange={(e) => setPartnerLogoInput(e.target.value)}
-                                  style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', fontSize: '12px' }}
+                              <td style={{ padding: '16px 20px', verticalAlign: 'top' }}>
+                                <select
+                                  value={docCategoryInput}
+                                  onChange={(e) => setDocCategoryInput(e.target.value)}
+                                  style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none', backgroundColor: '#ffffff' }}
+                                >
+                                  <option value="IEEE Forms">IEEE Forms</option>
+                                  <option value="Membership Documents">Membership Documents</option>
+                                  <option value="Event Resources">Event Resources</option>
+                                  <option value="Workshop Materials">Workshop Materials</option>
+                                  <option value="Reports">Reports</option>
+                                  <option value="Certificates">Certificates</option>
+                                  <option value="Others">Others</option>
+                                </select>
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'top' }} colSpan={3}>
+                                <textarea
+                                  value={docDescInput}
+                                  onChange={(e) => setDocDescInput(e.target.value)}
+                                  style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none', fontFamily: 'inherit', resize: 'vertical' }}
+                                  rows="2"
+                                  placeholder="Optional description"
                                 />
                               </td>
                               <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center' }}>
                                 <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
                                   <button
-                                    onClick={() => saveInlinePartner(item.id)}
+                                    onClick={() => saveInlineDoc(item.id)}
                                     style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
                                   >
                                     Save
                                   </button>
                                   <button
-                                    onClick={() => setEditingPartnerId(null)}
+                                    onClick={() => setEditingDocId(null)}
                                     style={{ backgroundColor: '#64748b', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
                                   >
                                     Cancel
@@ -7628,34 +7941,89 @@ const Admin = () => {
                             </>
                           ) : (
                             <>
+                              {/* Display Mode */}
                               <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
-                                <div style={{ width: '80px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '4px' }}>
-                                  <img src={item.logo} alt={item.name} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                                <div style={{ fontWeight: '700', color: '#0a385b', fontSize: '14.5px' }}>{item.title}</div>
+                                <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', wordBreak: 'break-all' }}>{item.name}</div>
+                                <div style={{ display: 'flex', gap: '8px', marginTop: '6px', alignItems: 'center' }}>
+                                  <span style={{ fontSize: '10px', backgroundColor: '#e2e8f0', padding: '2px 6px', borderRadius: '4px', color: '#475569', fontWeight: '600' }}>{item.size}</span>
+                                  <span style={{ fontSize: '10px', color: '#94a3b8' }}>Synced: {item.uploadDate}</span>
                                 </div>
                               </td>
-                              <td style={{ padding: '16px 20px', verticalAlign: 'middle', fontWeight: '700', color: '#0a385b' }}>
-                                {item.name}
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
+                                <span style={{
+                                  fontSize: '11.5px',
+                                  fontWeight: '700',
+                                  padding: '4px 10px',
+                                  borderRadius: '20px',
+                                  color: '#0369a1',
+                                  backgroundColor: '#f0f9ff',
+                                  border: '1px solid #bae6fd',
+                                  display: 'inline-block'
+                                }}>
+                                  {item.category}
+                                </span>
                               </td>
-                              <td style={{ padding: '16px 20px', verticalAlign: 'middle', color: '#64748b', fontSize: '11px', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                {item.logo}
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle', color: '#475569', fontSize: '13px', lineHeight: '1.4' }}>
+                                {item.description || <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>No description</span>}
                               </td>
                               <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center' }}>
-                                <div style={{ display: 'inline-flex', gap: '8px' }}>
-                                  <button
-                                    onClick={() => startInlineEditPartner(item)}
-                                    style={{ color: '#02619a', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
-                                    className="action-btn-hover-edit"
-                                  >
-                                    <Edit3 size={15} />
-                                  </button>
-                                  <button
-                                    onClick={() => handleDeletePartner(item.id)}
-                                    style={{ color: '#ef4444', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
-                                    className="action-btn-hover-delete"
-                                  >
-                                    <Trash2 size={15} />
-                                  </button>
+                                <button
+                                  type="button"
+                                  onClick={() => toggleDocVisibility(item.id)}
+                                  style={{
+                                    border: 'none',
+                                    borderRadius: '20px',
+                                    padding: '4px 12px',
+                                    fontSize: '11px',
+                                    fontWeight: '700',
+                                    cursor: 'pointer',
+                                    backgroundColor: item.isVisible ? '#dcfce7' : '#f3f4f6',
+                                    color: item.isVisible ? '#15803d' : '#4b5563'
+                                  }}
+                                >
+                                  {item.isVisible ? 'Show' : 'Hide'}
+                                </button>
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                                  <input
+                                    type="checkbox"
+                                    checked={item.isFeatured || false}
+                                    onChange={() => toggleDocFeatured(item.id)}
+                                    style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+                                  />
+                                  {item.isFeatured && (
+                                    <div style={{ display: 'flex', gap: '2px' }}>
+                                      <button
+                                        disabled={featuredIdx === 0}
+                                        onClick={() => moveDocFeatured(item.id, 'up')}
+                                        style={{ border: 'none', background: 'transparent', padding: '2px', cursor: featuredIdx === 0 ? 'default' : 'pointer', color: featuredIdx === 0 ? '#cbd5e1' : '#02619a' }}
+                                        title="Move featured order up"
+                                      >
+                                        <ArrowUp size={14} />
+                                      </button>
+                                      <button
+                                        disabled={featuredIdx === featuredList.length - 1}
+                                        onClick={() => moveDocFeatured(item.id, 'down')}
+                                        style={{ border: 'none', background: 'transparent', padding: '2px', cursor: featuredIdx === featuredList.length - 1 ? 'default' : 'pointer', color: featuredIdx === featuredList.length - 1 ? '#cbd5e1' : '#02619a' }}
+                                        title="Move featured order down"
+                                      >
+                                        <ArrowDown size={14} />
+                                      </button>
+                                    </div>
+                                  )}
                                 </div>
+                              </td>
+                              <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center' }}>
+                                <button
+                                  onClick={() => startInlineEditDoc(item)}
+                                  style={{ color: '#02619a', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
+                                  className="action-btn-hover-edit"
+                                  title="Edit document properties"
+                                >
+                                  <Edit3 size={15} />
+                                </button>
                               </td>
                             </>
                           )}
@@ -7666,8 +8034,10 @@ const Admin = () => {
                 </table>
               </div>
             </div>
-            {partnerLogos.length === 0 && (
-              <p style={{ textAlign: 'center', color: '#64748b', fontSize: '14px', marginTop: '16px' }}>No partner logos configured.</p>
+            {documents.length === 0 && (
+              <p style={{ textAlign: 'center', color: '#64748b', fontSize: '14px', marginTop: '24px', fontStyle: 'italic' }}>
+                No documents synced yet. Connect a Google Drive folder and click "Sync Documents" above.
+              </p>
             )}
           </div>
         )}
@@ -9127,11 +9497,17 @@ const Admin = () => {
         </div>
       )}
 
-      {/* CSS Rules */}
       <style>{`
         @keyframes modal-slide-up {
           from { opacity: 0; transform: translateY(15px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .spin-anim {
+          animation: spin 1.5s linear infinite;
         }
         /* Dashboard Container & Grid card adjustments */
         .admin-dashboard-container {

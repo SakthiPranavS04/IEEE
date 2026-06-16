@@ -14,6 +14,7 @@ import Committees from './pages/Committees';
 import Media from './pages/Media';
 import Contact from './pages/Contact';
 import Admin from './pages/Admin';
+import Documents from './pages/Documents';
 import SocietyPage from './pages/SocietyPage';
 import APSPage from './pages/APSPage';
 import ComputerSocietyPage from './pages/ComputerSocietyPage';
@@ -164,6 +165,9 @@ function App() {
 
           {/* Contact Route */}
           <Route path="/contact" element={<Contact />} />
+
+          {/* Documents Route */}
+          <Route path="/documents" element={<Documents />} />
 
           {/* Admin Dashboard Route */}
           <Route path="/admin" element={<Admin />} />

@@ -45,16 +45,7 @@ const Home = () => {
     ];
   });
 
-  const [partnerLogos, setPartnerLogos] = useState(() => {
-    const stored = localStorage.getItem('ieee_partner_logos');
-    return stored ? JSON.parse(stored) : [
-      { id: 1, name: "IEEE", logo: "/assets/ieee_logo.png" },
-      { id: 2, name: "IEEE Computer Society", logo: "/assets/ieee_kec_logo.png" },
-      { id: 3, name: "IEEE Women in Engineering (WIE)", logo: "/assets/ieee_kec_logo.png" },
-      { id: 4, name: "Kongu Engineering College", logo: "/assets/kec_logo.png" },
-      { id: 5, name: "Industry Partners", logo: "/assets/ieee_logo.png" }
-    ];
-  });
+
 
   const [memberCount, setMemberCount] = useState(() => {
     return localStorage.getItem('ieee_member_count') || '45';
@@ -1120,59 +1111,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Partners & Collaborations Section */}
-      <section className="section-padding scroll-reveal" style={{ backgroundColor: '#ffffff', borderTop: '1px solid var(--border-subtle)' }}>
-        <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-            <h2 style={{ fontSize: '32px', marginBottom: '12px', fontWeight: '800', color: 'var(--primary)' }}>Partners & Collaborations</h2>
-            <div style={{ width: '60px', height: '3px', backgroundColor: 'var(--secondary)', margin: '0 auto' }}></div>
-          </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-            gap: '24px',
-            justifyItems: 'center',
-            alignItems: 'center',
-            marginTop: '32px'
-          }}>
-            {partnerLogos.map((partner, idx) => (
-              <div key={partner.id || idx} className="card stat-card-hover" style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '24px 16px',
-                width: '100%',
-                maxWidth: '220px',
-                height: '140px',
-                borderRadius: '12px',
-                backgroundColor: 'var(--bg-light)',
-                border: '1px solid var(--border-subtle)',
-                transition: 'all 0.3s ease',
-                cursor: 'pointer'
-              }}>
-                <img
-                  src={partner.logo}
-                  alt={partner.name}
-                  style={{
-                    maxHeight: '60px',
-                    maxWidth: '130px',
-                    objectFit: 'contain',
-                    filter: 'grayscale(10%) contrast(90%)',
-                    transition: 'all 0.3s ease',
-                    marginBottom: '10px'
-                  }}
-                  className="partner-logo-img"
-                />
-                <span style={{ fontSize: '12px', fontWeight: '750', color: 'var(--primary)', textAlign: 'center' }}>
-                  {partner.name}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       <style>{`
         .video-frame-container {

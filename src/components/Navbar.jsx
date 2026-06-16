@@ -32,6 +32,8 @@ const Navbar = () => {
         return pathname.startsWith('/media');
       case 'Request':
         return pathname.startsWith('/about/ieee');
+      case 'Documents':
+        return pathname.startsWith('/documents');
       case 'Contact':
         return pathname.startsWith('/contact');
       default:
@@ -167,6 +169,7 @@ const Navbar = () => {
         }, // fallback
       ],
     },
+    { name: 'Documents', link: '/documents' },
     { name: 'Contact', link: '/contact' },
   ];
 
@@ -372,27 +375,8 @@ const Navbar = () => {
           })}
         </nav>
 
-        {/* Right Side: Recommendation button & Logos */}
+        {/* Right Side: Logos & Admin */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }} className="header-right">
-          <Link
-            to="/contact"
-            style={{
-              border: '1.5px solid rgba(255, 255, 255, 0.4)',
-              borderRadius: '20px',
-              padding: '8px 20px',
-              fontSize: '12px',
-              fontWeight: '600',
-              color: '#ffffff',
-              background: 'transparent',
-              textDecoration: 'none',
-              transition: 'var(--transition-fast)',
-              whiteSpace: 'nowrap'
-            }}
-            className="rec-btn-hover"
-          >
-            Recommendation Letter
-          </Link>
-
           {/* KEC logo */}
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <a 
@@ -627,22 +611,6 @@ const Navbar = () => {
               );
             })}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #0f4875' }}>
-              <Link
-                to="/contact"
-                onClick={() => setIsOpen(false)}
-                style={{
-                  border: '1.5px solid rgba(255, 255, 255, 0.3)',
-                  borderRadius: '20px',
-                  padding: '12px',
-                  textAlign: 'center',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  color: '#ffffff',
-                  textDecoration: 'none'
-                }}
-              >
-                Recommendation Letter
-              </Link>
               <Link
                 to="/admin"
                 onClick={() => setIsOpen(false)}

@@ -800,3 +800,4 @@ export const KECWIE = () => (
     <style>{`.about-feature-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(79,70,229,0.08) !important; }`}</style>
   </div>
 );
+

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { ChevronDown, ChevronRight, Menu, X } from 'lucide-react';
 
@@ -7,6 +7,63 @@ const Navbar = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [activeSubDropdown, setActiveSubDropdown] = useState(null);
   const { pathname } = useLocation();
+  const [requestForms, setRequestForms] = useState([]);
+
+  useEffect(() => {
+    const defaultRequestForms = [
+      {
+        id: 1,
+        form_name: "Event Pre-Proposal",
+        route_slug: "event-pre-proposal",
+        google_form_url: "https://docs.google.com/forms/d/e/1FAIpQLSchXAD6IMgd7yYgQG4wLhIPiDScyktCw_h0NCeP5SiQrfFf7Q/viewform?embedded=true",
+        description: "Submit event details, dates, speakers, and budget estimates for verification and approval.",
+        is_active: true,
+        updated_at: new Date().toLocaleDateString(),
+        updated_by: "Admin"
+      },
+      {
+        id: 2,
+        form_name: "Bill Settlement",
+        route_slug: "bill-settlement",
+        google_form_url: "https://docs.google.com/forms/d/e/1FAIpQLSe4rh67hrSDSVHx58-oBOGbOtNNiqi9R9dX_NyxHNOM1IEUgg/viewform?embedded=true",
+        description: "Submit final expense sheets, vouchers, invoice scans, and bank details for event accounts closure.",
+        is_active: true,
+        updated_at: new Date().toLocaleDateString(),
+        updated_by: "Admin"
+      }
+    ];
+
+    const stored = localStorage.getItem('ieee_request_forms');
+    if (stored) {
+      try {
+        setRequestForms(JSON.parse(stored));
+      } catch (e) {
+        console.error("Error loading request forms:", e);
+        setRequestForms(defaultRequestForms);
+      }
+    } else {
+      localStorage.setItem('ieee_request_forms', JSON.stringify(defaultRequestForms));
+      setRequestForms(defaultRequestForms);
+    }
+
+    const handleStorage = () => {
+      const storedVal = localStorage.getItem('ieee_request_forms');
+      if (storedVal) {
+        try {
+          setRequestForms(JSON.parse(storedVal));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorage);
+    const interval = setInterval(handleStorage, 1000);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      clearInterval(interval);
+    };
+  }, []);
 
   const isItemActive = (name) => {
     switch (name) {
@@ -18,7 +75,7 @@ const Navbar = () => {
         return pathname.startsWith('/achievements');
       case 'About':
         return (
-          (pathname.startsWith('/about') && !pathname.startsWith('/about/ieee')) ||
+          (pathname.startsWith('/about') && pathname !== '/about/ieee') ||
           pathname === '/faculties' ||
           pathname === '/committee'
         );
@@ -31,7 +88,7 @@ const Navbar = () => {
       case 'Media':
         return pathname.startsWith('/media');
       case 'Request':
-        return pathname.startsWith('/about/ieee');
+        return pathname.startsWith('/request') || pathname === '/about/ieee';
       case 'Documents':
         return pathname.startsWith('/documents');
       case 'Contact':
@@ -166,7 +223,18 @@ const Navbar = () => {
           name: 'IEEE Guidelines', 
           link: '/about/ieee',
           icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
-        }, // fallback
+        },
+        ...requestForms
+          .filter(form => form.is_active)
+          .map(form => ({
+            name: form.form_name,
+            link: `/request/${form.route_slug}`,
+            icon: form.route_slug === 'event-pre-proposal' ? (
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            )
+          }))
       ],
     },
     { name: 'Documents', link: '/documents' },

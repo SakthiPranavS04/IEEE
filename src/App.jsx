@@ -34,6 +34,8 @@ import {
   KECWIE
 } from './pages/AboutPages';
 
+import RequestFormPage from './pages/RequestFormPage';
+
 import './App.css';
 
 function App() {
@@ -116,6 +118,9 @@ function App() {
           <Route path="/about/kec-sps" element={<KECSPS />} />
           <Route path="/about/kec-wie" element={<KECWIE />} />
           <Route path="/about" element={<IEEEKECSB />} />
+          
+          {/* Request Form Routes */}
+          <Route path="/request/:slug" element={<RequestFormPage />} />
 
           {/* Committee Routes */}
           <Route path="/faculties" element={<Execomm />} />

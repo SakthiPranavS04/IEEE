@@ -191,6 +191,16 @@ const Admin = () => {
   const [aboutSaved, setAboutSaved] = useState(false);
   const [contactSaved, setContactSaved] = useState(false);
 
+  // Request Forms Management States
+  const [requestForms, setRequestForms] = useState([]);
+  const [editingFormId, setEditingFormId] = useState(null);
+  const [formNameInput, setFormNameInput] = useState('');
+  const [formSlugInput, setFormSlugInput] = useState('');
+  const [formUrlInput, setFormUrlInput] = useState('');
+  const [formDescInput, setFormDescInput] = useState('');
+  const [formActiveInput, setFormActiveInput] = useState(true);
+  const [previewFormUrl, setPreviewFormUrl] = useState('');
+
   // Research Papers CRUD State
   const [researchPapers, setResearchPapers] = useState([]);
 
@@ -1008,6 +1018,38 @@ const Admin = () => {
       setDocuments([]);
     }
 
+    // Load Request Forms
+    const storedRequestForms = localStorage.getItem('ieee_request_forms');
+    const defaultRequestForms = [
+      {
+        id: 1,
+        form_name: "Event Pre-Proposal",
+        route_slug: "event-pre-proposal",
+        google_form_url: "https://docs.google.com/forms/d/e/1FAIpQLSchXAD6IMgd7yYgQG4wLhIPiDScyktCw_h0NCeP5SiQrfFf7Q/viewform?embedded=true",
+        description: "Submit event details, dates, speakers, and budget estimates for verification and approval.",
+        is_active: true,
+        updated_at: new Date().toLocaleDateString(),
+        updated_by: "Admin"
+      },
+      {
+        id: 2,
+        form_name: "Bill Settlement",
+        route_slug: "bill-settlement",
+        google_form_url: "https://docs.google.com/forms/d/e/1FAIpQLSe4rh67hrSDSVHx58-oBOGbOtNNiqi9R9dX_NyxHNOM1IEUgg/viewform?embedded=true",
+        description: "Submit final expense sheets, vouchers, invoice scans, and bank details for event accounts closure.",
+        is_active: true,
+        updated_at: new Date().toLocaleDateString(),
+        updated_by: "Admin"
+      }
+    ];
+
+    if (storedRequestForms) {
+      setRequestForms(JSON.parse(storedRequestForms));
+    } else {
+      localStorage.setItem('ieee_request_forms', JSON.stringify(defaultRequestForms));
+      setRequestForms(defaultRequestForms);
+    }
+
     // Load About KEC SB data
     const storedAboutSb = localStorage.getItem('ieee_about_kec_sb_v1');
     if (storedAboutSb) {
@@ -1279,6 +1321,51 @@ const Admin = () => {
     sessionStorage.removeItem('ieee_admin_session');
     setEmail('');
     setPassword('');
+  };
+
+  const handleEditFormClick = (form) => {
+    setEditingFormId(form.id);
+    setFormNameInput(form.form_name);
+    setFormSlugInput(form.route_slug);
+    setFormUrlInput(form.google_form_url);
+    setFormDescInput(form.description);
+    setFormActiveInput(form.is_active);
+    setPreviewFormUrl(form.google_form_url);
+  };
+
+  const handleSaveRequestForm = (e) => {
+    e.preventDefault();
+    if (!formNameInput.trim() || !formSlugInput.trim() || !formUrlInput.trim()) return;
+
+    // Simple auto-conversion for docs.google.com/forms viewform URLs
+    let sanitizedUrl = formUrlInput.trim();
+    if (sanitizedUrl.includes('docs.google.com/forms') && !sanitizedUrl.includes('embedded=true')) {
+      const viewformIndex = sanitizedUrl.indexOf('/viewform');
+      if (viewformIndex !== -1) {
+        sanitizedUrl = sanitizedUrl.substring(0, viewformIndex + 9);
+      }
+      sanitizedUrl += '?embedded=true';
+    }
+
+    const updatedForms = requestForms.map(form => 
+      form.id === editingFormId 
+        ? { 
+            ...form, 
+            form_name: formNameInput, 
+            route_slug: formSlugInput.toLowerCase().replace(/[^a-z0-9_-]/g, '-'), 
+            google_form_url: sanitizedUrl, 
+            description: formDescInput, 
+            is_active: formActiveInput,
+            updated_at: new Date().toLocaleDateString(),
+            updated_by: email || "Admin"
+          }
+        : form
+    );
+
+    setRequestForms(updatedForms);
+    localStorage.setItem('ieee_request_forms', JSON.stringify(updatedForms));
+    setEditingFormId(null);
+    setPreviewFormUrl('');
   };
 
   // Stats & Site Settings Save
@@ -2984,7 +3071,8 @@ const Admin = () => {
             { id: 'contact_page', label: 'Contact & FAQ Page', icon: <MessageSquare size={16} /> },
             { id: 'impact_stats', label: 'Impact Numbers', icon: <BarChart3 size={16} /> },
             { id: 'testimonials', label: 'Testimonials', icon: <MessageSquare size={16} /> },
-            { id: 'documents', label: 'Documents Repository', icon: <FileText size={16} /> }
+            { id: 'documents', label: 'Documents Repository', icon: <FileText size={16} /> },
+            { id: 'request_forms', label: 'Request Forms', icon: <LinkIcon size={16} /> }
           ].map(tab => (
             <button
               key={tab.id}
@@ -8576,6 +8664,228 @@ const Admin = () => {
                     </button>
                   </div>
                 ))}
+              </div>
+            </div>
+          </div>
+        )}
+        {activeTab === 'request_forms' && (
+          <div className="animate-fade-in card" style={{ padding: '36px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <div>
+                <h2 style={{ fontSize: '20px', color: '#0a385b', fontWeight: '800', margin: 0 }}>Request Forms & Embeds</h2>
+                <p style={{ color: '#64748b', fontSize: '13px', marginTop: '2px', margin: 0 }}>
+                  Manage the Google Forms embedded on the website. Toggle their visibility in the navigation bar and update URLs instantly.
+                </p>
+              </div>
+            </div>
+
+            {/* Editing Card - visible when editing */}
+            {editingFormId ? (
+              <form onSubmit={handleSaveRequestForm} className="card" style={{ padding: '24px', backgroundColor: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '12px', marginBottom: '32px' }}>
+                <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '800', marginBottom: '16px', borderBottom: '1px solid #cbd5e1', paddingBottom: '8px' }}>
+                  Edit Form: {formNameInput || 'New Form'}
+                </h3>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px' }}>Form Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={formNameInput}
+                      onChange={(e) => setFormNameInput(e.target.value)}
+                      style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px' }}>Route Slug (slug used in URL)</label>
+                    <input
+                      type="text"
+                      required
+                      value={formSlugInput}
+                      onChange={(e) => setFormSlugInput(e.target.value)}
+                      style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
+                      placeholder="e.g. event-pre-proposal"
+                    />
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px' }}>Google Form URL (Publish/Viewform Link)</label>
+                  <input
+                    type="text"
+                    required
+                    value={formUrlInput}
+                    onChange={(e) => {
+                      setFormUrlInput(e.target.value);
+                      setPreviewFormUrl(e.target.value);
+                    }}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
+                    placeholder="https://docs.google.com/forms/d/e/.../viewform?embedded=true"
+                  />
+                  {formUrlInput.includes('forms.gle') && (
+                    <p style={{ fontSize: '11px', color: '#b45309', marginTop: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      ⚠️ <strong>Note:</strong> Short URLs (forms.gle) might be blocked from embedding in iframes due to security redirect headers. It is highly recommended to use the full <code>docs.google.com/forms</code> link.
+                    </p>
+                  )}
+                </div>
+
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px' }}>Form Purpose / Description</label>
+                  <textarea
+                    rows="2"
+                    value={formDescInput}
+                    onChange={(e) => setFormDescInput(e.target.value)}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none', resize: 'vertical' }}
+                    placeholder="Describe what this form is for..."
+                  />
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
+                  <input
+                    type="checkbox"
+                    id="formActiveInput"
+                    checked={formActiveInput}
+                    onChange={(e) => setFormActiveInput(e.target.checked)}
+                    style={{ cursor: 'pointer' }}
+                  />
+                  <label htmlFor="formActiveInput" style={{ fontSize: '13px', fontWeight: '700', color: '#475569', cursor: 'pointer' }}>
+                    Active (Show in Request navigation dropdown)
+                  </label>
+                </div>
+
+                {/* Live Preview Section */}
+                {previewFormUrl && (
+                  <div style={{ marginBottom: '20px', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
+                    <div style={{ backgroundColor: '#f1f5f9', padding: '8px 16px', fontSize: '12px', color: '#475569', fontWeight: '700', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between' }}>
+                      <span>Live Preview (Form Iframe Container)</span>
+                      <span>{formUrlInput.includes('forms.gle') ? '❌ Short URL preview disabled' : '✅ Load preview'}</span>
+                    </div>
+                    {!formUrlInput.includes('forms.gle') ? (
+                      <iframe
+                        src={formUrlInput.includes('embedded=true') ? formUrlInput : `${formUrlInput}${formUrlInput.includes('?') ? '&' : '?'}embedded=true`}
+                        width="100%"
+                        height="300"
+                        style={{ border: 'none', display: 'block', backgroundColor: '#ffffff' }}
+                        title="Form Preview"
+                      />
+                    ) : (
+                      <div style={{ padding: '30px', textAlign: 'center', color: '#b45309', fontSize: '13px', backgroundColor: '#fef3c7' }}>
+                        Iframe previews for <code>forms.gle</code> short URLs are restricted by browser policies. Save this form to verify loading in public routes.
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                  <button
+                    type="button"
+                    onClick={() => { setEditingFormId(null); setPreviewFormUrl(''); }}
+                    style={{ padding: '8px 18px', backgroundColor: '#e2e8f0', border: 'none', borderRadius: '20px', fontSize: '12.5px', fontWeight: 'bold', color: '#475569', cursor: 'pointer' }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    style={{ padding: '8px 18px', backgroundColor: '#02619a', border: 'none', borderRadius: '20px', fontSize: '12.5px', fontWeight: 'bold', color: '#ffffff', cursor: 'pointer' }}
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </form>
+            ) : null}
+
+            {/* List Table */}
+            <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '1px solid #cbd5e1' }}>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Form Name</th>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Route Slug</th>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Description</th>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '90px', textAlign: 'center' }}>Status</th>
+                      <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', textAlign: 'center', width: '180px' }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {requestForms.length > 0 ? (
+                      requestForms.map(form => (
+                        <tr key={form.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                          <td style={{ padding: '16px 20px', fontWeight: '600' }}>{form.form_name}</td>
+                          <td style={{ padding: '16px 20px', color: '#02619a', fontFamily: 'monospace', fontSize: '12.5px' }}>
+                            /request/{form.route_slug}
+                          </td>
+                          <td style={{ padding: '16px 20px', color: '#64748b', fontSize: '13px' }}>{form.description}</td>
+                          <td style={{ padding: '16px 20px', textAlign: 'center' }}>
+                            <span style={{
+                              display: 'inline-block',
+                              padding: '3px 8px',
+                              borderRadius: '12px',
+                              fontSize: '11px',
+                              fontWeight: '700',
+                              backgroundColor: form.is_active ? '#dcfce7' : '#fee2e2',
+                              color: form.is_active ? '#15803d' : '#b91c1c'
+                            }}>
+                              {form.is_active ? 'Active' : 'Inactive'}
+                            </span>
+                          </td>
+                          <td style={{ padding: '16px 20px', textAlign: 'center' }}>
+                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                              <button
+                                onClick={() => handleEditFormClick(form)}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  padding: '6px 12px',
+                                  border: '1px solid #cbd5e1',
+                                  borderRadius: '6px',
+                                  backgroundColor: '#ffffff',
+                                  color: 'var(--secondary)',
+                                  fontSize: '12px',
+                                  fontWeight: '600',
+                                  cursor: 'pointer'
+                                }}
+                                className="action-btn-hover-edit"
+                              >
+                                <Edit3 size={12} /> Edit / Link
+                              </button>
+                              <a
+                                href={`/request/${form.route_slug}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  padding: '6px 12px',
+                                  border: '1px solid #cbd5e1',
+                                  borderRadius: '6px',
+                                  backgroundColor: '#ffffff',
+                                  color: '#475569',
+                                  fontSize: '12px',
+                                  fontWeight: '600',
+                                  textDecoration: 'none',
+                                  cursor: 'pointer'
+                                }}
+                                className="action-btn-hover-edit"
+                              >
+                                Preview Page
+                              </a>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="5" style={{ textAlign: 'center', padding: '30px', color: '#94a3b8' }}>
+                          No request forms configured.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>

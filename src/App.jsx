@@ -14,6 +14,14 @@ import Committees from './pages/Committees';
 import Media from './pages/Media';
 import Contact from './pages/Contact';
 import Admin from './pages/Admin';
+import Documents from './pages/Documents';
+import SocietyPage from './pages/SocietyPage';
+import APSPage from './pages/APSPage';
+import ComputerSocietyPage from './pages/ComputerSocietyPage';
+import WIEPage from './pages/WIEPage';
+import RASPage from './pages/RASPage';
+import PESPage from './pages/PESPage';
+import ComSocPage from './pages/ComSocPage';
 
 // About Pages
 import {
@@ -34,6 +42,43 @@ function App() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    // Wait for page transition and render
+    const timer = setTimeout(() => {
+      const selectors = 'section, .card, .scroll-reveal, .execomm-clickable-card, .achievement-row, .event-card-container, .contact-container, .about-section, .operational-committees-section, .media-gallery-card, .news-card';
+      const elementsToReveal = document.querySelectorAll(selectors);
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('scroll-visible');
+            } else {
+              entry.target.classList.remove('scroll-visible');
+            }
+          });
+        },
+        {
+          threshold: 0.05,
+          rootMargin: '0px 0px -50px 0px'
+        }
+      );
+
+      elementsToReveal.forEach((el) => {
+        if (!el.classList.contains('scroll-reveal')) {
+          el.classList.add('scroll-reveal');
+        }
+        observer.observe(el);
+      });
+
+      return () => {
+        elementsToReveal.forEach((el) => observer.unobserve(el));
+      };
+    }, 150);
+
+    return () => clearTimeout(timer);
   }, [location.pathname]);
 
   useEffect(() => {
@@ -75,7 +120,37 @@ function App() {
           {/* Committee Routes */}
           <Route path="/faculties" element={<Execomm />} />
           <Route path="/execomm" element={<Execomm />} />
+          <Route path="/execomm/faculties" element={<Execomm />} />
+          <Route path="/execomm/students" element={<Execomm />} />
           <Route path="/committee" element={<Committees />} />
+
+          {/* Redesigned Execomm Society Routes */}
+          <Route path="/execomm/ap-s" element={<APSPage />} />
+          <Route path="/execomm/computer-society" element={<ComputerSocietyPage />} />
+          <Route path="/execomm/wie" element={<WIEPage />} />
+          <Route path="/execomm/ras" element={<RASPage />} />
+          <Route path="/execomm/pes" element={<PESPage />} />
+          <Route path="/execomm/comsoc" element={<ComSocPage />} />
+
+          {/* Alternate spelling / fallback routes */}
+          <Route path="/execcomm/ap-s" element={<APSPage />} />
+          <Route path="/execcomm/computer-society" element={<ComputerSocietyPage />} />
+          <Route path="/execcomm/wie" element={<WIEPage />} />
+          <Route path="/execcomm/ras" element={<RASPage />} />
+          <Route path="/execcomm/pes" element={<PESPage />} />
+          <Route path="/execcomm/comsoc" element={<ComSocPage />} />
+
+          {/* Legacy /excomm/ fallback routes */}
+          <Route path="/excomm/ap-s" element={<APSPage />} />
+          <Route path="/excomm/computer-society" element={<ComputerSocietyPage />} />
+          <Route path="/excomm/wie" element={<WIEPage />} />
+          <Route path="/excomm/ras" element={<RASPage />} />
+          <Route path="/excomm/pes" element={<PESPage />} />
+          <Route path="/excomm/comsoc" element={<ComSocPage />} />
+
+          {/* Fallback route handler for dynamic paths */}
+          <Route path="/excomm/:societyId" element={<SocietyPage />} />
+          <Route path="/execomm/:societyId" element={<SocietyPage />} />
 
           {/* Events Routes */}
           <Route path="/events/upcoming" element={<Events />} />
@@ -90,6 +165,9 @@ function App() {
 
           {/* Contact Route */}
           <Route path="/contact" element={<Contact />} />
+
+          {/* Documents Route */}
+          <Route path="/documents" element={<Documents />} />
 
           {/* Admin Dashboard Route */}
           <Route path="/admin" element={<Admin />} />

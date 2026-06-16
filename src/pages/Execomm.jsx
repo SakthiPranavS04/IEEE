@@ -1,46 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Users, Sparkles, ChevronRight } from 'lucide-react';
-
-// Custom LinkedinIcon component since brand icons are not exported by lucide-react in version 1+
-const LinkedinIcon = ({ size = 24, ...props }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-    <rect width="4" height="12" x="2" y="9" />
-    <circle cx="4" cy="4" r="2" />
-  </svg>
-);
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Users, Phone, User, Award, Shield, BookOpen, Layers, X } from 'lucide-react';
 
 // ─── Page Header ──────────────────────────────────────────────────────────────
 const PageHeader = ({ title, subtitle }) => (
   <div style={{
-    background: 'linear-gradient(135deg, #0a385b 0%, #02619a 100%)',
+    background: 'var(--gradient-primary)',
     color: '#ffffff',
-    padding: '60px 0',
+    padding: '70px 0',
     textAlign: 'center',
     marginBottom: '48px',
     position: 'relative',
     overflow: 'hidden'
   }}>
+    {/* Decorative top colored line */}
+    <div style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      height: '4px',
+      background: 'var(--gradient-colorful)',
+      zIndex: 2
+    }} />
     <div style={{
       position: 'absolute', top: '-10%', right: '-8%',
       width: '320px', height: '320px', borderRadius: '50%',
-      background: 'rgba(255,255,255,0.03)', pointerEvents: 'none'
+      background: 'radial-gradient(circle, rgba(79, 70, 229, 0.15) 0%, transparent 70%)', pointerEvents: 'none'
     }} />
     <div style={{
       position: 'absolute', bottom: '-20%', left: '-5%',
       width: '260px', height: '260px', borderRadius: '50%',
-      background: 'rgba(255,255,255,0.02)', pointerEvents: 'none'
+      background: 'radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 70%)', pointerEvents: 'none'
     }} />
     <div className="container" style={{ position: 'relative', zIndex: 1 }}>
       <h1 className="font-serif" style={{ fontSize: '38px', color: '#ffffff', marginBottom: '12px', fontWeight: '800' }}>
@@ -58,205 +49,454 @@ const PageHeader = ({ title, subtitle }) => (
 // ─── Section Label pill ───────────────────────────────────────────────────────
 const SectionLabel = ({ text }) => (
   <span style={{
-    padding: '4px 14px',
-    backgroundColor: 'var(--accent-light)',
-    color: 'var(--primary)',
+    padding: '6px 14px',
+    backgroundColor: 'rgba(79, 70, 229, 0.08)',
+    color: 'var(--secondary)',
+    border: '1px solid rgba(79, 70, 229, 0.15)',
     borderRadius: '20px',
     fontSize: '11px',
-    fontWeight: '700',
+    fontWeight: '750',
     textTransform: 'uppercase',
     letterSpacing: '1px',
     display: 'inline-block',
-    marginBottom: '10px'
+    marginBottom: '12px'
   }}>
     {text}
   </span>
 );
 
-// ─── Counselor Card ───────────────────────────────────────────────────────────
-const CounselorCard = ({ member }) => (
-  <div className="card" style={{
-    padding: '40px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    textAlign: 'center',
-    border: '1px solid #c3d9ea',
-    borderTop: '4px solid #0a385b',
-    position: 'relative',
-    overflow: 'hidden'
-  }}>
-    {/* subtle background pattern */}
-    <div style={{
-      position: 'absolute', top: 0, right: 0,
-      width: '160px', height: '160px', borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(2,97,154,0.05) 0%, transparent 70%)',
-      pointerEvents: 'none'
-    }} />
+// Helper for sorting levels
+const getHierarchyLevel = (position) => {
+  const pos = (position || '').toLowerCase().trim();
+  if (pos === 'chairman' || pos === 'vice chairman' || pos === 'student branch chair' || pos === 'student branch vice chair') return 1;
+  if (pos === 'society chairman' || pos === 'society vice chairman' || pos.includes('society chair') || pos.includes('society vice chair')) return 2;
+  if (pos === 'additional secretary' || pos.includes('additional secretary')) return 3;
+  if (pos === 'joint secretary' || pos.includes('joint secretary')) return 4;
+  
+  if (pos.includes('web team chairman') || pos.includes('web team vice chairman') || pos.includes('web team chair') || pos.includes('web team vice chair') ||
+      pos.includes('event team chairman') || pos.includes('event team vice chairman') || pos.includes('event team chair') || pos.includes('event team vice chair') ||
+      pos.includes('media team chairman') || pos.includes('media team vice chairman') || pos.includes('media team chair') || pos.includes('media team vice chair') ||
+      pos.includes('committee head') || pos.includes('event head') || pos.includes('web head') || pos.includes('media head')) return 5;
+      
+  if (pos === 'office bearer' || pos === 'office bearers' || pos === 'executive member' || pos === 'executive members' || pos.includes('bearer') || pos.includes('executive')) return 6;
+  
+  return 7; // members / default
+};
 
-    {/* Avatar */}
-    <div style={{
-      width: '110px', height: '110px', borderRadius: '50%',
-      background: 'linear-gradient(135deg, #0a385b 0%, #02619a 100%)',
-      color: '#ffffff',
-      fontSize: '38px', fontWeight: '800',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      marginBottom: '20px',
-      boxShadow: '0 8px 24px rgba(10,56,91,0.22)',
-      border: '4px solid #ffffff',
-      flexShrink: 0
-    }}>
-      {member.name ? member.name.charAt(0) : '?'}
-    </div>
-
-    <div style={{
-      display: 'inline-flex', alignItems: 'center', gap: '6px',
-      backgroundColor: '#eff6ff', color: '#1e40af',
-      padding: '4px 14px', borderRadius: '20px',
-      fontSize: '11px', fontWeight: '700',
-      textTransform: 'uppercase', letterSpacing: '1px',
-      marginBottom: '12px'
-    }}>
-      <Sparkles size={10} /> Faculty Counselor
-    </div>
-
-    <h2 style={{ fontSize: '24px', color: '#0a385b', marginBottom: '4px', fontWeight: '800' }}>
-      {member.name}
-    </h2>
-    <p style={{ fontSize: '13px', fontWeight: '700', color: '#02619a', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '6px' }}>
-      {member.role}
-    </p>
-    <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px' }}>
-      {member.college}
-    </p>
-    <p style={{
-      color: 'var(--text-muted)', fontSize: '14px', lineHeight: '1.65',
-      maxWidth: '520px', marginBottom: '24px'
-    }}>
-      {member.desc}
-    </p>
-
-    <div style={{
-      display: 'flex', gap: '12px', justifyContent: 'center',
-      borderTop: '1px solid var(--border-subtle)', paddingTop: '20px', width: '100%'
-    }}>
-      <a
-        href={`mailto:${member.email}`}
-        style={{
-          display: 'flex', alignItems: 'center', gap: '6px',
-          padding: '8px 18px', borderRadius: '8px',
-          backgroundColor: '#f1f5f9', color: '#475569',
-          fontSize: '13px', fontWeight: '600', textDecoration: 'none',
-          border: '1px solid #e2e8f0', transition: 'all 0.2s ease'
-        }}
-        className="execomm-contact-btn"
-      >
-        <Mail size={14} /> Email
-      </a>
-      <a
-        href={member.linkedin}
-        target="_blank" rel="noopener noreferrer"
-        style={{
-          display: 'flex', alignItems: 'center', gap: '6px',
-          padding: '8px 18px', borderRadius: '8px',
-          backgroundColor: '#eff6ff', color: '#1d4ed8',
-          fontSize: '13px', fontWeight: '600', textDecoration: 'none',
-          border: '1px solid #bfdbfe', transition: 'all 0.2s ease'
-        }}
-        className="execomm-contact-btn"
-      >
-        <LinkedinIcon size={14} />
-        LinkedIn
-      </a>
-    </div>
-  </div>
-);
-
-// ─── Member Card ──────────────────────────────────────────────────────────────
-const MemberCard = ({ member }) => {
-  const initials = member.name
-    ? member.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
+// ─── Faculty Card ───────────────────────────────────────────────────────────
+const FacultyCard = ({ name, position, phone, image, societyName, onClick }) => {
+  const initials = name
+    ? name.split(' ').filter(w => !w.includes('.')).map(w => w[0]).join('').slice(0, 2).toUpperCase()
     : '?';
 
   return (
-    <div className="card execomm-member-card" style={{
-      display: 'flex', flexDirection: 'column',
-      alignItems: 'center', textAlign: 'center',
-      padding: '28px 24px',
-      height: '100%',
-      justifyContent: 'space-between',
-      borderTop: '3px solid transparent',
-      transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
-    }}>
-      {/* Avatar */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
-        <div style={{
-          width: '80px', height: '80px', borderRadius: '50%',
-          background: 'linear-gradient(135deg, #0a385b 0%, #02619a 100%)',
-          color: '#ffffff',
-          fontSize: '24px', fontWeight: '800',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          marginBottom: '16px',
-          boxShadow: '0 4px 14px rgba(10,56,91,0.18)',
-          border: '3px solid #ffffff',
-          flexShrink: 0
-        }}>
+    <div 
+      className="card faculty-card execomm-clickable-card" 
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      aria-haspopup="dialog"
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      style={{
+        backgroundColor: '#ffffff',
+        borderRadius: '16px',
+        border: '1px solid var(--border-subtle)',
+        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        boxSizing: 'border-box',
+        overflow: 'hidden',
+        position: 'relative'
+      }}
+    >
+      {/* Rectangular Image Banner */}
+      {image ? (
+        <img 
+          src={image} 
+          alt={name} 
+          style={{
+            width: '100%', 
+            height: '280px', 
+            objectFit: 'cover',
+            objectPosition: 'top',
+            backgroundColor: '#f1f5f9'
+          }} 
+        />
+      ) : (
+        <div 
+          style={{
+            width: '100%', 
+            height: '280px', 
+            background: 'var(--gradient-cyber)',
+            color: '#ffffff',
+            fontSize: '40px', 
+            fontWeight: '800',
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center'
+          }}
+        >
           {initials}
         </div>
+      )}
 
-        <h3 style={{ fontSize: '17px', color: '#0a385b', marginBottom: '4px', fontWeight: '750' }}>
-          {member.name}
+      {/* Details Container */}
+      <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '4px', flexGrow: 1 }}>
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: '4px',
+          backgroundColor: '#eff6ff', color: '#1e40af',
+          padding: '3px 10px', borderRadius: '20px',
+          fontSize: '10px', fontWeight: '700',
+          textTransform: 'uppercase', letterSpacing: '0.5px',
+          marginBottom: '6px',
+          alignSelf: 'flex-start'
+        }}>
+          Faculty Coordinator
+        </div>
+
+        <h3 style={{ fontSize: '17px', color: 'var(--primary)', margin: '0 0 2px 0', fontWeight: '800', lineHeight: '1.4' }}>
+          {name}
         </h3>
         <div style={{
-          fontSize: '11px', fontWeight: '700',
-          color: '#02619a',
-          textTransform: 'uppercase', letterSpacing: '0.8px',
-          marginBottom: '12px', lineHeight: '1.4'
+          color: 'var(--secondary)',
+          fontSize: '12px', 
+          fontWeight: '700',
+          textTransform: 'uppercase', 
+          letterSpacing: '0.8px',
+          lineHeight: '1.4',
+          marginBottom: '12px'
         }}>
-          {member.role}
+          {position}
         </div>
-        <p style={{
-          fontSize: '13px', color: 'var(--text-muted)',
-          lineHeight: '1.6', marginBottom: '20px',
-          maxWidth: '260px'
-        }}>
-          {member.desc}
-        </p>
-      </div>
 
-      <div style={{
-        display: 'flex', gap: '10px', width: '100%', justifyContent: 'center',
-        borderTop: '1px solid var(--border-subtle)', paddingTop: '14px'
-      }}>
-        <a
-          href={`mailto:${member.email}`}
-          title={`Email ${member.name}`}
+        <div style={{
+          display: 'flex', gap: '10px', width: '100%', justifyContent: 'center',
+          borderTop: '1px solid #f1f5f9', paddingTop: '16px', marginTop: 'auto'
+        }}>
+          {phone && (
+            <a
+              href={`tel:${phone}`}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                backgroundColor: 'rgba(79, 70, 229, 0.05)',
+                color: 'var(--secondary)',
+                fontSize: '12px',
+                fontWeight: '600',
+                textDecoration: 'none',
+                border: '1px solid var(--border-subtle)',
+                transition: 'all 0.2s ease',
+                width: '100%',
+                justifyContent: 'center'
+              }}
+              className="execomm-contact-btn"
+            >
+              <Phone size={14} /> Call Coordinator
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── Student Card ───────────────────────────────────────────────────────────
+const StudentCard = ({ student, onClick }) => {
+  const initials = student.name
+    ? student.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
+    : '?';
+
+  return (
+    <div 
+      className="card student-card execomm-clickable-card" 
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      aria-haspopup="dialog"
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      style={{
+        backgroundColor: '#ffffff',
+        borderRadius: '16px',
+        border: '1px solid var(--border-subtle)',
+        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        boxSizing: 'border-box',
+        overflow: 'hidden'
+      }}
+    >
+      {student.image ? (
+        <img 
+          src={student.image} 
+          alt={student.name} 
           style={{
-            width: '34px', height: '34px', borderRadius: '8px',
-            backgroundColor: '#f1f5f9', color: '#64748b',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            border: '1px solid #e2e8f0', textDecoration: 'none',
-            transition: 'all 0.2s ease'
-          }}
-          className="execomm-icon-btn"
-        >
-          <Mail size={15} />
-        </a>
-        <a
-          href={member.linkedin}
-          target="_blank" rel="noopener noreferrer"
-          title="LinkedIn Profile"
+            width: '100%', 
+            height: '260px', 
+            objectFit: 'cover',
+            objectPosition: 'top',
+            backgroundColor: '#f1f5f9'
+          }} 
+        />
+      ) : (
+        <div 
           style={{
-            width: '34px', height: '34px', borderRadius: '8px',
-            backgroundColor: '#eff6ff', color: '#1d4ed8',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            border: '1px solid #bfdbfe', textDecoration: 'none',
-            transition: 'all 0.2s ease'
+            width: '100%', 
+            height: '260px', 
+            background: 'linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)',
+            color: '#ffffff',
+            fontSize: '40px', 
+            fontWeight: '800',
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center'
           }}
-          className="execomm-icon-btn"
         >
-          <LinkedinIcon size={15} />
-        </a>
+          {initials}
+        </div>
+      )}
+      <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <h3 style={{ fontSize: '16px', color: 'var(--primary)', margin: '0', fontWeight: '800', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {student.name}
+        </h3>
+        <span style={{
+          fontSize: '12px',
+          fontWeight: '700',
+          color: 'var(--secondary)',
+          textTransform: 'uppercase',
+          letterSpacing: '0.5px'
+        }}>
+          {student.position}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+// ─── Modal Component ────────────────────────────────────────────────────────
+const MemberModal = ({ member, onClose }) => {
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    
+    // Disable body scroll when modal is open
+    document.body.style.overflow = 'hidden';
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'unset';
+    };
+  }, [onClose]);
+
+  const modalRef = React.useRef(null);
+  useEffect(() => {
+    if (modalRef.current) {
+      const focusable = modalRef.current.querySelectorAll(
+        'button, [href], [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length > 0) {
+        focusable[0].focus();
+      }
+    }
+  }, []);
+
+  const handleTabKey = (e) => {
+    if (e.key !== 'Tab') return;
+    if (!modalRef.current) return;
+
+    const focusable = modalRef.current.querySelectorAll(
+      'button, [href], [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length === 0) return;
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (e.shiftKey) {
+      if (document.activeElement === first) {
+        last.focus();
+        e.preventDefault();
+      }
+    } else {
+      if (document.activeElement === last) {
+        first.focus();
+        e.preventDefault();
+      }
+    }
+  };
+
+  const initials = member.name
+    ? member.name.split(' ').filter(w => !w.includes('.')).map(w => w[0]).join('').slice(0, 2).toUpperCase()
+    : '?';
+
+  return (
+    <div 
+      className="modal-backdrop"
+      onClick={onClose}
+      style={{
+        position: 'fixed',
+        top: 0, left: 0, right: 0, bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 9999,
+        animation: 'fadeIn 0.3s ease'
+      }}
+    >
+      <div 
+        ref={modalRef}
+        className="modal-content"
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={handleTabKey}
+        style={{
+          width: '650px',
+          maxWidth: '90%',
+          backgroundColor: '#ffffff',
+          border: '1px solid var(--border-subtle)',
+          borderRadius: '16px',
+          boxShadow: 'var(--shadow-premium)',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          position: 'relative',
+          animation: 'scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
+        }}
+      >
+        {/* Close Button */}
+        <button 
+          onClick={onClose}
+          aria-label="Close modal"
+          style={{
+            position: 'absolute',
+            top: '16px',
+            right: '16px',
+            width: '36px',
+            height: '36px',
+            borderRadius: '50%',
+            backgroundColor: '#ffffff',
+            border: 'none',
+            color: '#3f51b5',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            zIndex: 10,
+            transition: 'all 0.2s ease',
+            outline: 'none'
+          }}
+          className="modal-close-btn"
+        >
+          <X size={16} strokeWidth={3} />
+        </button>
+
+        {/* Modal Side-by-Side Flex Layout */}
+        <div className="execomm-modal-layout" style={{ display: 'flex', flexDirection: 'row', width: '100%', minHeight: '360px' }}>
+          {/* Left Column: Profile Image Container */}
+          <div className="modal-left-image-container" style={{ width: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden', backgroundColor: '#f1f5f9' }}>
+            {member.image ? (
+              <img 
+                src={member.image} 
+                alt={member.name} 
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain'
+                }}
+              />
+            ) : (
+              <div style={{
+                width: '100%',
+                height: '100%',
+                background: 'linear-gradient(135deg, #3f51b5 0%, #1a237e 100%)',
+                color: '#ffffff',
+                fontSize: '110px',
+                fontWeight: '800',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                {initials}
+              </div>
+            )}
+          </div>
+
+          {/* Right Column: Details Section */}
+          <div className="modal-right-details-container" style={{ flexGrow: 1, padding: '36px', textAlign: 'left', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <h2 style={{ fontSize: '28px', color: '#3f51b5', fontWeight: '700', margin: '0 0 4px 0' }}>
+              {member.name}
+            </h2>
+            <div style={{ 
+              fontSize: '14px', 
+              fontWeight: '700', 
+              color: '#3f51b5', 
+              textTransform: 'uppercase', 
+              letterSpacing: '0.5px'
+            }}>
+              {member.position}
+            </div>
+
+            <div style={{ borderBottom: '1px solid #e2e8f0', margin: '16px 0 24px 0' }} />
+
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+              fontSize: '15px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'start' }}>
+                <span style={{ fontWeight: '700', color: '#3f51b5', width: '130px', flexShrink: 0 }}>Branch:</span>
+                <span style={{ fontWeight: '500', color: '#334155' }}>{member.branch}</span>
+              </div>
+              {member.department && (
+                <div style={{ display: 'flex', alignItems: 'start' }}>
+                  <span style={{ fontWeight: '700', color: '#3f51b5', width: '130px', flexShrink: 0 }}>Department:</span>
+                  <span style={{ fontWeight: '500', color: '#334155' }}>{member.department}</span>
+                </div>
+              )}
+              <div style={{ display: 'flex', alignItems: 'start' }}>
+                <span style={{ fontWeight: '700', color: '#3f51b5', width: '130px', flexShrink: 0 }}>IEEE Number:</span>
+                <span style={{ fontWeight: '500', color: '#334155' }}>{member.ieeeNumber || 'N/A'}</span>
+              </div>
+              {member.year && (
+                <div style={{ display: 'flex', alignItems: 'start' }}>
+                  <span style={{ fontWeight: '700', color: '#3f51b5', width: '130px', flexShrink: 0 }}>Year:</span>
+                  <span style={{ fontWeight: '500', color: '#334155' }}>{member.year} Year</span>
+                </div>
+              )}
+              {member.phone && (
+                <div style={{ display: 'flex', alignItems: 'start' }}>
+                  <span style={{ fontWeight: '700', color: '#3f51b5', width: '130px', flexShrink: 0 }}>Phone:</span>
+                  <span style={{ fontWeight: '500', color: '#334155' }}>
+                    <a href={`tel:${member.phone}`} style={{ color: '#334155', textDecoration: 'none', fontWeight: '500' }}>
+                      {member.phone}
+                    </a>
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -264,165 +504,562 @@ const MemberCard = ({ member }) => {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 const Execomm = () => {
-  const [activeSub, setActiveSub] = useState('main');
-  const [counselor, setCounselor] = useState({
-    name: "Dr. A. Sheela",
-    role: "IEEE KEC Student Branch Counselor",
-    college: "Kongu Engineering College",
-    desc: "Professor & Head, Department of Electrical & Electronics Engineering. Dr. Sheela guides the overall strategic direction of the IEEE Student Branch and operational societies.",
-    email: "sheela.eee@kongu.ac.in",
-    linkedin: "https://linkedin.com"
-  });
-  const [members, setMembers] = useState([]);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const facultiesRef = React.useRef(null);
+  const studentsRef = React.useRef(null);
 
   useEffect(() => {
-    const defaultCounselor = {
-      name: "Dr. A. Sheela",
-      role: "IEEE KEC Student Branch Counselor",
-      college: "Kongu Engineering College",
-      desc: "Professor & Head, Department of Electrical & Electronics Engineering. Dr. Sheela guides the overall strategic direction of the IEEE Student Branch and operational societies.",
-      email: "sheela.eee@kongu.ac.in",
-      linkedin: "https://linkedin.com"
-    };
+    const timer = setTimeout(() => {
+      if (location.pathname.includes('/students')) {
+        studentsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else if (location.pathname.includes('/faculties')) {
+        facultiesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
 
-    const defaultMembers = [
-      { id: 1,  name: "Abhishek M.",    role: "Student Branch Chair",       category: "main", desc: "Steers KEC Student Branch activities, ensuring technical exposure and volunteer training for all members.", email: "abhishek.ieee@kec.ac.in", linkedin: "https://linkedin.com" },
-      { id: 2,  name: "Sneha R.",       role: "Student Branch Vice Chair",   category: "main", desc: "Coordinates inter-departmental collaborations and manages event execution operations.", email: "sneha.ieee@kec.ac.in", linkedin: "https://linkedin.com" },
-      { id: 3,  name: "Harish K.",      role: "Student Secretary",           category: "main", desc: "Manages correspondence, documents meetings, and oversees the branch documentation archive.", email: "harish.ieee@kec.ac.in", linkedin: "https://linkedin.com" },
-      { id: 4,  name: "Naveen S.",      role: "Student Treasurer",           category: "main", desc: "Handles financial planning, seed funding requests, and audits event budgets.", email: "naveen.ieee@kec.ac.in", linkedin: "https://linkedin.com" },
-      { id: 5,  name: "Dharini P.",     role: "Student Webmaster",           category: "main", desc: "Maintains digital branch platforms, handles portals, and manages online publications.", email: "dharini.ieee@kec.ac.in", linkedin: "https://linkedin.com" },
-      { id: 6,  name: "Karthik Raja V.", role: "SPS Student Chapter Chair",  category: "sps",  desc: "Organizes training programs and lectures on digital signal, speech, and image processing.", email: "karthik.sps@kec.ac.in", linkedin: "https://linkedin.com" },
-      { id: 7,  name: "Priyanka S.",    role: "SPS Vice Chair",              category: "sps",  desc: "Coordinates labs and design reviews for signal processing projects under KEC SRC.", email: "priyanka.sps@kec.ac.in", linkedin: "https://linkedin.com" },
-      { id: 8,  name: "Anand M.",       role: "SPS Secretary",               category: "sps",  desc: "Handles documentation and communication for all Signal Processing Society events.", email: "anand.sps@kec.ac.in", linkedin: "https://linkedin.com" },
-      { id: 9,  name: "Shruthi G.",     role: "WIE Affinity Group Chair",    category: "wie",  desc: "Leads mentorship and development programs for female students, promoting STEM pathways.", email: "shruthi.wie@kec.ac.in", linkedin: "https://linkedin.com" },
-      { id: 10, name: "Divya K.",       role: "WIE Vice Chair",              category: "wie",  desc: "Coordinates programming workshops, leadership meetups, and community coding sessions.", email: "divya.wie@kec.ac.in", linkedin: "https://linkedin.com" },
-      { id: 11, name: "Kavya R.",       role: "WIE Secretary",               category: "wie",  desc: "Maintains student branch WIE records and manages publicity for gender empowerment events.", email: "kavya.wie@kec.ac.in", linkedin: "https://linkedin.com" }
+  const [societies, setSocieties] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [selectedMember, setSelectedMember] = useState(null);
+
+  useEffect(() => {
+    // 1. Fallback / Default Societies
+    const defaultSocieties = [
+      {
+        id: 1,
+        name: "Computer Society (CS Society)",
+        faculty1: { name: "Dr. S. Varadhaganapathy", position: "Society Chairman", phone: "+91 98427 21111", image: "/assets/faculty_male_1.png" },
+        faculty2: { name: "Dr. P. Natesan", position: "Society Vice Chairman", phone: "+91 98427 22222", image: "/assets/faculty_male_2.png" }
+      },
+      {
+        id: 2,
+        name: "Robotics and Automation Society (RAS)",
+        faculty1: { name: "Dr. R. Murugesan", position: "Society Chairman", phone: "+91 98427 23333", image: "/assets/faculty_male_3.png" },
+        faculty2: { name: "Mr. S. Albert Alexander", position: "Society Vice Chairman", phone: "+91 98427 24444", image: "/assets/faculty_male_4.png" }
+      },
+      {
+        id: 3,
+        name: "Women in Engineering (WIE)",
+        faculty1: { name: "Dr. J. Premalatha", position: "Society Chairman", phone: "+91 98427 25555", image: "/assets/faculty_female_1.png" },
+        faculty2: { name: "Dr. S. Kalaiselvi", position: "Society Vice Chairman", phone: "+91 98427 26666", image: "/assets/faculty_female_2.png" }
+      },
+      {
+        id: 4,
+        name: "Power & Energy Society (PES)",
+        faculty1: { name: "Dr. N. Nithyadevi", position: "Society Chairman", phone: "+91 98427 27777", image: "/assets/faculty_female_3.png" },
+        faculty2: { name: "Dr. A. Sheela", position: "Society Vice Chairman", phone: "+91 98427 28888", image: "/assets/faculty_female_4.png" }
+      },
+      {
+        id: 5,
+        name: "Communications Society (ComSoc)",
+        faculty1: { name: "Dr. K. Senthil Kumar", position: "Society Chairman", phone: "+91 98427 29999", image: "/assets/faculty_male.png" },
+        faculty2: { name: "Dr. G. Murugesan", position: "Society Vice Chairman", phone: "+91 98427 20000", image: "/assets/faculty_male_1.png" }
+      },
+      {
+        id: 6,
+        name: "AP-S (Antennas and Propagation Society)",
+        faculty1: { name: "Dr. T. Meeradevi", position: "Society Chairman", phone: "+91 98427 21122", image: "/assets/faculty_female.png" },
+        faculty2: { name: "Dr. K. Albert", position: "Society Vice Chairman", phone: "+91 98427 33344", image: "/assets/faculty_male_2.png" }
+      }
     ];
 
-    const storedCounselor = localStorage.getItem('ieee_execomm_counselor');
-    setCounselor(storedCounselor ? JSON.parse(storedCounselor) : defaultCounselor);
-    if (!storedCounselor) localStorage.setItem('ieee_execomm_counselor', JSON.stringify(defaultCounselor));
+    // 2. Fallback / Default Students
+    const defaultStudents = [
+      {
+        id: 1,
+        name: "Abhishek M.",
+        department: "Computer Science and Engineering",
+        yearOfStudy: "IV",
+        ieeeNumber: "92837482",
+        position: "Chairman",
+        society: "IEEE KEC SB",
+        image: "/assets/student_male.png"
+      },
+      {
+        id: 2,
+        name: "Sneha R.",
+        department: "Electronics and Communication Engineering",
+        yearOfStudy: "IV",
+        ieeeNumber: "92837483",
+        position: "Vice Chairman",
+        society: "IEEE KEC SB",
+        image: "/assets/student_female.png"
+      },
+      {
+        id: 3,
+        name: "Rajesh Kumar K.",
+        department: "Computer Science and Engineering",
+        yearOfStudy: "IV",
+        ieeeNumber: "92837494",
+        position: "Student Branch Chair",
+        society: "IEEE KEC SB",
+        image: "/assets/student_male_1.png"
+      },
+      {
+        id: 4,
+        name: "Karthik Raja V.",
+        department: "Electrical and Electronics Engineering",
+        yearOfStudy: "IV",
+        ieeeNumber: "92837484",
+        position: "Society Chairman",
+        society: "Computer Society (CS Society)",
+        image: "/assets/student_male_1.png"
+      },
+      {
+        id: 5,
+        name: "Priyanka S.",
+        department: "Information Technology",
+        yearOfStudy: "IV",
+        ieeeNumber: "92837485",
+        position: "Society Vice Chairman",
+        society: "Women in Engineering (WIE)",
+        image: "/assets/faculty_female_4.png"
+      },
+      {
+        id: 6,
+        name: "Manoj Prabhakar S.",
+        department: "Mechanical Engineering",
+        yearOfStudy: "IV",
+        ieeeNumber: "92837495",
+        position: "Society Chairman",
+        society: "Robotics and Automation Society (RAS)",
+        image: "/assets/student_male_2.png"
+      },
+      {
+        id: 7,
+        name: "Harish K.",
+        department: "Electronics and Instrumentation Engineering",
+        yearOfStudy: "III",
+        ieeeNumber: "92837486",
+        position: "Additional Secretary",
+        society: "IEEE KEC SB",
+        image: "/assets/student_male_2.png"
+      },
+      {
+        id: 8,
+        name: "Deepa N.",
+        department: "Electronics and Communication Engineering",
+        yearOfStudy: "III",
+        ieeeNumber: "92837496",
+        position: "Additional Secretary",
+        society: "IEEE KEC SB",
+        image: "/assets/student_female.png"
+      },
+      {
+        id: 9,
+        name: "Vijay Anand R.",
+        department: "Information Technology",
+        yearOfStudy: "III",
+        ieeeNumber: "92837497",
+        position: "Additional Secretary",
+        society: "IEEE KEC SB",
+        image: "/assets/student_male_3.png"
+      },
+      {
+        id: 10,
+        name: "Naveen S.",
+        department: "Mechanical Engineering",
+        yearOfStudy: "III",
+        ieeeNumber: "92837487",
+        position: "Joint Secretary",
+        society: "IEEE KEC SB",
+        image: "/assets/student_male_3.png"
+      },
+      {
+        id: 11,
+        name: "Keerthana M.",
+        department: "Electrical and Electronics Engineering",
+        yearOfStudy: "III",
+        ieeeNumber: "92837498",
+        position: "Joint Secretary",
+        society: "IEEE KEC SB",
+        image: "/assets/student_female.png"
+      },
+      {
+        id: 12,
+        name: "Rahul E.",
+        department: "Electronics and Instrumentation Engineering",
+        yearOfStudy: "III",
+        ieeeNumber: "92837499",
+        position: "Joint Secretary",
+        society: "IEEE KEC SB",
+        image: "/assets/student_male_4.png"
+      },
+      {
+        id: 13,
+        name: "Dharini P.",
+        department: "Computer Science and Engineering",
+        yearOfStudy: "III",
+        ieeeNumber: "92837488",
+        position: "Web Team Chairman",
+        society: "IEEE KEC SB",
+        image: "/assets/faculty_female_3.png"
+      },
+      {
+        id: 14,
+        name: "Arun Kumar S.",
+        department: "Chemical Engineering",
+        yearOfStudy: "III",
+        ieeeNumber: "92837489",
+        position: "Event Team Chairman",
+        society: "IEEE KEC SB",
+        image: "/assets/student_male_4.png"
+      },
+      {
+        id: 15,
+        name: "Sanjay B.",
+        department: "Information Technology",
+        yearOfStudy: "III",
+        ieeeNumber: "92837500",
+        position: "Media Team Chairman",
+        society: "IEEE KEC SB",
+        image: "/assets/student_male_1.png"
+      },
+      {
+        id: 16,
+        name: "Divya K.",
+        department: "Food Technology",
+        yearOfStudy: "II",
+        ieeeNumber: "92837490",
+        position: "Office Bearer",
+        society: "Women in Engineering (WIE)",
+        image: "/assets/faculty_female_2.png"
+      },
+      {
+        id: 17,
+        name: "Vignesh S.",
+        department: "Electrical and Electronics Engineering",
+        yearOfStudy: "II",
+        ieeeNumber: "92837501",
+        position: "Executive Member",
+        society: "Power & Energy Society (PES)",
+        image: "/assets/student_male.png"
+      },
+      {
+        id: 18,
+        name: "Sandhya R.",
+        department: "Electronics and Communication Engineering",
+        yearOfStudy: "II",
+        ieeeNumber: "92837502",
+        position: "Executive Member",
+        society: "Communications Society (ComSoc)",
+        image: "/assets/student_female.png"
+      },
+      {
+        id: 19,
+        name: "Kavya R.",
+        department: "Electronics and Communication Engineering",
+        yearOfStudy: "II",
+        ieeeNumber: "92837491",
+        position: "Member",
+        society: "Robotics and Automation Society (RAS)",
+        image: "/assets/faculty_female_1.png"
+      },
+      {
+        id: 20,
+        name: "Surya K.",
+        department: "Electronics and Communication Engineering",
+        yearOfStudy: "II",
+        ieeeNumber: "92837503",
+        position: "Student Member",
+        society: "AP-S (Antennas and Propagation Society)",
+        image: "/assets/student_male.png"
+      },
+      {
+        id: 21,
+        name: "Shalini D.",
+        department: "Computer Science and Engineering",
+        yearOfStudy: "II",
+        ieeeNumber: "92837504",
+        position: "Student Member",
+        society: "Computer Society (CS Society)",
+        image: "/assets/student_female.png"
+      }
+    ];
 
-    const storedMembers = localStorage.getItem('ieee_execomm_members');
-    setMembers(storedMembers ? JSON.parse(storedMembers) : defaultMembers);
-    if (!storedMembers) localStorage.setItem('ieee_execomm_members', JSON.stringify(defaultMembers));
+    // Load from localStorage, version 3 keys
+    const storedSocieties = localStorage.getItem('ieee_execomm_societies_v3');
+    if (storedSocieties) {
+      setSocieties(JSON.parse(storedSocieties));
+    } else {
+      localStorage.setItem('ieee_execomm_societies_v3', JSON.stringify(defaultSocieties));
+      setSocieties(defaultSocieties);
+    }
+
+    const storedStudents = localStorage.getItem('ieee_execomm_students_v3');
+    if (storedStudents) {
+      setStudents(JSON.parse(storedStudents));
+    } else {
+      localStorage.setItem('ieee_execomm_students_v3', JSON.stringify(defaultStudents));
+      setStudents(defaultStudents);
+    }
   }, []);
 
-  const tabs = [
-    { id: 'main', label: 'IEEE KEC SB Officers',         subtitle: 'Core Office Bearers' },
-    { id: 'sps',  label: 'Signal Processing Society',    subtitle: 'SPS Chapter' },
-    { id: 'wie',  label: 'Women in Engineering',         subtitle: 'WIE Group' },
-  ];
+  // Sort societies according to requested order
+  const societyOrderMap = {
+    "computer society (cs society)": 1,
+    "robotics and automation society (ras)": 2,
+    "women in engineering (wie)": 3,
+    "power & energy society (pes)": 4,
+    "communications society (comsoc)": 5,
+    "antennas and propagation society (ap-s)": 6,
+    "ap-s (antennas and propagation society)": 6
+  };
 
-  const activeMembers = members.filter(m => m.category === activeSub);
-  const activeTab = tabs.find(t => t.id === activeSub);
+  const getSocietySortOrder = (name) => {
+    const norm = (name || '').toLowerCase().trim();
+    return societyOrderMap[norm] || 99; // append unknown to the end
+  };
+
+  const sortedSocieties = [...societies].sort((a, b) => {
+    return getSocietySortOrder(a.name) - getSocietySortOrder(b.name);
+  });
+
+  // Sort students according to KEC SB hierarchy
+  const sortedStudents = [...students].sort((a, b) => {
+    const diff = getHierarchyLevel(a.position) - getHierarchyLevel(b.position);
+    if (diff !== 0) return diff;
+    // Alphabetical secondary sort
+    return (a.name || '').localeCompare(b.name || '');
+  });
 
   return (
     <div className="animate-fade-in" style={{ backgroundColor: 'var(--bg-light)', paddingBottom: '90px' }}>
       <PageHeader
         title="Executive Committee"
-        subtitle="Meet the student leaders and faculty counselors steering the KEC IEEE Student Branch"
+        subtitle="Meet the professional advisors and student leaders steering the IEEE KEC Student Branch"
       />
 
-      {/* ── Faculty Counselor ─────────────────────────────────────────────── */}
-      <div className="container" style={{ marginBottom: '64px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-          <SectionLabel text="Faculty Leadership" />
-          <h2 className="font-serif" style={{ fontSize: '26px', color: '#0a385b', fontWeight: '800', marginTop: '8px' }}>
-            Branch Counselor
-          </h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
-            Faculty advisor and strategic guide for the IEEE KEC Student Branch.
-          </p>
-        </div>
-        <div style={{ maxWidth: '640px', marginInline: 'auto' }}>
-          <CounselorCard member={counselor} />
-        </div>
-      </div>
-
-      {/* ── Tab Switcher ──────────────────────────────────────────────────── */}
+      {/* ExeComm Content Container */}
       <div className="container">
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <SectionLabel text="Student Leadership" />
-          <h2 className="font-serif" style={{ fontSize: '26px', color: '#0a385b', fontWeight: '800', marginTop: '8px' }}>
-            Office Bearers
-          </h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
-            Select a society to view its respective office bearers.
-          </p>
+        {/* ── FACULTIES SECTION ────────────────────────────────────── */}
+        <div ref={facultiesRef} style={{ scrollMarginTop: '100px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+            <SectionLabel text="Advisory Board" />
+            <h2 className="font-serif" style={{ fontSize: '28px', color: 'var(--primary)', fontWeight: '800', marginTop: '8px' }}>
+              Faculty Coordinators
+            </h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '14px', maxWidth: '600px', margin: '0 auto' }}>
+              Experienced advisors providing leadership, technical guidance, and administrative support across core IEEE societies.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
+            {sortedSocieties.map((soc) => {
+              // Determine order of faculty in-charges within the society by hierarchy
+              const fac1Level = getHierarchyLevel(soc.faculty1?.position);
+              const fac2Level = getHierarchyLevel(soc.faculty2?.position);
+              
+              const showFac1First = fac1Level <= fac2Level;
+              const coordList = showFac1First
+                ? [soc.faculty1, soc.faculty2]
+                : [soc.faculty2, soc.faculty1];
+
+              return (
+                <div key={soc.id} style={{
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '16px',
+                  padding: '32px',
+                  backgroundColor: '#ffffff',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
+                }}>
+                  <h3 style={{
+                    fontSize: '20px',
+                    color: 'var(--primary)',
+                    fontWeight: '800',
+                    marginBottom: '24px',
+                    textAlign: 'left',
+                    borderBottom: '2px solid var(--border-subtle)',
+                    paddingBottom: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px'
+                  }}>
+                    <span style={{ fontSize: '24px' }}>🏫</span> {soc.name}
+                  </h3>
+                  
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                    gap: '24px'
+                  }}>
+                    {coordList.map((fac, fIdx) => (
+                      fac && fac.name ? (
+                        <FacultyCard
+                          key={fIdx}
+                          name={fac.name}
+                          position={fac.position}
+                          phone={fac.phone}
+                          image={fac.image}
+                          societyName={soc.name}
+                          onClick={() => setSelectedMember({
+                            name: fac.name,
+                            position: fac.position,
+                            phone: fac.phone,
+                            image: fac.image,
+                            branch: soc.name,
+                            type: 'Faculty'
+                          })}
+                        />
+                      ) : null
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Tab Buttons */}
-        <div style={{
-          display: 'flex', justifyContent: 'center', gap: '10px',
-          marginBottom: '40px', flexWrap: 'wrap'
-        }}>
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveSub(tab.id)}
-              style={{
-                padding: '10px 24px',
-                fontSize: '13.5px', fontWeight: '700',
-                borderRadius: '30px', border: 'none', cursor: 'pointer',
-                letterSpacing: '0.2px',
-                transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-                backgroundColor: activeSub === tab.id ? '#0a385b' : '#ffffff',
-                color: activeSub === tab.id ? '#ffffff' : '#64748b',
-                boxShadow: activeSub === tab.id
-                  ? '0 4px 14px rgba(10,56,91,0.25)'
-                  : '0 2px 6px rgba(0,0,0,0.06)',
-                transform: activeSub === tab.id ? 'translateY(-1px)' : 'none'
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        {/* ── SECTION DIVIDER ────────────────────────────────────────── */}
+        <div style={{ margin: '60px 0', borderTop: '2px dashed var(--border-subtle)' }} />
 
-        {/* Active Tab Label */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: '10px',
-          marginBottom: '28px',
-          paddingBottom: '16px',
-          borderBottom: '1px solid var(--border-subtle)'
-        }}>
-          <Users size={18} style={{ color: '#02619a' }} />
-          <span style={{ fontSize: '15px', fontWeight: '700', color: '#0a385b' }}>
-            {activeTab?.label}
-          </span>
-          <ChevronRight size={16} style={{ color: '#94a3b8' }} />
-          <span style={{ fontSize: '13px', color: '#64748b' }}>
-            {activeMembers.length} member{activeMembers.length !== 1 ? 's' : ''}
-          </span>
-        </div>
+        {/* ── STUDENTS SECTION ─────────────────────────────────────── */}
+        {(() => {
+          const HIERARCHY_LEVEL_LABELS = {
+            1: "Student Branch Chairpersons",
+            2: "Society Chairpersons",
+            3: "Additional Secretaries",
+            4: "Joint Secretaries",
+            5: "Committee Heads",
+            6: "Executive Members",
+            7: "Student Members"
+          };
+          const levels = [1, 2, 3, 4, 5, 6, 7];
+          
+          return (
+            <div ref={studentsRef} style={{ scrollMarginTop: '100px' }}>
+              <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+                <SectionLabel text="Student Leadership" />
+                <h2 className="font-serif" style={{ fontSize: '28px', color: 'var(--primary)', fontWeight: '800', marginTop: '8px' }}>
+                  Student Office Bearers
+                </h2>
+                <p style={{ color: 'var(--text-muted)', fontSize: '14px', maxWidth: '600px', margin: '0 auto' }}>
+                  Active student coordinators managing chapter operations, workshops, project expos, and community outreach.
+                </p>
+              </div>
 
-        {/* Member Cards Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-          gap: '24px'
-        }}>
-          {activeMembers.map(member => (
-            <MemberCard key={member.id} member={member} />
-          ))}
-        </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
+                {levels.map(level => {
+                  const levelStudents = sortedStudents.filter(stud => getHierarchyLevel(stud.position) === level);
+                  if (levelStudents.length === 0) return null;
+
+                  return (
+                    <div key={level} style={{
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '16px',
+                      padding: '32px',
+                      backgroundColor: '#ffffff',
+                      boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
+                    }}>
+                      <h3 style={{
+                        fontSize: '20px',
+                        color: 'var(--primary)',
+                        fontWeight: '800',
+                        marginBottom: '24px',
+                        textAlign: 'left',
+                        borderBottom: '2px solid var(--border-subtle)',
+                        paddingBottom: '12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px'
+                      }}>
+                        <span style={{ fontSize: '24px' }}>🛡️</span> {HIERARCHY_LEVEL_LABELS[level]}
+                      </h3>
+                      
+                      <div className="execomm-students-grid" style={{
+                        display: 'grid',
+                        gap: '24px'
+                      }}>
+                        {levelStudents.map((stud) => (
+                          <StudentCard 
+                            key={stud.id} 
+                            student={stud} 
+                            onClick={() => setSelectedMember({
+                              name: stud.name,
+                              position: stud.position,
+                              branch: stud.society || 'IEEE KEC SB',
+                              department: stud.department,
+                              ieeeNumber: stud.ieeeNumber,
+                              year: stud.yearOfStudy,
+                              image: stud.image,
+                              type: 'Student'
+                            })}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* Modal Portal/Conditional rendering */}
+        {selectedMember && (
+          <MemberModal 
+            member={selectedMember} 
+            onClose={() => setSelectedMember(null)} 
+          />
+        )}
       </div>
 
       <style>{`
-        .execomm-member-card:hover {
-          transform: translateY(-5px) !important;
-          box-shadow: 0 12px 28px rgba(10,56,91,0.10) !important;
-          border-top-color: #02619a !important;
+        .execomm-students-grid {
+          grid-template-columns: repeat(3, 1fr);
         }
-        .execomm-icon-btn:hover {
-          background-color: #0a385b !important;
-          color: #ffffff !important;
-          border-color: #0a385b !important;
+        @media (max-width: 1024px) {
+          .execomm-students-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
         }
-        .execomm-contact-btn:hover {
-          box-shadow: 0 4px 12px rgba(10,56,91,0.15);
-          transform: translateY(-1px);
+        @media (max-width: 640px) {
+          .execomm-students-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+        .execomm-clickable-card {
+          cursor: pointer;
+          transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                      box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                      border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          outline: none;
+        }
+        .execomm-clickable-card:hover,
+        .execomm-clickable-card:focus {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(79, 70, 229, 0.15) !important;
+          border-color: var(--border-focus) !important;
+        }
+        .modal-close-btn {
+          transition: all 0.2s ease;
+        }
+        .modal-close-btn:hover {
+          transform: scale(1.1);
+          box-shadow: 0 6px 16px rgba(0,0,0,0.15) !important;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes scaleIn {
+          from { opacity: 0; transform: scale(0.9); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        @media (max-width: 600px) {
+          .execomm-modal-layout {
+            flex-direction: column !important;
+            min-height: auto !important;
+          }
+          .modal-left-image-container {
+            width: 100% !important;
+            height: 240px !important;
+          }
+          .modal-right-details-container {
+            padding: 24px !important;
+          }
         }
       `}</style>
     </div>

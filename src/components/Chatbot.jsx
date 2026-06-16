@@ -55,7 +55,7 @@ const Chatbot = () => {
       } else if (cleanText.includes('hello') || cleanText.includes('hi') || cleanText.includes('hey') || cleanText.includes('greetings')) {
         botResponseText = 'Hello there! 😊 How can I help you explore IEEE activities or membership at KEC today?';
       } else {
-        botResponseText = "Thank you for reaching out! I'm trained to help with questions about KEC IEEE SB membership, events, research cells, and contact details. Try asking about 'joining', 'benefits', or use one of the quick suggestion chips below.";
+        botResponseText = "Thank you for reaching out! I can assist you with questions about KEC IEEE SB membership, events, research cells, and contact details. Feel free to ask about 'joining', 'benefits', or select one of the quick suggestions below.";
       }
 
       const botMessage = {
@@ -101,7 +101,7 @@ const Chatbot = () => {
         className={`chatbot-trigger ${isOpen ? 'active' : ''}`}
         title="Chat with KEC IEEE Assistant"
       >
-        {isOpen ? <X size={24} /> : <MessageSquare size={24} className="bubble-icon" />}
+        {isOpen ? <X size={24} /> : <Bot size={24} className="bubble-icon" />}
       </button>
 
       {/* Chat Window Panel */}

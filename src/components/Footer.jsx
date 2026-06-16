@@ -7,11 +7,14 @@ const Footer = () => {
 
   return (
     <footer style={{
-      backgroundColor: '#031726', /* Dark KSV Blue */
+      background: 'linear-gradient(180deg, #0f172a 0%, #030712 100%)',
       color: '#c2d5e3',
       padding: '70px 0 30px',
-      borderTop: '4px solid var(--secondary)'
+      borderTop: '1px solid rgba(255,255,255,0.08)',
+      position: 'relative'
     }}>
+      {/* Decorative top colored line */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'var(--gradient-colorful)' }}></div>
       <div className="container">
         <div style={{
           display: 'grid',
@@ -25,14 +28,15 @@ const Footer = () => {
               <div style={{
                 width: '40px',
                 height: '40px',
-                borderRadius: '50%',
-                backgroundColor: 'var(--secondary)',
+                borderRadius: '12px',
+                background: 'var(--gradient-cyber)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#fff',
                 fontSize: '16px',
-                fontWeight: '800'
+                fontWeight: '800',
+                boxShadow: '0 4px 10px rgba(6, 182, 212, 0.3)'
               }}>
                 🌿
               </div>
@@ -61,7 +65,7 @@ const Footer = () => {
 
           {/* Quick Links Column */}
           <div>
-            <h4 style={{ color: '#fff', fontSize: '16px', fontWeight: '700', marginBottom: '24px', borderBottom: '2px solid #10344d', paddingBottom: '10px' }}>
+            <h4 style={{ color: '#fff', fontSize: '16px', fontWeight: '700', marginBottom: '24px', borderBottom: '2px solid rgba(255, 255, 255, 0.08)', paddingBottom: '10px' }}>
               Quick Links
             </h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -93,7 +97,7 @@ const Footer = () => {
 
           {/* Contact Us Column */}
           <div>
-            <h4 style={{ color: '#fff', fontSize: '16px', fontWeight: '700', marginBottom: '24px', borderBottom: '2px solid #10344d', paddingBottom: '10px' }}>
+            <h4 style={{ color: '#fff', fontSize: '16px', fontWeight: '700', marginBottom: '24px', borderBottom: '2px solid rgba(255, 255, 255, 0.08)', paddingBottom: '10px' }}>
               Contact Details
             </h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -119,7 +123,7 @@ const Footer = () => {
         </div>
 
         {/* Divider */}
-        <div style={{ borderTop: '1px solid #10344d', margin: '40px 0 24px' }}></div>
+        <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', margin: '40px 0 24px' }}></div>
 
         {/* Copyright section */}
         <div style={{
@@ -147,18 +151,21 @@ const Footer = () => {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          width: 36px;
-          height: 36px;
+          width: 40px;
+          height: 40px;
           border-radius: 50%;
-          background-color: #0e2a3e;
+          background-color: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.08);
           color: #a6bac5;
           transition: all 0.2s ease;
           text-decoration: none;
         }
         .social-icon-btn:hover {
-          background-color: var(--secondary);
+          background: var(--secondary);
+          border-color: var(--secondary);
           color: #fff;
-          transform: translateY(-2px);
+          transform: translateY(-3px);
+          box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
         }
         .footer-link-hover:hover {
           color: #fff !important;

@@ -61,10 +61,13 @@ const RequestFormPage = () => {
     coordinatorName: '',
     coordinatorEmail: '',
     coordinatorPhone: '',
-    eventDate: '',
+    eventStartDate: '',
+    eventEndDate: '',
     venue: '',
     participantCount: '',
     budget: '',
+    contactPersonPhone: '',
+    mailForAcknowledge: '',
     speakerDetails: '',
     description: ''
   });
@@ -397,7 +400,8 @@ const RequestFormPage = () => {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
+                <div className="onscreen-form-grid-2col">
+                  {/* Row 1: Coordinator Name & Coordinator Email */}
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Coordinator Name *</label>
                     <input
@@ -422,6 +426,7 @@ const RequestFormPage = () => {
                     />
                   </div>
 
+                  {/* Row 2: Coordinator Phone & Mail for Acknowledge */}
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Coordinator Phone *</label>
                     <input
@@ -433,20 +438,43 @@ const RequestFormPage = () => {
                       style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
                     />
                   </div>
-                </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Proposed Event Date *</label>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Mail for Acknowledge *</label>
                     <input
-                      type="date"
+                      type="email"
                       required
-                      value={proposalData.eventDate}
-                      onChange={(e) => setProposalData({ ...proposalData, eventDate: e.target.value })}
+                      placeholder="e.g. name@kongu.edu"
+                      value={proposalData.mailForAcknowledge}
+                      onChange={(e) => setProposalData({ ...proposalData, mailForAcknowledge: e.target.value })}
                       style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
                     />
                   </div>
 
+                  {/* Row 3: Date of the Event Start & Date of the Event End */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Date of the Event Start *</label>
+                    <input
+                      type="date"
+                      required
+                      value={proposalData.eventStartDate}
+                      onChange={(e) => setProposalData({ ...proposalData, eventStartDate: e.target.value })}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Date of the Event End *</label>
+                    <input
+                      type="date"
+                      required
+                      value={proposalData.eventEndDate}
+                      onChange={(e) => setProposalData({ ...proposalData, eventEndDate: e.target.value })}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                    />
+                  </div>
+
+                  {/* Row 4: Proposed Venue & Expected Participants */}
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Proposed Venue *</label>
                     <input
@@ -470,6 +498,7 @@ const RequestFormPage = () => {
                     />
                   </div>
 
+                  {/* Row 5: Estimated Budget (INR) & Person to Contact for Doubts */}
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Estimated Budget (INR) *</label>
                     <input
@@ -478,6 +507,19 @@ const RequestFormPage = () => {
                       placeholder="Total cost in Rs."
                       value={proposalData.budget}
                       onChange={(e) => setProposalData({ ...proposalData, budget: e.target.value })}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Person to Contact for Doubts *</label>
+                    <span style={{ display: 'block', fontSize: '11px', color: 'var(--text-muted)', marginTop: '-4px', marginBottom: '6px' }}>Phone number</span>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="e.g. +91 9876543210"
+                      value={proposalData.contactPersonPhone}
+                      onChange={(e) => setProposalData({ ...proposalData, contactPersonPhone: e.target.value })}
                       style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
                     />
                   </div>
@@ -814,6 +856,16 @@ const RequestFormPage = () => {
       </div>
       
       <style>{`
+        .onscreen-form-grid-2col {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 20px;
+        }
+        @media (max-width: 640px) {
+          .onscreen-form-grid-2col {
+            grid-template-columns: 1fr;
+          }
+        }
         .back-btn-hover:hover {
           background-color: #02619a !important;
           transform: translateY(-2px);

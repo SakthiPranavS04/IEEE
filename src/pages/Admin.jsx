@@ -9118,8 +9118,16 @@ const Admin = () => {
                               <span>{selectedSubmission.data?.coordinatorEmail}</span>
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
-                              <span style={{ fontWeight: '700', color: '#475569' }}>Proposed Date:</span>
-                              <span>{selectedSubmission.data?.eventDate}</span>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Mail for Acknowledge:</span>
+                              <span>{selectedSubmission.data?.mailForAcknowledge || 'N/A'}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Start Date:</span>
+                              <span>{selectedSubmission.data?.eventStartDate || selectedSubmission.data?.eventDate || 'N/A'}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>End Date:</span>
+                              <span>{selectedSubmission.data?.eventEndDate || 'N/A'}</span>
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
                               <span style={{ fontWeight: '700', color: '#475569' }}>Venue:</span>
@@ -9133,6 +9141,11 @@ const Admin = () => {
                               <span style={{ fontWeight: '700', color: '#475569' }}>Estimated Budget:</span>
                               <span style={{ fontWeight: '700', color: '#16a34a' }}>INR {selectedSubmission.data?.budget}</span>
                             </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Contact for Doubts:</span>
+                              <span>{selectedSubmission.data?.contactPersonPhone || 'N/A'}</span>
+                            </div>
+ 
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', borderTop: '1px solid #f1f5f9', paddingTop: '8px' }}>
                               <span style={{ fontWeight: '700', color: '#475569' }}>Guest Speaker Details:</span>
                               <span style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f8fafc', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13.5px' }}>

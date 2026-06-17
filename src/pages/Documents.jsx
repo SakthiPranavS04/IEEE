@@ -82,9 +82,16 @@ const Documents = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  const isWordDocument = (mimeType) => {
+    const type = (mimeType || '').toLowerCase();
+    return type.includes('google-apps.document') || type.includes('word') || type.includes('docx') || type.includes('msword');
+  };
+
   const getFileIcon = (mimeType) => {
     const type = (mimeType || '').toLowerCase();
-    if (type.includes('pdf')) {
+    if (isWordDocument(type)) {
+      return <FileText size={36} style={{ color: '#2563eb' }} />;
+    } else if (type.includes('pdf')) {
       return <FileText size={36} style={{ color: '#ef4444' }} />;
     } else if (type.includes('image') || type.includes('png') || type.includes('jpeg') || type.includes('jpg')) {
       return <ImageIcon size={36} style={{ color: '#10b981' }} />;
@@ -98,23 +105,28 @@ const Documents = () => {
 
   const isPreviewSupported = (mimeType) => {
     const type = (mimeType || '').toLowerCase();
-    return type.includes('pdf') || type.includes('image') || type.includes('png') || type.includes('jpeg') || type.includes('jpg') || type.includes('video') || type.includes('mp4');
+    return isWordDocument(type) || type.includes('pdf') || type.includes('image') || type.includes('png') || type.includes('jpeg') || type.includes('jpg') || type.includes('video') || type.includes('mp4');
   };
 
   const getCleanFileType = (mimeType) => {
     const type = (mimeType || '').toLowerCase();
+    if (isWordDocument(type)) return 'Word Doc';
     if (type.includes('pdf')) return 'PDF';
     if (type.includes('image') || type.includes('png') || type.includes('jpeg') || type.includes('jpg')) return 'Image';
     if (type.includes('video') || type.includes('mp4')) return 'Video';
     if (type.includes('zip') || type.includes('compressed')) return 'Archive';
-    if (type.includes('word') || type.includes('document') || type.includes('docx')) return 'Word Doc';
     return 'Document';
   };
 
+  const getDownloadUrl = (doc) => {
+    if (isWordDocument(doc.mimeType)) {
+      return `https://docs.google.com/document/d/${doc.id}/export?format=docx`;
+    }
+    return `https://drive.google.com/uc?export=download&id=${doc.id}`;
+  };
+
   const handleDownload = (doc) => {
-    // Open Google Drive direct download URL in a new window/tab to trigger native file export/download
-    const downloadUrl = `https://drive.google.com/uc?export=download&id=${doc.id}`;
-    window.open(downloadUrl, '_blank');
+    window.open(getDownloadUrl(doc), '_blank');
   };
 
   // Filtering Logic
@@ -134,14 +146,16 @@ const Documents = () => {
     const docCleanType = getCleanFileType(doc.mimeType).toLowerCase();
     let matchesType = true;
     if (selectedType !== 'All') {
-      if (selectedType === 'pdf') {
+      if (selectedType === 'word') {
+        matchesType = docCleanType.includes('word');
+      } else if (selectedType === 'pdf') {
         matchesType = docCleanType.includes('pdf');
       } else if (selectedType === 'image') {
         matchesType = docCleanType.includes('image');
       } else if (selectedType === 'video') {
         matchesType = docCleanType.includes('video');
       } else {
-        matchesType = !docCleanType.includes('pdf') && !docCleanType.includes('image') && !docCleanType.includes('video');
+        matchesType = !docCleanType.includes('word') && !docCleanType.includes('pdf') && !docCleanType.includes('image') && !docCleanType.includes('video');
       }
     }
 
@@ -157,7 +171,7 @@ const Documents = () => {
     <div className="animate-fade-in" style={{ backgroundColor: 'var(--bg-light)', paddingBottom: '90px', minHeight: '70vh', fontFamily: 'var(--font-sans)' }}>
       <PageHeader
         title="Documents Repository"
-        subtitle="A centralized repository for important KEC IEEE Student Branch bylaws, membership guides, templates, and certificates."
+        subtitle="A centralized repository of IEEE KEC Student Branch Word templates — forms, attendance sheets, proposals, and event resources."
       />
 
       <div className="container">
@@ -362,6 +376,7 @@ const Documents = () => {
                 }}
               >
                 <option value="All">All Formats</option>
+                <option value="word">Word Docs</option>
                 <option value="pdf">PDFs</option>
                 <option value="image">Images</option>
                 <option value="video">Videos</option>

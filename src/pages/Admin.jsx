@@ -1044,6 +1044,16 @@ const Admin = () => {
         is_active: true,
         updated_at: new Date().toLocaleDateString(),
         updated_by: "Admin"
+      },
+      {
+        id: 3,
+        form_name: "Membership",
+        route_slug: "membership",
+        google_form_url: "",
+        description: "Register for IEEE KEC SB membership. Fill in your personal details, department, year, and complete the payment via UPI.",
+        is_active: true,
+        updated_at: new Date().toLocaleDateString(),
+        updated_by: "Admin"
       }
     ];
 
@@ -8977,11 +8987,17 @@ const Admin = () => {
                               </td>
                               <td style={{ padding: '16px 20px', fontWeight: '600' }}>{sub.form_name}</td>
                               <td style={{ padding: '16px 20px', color: '#334155' }}>
-                                {sub.form_slug === 'event-pre-proposal' ? sub.data?.title : sub.data?.eventName}
+                                {sub.form_slug === 'membership'
+                                   ? `${sub.data?.name || 'N/A'} (${sub.data?.rollNumber || 'N/A'})`
+                                   : (sub.form_slug === 'event-pre-proposal' ? sub.data?.title : sub.data?.eventName)}
                               </td>
                               <td style={{ padding: '16px 20px', fontSize: '13px' }}>
-                                <div style={{ fontWeight: '600' }}>{sub.data?.coordinatorName}</div>
-                                <div style={{ color: '#64748b' }}>{sub.data?.coordinatorEmail}</div>
+                                <div style={{ fontWeight: '600' }}>
+                                  {sub.form_slug === 'membership' ? sub.data?.name : sub.data?.coordinatorName}
+                                </div>
+                                <div style={{ color: '#64748b' }}>
+                                  {sub.form_slug === 'membership' ? sub.data?.collegeEmail : sub.data?.coordinatorEmail}
+                                </div>
                               </td>
                               <td style={{ padding: '16px 20px', color: '#64748b', fontSize: '13px' }}>
                                 {new Date(sub.submitted_at).toLocaleString()}
@@ -9106,8 +9122,24 @@ const Admin = () => {
                               <span style={{ fontWeight: '600', color: 'var(--primary)' }}>{selectedSubmission.data?.title}</span>
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
-                              <span style={{ fontWeight: '700', color: '#475569' }}>Society:</span>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Society (Chapter):</span>
                               <span>{selectedSubmission.data?.society}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Event Type:</span>
+                              <span>{selectedSubmission.data?.eventType || 'N/A'}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Category:</span>
+                              <span>{selectedSubmission.data?.eventCategory || 'N/A'}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Mode:</span>
+                              <span>{selectedSubmission.data?.eventMode || 'N/A'}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Scope:</span>
+                              <span>{selectedSubmission.data?.eventScope || 'N/A'}</span>
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
                               <span style={{ fontWeight: '700', color: '#475569' }}>Coordinator:</span>
@@ -9118,23 +9150,19 @@ const Admin = () => {
                               <span>{selectedSubmission.data?.coordinatorEmail}</span>
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
-                              <span style={{ fontWeight: '700', color: '#475569' }}>Mail for Acknowledge:</span>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Acknowledge Email:</span>
                               <span>{selectedSubmission.data?.mailForAcknowledge || 'N/A'}</span>
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
-                              <span style={{ fontWeight: '700', color: '#475569' }}>Start Date:</span>
-                              <span>{selectedSubmission.data?.eventStartDate || selectedSubmission.data?.eventDate || 'N/A'}</span>
-                            </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
-                              <span style={{ fontWeight: '700', color: '#475569' }}>End Date:</span>
-                              <span>{selectedSubmission.data?.eventEndDate || 'N/A'}</span>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Proposed Dates:</span>
+                              <span>{selectedSubmission.data?.eventStartDate || selectedSubmission.data?.eventDate || 'N/A'} to {selectedSubmission.data?.eventEndDate || 'N/A'}</span>
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
                               <span style={{ fontWeight: '700', color: '#475569' }}>Venue:</span>
                               <span>{selectedSubmission.data?.venue}</span>
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
-                              <span style={{ fontWeight: '700', color: '#475569' }}>Expected Attendees:</span>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Expected Crowd:</span>
                               <span>{selectedSubmission.data?.participantCount || 'N/A'}</span>
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
@@ -9142,12 +9170,12 @@ const Admin = () => {
                               <span style={{ fontWeight: '700', color: '#16a34a' }}>INR {selectedSubmission.data?.budget}</span>
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
-                              <span style={{ fontWeight: '700', color: '#475569' }}>Contact for Doubts:</span>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Contact Phone:</span>
                               <span>{selectedSubmission.data?.contactPersonPhone || 'N/A'}</span>
                             </div>
  
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', borderTop: '1px solid #f1f5f9', paddingTop: '8px' }}>
-                              <span style={{ fontWeight: '700', color: '#475569' }}>Guest Speaker Details:</span>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Guest Speakers Details:</span>
                               <span style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f8fafc', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13.5px' }}>
                                 {selectedSubmission.data?.speakerDetails || 'No speaker details provided.'}
                               </span>
@@ -9159,15 +9187,31 @@ const Admin = () => {
                               </span>
                             </div>
                           </div>
-                        ) : (
+                        ) : selectedSubmission.form_slug === 'bill-settlement' ? (
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
                               <span style={{ fontWeight: '700', color: '#475569' }}>Event Name:</span>
                               <span style={{ fontWeight: '600', color: 'var(--primary)' }}>{selectedSubmission.data?.eventName}</span>
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
-                              <span style={{ fontWeight: '700', color: '#475569' }}>Society:</span>
-                              <span>{selectedSubmission.data?.society}</span>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Organizer (Society):</span>
+                              <span>{selectedSubmission.data?.organizer || selectedSubmission.data?.society || 'N/A'}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Event Type:</span>
+                              <span>{selectedSubmission.data?.eventType || 'N/A'}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Category:</span>
+                              <span>{selectedSubmission.data?.eventCategory || 'N/A'}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Mode:</span>
+                              <span>{selectedSubmission.data?.eventMode || 'N/A'}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Scope:</span>
+                              <span>{selectedSubmission.data?.eventScope || 'N/A'}</span>
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
                               <span style={{ fontWeight: '700', color: '#475569' }}>Coordinator:</span>
@@ -9178,8 +9222,16 @@ const Admin = () => {
                               <span>{selectedSubmission.data?.coordinatorEmail}</span>
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
-                              <span style={{ fontWeight: '700', color: '#475569' }}>Event Date:</span>
-                              <span>{selectedSubmission.data?.eventDate}</span>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Acknowledge Email:</span>
+                              <span>{selectedSubmission.data?.mailForAcknowledge || 'N/A'}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Event Dates:</span>
+                              <span>{selectedSubmission.data?.eventStartDate} to {selectedSubmission.data?.eventEndDate}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Venue:</span>
+                              <span>{selectedSubmission.data?.venue || 'N/A'}</span>
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
                               <span style={{ fontWeight: '700', color: '#475569' }}>Total Attendees:</span>
@@ -9187,7 +9239,11 @@ const Admin = () => {
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
                               <span style={{ fontWeight: '700', color: '#475569' }}>Total Expenses:</span>
-                              <span style={{ fontWeight: '700', color: '#dc2626' }}>INR {selectedSubmission.data?.expenses}</span>
+                              <span style={{ fontWeight: '700', color: '#dc2626' }}>INR {selectedSubmission.data?.totalExpenses || selectedSubmission.data?.expenses}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Contact Phone:</span>
+                              <span>{selectedSubmission.data?.contactPersonPhone || 'N/A'}</span>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', borderTop: '1px solid #f1f5f9', paddingTop: '8px' }}>
                               <span style={{ fontWeight: '700', color: '#475569' }}>Bank Account Details:</span>
@@ -9228,6 +9284,110 @@ const Admin = () => {
                                 </div>
                               </div>
                             )}
+                          </div>
+                        ) : selectedSubmission.form_slug === 'membership' ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Student Name:</span>
+                              <span style={{ fontWeight: '600', color: 'var(--primary)' }}>{selectedSubmission.data?.name}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Roll Number:</span>
+                              <span style={{ fontWeight: '600' }}>{selectedSubmission.data?.rollNumber}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Year:</span>
+                              <span>{selectedSubmission.data?.year}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Department:</span>
+                              <span>
+                                {selectedSubmission.data?.department === 'Other' 
+                                  ? `Other (${selectedSubmission.data?.customDepartment || 'N/A'})` 
+                                  : (selectedSubmission.data?.department || 'N/A')}
+                              </span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>College Email:</span>
+                              <span>{selectedSubmission.data?.collegeEmail}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Personal Email:</span>
+                              <span>{selectedSubmission.data?.personalEmail}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Contact Number:</span>
+                              <span>{selectedSubmission.data?.contactNumber}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Transaction ID:</span>
+                              <span style={{ fontFamily: 'monospace', fontWeight: '600' }}>{selectedSubmission.data?.transactionId}</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>Payment Status:</span>
+                              <span style={{ 
+                                fontWeight: '700', 
+                                color: selectedSubmission.data?.paymentStatus === 'Paid' ? '#16a34a' : '#dc2626',
+                                backgroundColor: selectedSubmission.data?.paymentStatus === 'Paid' ? '#f0fdf4' : '#fef2f2',
+                                padding: '2px 8px',
+                                borderRadius: '4px',
+                                width: 'fit-content'
+                              }}>
+                                {selectedSubmission.data?.paymentStatus}
+                              </span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                              <span style={{ fontWeight: '700', color: '#475569' }}>IEEE Membership:</span>
+                              <span>{selectedSubmission.data?.membershipType}</span>
+                            </div>
+                            
+                            {selectedSubmission.data?.paymentScreenshotUrl && (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderTop: '1px solid #f1f5f9', paddingTop: '12px' }}>
+                                <span style={{ fontWeight: '700', color: '#475569' }}>Uploaded Payment Screenshot:</span>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                  <div>
+                                    <a
+                                      href={selectedSubmission.data.paymentScreenshotUrl}
+                                      download={selectedSubmission.data.paymentScreenshotName || 'payment_screenshot'}
+                                      style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        padding: '8px 16px',
+                                        backgroundColor: 'rgba(79, 70, 229, 0.05)',
+                                        border: '1px solid var(--border-subtle)',
+                                        borderRadius: '8px',
+                                        color: 'var(--secondary)',
+                                        fontWeight: '600',
+                                        textDecoration: 'none',
+                                        fontSize: '13px',
+                                        cursor: 'pointer'
+                                      }}
+                                    >
+                                      <FileText size={16} /> Download {selectedSubmission.data.paymentScreenshotName || 'Screenshot'}
+                                    </a>
+                                  </div>
+                                  {selectedSubmission.data.paymentScreenshotUrl.startsWith('data:image/') && (
+                                    <div style={{ marginTop: '8px' }}>
+                                      <img 
+                                        src={selectedSubmission.data.paymentScreenshotUrl} 
+                                        alt="Payment Screenshot Preview" 
+                                        style={{ maxWidth: '100%', maxHeight: '300px', objectFit: 'contain', borderRadius: '8px', border: '1px solid #cbd5e1' }} 
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {Object.entries(selectedSubmission.data || {}).map(([key, val]) => (
+                              <div key={key} style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px' }}>
+                                <span style={{ fontWeight: '700', color: '#475569', textTransform: 'capitalize' }}>{key.replace(/([A-Z])/g, ' $1')}:</span>
+                                <span>{typeof val === 'string' ? val : JSON.stringify(val)}</span>
+                              </div>
+                            ))}
                           </div>
                         )}
                       </div>

@@ -57,7 +57,11 @@ const RequestFormPage = () => {
   // Form Fields State - Event Pre-proposal
   const [proposalData, setProposalData] = useState({
     title: '',
-    society: 'IEEE KEC SB',
+    society: '',
+    eventType: '',
+    eventCategory: '',
+    eventMode: '',
+    eventScope: '',
     coordinatorName: '',
     coordinatorEmail: '',
     coordinatorPhone: '',
@@ -75,18 +79,48 @@ const RequestFormPage = () => {
   // Form Fields State - Bill Settlement
   const [billData, setBillData] = useState({
     eventName: '',
-    society: 'IEEE KEC SB',
+    organizer: '',
+    eventType: '',
+    eventCategory: '',
+    eventMode: '',
+    eventScope: '',
     coordinatorName: '',
     coordinatorEmail: '',
     coordinatorPhone: '',
-    eventDate: '',
+    eventStartDate: '',
+    eventEndDate: '',
+    venue: '',
     actualParticipants: '',
-    expenses: '',
+    totalExpenses: '',
     bankDetails: '',
     voucherName: '',
     voucherUrl: '',
+    mailForAcknowledge: '',
+    contactPersonPhone: '',
     remarks: ''
   });
+
+  // Validation errors
+  const [proposalErrors, setProposalErrors] = useState({});
+  const [billErrors, setBillErrors] = useState({});
+
+  // Form Fields State - Membership
+  const [membershipData, setMembershipData] = useState({
+    name: '',
+    rollNumber: '',
+    year: '',
+    department: '',
+    customDepartment: '',
+    collegeEmail: '',
+    personalEmail: '',
+    contactNumber: '',
+    transactionId: '',
+    paymentScreenshotName: '',
+    paymentScreenshotUrl: '',
+    paymentStatus: '',
+    membershipType: ''
+  });
+  const [membershipErrors, setMembershipErrors] = useState({});
 
   useEffect(() => {
     setIsLoading(true);
@@ -128,8 +162,93 @@ const RequestFormPage = () => {
     reader.readAsDataURL(file);
   };
 
+  const handlePaymentScreenshotUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setMembershipData(prev => ({
+        ...prev,
+        paymentScreenshotUrl: reader.result,
+        paymentScreenshotName: file.name
+      }));
+      if (membershipErrors.paymentScreenshotUrl) setMembershipErrors(p => ({ ...p, paymentScreenshotUrl: '' }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const validateMembership = () => {
+    const errs = {};
+    const phoneRe = /^[+]?[0-9]{10,13}$/;
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!membershipData.name.trim()) errs.name = 'Name is required.';
+    if (!membershipData.rollNumber.trim()) errs.rollNumber = 'Roll number is required.';
+    if (!membershipData.year) errs.year = 'Please select your year.';
+    if (!membershipData.department) errs.department = 'Please select your department.';
+    else if (membershipData.department === 'Other' && !membershipData.customDepartment.trim()) errs.customDepartment = 'Please specify your department.';
+    if (!membershipData.collegeEmail.trim()) errs.collegeEmail = 'College mail ID is required.';
+    else if (!emailRe.test(membershipData.collegeEmail)) errs.collegeEmail = 'Enter a valid email address.';
+    if (!membershipData.personalEmail.trim()) errs.personalEmail = 'Personal mail ID is required.';
+    else if (!emailRe.test(membershipData.personalEmail)) errs.personalEmail = 'Enter a valid email address.';
+    if (!membershipData.contactNumber.trim()) errs.contactNumber = 'Contact number is required.';
+    else if (!phoneRe.test(membershipData.contactNumber.replace(/\s/g, ''))) errs.contactNumber = 'Enter a valid 10-digit contact number.';
+    if (!membershipData.transactionId.trim()) errs.transactionId = 'Transaction ID is required.';
+    if (!membershipData.paymentScreenshotUrl) errs.paymentScreenshotUrl = 'Please upload a screenshot of payment.';
+    if (!membershipData.paymentStatus) errs.paymentStatus = 'Please select payment status.';
+    if (!membershipData.membershipType) errs.membershipType = 'Please select your IEEE membership type.';
+    return errs;
+  };
+
+  const handleMembershipSubmit = (e) => {
+    e.preventDefault();
+    const errs = validateMembership();
+    if (Object.keys(errs).length > 0) { setMembershipErrors(errs); return; }
+    setMembershipErrors({});
+    const refNum = 'MEM-' + Math.floor(100000 + Math.random() * 900000);
+    const newSubmission = {
+      id: 'SUB-' + Date.now(),
+      refNum,
+      form_slug: 'membership',
+      form_name: 'Membership',
+      submitted_at: new Date().toISOString(),
+      data: membershipData
+    };
+    const existing = JSON.parse(localStorage.getItem('ieee_form_submissions') || '[]');
+    localStorage.setItem('ieee_form_submissions', JSON.stringify([newSubmission, ...existing]));
+    setSubmissionRef(refNum);
+    setSubmitted(true);
+  };
+
+  const validateProposal = () => {
+    const errs = {};
+    const phoneRe = /^[+]?[0-9]{10,13}$/;
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!proposalData.title.trim()) errs.title = 'Event name is required.';
+    if (!proposalData.coordinatorName.trim()) errs.coordinatorName = 'Coordinator name is required.';
+    if (!proposalData.coordinatorEmail.trim()) errs.coordinatorEmail = 'Coordinator email is required.';
+    else if (!emailRe.test(proposalData.coordinatorEmail)) errs.coordinatorEmail = 'Enter a valid email address.';
+    if (!proposalData.coordinatorPhone.trim()) errs.coordinatorPhone = 'Coordinator phone is required.';
+    else if (!phoneRe.test(proposalData.coordinatorPhone.replace(/\s/g,''))) errs.coordinatorPhone = 'Enter a valid 10-digit phone number.';
+    if (!proposalData.eventStartDate) errs.eventStartDate = 'Start date is required.';
+    if (!proposalData.eventEndDate) errs.eventEndDate = 'End date is required.';
+    if (proposalData.eventStartDate && proposalData.eventEndDate && proposalData.eventEndDate < proposalData.eventStartDate)
+      errs.eventEndDate = 'End date must be after start date.';
+    if (!proposalData.venue.trim()) errs.venue = 'Venue is required.';
+    if (!proposalData.budget) errs.budget = 'Estimated budget is required.';
+    else if (isNaN(proposalData.budget) || Number(proposalData.budget) <= 0) errs.budget = 'Enter a valid budget amount.';
+    if (!proposalData.mailForAcknowledge.trim()) errs.mailForAcknowledge = 'Acknowledgement email is required.';
+    else if (!emailRe.test(proposalData.mailForAcknowledge)) errs.mailForAcknowledge = 'Enter a valid email address.';
+    if (!proposalData.contactPersonPhone.trim()) errs.contactPersonPhone = 'Contact person phone is required.';
+    else if (!phoneRe.test(proposalData.contactPersonPhone.replace(/\s/g,''))) errs.contactPersonPhone = 'Enter a valid 10-digit phone number.';
+    if (!proposalData.description.trim()) errs.description = 'Event description is required.';
+    return errs;
+  };
+
   const handleProposalSubmit = (e) => {
     e.preventDefault();
+    const errs = validateProposal();
+    if (Object.keys(errs).length > 0) { setProposalErrors(errs); return; }
+    setProposalErrors({});
     const refNum = 'PROP-' + Math.floor(100000 + Math.random() * 900000);
     const newSubmission = {
       id: 'SUB-' + Date.now(),
@@ -139,16 +258,45 @@ const RequestFormPage = () => {
       submitted_at: new Date().toISOString(),
       data: proposalData
     };
-
     const existing = JSON.parse(localStorage.getItem('ieee_form_submissions') || '[]');
     localStorage.setItem('ieee_form_submissions', JSON.stringify([newSubmission, ...existing]));
-
     setSubmissionRef(refNum);
     setSubmitted(true);
   };
 
+  const validateBill = () => {
+    const errs = {};
+    const phoneRe = /^[+]?[0-9]{10,13}$/;
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!billData.eventName.trim()) errs.eventName = 'Event name is required.';
+    if (!billData.coordinatorName.trim()) errs.coordinatorName = 'Coordinator name is required.';
+    if (!billData.coordinatorEmail.trim()) errs.coordinatorEmail = 'Coordinator email is required.';
+    else if (!emailRe.test(billData.coordinatorEmail)) errs.coordinatorEmail = 'Enter a valid email address.';
+    if (!billData.coordinatorPhone.trim()) errs.coordinatorPhone = 'Coordinator phone is required.';
+    else if (!phoneRe.test(billData.coordinatorPhone.replace(/\s/g,''))) errs.coordinatorPhone = 'Enter a valid 10-digit phone number.';
+    if (!billData.eventStartDate) errs.eventStartDate = 'Start date is required.';
+    if (!billData.eventEndDate) errs.eventEndDate = 'End date is required.';
+    if (billData.eventStartDate && billData.eventEndDate && billData.eventEndDate < billData.eventStartDate)
+      errs.eventEndDate = 'End date must be after start date.';
+    if (!billData.venue.trim()) errs.venue = 'Venue is required.';
+    if (!billData.actualParticipants) errs.actualParticipants = 'Participant count is required.';
+    else if (isNaN(billData.actualParticipants) || Number(billData.actualParticipants) <= 0) errs.actualParticipants = 'Enter a valid number.';
+    if (!billData.totalExpenses) errs.totalExpenses = 'Total expenses is required.';
+    else if (isNaN(billData.totalExpenses) || Number(billData.totalExpenses) <= 0) errs.totalExpenses = 'Enter a valid amount.';
+    if (!billData.bankDetails.trim()) errs.bankDetails = 'Bank details are required.';
+    if (!billData.voucherUrl) errs.voucherUrl = 'Please upload a voucher / expense scan.';
+    if (!billData.mailForAcknowledge.trim()) errs.mailForAcknowledge = 'Acknowledgement email is required.';
+    else if (!emailRe.test(billData.mailForAcknowledge)) errs.mailForAcknowledge = 'Enter a valid email address.';
+    if (!billData.contactPersonPhone.trim()) errs.contactPersonPhone = 'Contact person phone is required.';
+    else if (!phoneRe.test(billData.contactPersonPhone.replace(/\s/g,''))) errs.contactPersonPhone = 'Enter a valid 10-digit phone number.';
+    return errs;
+  };
+
   const handleBillSubmit = (e) => {
     e.preventDefault();
+    const errs = validateBill();
+    if (Object.keys(errs).length > 0) { setBillErrors(errs); return; }
+    setBillErrors({});
     const refNum = 'BILL-' + Math.floor(100000 + Math.random() * 900000);
     const newSubmission = {
       id: 'SUB-' + Date.now(),
@@ -158,10 +306,8 @@ const RequestFormPage = () => {
       submitted_at: new Date().toISOString(),
       data: billData
     };
-
     const existing = JSON.parse(localStorage.getItem('ieee_form_submissions') || '[]');
     localStorage.setItem('ieee_form_submissions', JSON.stringify([newSubmission, ...existing]));
-
     setSubmissionRef(refNum);
     setSubmitted(true);
   };
@@ -249,7 +395,7 @@ const RequestFormPage = () => {
   }
 
   const embedUrl = getEmbedUrl(formConfig.google_form_url);
-  const isOnscreenForm = slug === 'event-pre-proposal' || slug === 'bill-settlement';
+  const isOnscreenForm = slug === 'event-pre-proposal' || slug === 'bill-settlement' || slug === 'membership';
 
   return (
     <div className="animate-fade-in" style={{ backgroundColor: 'var(--bg-light)', paddingBottom: '90px', minHeight: '85vh', fontFamily: 'var(--font-sans)' }}>
@@ -364,129 +510,213 @@ const RequestFormPage = () => {
           }}>
             {slug === 'event-pre-proposal' ? (
               /* Event Pre-Proposal Form */
-              <form onSubmit={handleProposalSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <form onSubmit={handleProposalSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#0a385b', borderBottom: '1px solid #cbd5e1', paddingBottom: '10px', marginBottom: '8px' }}>
                   Event Information Form
                 </h3>
                 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Event Title *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Workshop on Generative AI"
-                      value={proposalData.title}
-                      onChange={(e) => setProposalData({ ...proposalData, title: e.target.value })}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
-                    />
-                  </div>
+                {/* Event Name - Full Width */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Event Name *</label>
+                  <input
+                    type="text"
+                    placeholder="Your answer"
+                    value={proposalData.title}
+                    onChange={(e) => { setProposalData({ ...proposalData, title: e.target.value }); if (proposalErrors.title) setProposalErrors(p => ({ ...p, title: '' })); }}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${proposalErrors.title ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
+                  />
+                  {proposalErrors.title && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{proposalErrors.title}</span>}
+                </div>
 
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Organizing Society / Chapter *</label>
-                    <select
-                      value={proposalData.society}
-                      onChange={(e) => setProposalData({ ...proposalData, society: e.target.value })}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px', backgroundColor: '#ffffff' }}
-                    >
-                      <option value="IEEE KEC SB">IEEE KEC SB</option>
-                      <option value="Computer Society (CS Society)">Computer Society (CS Society)</option>
-                      <option value="Women in Engineering (WIE)">Women in Engineering (WIE)</option>
-                      <option value="Robotics and Automation Society (RAS)">Robotics and Automation Society (RAS)</option>
-                      <option value="Power & Energy Society (PES)">Power & Energy Society (PES)</option>
-                      <option value="Communications Society (ComSoc)">Communications Society (ComSoc)</option>
-                      <option value="AP-S (Antennas and Propagation Society)">AP-S (Antennas and Propagation Society)</option>
-                    </select>
+                {/* Organizer - Full Width */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '8px', textTransform: 'uppercase' }}>Organizer *</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingLeft: '4px' }}>
+                    {['Student Branch', 'WIE', 'APS', 'COMSOC', 'CS', 'PES', 'RAS'].map(opt => (
+                      <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: 'var(--text-primary)', cursor: 'pointer', width: 'fit-content' }}>
+                        <input
+                          type="radio"
+                          name="society"
+                          value={opt}
+                          checked={proposalData.society === opt}
+                          onChange={(e) => setProposalData({ ...proposalData, society: e.target.value })}
+                          style={{ width: 'auto', accentColor: 'var(--secondary)', cursor: 'pointer' }}
+                        />
+                        {opt}
+                      </label>
+                    ))}
                   </div>
                 </div>
 
+                {/* Type of the Event - Full Width */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '8px', textTransform: 'uppercase' }}>Type of the Event *</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingLeft: '4px' }}>
+                    {['Technical', 'Non-technical', 'Administrative', 'Other'].map(opt => (
+                      <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: 'var(--text-primary)', cursor: 'pointer', width: 'fit-content' }}>
+                        <input
+                          type="radio"
+                          name="eventType"
+                          value={opt}
+                          checked={proposalData.eventType === opt}
+                          onChange={(e) => setProposalData({ ...proposalData, eventType: e.target.value })}
+                          style={{ width: 'auto', accentColor: 'var(--secondary)', cursor: 'pointer' }}
+                        />
+                        {opt}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Category of the Event - Full Width */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '8px', textTransform: 'uppercase' }}>Category of the Event *</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingLeft: '4px' }}>
+                    {[
+                      'Competition',
+                      'Workshop',
+                      'Field Visit',
+                      'Guest lecture',
+                      'National Conference / Intl. Conference',
+                      'Seminar',
+                      'Awareness Pgm',
+                      'Quiz',
+                      'Discussion Meeting',
+                      'FDP',
+                      'Technical Talk',
+                      'DVP Talk'
+                    ].map(opt => (
+                      <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: 'var(--text-primary)', cursor: 'pointer', width: 'fit-content' }}>
+                        <input
+                          type="radio"
+                          name="eventCategory"
+                          value={opt}
+                          checked={proposalData.eventCategory === opt}
+                          onChange={(e) => setProposalData({ ...proposalData, eventCategory: e.target.value })}
+                          style={{ width: 'auto', accentColor: 'var(--secondary)', cursor: 'pointer' }}
+                        />
+                        {opt}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Mode of the Event - Full Width */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '8px', textTransform: 'uppercase' }}>Mode of the Event *</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingLeft: '4px' }}>
+                    {['In-Person', 'Online', 'Hybrid'].map(opt => (
+                      <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: 'var(--text-primary)', cursor: 'pointer', width: 'fit-content' }}>
+                        <input
+                          type="radio"
+                          name="eventMode"
+                          value={opt}
+                          checked={proposalData.eventMode === opt}
+                          onChange={(e) => setProposalData({ ...proposalData, eventMode: e.target.value })}
+                          style={{ width: 'auto', accentColor: 'var(--secondary)', cursor: 'pointer' }}
+                        />
+                        {opt === 'In-Person' ? 'In- Person' : opt}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Type of Event - Full Width */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '8px', textTransform: 'uppercase' }}>Type of Event *</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingLeft: '4px' }}>
+                    {['Intra', 'Inter', 'Both'].map(opt => (
+                      <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: 'var(--text-primary)', cursor: 'pointer', width: 'fit-content' }}>
+                        <input
+                          type="radio"
+                          name="eventScope"
+                          value={opt}
+                          checked={proposalData.eventScope === opt}
+                          onChange={(e) => setProposalData({ ...proposalData, eventScope: e.target.value })}
+                          style={{ width: 'auto', accentColor: 'var(--secondary)', cursor: 'pointer' }}
+                        />
+                        {opt}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Responsive 2-Column Grid (ONLY for marked fields in the 3rd image) */}
                 <div className="onscreen-form-grid-2col">
-                  {/* Row 1: Coordinator Name & Coordinator Email */}
+                  {/* Coordinator Name & Coordinator Email */}
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Coordinator Name *</label>
                     <input
                       type="text"
-                      required
                       placeholder="Enter Full Name"
                       value={proposalData.coordinatorName}
-                      onChange={(e) => setProposalData({ ...proposalData, coordinatorName: e.target.value })}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                      onChange={(e) => { setProposalData({ ...proposalData, coordinatorName: e.target.value }); if (proposalErrors.coordinatorName) setProposalErrors(p => ({ ...p, coordinatorName: '' })); }}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${proposalErrors.coordinatorName ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
                     />
+                    {proposalErrors.coordinatorName && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{proposalErrors.coordinatorName}</span>}
                   </div>
 
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Coordinator Email *</label>
                     <input
                       type="email"
-                      required
                       placeholder="e.g. name@kongu.edu"
                       value={proposalData.coordinatorEmail}
-                      onChange={(e) => setProposalData({ ...proposalData, coordinatorEmail: e.target.value })}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                      onChange={(e) => { setProposalData({ ...proposalData, coordinatorEmail: e.target.value }); if (proposalErrors.coordinatorEmail) setProposalErrors(p => ({ ...p, coordinatorEmail: '' })); }}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${proposalErrors.coordinatorEmail ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
                     />
+                    {proposalErrors.coordinatorEmail && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{proposalErrors.coordinatorEmail}</span>}
                   </div>
 
-                  {/* Row 2: Coordinator Phone & Mail for Acknowledge */}
+                  {/* Coordinator Phone & Proposed Venue */}
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Coordinator Phone *</label>
                     <input
                       type="tel"
-                      required
                       placeholder="e.g. +91 9876543210"
                       value={proposalData.coordinatorPhone}
-                      onChange={(e) => setProposalData({ ...proposalData, coordinatorPhone: e.target.value })}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                      onChange={(e) => { setProposalData({ ...proposalData, coordinatorPhone: e.target.value }); if (proposalErrors.coordinatorPhone) setProposalErrors(p => ({ ...p, coordinatorPhone: '' })); }}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${proposalErrors.coordinatorPhone ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
                     />
+                    {proposalErrors.coordinatorPhone && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{proposalErrors.coordinatorPhone}</span>}
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Mail for Acknowledge *</label>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Proposed Venue *</label>
                     <input
-                      type="email"
-                      required
-                      placeholder="e.g. name@kongu.edu"
-                      value={proposalData.mailForAcknowledge}
-                      onChange={(e) => setProposalData({ ...proposalData, mailForAcknowledge: e.target.value })}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                      type="text"
+                      placeholder="e.g. TBI Seminar Hall, KEC"
+                      value={proposalData.venue}
+                      onChange={(e) => { setProposalData({ ...proposalData, venue: e.target.value }); if (proposalErrors.venue) setProposalErrors(p => ({ ...p, venue: '' })); }}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${proposalErrors.venue ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
                     />
+                    {proposalErrors.venue && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{proposalErrors.venue}</span>}
                   </div>
 
-                  {/* Row 3: Date of the Event Start & Date of the Event End */}
+                  {/* Date of the Event Start & Date of the Event End */}
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Date of the Event Start *</label>
                     <input
                       type="date"
-                      required
                       value={proposalData.eventStartDate}
-                      onChange={(e) => setProposalData({ ...proposalData, eventStartDate: e.target.value })}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                      onChange={(e) => { setProposalData({ ...proposalData, eventStartDate: e.target.value }); if (proposalErrors.eventStartDate) setProposalErrors(p => ({ ...p, eventStartDate: '' })); }}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${proposalErrors.eventStartDate ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
                     />
+                    {proposalErrors.eventStartDate && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{proposalErrors.eventStartDate}</span>}
                   </div>
 
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Date of the Event End *</label>
                     <input
                       type="date"
-                      required
                       value={proposalData.eventEndDate}
-                      onChange={(e) => setProposalData({ ...proposalData, eventEndDate: e.target.value })}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                      onChange={(e) => { setProposalData({ ...proposalData, eventEndDate: e.target.value }); if (proposalErrors.eventEndDate) setProposalErrors(p => ({ ...p, eventEndDate: '' })); }}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${proposalErrors.eventEndDate ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
                     />
+                    {proposalErrors.eventEndDate && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{proposalErrors.eventEndDate}</span>}
                   </div>
 
-                  {/* Row 4: Proposed Venue & Expected Participants */}
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Proposed Venue *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. TBI Seminar Hall, KEC"
-                      value={proposalData.venue}
-                      onChange={(e) => setProposalData({ ...proposalData, venue: e.target.value })}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
-                    />
-                  </div>
-
+                  {/* Expected Participants */}
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Expected Participants</label>
                     <input
@@ -497,32 +727,46 @@ const RequestFormPage = () => {
                       style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
                     />
                   </div>
+                </div>
 
-                  {/* Row 5: Estimated Budget (INR) & Person to Contact for Doubts */}
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Estimated Budget (INR) *</label>
-                    <input
-                      type="number"
-                      required
-                      placeholder="Total cost in Rs."
-                      value={proposalData.budget}
-                      onChange={(e) => setProposalData({ ...proposalData, budget: e.target.value })}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
-                    />
-                  </div>
+                {/* Mail for Acknowledge - Full Width */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Mail for Acknowledge *</label>
+                  <input
+                    type="email"
+                    placeholder="e.g. coordinator@example.com"
+                    value={proposalData.mailForAcknowledge}
+                    onChange={(e) => { setProposalData({ ...proposalData, mailForAcknowledge: e.target.value }); if (proposalErrors.mailForAcknowledge) setProposalErrors(p => ({ ...p, mailForAcknowledge: '' })); }}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${proposalErrors.mailForAcknowledge ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
+                  />
+                  {proposalErrors.mailForAcknowledge && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{proposalErrors.mailForAcknowledge}</span>}
+                </div>
 
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Person to Contact for Doubts *</label>
-                    <span style={{ display: 'block', fontSize: '11px', color: 'var(--text-muted)', marginTop: '-4px', marginBottom: '6px' }}>Phone number</span>
-                    <input
-                      type="tel"
-                      required
-                      placeholder="e.g. +91 9876543210"
-                      value={proposalData.contactPersonPhone}
-                      onChange={(e) => setProposalData({ ...proposalData, contactPersonPhone: e.target.value })}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
-                    />
-                  </div>
+                {/* Estimated Budget (INR) - Full Width */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Estimated Budget (INR) *</label>
+                  <input
+                    type="number"
+                    placeholder="Total cost in Rs."
+                    value={proposalData.budget}
+                    onChange={(e) => { setProposalData({ ...proposalData, budget: e.target.value }); if (proposalErrors.budget) setProposalErrors(p => ({ ...p, budget: '' })); }}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${proposalErrors.budget ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
+                  />
+                  {proposalErrors.budget && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{proposalErrors.budget}</span>}
+                </div>
+
+                {/* Person to Contact for Doubts - Full Width */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Person to Contact for Doubts *</label>
+                  <span style={{ display: 'block', fontSize: '11px', color: 'var(--text-muted)', marginTop: '-4px', marginBottom: '6px' }}>Phone number</span>
+                  <input
+                    type="tel"
+                    placeholder="e.g. +91 9876543210"
+                    value={proposalData.contactPersonPhone}
+                    onChange={(e) => { setProposalData({ ...proposalData, contactPersonPhone: e.target.value }); if (proposalErrors.contactPersonPhone) setProposalErrors(p => ({ ...p, contactPersonPhone: '' })); }}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${proposalErrors.contactPersonPhone ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
+                  />
+                  {proposalErrors.contactPersonPhone && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{proposalErrors.contactPersonPhone}</span>}
                 </div>
 
                 <div>
@@ -540,12 +784,12 @@ const RequestFormPage = () => {
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Event Description & Objectives *</label>
                   <textarea
                     rows="4"
-                    required
                     placeholder="Briefly state the schedule, topics, syllabus, and expected outcome of the event..."
                     value={proposalData.description}
-                    onChange={(e) => setProposalData({ ...proposalData, description: e.target.value })}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px', resize: 'vertical', fontFamily: 'inherit' }}
+                    onChange={(e) => { setProposalData({ ...proposalData, description: e.target.value }); if (proposalErrors.description) setProposalErrors(p => ({ ...p, description: '' })); }}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${proposalErrors.description ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }}
                   />
+                  {proposalErrors.description && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{proposalErrors.description}</span>}
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
@@ -572,188 +816,308 @@ const RequestFormPage = () => {
                   </button>
                 </div>
               </form>
-            ) : (
+            ) : slug === 'bill-settlement' ? (
               /* Bill Settlement Form */
-              <form onSubmit={handleBillSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <form onSubmit={handleBillSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#0a385b', borderBottom: '1px solid #cbd5e1', paddingBottom: '10px', marginBottom: '8px' }}>
                   Accounts Settlement Form
                 </h3>
-                
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Event Name *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Name of the conducted event"
-                      value={billData.eventName}
-                      onChange={(e) => setBillData({ ...billData, eventName: e.target.value })}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
-                    />
-                  </div>
 
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Organizing Society / Chapter *</label>
-                    <select
-                      value={billData.society}
-                      onChange={(e) => setBillData({ ...billData, society: e.target.value })}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px', backgroundColor: '#ffffff' }}
-                    >
-                      <option value="IEEE KEC SB">IEEE KEC SB</option>
-                      <option value="Computer Society (CS Society)">Computer Society (CS Society)</option>
-                      <option value="Women in Engineering (WIE)">Women in Engineering (WIE)</option>
-                      <option value="Robotics and Automation Society (RAS)">Robotics and Automation Society (RAS)</option>
-                      <option value="Power & Energy Society (PES)">Power & Energy Society (PES)</option>
-                      <option value="Communications Society (ComSoc)">Communications Society (ComSoc)</option>
-                      <option value="AP-S (Antennas and Propagation Society)">AP-S (Antennas and Propagation Society)</option>
-                    </select>
+                {/* Event Name - Full Width */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Event Name *</label>
+                  <input
+                    type="text"
+                    placeholder="Name of the conducted event"
+                    value={billData.eventName}
+                    onChange={(e) => { setBillData({ ...billData, eventName: e.target.value }); if (billErrors.eventName) setBillErrors(p => ({ ...p, eventName: '' })); }}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${billErrors.eventName ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
+                  />
+                  {billErrors.eventName && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{billErrors.eventName}</span>}
+                </div>
+
+                {/* Organizer - Full Width */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '8px', textTransform: 'uppercase' }}>Organizer *</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingLeft: '4px' }}>
+                    {['Student Branch', 'WIE', 'APS', 'COMSOC', 'CS', 'PES', 'RAS'].map(opt => (
+                      <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: 'var(--text-primary)', cursor: 'pointer', width: 'fit-content' }}>
+                        <input
+                          type="radio"
+                          name="bill_organizer"
+                          value={opt}
+                          checked={billData.organizer === opt}
+                          onChange={(e) => setBillData({ ...billData, organizer: e.target.value })}
+                          style={{ width: 'auto', accentColor: 'var(--secondary)', cursor: 'pointer' }}
+                        />
+                        {opt}
+                      </label>
+                    ))}
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
+                {/* Type of the Event - Full Width */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '8px', textTransform: 'uppercase' }}>Type of the Event *</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingLeft: '4px' }}>
+                    {['Technical', 'Non-technical', 'Administrative', 'Other'].map(opt => (
+                      <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: 'var(--text-primary)', cursor: 'pointer', width: 'fit-content' }}>
+                        <input
+                          type="radio"
+                          name="bill_eventType"
+                          value={opt}
+                          checked={billData.eventType === opt}
+                          onChange={(e) => setBillData({ ...billData, eventType: e.target.value })}
+                          style={{ width: 'auto', accentColor: 'var(--secondary)', cursor: 'pointer' }}
+                        />
+                        {opt}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Category of the Event - Full Width */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '8px', textTransform: 'uppercase' }}>Category of the Event *</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingLeft: '4px' }}>
+                    {[
+                      'Competition', 'Workshop', 'Field Visit', 'Guest lecture',
+                      'National Conference / Intl. Conference', 'Seminar', 'Awareness Pgm',
+                      'Quiz', 'Discussion Meeting', 'FDP', 'Technical Talk', 'DVP Talk'
+                    ].map(opt => (
+                      <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: 'var(--text-primary)', cursor: 'pointer', width: 'fit-content' }}>
+                        <input
+                          type="radio"
+                          name="bill_eventCategory"
+                          value={opt}
+                          checked={billData.eventCategory === opt}
+                          onChange={(e) => setBillData({ ...billData, eventCategory: e.target.value })}
+                          style={{ width: 'auto', accentColor: 'var(--secondary)', cursor: 'pointer' }}
+                        />
+                        {opt}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Mode of the Event - Full Width */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '8px', textTransform: 'uppercase' }}>Mode of the Event *</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingLeft: '4px' }}>
+                    {['In-Person', 'Online', 'Hybrid'].map(opt => (
+                      <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: 'var(--text-primary)', cursor: 'pointer', width: 'fit-content' }}>
+                        <input
+                          type="radio"
+                          name="bill_eventMode"
+                          value={opt}
+                          checked={billData.eventMode === opt}
+                          onChange={(e) => setBillData({ ...billData, eventMode: e.target.value })}
+                          style={{ width: 'auto', accentColor: 'var(--secondary)', cursor: 'pointer' }}
+                        />
+                        {opt === 'In-Person' ? 'In- Person' : opt}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Type of Event (scope) - Full Width */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '8px', textTransform: 'uppercase' }}>Type of Event *</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingLeft: '4px' }}>
+                    {['Intra', 'Inter', 'Both'].map(opt => (
+                      <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: 'var(--text-primary)', cursor: 'pointer', width: 'fit-content' }}>
+                        <input
+                          type="radio"
+                          name="bill_eventScope"
+                          value={opt}
+                          checked={billData.eventScope === opt}
+                          onChange={(e) => setBillData({ ...billData, eventScope: e.target.value })}
+                          style={{ width: 'auto', accentColor: 'var(--secondary)', cursor: 'pointer' }}
+                        />
+                        {opt}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 2-Column Grid Fields */}
+                <div className="onscreen-form-grid-2col">
+                  {/* Coordinator Name & Coordinator Email */}
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Coordinator Name *</label>
                     <input
                       type="text"
-                      required
                       placeholder="Enter Full Name"
                       value={billData.coordinatorName}
-                      onChange={(e) => setBillData({ ...billData, coordinatorName: e.target.value })}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                      onChange={(e) => { setBillData({ ...billData, coordinatorName: e.target.value }); if (billErrors.coordinatorName) setBillErrors(p => ({ ...p, coordinatorName: '' })); }}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${billErrors.coordinatorName ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
                     />
+                    {billErrors.coordinatorName && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{billErrors.coordinatorName}</span>}
                   </div>
 
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Coordinator Email *</label>
                     <input
                       type="email"
-                      required
                       placeholder="e.g. name@kongu.edu"
                       value={billData.coordinatorEmail}
-                      onChange={(e) => setBillData({ ...billData, coordinatorEmail: e.target.value })}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                      onChange={(e) => { setBillData({ ...billData, coordinatorEmail: e.target.value }); if (billErrors.coordinatorEmail) setBillErrors(p => ({ ...p, coordinatorEmail: '' })); }}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${billErrors.coordinatorEmail ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
                     />
+                    {billErrors.coordinatorEmail && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{billErrors.coordinatorEmail}</span>}
                   </div>
 
+                  {/* Coordinator Phone & Proposed Venue */}
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Coordinator Phone *</label>
                     <input
                       type="tel"
-                      required
                       placeholder="e.g. +91 9876543210"
                       value={billData.coordinatorPhone}
-                      onChange={(e) => setBillData({ ...billData, coordinatorPhone: e.target.value })}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                      onChange={(e) => { setBillData({ ...billData, coordinatorPhone: e.target.value }); if (billErrors.coordinatorPhone) setBillErrors(p => ({ ...p, coordinatorPhone: '' })); }}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${billErrors.coordinatorPhone ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
                     />
+                    {billErrors.coordinatorPhone && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{billErrors.coordinatorPhone}</span>}
                   </div>
-                </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Event Date *</label>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Venue *</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. TBI Seminar Hall, KEC"
+                      value={billData.venue}
+                      onChange={(e) => { setBillData({ ...billData, venue: e.target.value }); if (billErrors.venue) setBillErrors(p => ({ ...p, venue: '' })); }}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${billErrors.venue ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
+                    />
+                    {billErrors.venue && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{billErrors.venue}</span>}
+                  </div>
+
+                  {/* Date of the Event Start & End */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Date of the Event Start *</label>
                     <input
                       type="date"
-                      required
-                      value={billData.eventDate}
-                      onChange={(e) => setBillData({ ...billData, eventDate: e.target.value })}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                      value={billData.eventStartDate}
+                      onChange={(e) => { setBillData({ ...billData, eventStartDate: e.target.value }); if (billErrors.eventStartDate) setBillErrors(p => ({ ...p, eventStartDate: '' })); }}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${billErrors.eventStartDate ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
                     />
+                    {billErrors.eventStartDate && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{billErrors.eventStartDate}</span>}
                   </div>
 
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Date of the Event End *</label>
+                    <input
+                      type="date"
+                      value={billData.eventEndDate}
+                      onChange={(e) => { setBillData({ ...billData, eventEndDate: e.target.value }); if (billErrors.eventEndDate) setBillErrors(p => ({ ...p, eventEndDate: '' })); }}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${billErrors.eventEndDate ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
+                    />
+                    {billErrors.eventEndDate && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{billErrors.eventEndDate}</span>}
+                  </div>
+
+                  {/* Total Attendance - stays in grid */}
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Total Attendance *</label>
                     <input
                       type="number"
-                      required
-                      placeholder="Number of participants"
+                      placeholder="Actual number of participants"
                       value={billData.actualParticipants}
-                      onChange={(e) => setBillData({ ...billData, actualParticipants: e.target.value })}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                      onChange={(e) => { setBillData({ ...billData, actualParticipants: e.target.value }); if (billErrors.actualParticipants) setBillErrors(p => ({ ...p, actualParticipants: '' })); }}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${billErrors.actualParticipants ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
                     />
+                    {billErrors.actualParticipants && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{billErrors.actualParticipants}</span>}
                   </div>
+                </div>
 
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Total Expenses (INR) *</label>
+                {/* Mail for Acknowledge - Full Width */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Mail for Acknowledge *</label>
+                  <input
+                    type="email"
+                    placeholder="e.g. coordinator@example.com"
+                    value={billData.mailForAcknowledge}
+                    onChange={(e) => { setBillData({ ...billData, mailForAcknowledge: e.target.value }); if (billErrors.mailForAcknowledge) setBillErrors(p => ({ ...p, mailForAcknowledge: '' })); }}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${billErrors.mailForAcknowledge ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
+                  />
+                  {billErrors.mailForAcknowledge && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{billErrors.mailForAcknowledge}</span>}
+                </div>
+
+                {/* Total Expenses - Full Width */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Total Expenses (INR) *</label>
+                  <input
+                    type="number"
+                    placeholder="Sum of all bills spent"
+                    value={billData.totalExpenses}
+                    onChange={(e) => { setBillData({ ...billData, totalExpenses: e.target.value }); if (billErrors.totalExpenses) setBillErrors(p => ({ ...p, totalExpenses: '' })); }}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${billErrors.totalExpenses ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
+                  />
+                  {billErrors.totalExpenses && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{billErrors.totalExpenses}</span>}
+                </div>
+
+                {/* Person to Contact for Doubts - Full Width */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Person to Contact for Doubts *</label>
+                  <span style={{ display: 'block', fontSize: '11px', color: 'var(--text-muted)', marginTop: '-4px', marginBottom: '6px' }}>Phone number</span>
+                  <input
+                    type="tel"
+                    placeholder="e.g. +91 9876543210"
+                    value={billData.contactPersonPhone}
+                    onChange={(e) => { setBillData({ ...billData, contactPersonPhone: e.target.value }); if (billErrors.contactPersonPhone) setBillErrors(p => ({ ...p, contactPersonPhone: '' })); }}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${billErrors.contactPersonPhone ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
+                  />
+                  {billErrors.contactPersonPhone && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{billErrors.contactPersonPhone}</span>}
+                </div>
+
+                {/* Reimbursement Bank Details - Full Width */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Reimbursement Bank Details *</label>
+                  <textarea
+                    rows="4"
+                    placeholder="Specify: Account Holder Name, Bank Name, Account Number, and IFSC Code"
+                    value={billData.bankDetails}
+                    onChange={(e) => { setBillData({ ...billData, bankDetails: e.target.value }); if (billErrors.bankDetails) setBillErrors(p => ({ ...p, bankDetails: '' })); }}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${billErrors.bankDetails ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14.5px', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }}
+                  />
+                  {billErrors.bankDetails && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{billErrors.bankDetails}</span>}
+                </div>
+
+                {/* Upload Voucher - Full Width */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Upload Voucher / Expense Scans *</label>
+                  <div style={{
+                    border: `2px dashed ${billErrors.voucherUrl ? '#ef4444' : 'var(--border-subtle)'}`,
+                    borderRadius: '8px',
+                    padding: '24px 16px',
+                    textAlign: 'center',
+                    backgroundColor: '#f8fafc',
+                    cursor: 'pointer',
+                    position: 'relative',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '10px'
+                  }}>
                     <input
-                      type="number"
-                      required
-                      placeholder="Sum of bills spent"
-                      value={billData.expenses}
-                      onChange={(e) => setBillData({ ...billData, expenses: e.target.value })}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                      type="file"
+                      accept=".pdf, image/*"
+                      onChange={(e) => { handleFileUpload(e); if (billErrors.voucherUrl) setBillErrors(p => ({ ...p, voucherUrl: '' })); }}
+                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }}
                     />
+                    <Upload size={32} style={{ color: 'var(--secondary)', opacity: 0.8 }} />
+                    <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--primary)' }}>Click to upload files</span>
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>PDF or Image files, up to 10MB</span>
+                    {billData.voucherName && (
+                      <div style={{ marginTop: '8px', display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: '#e0f2fe', color: '#0369a1', padding: '4px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: '700', maxWidth: '90%' }}>
+                        <FileText size={12} />
+                        <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{billData.voucherName}</span>
+                      </div>
+                    )}
                   </div>
+                  {billErrors.voucherUrl && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{billErrors.voucherUrl}</span>}
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Reimbursement Bank Details *</label>
-                    <textarea
-                      rows="4"
-                      required
-                      placeholder="Specify: Account Holder Name, Bank Name, Account Number, and IFSC Code"
-                      value={billData.bankDetails}
-                      onChange={(e) => setBillData({ ...billData, bankDetails: e.target.value })}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14.5px', resize: 'vertical', fontFamily: 'inherit' }}
-                    />
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Upload Voucher / Expense Scans *</label>
-                    <div style={{
-                      border: '2px dashed var(--border-subtle)',
-                      borderRadius: '8px',
-                      padding: '24px 16px',
-                      textAlign: 'center',
-                      backgroundColor: '#f8fafc',
-                      cursor: 'pointer',
-                      position: 'relative',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: '10px',
-                      height: 'calc(100% - 24px)'
-                    }}>
-                      <input
-                        type="file"
-                        required={!billData.voucherUrl}
-                        accept=".pdf, image/*"
-                        onChange={handleFileUpload}
-                        style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          width: '100%',
-                          height: '100%',
-                          opacity: 0,
-                          cursor: 'pointer'
-                        }}
-                      />
-                      <Upload size={32} style={{ color: 'var(--secondary)', opacity: 0.8 }} />
-                      <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--primary)' }}>Click to upload files</span>
-                      <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>PDF or Image files, up to 10MB</span>
-                      {billData.voucherName && (
-                        <div style={{
-                          marginTop: '8px',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          backgroundColor: '#e0f2fe',
-                          color: '#0369a1',
-                          padding: '4px 12px',
-                          borderRadius: '12px',
-                          fontSize: '12px',
-                          fontWeight: '700',
-                          maxWidth: '90%'
-                        }}>
-                          <FileText size={12} />
-                          <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{billData.voucherName}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
+                {/* Settlement Remarks - Full Width */}
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Settlement Remarks / Feedback Summary</label>
                   <textarea
@@ -761,7 +1125,7 @@ const RequestFormPage = () => {
                     placeholder="Any comments, descriptions of expense differences, or event success points..."
                     value={billData.remarks}
                     onChange={(e) => setBillData({ ...billData, remarks: e.target.value })}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px', resize: 'vertical', fontFamily: 'inherit' }}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }}
                   />
                 </div>
 
@@ -789,7 +1153,272 @@ const RequestFormPage = () => {
                   </button>
                 </div>
               </form>
-            )}
+            ) : slug === 'membership' ? (
+              /* IEEE Membership Camp Form */
+              <form onSubmit={handleMembershipSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#0a385b', borderBottom: '1px solid #cbd5e1', paddingBottom: '10px', marginBottom: '8px' }}>
+                  IEEE Membership Camp
+                </h3>
+                <p style={{ fontSize: '13px', color: 'var(--text-muted)', fontStyle: 'italic', marginTop: '-12px' }}>
+                  {`"Great things happen when we come together" — Thankyou for being part of us" – Sherry Anderson`}
+                </p>
+
+                {/* Name */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Name (Dharshini S) *</label>
+                  <input
+                    type="text"
+                    placeholder="Your answer"
+                    value={membershipData.name}
+                    onChange={(e) => { setMembershipData({ ...membershipData, name: e.target.value }); if (membershipErrors.name) setMembershipErrors(p => ({ ...p, name: '' })); }}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${membershipErrors.name ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
+                  />
+                  {membershipErrors.name && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{membershipErrors.name}</span>}
+                </div>
+
+                {/* Roll Number */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Roll Number (23ECR001) *</label>
+                  <input
+                    type="text"
+                    placeholder="Your answer"
+                    value={membershipData.rollNumber}
+                    onChange={(e) => { setMembershipData({ ...membershipData, rollNumber: e.target.value }); if (membershipErrors.rollNumber) setMembershipErrors(p => ({ ...p, rollNumber: '' })); }}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${membershipErrors.rollNumber ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
+                  />
+                  {membershipErrors.rollNumber && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{membershipErrors.rollNumber}</span>}
+                </div>
+
+                {/* Year */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '8px', textTransform: 'uppercase' }}>Year *</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingLeft: '4px' }}>
+                    {['II', 'III', 'IV'].map(opt => (
+                      <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: 'var(--text-primary)', cursor: 'pointer', width: 'fit-content' }}>
+                        <input
+                          type="radio"
+                          name="mem_year"
+                          value={opt}
+                          checked={membershipData.year === opt}
+                          onChange={(e) => { setMembershipData({ ...membershipData, year: e.target.value }); if (membershipErrors.year) setMembershipErrors(p => ({ ...p, year: '' })); }}
+                          style={{ width: 'auto', accentColor: 'var(--secondary)', cursor: 'pointer' }}
+                        />
+                        {opt}
+                      </label>
+                    ))}
+                  </div>
+                  {membershipErrors.year && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{membershipErrors.year}</span>}
+                </div>
+
+                {/* Department */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '8px', textTransform: 'uppercase' }}>Department *</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingLeft: '4px' }}>
+                    {['Civil', 'Mechanical', 'ECE', 'CSE', 'Chemical', 'EEE', 'EIE', 'IT', 'Mechatronics', 'FT', 'Automobile', 'CSD', 'AIML', 'AIDS', 'Other'].map(opt => (
+                      <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: 'var(--text-primary)', cursor: 'pointer', width: 'fit-content' }}>
+                        <input
+                          type="radio"
+                          name="mem_dept"
+                          value={opt}
+                          checked={membershipData.department === opt}
+                          onChange={(e) => { 
+                            setMembershipData({ ...membershipData, department: e.target.value, customDepartment: e.target.value === 'Other' ? membershipData.customDepartment : '' }); 
+                            if (membershipErrors.department) setMembershipErrors(p => ({ ...p, department: '' })); 
+                            if (membershipErrors.customDepartment) setMembershipErrors(p => ({ ...p, customDepartment: '' }));
+                          }}
+                          style={{ width: 'auto', accentColor: 'var(--secondary)', cursor: 'pointer' }}
+                        />
+                        {opt}
+                      </label>
+                    ))}
+                  </div>
+                  {membershipErrors.department && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{membershipErrors.department}</span>}
+                  
+                  {/* Dynamic Custom Department Field */}
+                  {membershipData.department === 'Other' && (
+                    <div style={{ marginTop: '10px', paddingLeft: '4px' }}>
+                      <input
+                        type="text"
+                        placeholder="Other:"
+                        value={membershipData.customDepartment || ''}
+                        onChange={(e) => {
+                          setMembershipData({ ...membershipData, customDepartment: e.target.value });
+                          if (membershipErrors.customDepartment) setMembershipErrors(p => ({ ...p, customDepartment: '' }));
+                        }}
+                        style={{ width: '100%', maxWidth: '320px', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${membershipErrors.customDepartment ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
+                      />
+                      {membershipErrors.customDepartment && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{membershipErrors.customDepartment}</span>}
+                    </div>
+                  )}
+                </div>
+
+                {/* 2-col grid: College Email + Personal Email */}
+                <div className="onscreen-form-grid-2col">
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>College Mail-ID *</label>
+                    <input
+                      type="email"
+                      placeholder="Your answer"
+                      value={membershipData.collegeEmail}
+                      onChange={(e) => { setMembershipData({ ...membershipData, collegeEmail: e.target.value }); if (membershipErrors.collegeEmail) setMembershipErrors(p => ({ ...p, collegeEmail: '' })); }}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${membershipErrors.collegeEmail ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
+                    />
+                    {membershipErrors.collegeEmail && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{membershipErrors.collegeEmail}</span>}
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Personal Mail-ID *</label>
+                    <input
+                      type="email"
+                      placeholder="Your answer"
+                      value={membershipData.personalEmail}
+                      onChange={(e) => { setMembershipData({ ...membershipData, personalEmail: e.target.value }); if (membershipErrors.personalEmail) setMembershipErrors(p => ({ ...p, personalEmail: '' })); }}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${membershipErrors.personalEmail ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
+                    />
+                    {membershipErrors.personalEmail && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{membershipErrors.personalEmail}</span>}
+                  </div>
+                </div>
+
+                {/* Contact Number */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Contact Number *</label>
+                  <input
+                    type="tel"
+                    placeholder="Your answer"
+                    value={membershipData.contactNumber}
+                    onChange={(e) => { setMembershipData({ ...membershipData, contactNumber: e.target.value }); if (membershipErrors.contactNumber) setMembershipErrors(p => ({ ...p, contactNumber: '' })); }}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${membershipErrors.contactNumber ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
+                  />
+                  {membershipErrors.contactNumber && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{membershipErrors.contactNumber}</span>}
+                </div>
+
+                {/* Transaction ID */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Transaction ID *</label>
+                  <input
+                    type="text"
+                    placeholder="Your answer"
+                    value={membershipData.transactionId}
+                    onChange={(e) => { setMembershipData({ ...membershipData, transactionId: e.target.value }); if (membershipErrors.transactionId) setMembershipErrors(p => ({ ...p, transactionId: '' })); }}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${membershipErrors.transactionId ? '#ef4444' : '#cbd5e1'}`, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
+                  />
+                  {membershipErrors.transactionId && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{membershipErrors.transactionId}</span>}
+                </div>
+
+                {/* Screenshot of Payment */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px', textTransform: 'uppercase' }}>Screenshot of Payment *</label>
+                  <span style={{ display: 'block', fontSize: '11px', color: 'var(--text-muted)', marginBottom: '8px' }}>Upload 1 supported file: PDF or Image. Max 100 MB.</span>
+                  <div style={{
+                    border: `2px dashed ${membershipErrors.paymentScreenshotUrl ? '#ef4444' : 'var(--border-subtle)'}`,
+                    borderRadius: '8px',
+                    padding: '20px 16px',
+                    textAlign: 'center',
+                    backgroundColor: '#f8fafc',
+                    cursor: 'pointer',
+                    position: 'relative',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    <input
+                      type="file"
+                      accept=".pdf, image/*"
+                      onChange={handlePaymentScreenshotUpload}
+                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }}
+                    />
+                    <Upload size={28} style={{ color: 'var(--secondary)', opacity: 0.8 }} />
+                    <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--primary)' }}>
+                      {membershipData.paymentScreenshotName ? membershipData.paymentScreenshotName : '+ Add file'}
+                    </span>
+                    {!membershipData.paymentScreenshotName && (
+                      <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>PDF or Image, up to 100 MB</span>
+                    )}
+                  </div>
+                  {membershipErrors.paymentScreenshotUrl && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{membershipErrors.paymentScreenshotUrl}</span>}
+                </div>
+
+                {/* QR Code and Payment Status */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '4px', textTransform: 'uppercase' }}>QR code *</label>
+                  <span style={{ display: 'block', fontSize: '14px', color: '#18181b', fontWeight: 'bold', textDecoration: 'underline', fontStyle: 'italic', marginBottom: '10px' }}>Rs.1560/-</span>
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    gap: '12px',
+                    marginBottom: '16px'
+                  }}>
+                    <img
+                      src="/membership_qr.png"
+                      alt="UPI QR Code Card"
+                      style={{ width: '100%', maxWidth: '300px', height: 'auto', objectFit: 'contain', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingLeft: '4px' }}>
+                    {['Paid', 'Not paid'].map(opt => (
+                      <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: 'var(--text-primary)', cursor: 'pointer', width: 'fit-content' }}>
+                        <input
+                          type="radio"
+                          name="mem_payment_status"
+                          value={opt}
+                          checked={membershipData.paymentStatus === opt}
+                          onChange={(e) => { setMembershipData({ ...membershipData, paymentStatus: e.target.value }); if (membershipErrors.paymentStatus) setMembershipErrors(p => ({ ...p, paymentStatus: '' })); }}
+                          style={{ width: 'auto', accentColor: 'var(--secondary)', cursor: 'pointer' }}
+                        />
+                        {opt}
+                      </label>
+                    ))}
+                  </div>
+                  {membershipErrors.paymentStatus && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{membershipErrors.paymentStatus}</span>}
+                </div>
+
+                {/* IEEE Membership Type */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '8px', textTransform: 'uppercase' }}>IEEE Membership *</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingLeft: '4px' }}>
+                    {['New Member', 'Existing Member'].map(opt => (
+                      <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: 'var(--text-primary)', cursor: 'pointer', width: 'fit-content' }}>
+                        <input
+                          type="radio"
+                          name="mem_type"
+                          value={opt}
+                          checked={membershipData.membershipType === opt}
+                          onChange={(e) => { setMembershipData({ ...membershipData, membershipType: e.target.value }); if (membershipErrors.membershipType) setMembershipErrors(p => ({ ...p, membershipType: '' })); }}
+                          style={{ width: 'auto', accentColor: 'var(--secondary)', cursor: 'pointer' }}
+                        />
+                        {opt}
+                      </label>
+                    ))}
+                  </div>
+                  {membershipErrors.membershipType && <span style={{ color: '#ef4444', fontSize: '11px', marginTop: '4px', display: 'block' }}>{membershipErrors.membershipType}</span>}
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
+                  <button
+                    type="submit"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '12px 30px',
+                      backgroundColor: 'var(--secondary)',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '15px',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      boxShadow: 'var(--shadow-glow)'
+                    }}
+                    className="submit-btn-hover"
+                  >
+                    <Send size={16} /> Submit Membership
+                  </button>
+                </div>
+              </form>
+            ) : null}
           </div>
         ) : (
           /* Fallback: Old Google Form Iframe */

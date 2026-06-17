@@ -30,13 +30,29 @@ const Navbar = () => {
         is_active: true,
         updated_at: new Date().toLocaleDateString(),
         updated_by: "Admin"
+      },
+      {
+        id: 3,
+        form_name: "Membership",
+        route_slug: "membership",
+        google_form_url: "",
+        description: "Register for IEEE KEC SB membership. Fill in your personal details, department, year, and complete the payment via UPI.",
+        is_active: true,
+        updated_at: new Date().toLocaleDateString(),
+        updated_by: "Admin"
       }
     ];
 
     const stored = localStorage.getItem('ieee_request_forms');
     if (stored) {
       try {
-        setRequestForms(JSON.parse(stored));
+        let parsed = JSON.parse(stored);
+        // Inject membership form if not yet present
+        if (!parsed.find(f => f.route_slug === 'membership')) {
+          parsed = [...parsed, defaultRequestForms.find(f => f.route_slug === 'membership')];
+          localStorage.setItem('ieee_request_forms', JSON.stringify(parsed));
+        }
+        setRequestForms(parsed);
       } catch (e) {
         console.error("Error loading request forms:", e);
         setRequestForms(defaultRequestForms);

@@ -199,6 +199,8 @@ const Admin = () => {
   const [formUrlInput, setFormUrlInput] = useState('');
   const [formDescInput, setFormDescInput] = useState('');
   const [formActiveInput, setFormActiveInput] = useState(true);
+  const [formCategoryInput, setFormCategoryInput] = useState('Membership');
+  const [formDisplayOrderInput, setFormDisplayOrderInput] = useState(1);
   const [previewFormUrl, setPreviewFormUrl] = useState('');
   const [requestFormsSubTab, setRequestFormsSubTab] = useState('templates'); // 'templates' | 'submissions'
   const [submissions, setSubmissions] = useState([]);
@@ -1031,6 +1033,8 @@ const Admin = () => {
         route_slug: "event-pre-proposal",
         google_form_url: "https://docs.google.com/forms/d/e/1FAIpQLSchXAD6IMgd7yYgQG4wLhIPiDScyktCw_h0NCeP5SiQrfFf7Q/viewform?embedded=true",
         description: "Submit event details, dates, speakers, and budget estimates for verification and approval.",
+        category: "Event Management",
+        display_order: 1,
         is_active: true,
         updated_at: new Date().toLocaleDateString(),
         updated_by: "Admin"
@@ -1041,6 +1045,8 @@ const Admin = () => {
         route_slug: "bill-settlement",
         google_form_url: "https://docs.google.com/forms/d/e/1FAIpQLSe4rh67hrSDSVHx58-oBOGbOtNNiqi9R9dX_NyxHNOM1IEUgg/viewform?embedded=true",
         description: "Submit final expense sheets, vouchers, invoice scans, and bank details for event accounts closure.",
+        category: "Finance",
+        display_order: 2,
         is_active: true,
         updated_at: new Date().toLocaleDateString(),
         updated_by: "Admin"
@@ -1051,6 +1057,8 @@ const Admin = () => {
         route_slug: "membership",
         google_form_url: "",
         description: "Register for IEEE KEC SB membership. Fill in your personal details, department, year, and complete the payment via UPI.",
+        category: "Membership",
+        display_order: 3,
         is_active: true,
         updated_at: new Date().toLocaleDateString(),
         updated_by: "Admin"
@@ -1058,7 +1066,35 @@ const Admin = () => {
     ];
 
     if (storedRequestForms) {
-      setRequestForms(JSON.parse(storedRequestForms));
+      try {
+        let parsed = JSON.parse(storedRequestForms);
+        let mutated = false;
+        parsed = parsed.map(form => {
+          let updated = { ...form };
+          if (!form.category) {
+            mutated = true;
+            if (form.route_slug === 'event-pre-proposal') updated.category = 'Event Management';
+            else if (form.route_slug === 'bill-settlement') updated.category = 'Finance';
+            else if (form.route_slug === 'membership') updated.category = 'Membership';
+            else updated.category = 'Administration';
+          }
+          if (form.display_order === undefined) {
+            mutated = true;
+            if (form.route_slug === 'event-pre-proposal') updated.display_order = 1;
+            else if (form.route_slug === 'bill-settlement') updated.display_order = 2;
+            else if (form.route_slug === 'membership') updated.display_order = 3;
+            else updated.display_order = 99;
+          }
+          return updated;
+        });
+        if (mutated) {
+          localStorage.setItem('ieee_request_forms', JSON.stringify(parsed));
+        }
+        setRequestForms(parsed);
+      } catch (e) {
+        console.error("Error loading stored request forms", e);
+        setRequestForms(defaultRequestForms);
+      }
     } else {
       localStorage.setItem('ieee_request_forms', JSON.stringify(defaultRequestForms));
       setRequestForms(defaultRequestForms);
@@ -1346,23 +1382,37 @@ const Admin = () => {
     setPassword('');
   };
 
+  const handleAddNewFormClick = () => {
+    setEditingFormId('new');
+    setFormNameInput('');
+    setFormSlugInput('');
+    setFormUrlInput('');
+    setFormDescInput('');
+    setFormActiveInput(true);
+    setFormCategoryInput('Membership');
+    setFormDisplayOrderInput(requestForms.length + 1);
+    setPreviewFormUrl('');
+  };
+
   const handleEditFormClick = (form) => {
     setEditingFormId(form.id);
     setFormNameInput(form.form_name);
     setFormSlugInput(form.route_slug);
-    setFormUrlInput(form.google_form_url);
-    setFormDescInput(form.description);
+    setFormUrlInput(form.google_form_url || '');
+    setFormDescInput(form.description || '');
     setFormActiveInput(form.is_active);
-    setPreviewFormUrl(form.google_form_url);
+    setFormCategoryInput(form.category || 'Membership');
+    setFormDisplayOrderInput(form.display_order !== undefined ? form.display_order : 1);
+    setPreviewFormUrl(form.google_form_url || '');
   };
 
   const handleSaveRequestForm = (e) => {
     e.preventDefault();
-    if (!formNameInput.trim() || !formSlugInput.trim() || !formUrlInput.trim()) return;
+    if (!formNameInput.trim() || !formSlugInput.trim()) return;
 
     // Simple auto-conversion for docs.google.com/forms viewform URLs
     let sanitizedUrl = formUrlInput.trim();
-    if (sanitizedUrl.includes('docs.google.com/forms') && !sanitizedUrl.includes('embedded=true')) {
+    if (sanitizedUrl && sanitizedUrl.includes('docs.google.com/forms') && !sanitizedUrl.includes('embedded=true')) {
       const viewformIndex = sanitizedUrl.indexOf('/viewform');
       if (viewformIndex !== -1) {
         sanitizedUrl = sanitizedUrl.substring(0, viewformIndex + 9);
@@ -1370,25 +1420,54 @@ const Admin = () => {
       sanitizedUrl += '?embedded=true';
     }
 
-    const updatedForms = requestForms.map(form => 
-      form.id === editingFormId 
-        ? { 
-            ...form, 
-            form_name: formNameInput, 
-            route_slug: formSlugInput.toLowerCase().replace(/[^a-z0-9_-]/g, '-'), 
-            google_form_url: sanitizedUrl, 
-            description: formDescInput, 
-            is_active: formActiveInput,
-            updated_at: new Date().toLocaleDateString(),
-            updated_by: email || "Admin"
-          }
-        : form
-    );
+    let updatedForms;
+    const cleanSlug = formSlugInput.toLowerCase().replace(/[^a-z0-9_-]/g, '-');
+
+    if (editingFormId === 'new') {
+      const newId = Math.max(0, ...requestForms.map(f => typeof f.id === 'number' ? f.id : 0)) + 1;
+      const newForm = {
+        id: newId,
+        form_name: formNameInput.trim(),
+        route_slug: cleanSlug,
+        google_form_url: sanitizedUrl,
+        description: formDescInput.trim(),
+        category: formCategoryInput,
+        display_order: Number(formDisplayOrderInput),
+        is_active: formActiveInput,
+        updated_at: new Date().toLocaleDateString(),
+        updated_by: email || "Admin"
+      };
+      updatedForms = [...requestForms, newForm];
+    } else {
+      updatedForms = requestForms.map(form => 
+        form.id === editingFormId 
+          ? { 
+              ...form, 
+              form_name: formNameInput.trim(), 
+              route_slug: cleanSlug, 
+              google_form_url: sanitizedUrl, 
+              description: formDescInput.trim(),
+              category: formCategoryInput,
+              display_order: Number(formDisplayOrderInput),
+              is_active: formActiveInput,
+              updated_at: new Date().toLocaleDateString(),
+              updated_by: email || "Admin"
+            }
+          : form
+      );
+    }
 
     setRequestForms(updatedForms);
     localStorage.setItem('ieee_request_forms', JSON.stringify(updatedForms));
     setEditingFormId(null);
     setPreviewFormUrl('');
+  };
+
+  const handleDeleteRequestForm = (id) => {
+    if (!window.confirm("Are you sure you want to permanently delete this request form template?")) return;
+    const updated = requestForms.filter(form => form.id !== id);
+    setRequestForms(updated);
+    localStorage.setItem('ieee_request_forms', JSON.stringify(updated));
   };
 
   const handleDeleteSubmission = (id) => {
@@ -8751,11 +8830,38 @@ const Admin = () => {
 
             {requestFormsSubTab === 'templates' && (
               <>
-                {/* Editing Card - visible when editing */}
+                {/* Add New Form Button Row - when NOT editing/adding */}
+                {!editingFormId && (
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
+                    <button
+                      type="button"
+                      onClick={handleAddNewFormClick}
+                      style={{
+                        padding: '10px 20px',
+                        backgroundColor: '#4f46e5',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        fontWeight: '700',
+                        color: '#ffffff',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        boxShadow: 'var(--shadow-glow)'
+                      }}
+                      className="admin-add-btn"
+                    >
+                      <Plus size={14} /> Add New Request Form
+                    </button>
+                  </div>
+                )}
+
+                {/* Editing/Adding Form Card - visible when editingFormId is set */}
                 {editingFormId ? (
                   <form onSubmit={handleSaveRequestForm} className="card" style={{ padding: '24px', backgroundColor: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '12px', marginBottom: '32px' }}>
                     <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '800', marginBottom: '16px', borderBottom: '1px solid #cbd5e1', paddingBottom: '8px' }}>
-                      Edit Form: {formNameInput || 'New Form'}
+                      {editingFormId === 'new' ? 'Add New Request Form' : `Edit Form: ${formNameInput}`}
                     </h3>
                     
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
@@ -8782,11 +8888,37 @@ const Admin = () => {
                       </div>
                     </div>
 
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px' }}>Category</label>
+                        <select
+                          value={formCategoryInput}
+                          onChange={(e) => setFormCategoryInput(e.target.value)}
+                          style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none', backgroundColor: '#ffffff', cursor: 'pointer' }}
+                        >
+                          <option value="Membership">Membership</option>
+                          <option value="Finance">Finance</option>
+                          <option value="Event Management">Event Management</option>
+                          <option value="Administration">Administration</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px' }}>Display Order</label>
+                        <input
+                          type="number"
+                          required
+                          min="1"
+                          value={formDisplayOrderInput}
+                          onChange={(e) => setFormDisplayOrderInput(e.target.value)}
+                          style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
+                        />
+                      </div>
+                    </div>
+
                     <div style={{ marginBottom: '16px' }}>
-                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px' }}>Google Form URL (Publish/Viewform Link)</label>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '750', color: '#0a385b', marginBottom: '6px' }}>Google Form URL (Publish/Viewform Link - Optional if onscreen form)</label>
                       <input
                         type="text"
-                        required
                         value={formUrlInput}
                         onChange={(e) => {
                           setFormUrlInput(e.target.value);
@@ -8795,7 +8927,7 @@ const Admin = () => {
                         style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
                         placeholder="https://docs.google.com/forms/d/e/.../viewform?embedded=true"
                       />
-                      {formUrlInput.includes('forms.gle') && (
+                      {formUrlInput && formUrlInput.includes('forms.gle') && (
                         <p style={{ fontSize: '11px', color: '#b45309', marginTop: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                           ⚠️ <strong>Note:</strong> Short URLs (forms.gle) might be blocked from embedding in iframes due to security redirect headers. It is highly recommended to use the full <code>docs.google.com/forms</code> link.
                         </p>
@@ -8822,7 +8954,7 @@ const Admin = () => {
                         style={{ cursor: 'pointer' }}
                       />
                       <label htmlFor="formActiveInput" style={{ fontSize: '13px', fontWeight: '700', color: '#475569', cursor: 'pointer' }}>
-                        Active (Show in Request navigation dropdown)
+                        Active (Show in Request Forms listing page)
                       </label>
                     </div>
 
@@ -8861,7 +8993,7 @@ const Admin = () => {
                         type="submit"
                         style={{ padding: '8px 18px', backgroundColor: '#02619a', border: 'none', borderRadius: '20px', fontSize: '12.5px', fontWeight: 'bold', color: '#ffffff', cursor: 'pointer' }}
                       >
-                        Save Changes
+                        {editingFormId === 'new' ? 'Add Form' : 'Save Changes'}
                       </button>
                     </div>
                   </form>
@@ -8875,80 +9007,104 @@ const Admin = () => {
                         <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '1px solid #cbd5e1' }}>
                           <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Form Name</th>
                           <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Route Slug</th>
+                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Category</th>
+                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', textAlign: 'center', width: '80px' }}>Order</th>
                           <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b' }}>Description</th>
                           <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '90px', textAlign: 'center' }}>Status</th>
-                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', textAlign: 'center', width: '180px' }}>Actions</th>
+                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', textAlign: 'center', width: '220px' }}>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
                         {requestForms.length > 0 ? (
-                          requestForms.map(form => (
-                            <tr key={form.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                              <td style={{ padding: '16px 20px', fontWeight: '600' }}>{form.form_name}</td>
-                              <td style={{ padding: '16px 20px', color: '#02619a', fontFamily: 'monospace', fontSize: '12.5px' }}>
-                                /request/{form.route_slug}
-                              </td>
-                              <td style={{ padding: '16px 20px', color: '#64748b', fontSize: '13px' }}>{form.description}</td>
-                              <td style={{ padding: '16px 20px', textAlign: 'center' }}>
-                                <span style={{
-                                  display: 'inline-block',
-                                  padding: '3px 8px',
-                                  borderRadius: '12px',
-                                  fontSize: '11px',
-                                  fontWeight: '700',
-                                  backgroundColor: form.is_active ? '#dcfce7' : '#fee2e2',
-                                  color: form.is_active ? '#15803d' : '#b91c1c'
-                                }}>
-                                  {form.is_active ? 'Active' : 'Inactive'}
-                                </span>
-                              </td>
-                              <td style={{ padding: '16px 20px', textAlign: 'center' }}>
-                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                  <button
-                                    onClick={() => handleEditFormClick(form)}
-                                    style={{
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      gap: '4px',
-                                      padding: '6px 12px',
-                                      border: '1px solid #cbd5e1',
-                                      borderRadius: '6px',
-                                      backgroundColor: '#ffffff',
-                                      color: 'var(--secondary)',
-                                      fontSize: '12px',
-                                      fontWeight: '600',
-                                      cursor: 'pointer'
-                                    }}
-                                    className="action-btn-hover-edit"
-                                  >
-                                    <Edit3 size={12} /> Edit / Link
-                                  </button>
-                                  <a
-                                    href={`/request/${form.route_slug}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    style={{
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      gap: '4px',
-                                      padding: '6px 12px',
-                                      border: '1px solid #cbd5e1',
-                                      borderRadius: '6px',
-                                      backgroundColor: '#ffffff',
-                                      color: '#475569',
-                                      fontSize: '12px',
-                                      fontWeight: '600',
-                                      textDecoration: 'none',
-                                      cursor: 'pointer'
-                                    }}
-                                    className="action-btn-hover-edit"
-                                  >
-                                    Preview Page
-                                  </a>
-                                </div>
-                              </td>
-                            </tr>
-                          ))
+                          [...requestForms]
+                            .sort((a, b) => (a.display_order !== undefined ? Number(a.display_order) : 999) - (b.display_order !== undefined ? Number(b.display_order) : 999))
+                            .map(form => (
+                              <tr key={form.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                                <td style={{ padding: '16px 20px', fontWeight: '600' }}>{form.form_name}</td>
+                                <td style={{ padding: '16px 20px', color: '#02619a', fontFamily: 'monospace', fontSize: '12.5px' }}>
+                                  /request/{form.route_slug}
+                                </td>
+                                <td style={{ padding: '16px 20px', color: '#475569', fontSize: '13px', fontWeight: '500' }}>{form.category || 'Membership'}</td>
+                                <td style={{ padding: '16px 20px', color: '#475569', fontSize: '13px', textAlign: 'center' }}>{form.display_order !== undefined ? form.display_order : 1}</td>
+                                <td style={{ padding: '16px 20px', color: '#64748b', fontSize: '13px' }}>{form.description}</td>
+                                <td style={{ padding: '16px 20px', textAlign: 'center' }}>
+                                  <span style={{
+                                    display: 'inline-block',
+                                    padding: '3px 8px',
+                                    borderRadius: '12px',
+                                    fontSize: '11px',
+                                    fontWeight: '700',
+                                    backgroundColor: form.is_active ? '#dcfce7' : '#fee2e2',
+                                    color: form.is_active ? '#15803d' : '#b91c1c'
+                                  }}>
+                                    {form.is_active ? 'Active' : 'Inactive'}
+                                  </span>
+                                </td>
+                                <td style={{ padding: '16px 20px', textAlign: 'center' }}>
+                                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                    <button
+                                      onClick={() => handleEditFormClick(form)}
+                                      style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        padding: '6px 12px',
+                                        border: '1px solid #cbd5e1',
+                                        borderRadius: '6px',
+                                        backgroundColor: '#ffffff',
+                                        color: 'var(--secondary)',
+                                        fontSize: '12px',
+                                        fontWeight: '600',
+                                        cursor: 'pointer'
+                                      }}
+                                      className="action-btn-hover-edit"
+                                    >
+                                      <Edit3 size={12} /> Edit
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeleteRequestForm(form.id)}
+                                      style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        padding: '6px 12px',
+                                        border: '1px solid #fee2e2',
+                                        borderRadius: '6px',
+                                        backgroundColor: '#fef2f2',
+                                        color: '#ef4444',
+                                        fontSize: '12px',
+                                        fontWeight: '600',
+                                        cursor: 'pointer'
+                                      }}
+                                    >
+                                      <Trash2 size={12} /> Delete
+                                    </button>
+                                    <a
+                                      href={`/request/${form.route_slug}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        padding: '6px 12px',
+                                        border: '1px solid #cbd5e1',
+                                        borderRadius: '6px',
+                                        backgroundColor: '#ffffff',
+                                        color: '#475569',
+                                        fontSize: '12px',
+                                        fontWeight: '600',
+                                        textDecoration: 'none',
+                                        cursor: 'pointer'
+                                      }}
+                                      className="action-btn-hover-edit"
+                                    >
+                                      Preview
+                                    </a>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))
                         ) : (
                           <tr>
                             <td colSpan="5" style={{ textAlign: 'center', padding: '30px', color: '#94a3b8' }}>

@@ -35,6 +35,7 @@ import {
 } from './pages/AboutPages';
 
 import RequestFormPage from './pages/RequestFormPage';
+import RequestFormsListing from './pages/RequestFormsListing';
 
 import './App.css';
 
@@ -120,6 +121,7 @@ function App() {
           <Route path="/about" element={<IEEEKECSB />} />
           
           {/* Request Form Routes */}
+          <Route path="/request/forms" element={<RequestFormsListing />} />
           <Route path="/request/:slug" element={<RequestFormPage />} />
 
           {/* Committee Routes */}

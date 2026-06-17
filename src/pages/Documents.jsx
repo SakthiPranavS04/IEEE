@@ -112,28 +112,9 @@ const Documents = () => {
   };
 
   const handleDownload = (doc) => {
-    // Local download flow preserving the original filename and extension
-    let content = `IEEE KEC Student Branch - Documents Repository\n\n`;
-    content += `Document Title: ${doc.title}\n`;
-    content += `File Name: ${doc.name}\n`;
-    content += `Category: ${doc.category}\n`;
-    content += `File Size: ${doc.size}\n`;
-    content += `Mime Type: ${doc.mimeType}\n`;
-    content += `Upload Date: ${doc.uploadDate}\n`;
-    if (doc.description) {
-      content += `Description: ${doc.description}\n`;
-    }
-    content += `\nThis is a verified document from the IEEE Kongu Engineering College Student Branch.\n`;
-
-    const blob = new Blob([content], { type: doc.mimeType });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = doc.name; // Preserve exact name
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    // Open Google Drive direct download URL in a new window/tab to trigger native file export/download
+    const downloadUrl = `https://drive.google.com/uc?export=download&id=${doc.id}`;
+    window.open(downloadUrl, '_blank');
   };
 
   // Filtering Logic

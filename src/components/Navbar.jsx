@@ -17,6 +17,8 @@ const Navbar = () => {
         route_slug: "event-pre-proposal",
         google_form_url: "https://docs.google.com/forms/d/e/1FAIpQLSchXAD6IMgd7yYgQG4wLhIPiDScyktCw_h0NCeP5SiQrfFf7Q/viewform?embedded=true",
         description: "Submit event details, dates, speakers, and budget estimates for verification and approval.",
+        category: "Event Management",
+        display_order: 1,
         is_active: true,
         updated_at: new Date().toLocaleDateString(),
         updated_by: "Admin"
@@ -27,6 +29,8 @@ const Navbar = () => {
         route_slug: "bill-settlement",
         google_form_url: "https://docs.google.com/forms/d/e/1FAIpQLSe4rh67hrSDSVHx58-oBOGbOtNNiqi9R9dX_NyxHNOM1IEUgg/viewform?embedded=true",
         description: "Submit final expense sheets, vouchers, invoice scans, and bank details for event accounts closure.",
+        category: "Finance",
+        display_order: 2,
         is_active: true,
         updated_at: new Date().toLocaleDateString(),
         updated_by: "Admin"
@@ -37,6 +41,8 @@ const Navbar = () => {
         route_slug: "membership",
         google_form_url: "",
         description: "Register for IEEE KEC SB membership. Fill in your personal details, department, year, and complete the payment via UPI.",
+        category: "Membership",
+        display_order: 3,
         is_active: true,
         updated_at: new Date().toLocaleDateString(),
         updated_by: "Admin"
@@ -240,17 +246,11 @@ const Navbar = () => {
           link: '/about/ieee',
           icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
         },
-        ...requestForms
-          .filter(form => form.is_active)
-          .map(form => ({
-            name: form.form_name,
-            link: `/request/${form.route_slug}`,
-            icon: form.route_slug === 'event-pre-proposal' ? (
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            )
-          }))
+        {
+          name: 'Request Forms',
+          link: '/request/forms',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
+        }
       ],
     },
     { name: 'Documents', link: '/documents' },

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, LogOut, Check, Trash2, Edit3, Plus, Image as ImageIcon, BarChart3, Database, X, Calendar, Award, Users, Target, Settings, Link as LinkIcon, AlertCircle, FileText, Compass, Layers, Save, RefreshCw, MessageSquare, ArrowUp, ArrowDown, Flame } from 'lucide-react';
+import { Lock, Unlock, LogOut, Check, Trash2, Edit3, Plus, Image as ImageIcon, BarChart3, Database, X, Calendar, Award, Users, Target, Settings, Link as LinkIcon, AlertCircle, FileText, Compass, Layers, Save, RefreshCw, MessageSquare, ArrowUp, ArrowDown, Flame } from 'lucide-react';
 import { apsData } from '../data/aps';
 import { computerSocietyData } from '../data/computerSociety';
 import { wieData } from '../data/wie';
@@ -86,6 +86,8 @@ const Admin = () => {
   const [vision, setVision] = useState('');
   const [tickerNoticesText, setTickerNoticesText] = useState('');
   const [statsSaved, setStatsSaved] = useState(false);
+  const [accessPin, setAccessPin] = useState('');
+  const [isPinEnabled, setIsPinEnabled] = useState(true);
 
   // New Media Content States
   const [aboutImage, setAboutImage] = useState('/assets/kec_itpark.jpg');
@@ -124,6 +126,7 @@ const Admin = () => {
   const [docTitleInput, setDocTitleInput] = useState('');
   const [docCategoryInput, setDocCategoryInput] = useState('');
   const [docDescInput, setDocDescInput] = useState('');
+  const [docConfidentialInput, setDocConfidentialInput] = useState(false);
 
   // Media Videos States
   const [mediaVideos, setMediaVideos] = useState([]);
@@ -199,6 +202,7 @@ const Admin = () => {
   const [formUrlInput, setFormUrlInput] = useState('');
   const [formDescInput, setFormDescInput] = useState('');
   const [formActiveInput, setFormActiveInput] = useState(true);
+  const [formConfidentialInput, setFormConfidentialInput] = useState(false);
   const [formCategoryInput, setFormCategoryInput] = useState('Membership');
   const [formDisplayOrderInput, setFormDisplayOrderInput] = useState(1);
   const [previewFormUrl, setPreviewFormUrl] = useState('');
@@ -850,6 +854,8 @@ const Admin = () => {
     setPapersCount(localStorage.getItem('ieee_papers_count') || '15');
     setMission(localStorage.getItem('ieee_mission') || defaultMission);
     setVision(localStorage.getItem('ieee_vision') || defaultVision);
+    setAccessPin(localStorage.getItem('ieee_access_pin') || '1234');
+    setIsPinEnabled(localStorage.getItem('ieee_pin_enabled') !== 'false');
 
     const storedTicker = localStorage.getItem('ieee_ticker_notices');
     if (storedTicker) {
@@ -1389,6 +1395,7 @@ const Admin = () => {
     setFormUrlInput('');
     setFormDescInput('');
     setFormActiveInput(true);
+    setFormConfidentialInput(false);
     setFormCategoryInput('Membership');
     setFormDisplayOrderInput(requestForms.length + 1);
     setPreviewFormUrl('');
@@ -1401,6 +1408,7 @@ const Admin = () => {
     setFormUrlInput(form.google_form_url || '');
     setFormDescInput(form.description || '');
     setFormActiveInput(form.is_active);
+    setFormConfidentialInput(form.is_confidential || false);
     setFormCategoryInput(form.category || 'Membership');
     setFormDisplayOrderInput(form.display_order !== undefined ? form.display_order : 1);
     setPreviewFormUrl(form.google_form_url || '');
@@ -1434,6 +1442,7 @@ const Admin = () => {
         category: formCategoryInput,
         display_order: Number(formDisplayOrderInput),
         is_active: formActiveInput,
+        is_confidential: formConfidentialInput,
         updated_at: new Date().toLocaleDateString(),
         updated_by: email || "Admin"
       };
@@ -1450,6 +1459,7 @@ const Admin = () => {
               category: formCategoryInput,
               display_order: Number(formDisplayOrderInput),
               is_active: formActiveInput,
+              is_confidential: formConfidentialInput,
               updated_at: new Date().toLocaleDateString(),
               updated_by: email || "Admin"
             }
@@ -1486,6 +1496,8 @@ const Admin = () => {
     localStorage.setItem('ieee_papers_count', papersCount);
     localStorage.setItem('ieee_mission', mission);
     localStorage.setItem('ieee_vision', vision);
+    localStorage.setItem('ieee_access_pin', accessPin);
+    localStorage.setItem('ieee_pin_enabled', isPinEnabled);
     localStorage.setItem('ieee_about_image', aboutImage);
     localStorage.setItem('ieee_keystones_video_url', keystonesVideoUrl);
     localStorage.setItem('ieee_hero_images', JSON.stringify(heroImages));
@@ -2744,6 +2756,7 @@ const Admin = () => {
     setDocTitleInput(doc.title || '');
     setDocCategoryInput(doc.category || 'Others');
     setDocDescInput(doc.description || '');
+    setDocConfidentialInput(doc.is_confidential || false);
     setEditingDocId(doc.id);
   };
 
@@ -2751,7 +2764,7 @@ const Admin = () => {
     if (!docTitleInput.trim()) return;
     const updated = documents.map(d => 
       d.id === id 
-        ? { ...d, title: docTitleInput.trim(), category: docCategoryInput, description: docDescInput.trim() } 
+        ? { ...d, title: docTitleInput.trim(), category: docCategoryInput, description: docDescInput.trim(), is_confidential: docConfidentialInput } 
         : d
     );
     setDocuments(updated);
@@ -2801,6 +2814,13 @@ const Admin = () => {
       return match ? { ...d, featuredOrder: match.featuredOrder } : d;
     });
     
+    setDocuments(updated);
+    localStorage.setItem('ieee_documents', JSON.stringify(updated));
+  };
+
+  const toggleAllConfidentialDocs = (makeConfidential) => {
+    if (!window.confirm(`Are you sure you want to mark all documents as ${makeConfidential ? 'confidential' : 'not confidential'}?`)) return;
+    const updated = documents.map(d => ({ ...d, is_confidential: makeConfidential }));
     setDocuments(updated);
     localStorage.setItem('ieee_documents', JSON.stringify(updated));
   };
@@ -3630,6 +3650,36 @@ const Admin = () => {
                       </button>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', gridColumn: 'span 2' }}>
+                <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '750', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>Confidential Settings</h3>
+                
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input
+                    type="checkbox"
+                    id="isPinEnabledInput"
+                    checked={isPinEnabled}
+                    onChange={(e) => setIsPinEnabled(e.target.checked)}
+                    style={{ cursor: 'pointer' }}
+                  />
+                  <label htmlFor="isPinEnabledInput" style={{ fontSize: '14px', fontWeight: '700', color: '#475569', cursor: 'pointer' }}>
+                    Require PIN for confidential items (Global Toggle)
+                  </label>
+                </div>
+
+                <div style={{ width: '50%' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Shared Access PIN (For confidential documents and forms)</label>
+                  <input
+                    type="password"
+                    required
+                    value={accessPin}
+                    onChange={(e) => setAccessPin(e.target.value)}
+                    disabled={!isPinEnabled}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none', backgroundColor: isPinEnabled ? '#ffffff' : '#f1f5f9' }}
+                  />
+                  <p style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>Distribute this PIN to users who are allowed to access confidential items.</p>
                 </div>
               </div>
 
@@ -8243,7 +8293,23 @@ const Admin = () => {
             </div>
 
             {/* Documents List Header */}
-            <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '750', marginBottom: '16px' }}>Documents List</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '750', margin: 0 }}>Documents List</h3>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  onClick={() => toggleAllConfidentialDocs(true)}
+                  style={{ padding: '6px 12px', backgroundColor: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                >
+                  <Lock size={12} /> Mark All Confidential
+                </button>
+                <button
+                  onClick={() => toggleAllConfidentialDocs(false)}
+                  style={{ padding: '6px 12px', backgroundColor: '#64748b', color: '#ffffff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                >
+                  <Unlock size={12} /> Unmark All
+                </button>
+              </div>
+            </div>
 
             <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
               <div style={{ overflowX: 'auto' }}>
@@ -8298,10 +8364,22 @@ const Admin = () => {
                                 <textarea
                                   value={docDescInput}
                                   onChange={(e) => setDocDescInput(e.target.value)}
-                                  style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none', fontFamily: 'inherit', resize: 'vertical' }}
+                                  style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none', fontFamily: 'inherit', resize: 'vertical', marginBottom: '8px' }}
                                   rows="2"
                                   placeholder="Optional description"
                                 />
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <input
+                                    type="checkbox"
+                                    id={`confidential-doc-${item.id}`}
+                                    checked={docConfidentialInput}
+                                    onChange={(e) => setDocConfidentialInput(e.target.checked)}
+                                    style={{ cursor: 'pointer' }}
+                                  />
+                                  <label htmlFor={`confidential-doc-${item.id}`} style={{ fontSize: '12px', fontWeight: '600', color: '#475569', cursor: 'pointer' }}>
+                                    Requires Access PIN (Confidential)
+                                  </label>
+                                </div>
                               </td>
                               <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center' }}>
                                 <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
@@ -8324,7 +8402,10 @@ const Admin = () => {
                             <>
                               {/* Display Mode */}
                               <td style={{ padding: '16px 20px', verticalAlign: 'middle' }}>
-                                <div style={{ fontWeight: '700', color: '#0a385b', fontSize: '14.5px' }}>{item.title}</div>
+                                <div style={{ fontWeight: '700', color: '#0a385b', fontSize: '14.5px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                  {item.title}
+                                  {item.is_confidential && <Lock size={14} color="#ef4444" />}
+                                </div>
                                 <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', wordBreak: 'break-all' }}>{item.name}</div>
                                 <div style={{ display: 'flex', gap: '8px', marginTop: '6px', alignItems: 'center' }}>
                                   <span style={{ fontSize: '10px', backgroundColor: '#e2e8f0', padding: '2px 6px', borderRadius: '4px', color: '#475569', fontWeight: '600' }}>{item.size}</span>
@@ -9129,7 +9210,7 @@ const Admin = () => {
                       />
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                       <input
                         type="checkbox"
                         id="formActiveInput"
@@ -9139,6 +9220,19 @@ const Admin = () => {
                       />
                       <label htmlFor="formActiveInput" style={{ fontSize: '13px', fontWeight: '700', color: '#475569', cursor: 'pointer' }}>
                         Active (Show in Request Forms listing page)
+                      </label>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
+                      <input
+                        type="checkbox"
+                        id="formConfidentialInput"
+                        checked={formConfidentialInput}
+                        onChange={(e) => setFormConfidentialInput(e.target.checked)}
+                        style={{ cursor: 'pointer' }}
+                      />
+                      <label htmlFor="formConfidentialInput" style={{ fontSize: '13px', fontWeight: '700', color: '#475569', cursor: 'pointer' }}>
+                        Mark as Confidential (Requires Access PIN)
                       </label>
                     </div>
 

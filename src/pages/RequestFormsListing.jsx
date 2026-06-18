@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Search, Filter, ArrowRight, FileText, Sparkles, X } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Search, Filter, ArrowRight, FileText, Sparkles, X, Lock } from 'lucide-react';
 
 const PageHeader = ({ title, subtitle }) => (
   <div style={{
@@ -60,6 +60,12 @@ const RequestFormsListing = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  
+  const navigate = useNavigate();
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [pinInput, setPinInput] = useState('');
+  const [pinError, setPinError] = useState('');
+  const [targetUrl, setTargetUrl] = useState('');
 
   useEffect(() => {
     // Load request forms from localStorage
@@ -102,6 +108,30 @@ const RequestFormsListing = () => {
     const orderB = b.display_order !== undefined ? Number(b.display_order) : 999;
     return orderA - orderB;
   });
+
+  const handleFormClick = (e, form) => {
+    e.preventDefault();
+    const isPinEnabled = localStorage.getItem('ieee_pin_enabled') !== 'false';
+    if (isPinEnabled && form.is_confidential && sessionStorage.getItem('ieee_unlocked') !== 'true') {
+      setTargetUrl(`/request/${form.route_slug}`);
+      setPinInput('');
+      setPinError('');
+      setShowPinModal(true);
+    } else {
+      navigate(`/request/${form.route_slug}`);
+    }
+  };
+
+  const handlePinSubmit = () => {
+    const correctPin = localStorage.getItem('ieee_access_pin') || '1234';
+    if (pinInput === correctPin) {
+      sessionStorage.setItem('ieee_unlocked', 'true');
+      setShowPinModal(false);
+      navigate(targetUrl);
+    } else {
+      setPinError('Incorrect PIN');
+    }
+  };
 
   return (
     <div className="animate-fade-in" style={{ backgroundColor: 'var(--bg-light)', paddingBottom: '90px', minHeight: '75vh', fontFamily: 'var(--font-sans)' }}>
@@ -275,15 +305,22 @@ const RequestFormsListing = () => {
                     </div>
 
                     {/* Title */}
-                    <h3 style={{
-                      fontSize: '18px',
-                      marginBottom: '10px',
-                      color: 'var(--primary)',
-                      lineHeight: '1.45',
-                      fontWeight: '800'
-                    }}>
-                      {form.form_name}
-                    </h3>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '10px' }}>
+                      <h3 style={{
+                        fontSize: '18px',
+                        color: 'var(--primary)',
+                        lineHeight: '1.45',
+                        fontWeight: '800',
+                        margin: 0
+                      }}>
+                        {form.form_name}
+                      </h3>
+                      {form.is_confidential && localStorage.getItem('ieee_pin_enabled') !== 'false' && (
+                        <div style={{ padding: '2px', backgroundColor: '#fee2e2', borderRadius: '4px', color: '#ef4444', display: 'flex' }} title="Confidential - Requires PIN">
+                          <Lock size={14} />
+                        </div>
+                      )}
+                    </div>
 
                     {/* Description */}
                     <p style={{
@@ -297,8 +334,8 @@ const RequestFormsListing = () => {
                     </p>
 
                     {/* CTA Register Button */}
-                    <Link
-                      to={`/request/${form.route_slug}`}
+                    <button
+                      onClick={(e) => handleFormClick(e, form)}
                       style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -307,18 +344,19 @@ const RequestFormsListing = () => {
                         background: 'var(--gradient-colorful)',
                         color: '#ffffff',
                         padding: '11px 20px',
+                        border: 'none',
                         borderRadius: '8px',
                         fontSize: '14px',
                         fontWeight: '700',
-                        textDecoration: 'none',
+                        cursor: 'pointer',
                         transition: 'all 0.25s ease',
                         letterSpacing: '0.3px',
                         boxShadow: '0 4px 12px rgba(79, 70, 229, 0.2)'
                       }}
                       className="request-register-btn"
                     >
-                      Register <ArrowRight size={14} />
-                    </Link>
+                      {form.is_confidential && localStorage.getItem('ieee_pin_enabled') !== 'false' && sessionStorage.getItem('ieee_unlocked') !== 'true' ? 'Unlock Form' : 'Register'} <ArrowRight size={14} />
+                    </button>
                   </div>
                 </div>
               );
@@ -376,6 +414,76 @@ const RequestFormsListing = () => {
           </div>
         )}
       </div>
+
+      {/* PIN Modal */}
+      {showPinModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.75)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999
+        }}>
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '16px',
+            padding: '32px',
+            width: '90%',
+            maxWidth: '400px',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            textAlign: 'center'
+          }}>
+            <div style={{ display: 'inline-flex', padding: '12px', backgroundColor: '#fee2e2', borderRadius: '50%', color: '#ef4444', marginBottom: '16px' }}>
+              <Lock size={28} />
+            </div>
+            <h3 style={{ fontSize: '20px', color: '#0f172a', fontWeight: '800', marginBottom: '8px', fontFamily: 'var(--font-sans)' }}>Confidential Form</h3>
+            <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '24px', lineHeight: '1.5' }}>
+              Please enter the shared Access PIN to view this confidential request form.
+            </p>
+            <input
+              type="password"
+              placeholder="Enter PIN"
+              value={pinInput}
+              onChange={(e) => {
+                setPinInput(e.target.value);
+                setPinError('');
+              }}
+              onKeyDown={(e) => e.key === 'Enter' && handlePinSubmit()}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                borderRadius: '8px',
+                border: `1px solid ${pinError ? '#ef4444' : '#cbd5e1'}`,
+                fontSize: '16px',
+                outline: 'none',
+                textAlign: 'center',
+                letterSpacing: '4px',
+                marginBottom: '8px'
+              }}
+              autoFocus
+            />
+            {pinError && <div style={{ color: '#ef4444', fontSize: '13px', marginBottom: '16px', fontWeight: '600' }}>{pinError}</div>}
+            
+            <div style={{ display: 'flex', gap: '12px', marginTop: pinError ? '0' : '24px' }}>
+              <button
+                onClick={() => setShowPinModal(false)}
+                style={{ flex: 1, padding: '12px', backgroundColor: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handlePinSubmit}
+                style={{ flex: 1, padding: '12px', backgroundColor: 'var(--primary)', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}
+              >
+                Unlock
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style>{`
         .request-card:hover {

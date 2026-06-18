@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, FileVideo, FileCode, FileArchive, Search, Download, Eye, X, Sparkles, Filter, ChevronRight, Image as ImageIcon } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { FileText, FileVideo, FileCode, FileArchive, Search, Download, Eye, X, Sparkles, Filter, ChevronRight, Image as ImageIcon, Lock } from 'lucide-react';
 
 const PageHeader = ({ title, subtitle }) => (
   <div style={{
@@ -62,6 +63,12 @@ const Documents = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedType, setSelectedType] = useState('All');
   const [previewDoc, setPreviewDoc] = useState(null);
+  
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [pinInput, setPinInput] = useState('');
+  const [pinError, setPinError] = useState('');
+  const [targetDoc, setTargetDoc] = useState(null);
+  const [targetAction, setTargetAction] = useState('');
 
   useEffect(() => {
     // Load documents from localStorage
@@ -125,8 +132,44 @@ const Documents = () => {
     return `https://drive.google.com/uc?export=download&id=${doc.id}`;
   };
 
+  const executeAction = (doc, action) => {
+    if (action === 'preview') {
+      setPreviewDoc(doc);
+    } else if (action === 'download') {
+      window.open(getDownloadUrl(doc), '_blank');
+    }
+  };
+
+  const handleAction = (doc, action) => {
+    const isPinEnabled = localStorage.getItem('ieee_pin_enabled') !== 'false';
+    if (isPinEnabled && doc.is_confidential && sessionStorage.getItem('ieee_unlocked') !== 'true') {
+      setTargetDoc(doc);
+      setTargetAction(action);
+      setPinInput('');
+      setPinError('');
+      setShowPinModal(true);
+    } else {
+      executeAction(doc, action);
+    }
+  };
+
   const handleDownload = (doc) => {
-    window.open(getDownloadUrl(doc), '_blank');
+    handleAction(doc, 'download');
+  };
+
+  const handlePreview = (doc) => {
+    handleAction(doc, 'preview');
+  };
+
+  const handlePinSubmit = () => {
+    const correctPin = localStorage.getItem('ieee_access_pin') || '1234';
+    if (pinInput === correctPin) {
+      sessionStorage.setItem('ieee_unlocked', 'true');
+      setShowPinModal(false);
+      executeAction(targetDoc, targetAction);
+    } else {
+      setPinError('Incorrect PIN');
+    }
   };
 
   // Filtering Logic
@@ -239,14 +282,21 @@ const Documents = () => {
                         <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>{getCleanFileType(doc.mimeType)} • {doc.size}</div>
                       </div>
                     </div>
-                    <h3 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--primary)', marginBottom: '8px', lineHeight: '1.4' }}>{doc.title}</h3>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '8px' }}>
+                      <h3 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--primary)', lineHeight: '1.4', margin: 0 }}>{doc.title}</h3>
+                      {doc.is_confidential && localStorage.getItem('ieee_pin_enabled') !== 'false' && (
+                        <div style={{ padding: '2px', backgroundColor: '#fee2e2', borderRadius: '4px', color: '#ef4444', display: 'flex' }} title="Confidential - Requires PIN">
+                          <Lock size={14} />
+                        </div>
+                      )}
+                    </div>
                     <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: '1.5', marginBottom: '20px' }}>{doc.description || 'No description provided.'}</p>
                   </div>
 
                   <div style={{ display: 'flex', gap: '10px', borderTop: '1px solid var(--border-subtle)', paddingTop: '16px', marginTop: 'auto' }}>
                     {isPreviewSupported(doc.mimeType) && (
                       <button
-                        onClick={() => setPreviewDoc(doc)}
+                        onClick={() => handlePreview(doc)}
                         style={{
                           flex: 1,
                           display: 'flex',
@@ -491,14 +541,21 @@ const Documents = () => {
                           <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>{getCleanFileType(doc.mimeType)} • {doc.size}</div>
                         </div>
                       </div>
-                      <h3 style={{ fontSize: '15.5px', fontWeight: '800', color: 'var(--primary)', marginBottom: '8px', lineHeight: '1.45' }}>{doc.title}</h3>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '8px' }}>
+                        <h3 style={{ fontSize: '15.5px', fontWeight: '800', color: 'var(--primary)', lineHeight: '1.45', margin: 0 }}>{doc.title}</h3>
+                        {doc.is_confidential && localStorage.getItem('ieee_pin_enabled') !== 'false' && (
+                          <div style={{ padding: '2px', backgroundColor: '#fee2e2', borderRadius: '4px', color: '#ef4444', display: 'flex' }} title="Confidential - Requires PIN">
+                            <Lock size={14} />
+                          </div>
+                        )}
+                      </div>
                       <p style={{ fontSize: '13.5px', color: 'var(--text-muted)', lineHeight: '1.55', marginBottom: '20px' }}>{doc.description || 'No description provided.'}</p>
                     </div>
 
                     <div style={{ display: 'flex', gap: '10px', borderTop: '1px solid var(--border-subtle)', paddingTop: '16px', marginTop: 'auto' }}>
                       {isPreviewSupported(doc.mimeType) && (
                         <button
-                          onClick={() => setPreviewDoc(doc)}
+                          onClick={() => handlePreview(doc)}
                           style={{
                             flex: 1,
                             display: 'flex',
@@ -594,7 +651,7 @@ const Documents = () => {
       </div>
 
       {/* Preview Modal */}
-      {previewDoc && (
+      {previewDoc && createPortal(
         <div style={{
           position: 'fixed',
           top: 0,
@@ -612,8 +669,8 @@ const Documents = () => {
           <div style={{
             backgroundColor: '#ffffff',
             borderRadius: '20px',
-            width: '100%',
-            maxWidth: '960px',
+            width: '50vw',
+            maxWidth: '50vw',
             maxHeight: '90vh',
             display: 'flex',
             flexDirection: 'column',
@@ -625,8 +682,7 @@ const Documents = () => {
             {/* Modal Header */}
             <div style={{
               padding: '20px 24px',
-              backgroundColor: 'var(--gradient-primary)',
-              backgroundSize: 'cover',
+              background: 'linear-gradient(180deg, #0f172a 0%, #030712 100%)',
               color: '#ffffff',
               display: 'flex',
               justifyContent: 'space-between',
@@ -691,24 +747,95 @@ const Documents = () => {
             <div style={{
               flex: 1,
               backgroundColor: '#0f172a',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
               position: 'relative',
               minHeight: '400px',
-              height: '60vh'
+              height: '85vh'
             }}>
               <iframe
                 src={`https://drive.google.com/file/d/${previewDoc.id}/preview`}
                 title={`Preview ${previewDoc.title}`}
                 style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
                   width: '100%',
                   height: '100%',
                   border: 'none',
-                  backgroundColor: '#0f172a'
+                  backgroundColor: '#ffffff'
                 }}
                 allow="autoplay"
               />
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* PIN Modal */}
+      {showPinModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.75)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999
+        }}>
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '16px',
+            padding: '32px',
+            width: '90%',
+            maxWidth: '400px',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            textAlign: 'center'
+          }}>
+            <div style={{ display: 'inline-flex', padding: '12px', backgroundColor: '#fee2e2', borderRadius: '50%', color: '#ef4444', marginBottom: '16px' }}>
+              <Lock size={28} />
+            </div>
+            <h3 style={{ fontSize: '20px', color: '#0f172a', fontWeight: '800', marginBottom: '8px', fontFamily: 'var(--font-sans)' }}>Confidential Document</h3>
+            <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '24px', lineHeight: '1.5' }}>
+              Please enter the shared Access PIN to {targetAction} this confidential document.
+            </p>
+            <input
+              type="password"
+              placeholder="Enter PIN"
+              value={pinInput}
+              onChange={(e) => {
+                setPinInput(e.target.value);
+                setPinError('');
+              }}
+              onKeyDown={(e) => e.key === 'Enter' && handlePinSubmit()}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                borderRadius: '8px',
+                border: `1px solid ${pinError ? '#ef4444' : '#cbd5e1'}`,
+                fontSize: '16px',
+                outline: 'none',
+                textAlign: 'center',
+                letterSpacing: '4px',
+                marginBottom: '8px'
+              }}
+              autoFocus
+            />
+            {pinError && <div style={{ color: '#ef4444', fontSize: '13px', marginBottom: '16px', fontWeight: '600' }}>{pinError}</div>}
+            
+            <div style={{ display: 'flex', gap: '12px', marginTop: pinError ? '0' : '24px' }}>
+              <button
+                onClick={() => setShowPinModal(false)}
+                style={{ flex: 1, padding: '12px', backgroundColor: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handlePinSubmit}
+                style={{ flex: 1, padding: '12px', backgroundColor: 'var(--primary)', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}
+              >
+                Unlock
+              </button>
             </div>
           </div>
         </div>

@@ -97,7 +97,7 @@ const Navbar = () => {
         return pathname.startsWith('/achievements');
       case 'About':
         return (
-          (pathname.startsWith('/about') && pathname !== '/about/ieee') ||
+          pathname.startsWith('/about') ||
           pathname === '/faculties' ||
           pathname === '/committee'
         );
@@ -110,7 +110,7 @@ const Navbar = () => {
       case 'Media':
         return pathname.startsWith('/media');
       case 'Request':
-        return pathname.startsWith('/request') || pathname === '/about/ieee';
+        return pathname.startsWith('/request');
       case 'Documents':
         return pathname.startsWith('/documents');
       case 'Contact':
@@ -160,6 +160,11 @@ const Navbar = () => {
           name: 'About IEEE KEC SB', 
           link: '/about/ieee-kec-sb',
           icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        },
+        { 
+          name: 'About IEEE (Global)', 
+          link: '/about/ieee',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
         },
         { 
           name: 'Operational Committees', 
@@ -241,11 +246,6 @@ const Navbar = () => {
     {
       name: 'Request',
       items: [
-        { 
-          name: 'IEEE Guidelines', 
-          link: '/about/ieee',
-          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
-        },
         {
           name: 'Request Forms',
           link: '/request/forms',
@@ -278,7 +278,52 @@ const Navbar = () => {
       alignItems: 'center',
       color: '#ffffff'
     }}>
-      <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '0 16px' }}>
+      {/* Background visual container containing grid and floating objects with overflow clip */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        overflow: 'hidden',
+        pointerEvents: 'none',
+        zIndex: 0
+      }}>
+        {/* Blueprint Grid Overlay */}
+        <div style={{
+          position: 'absolute',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px)',
+          backgroundSize: '20px 20px',
+          zIndex: 0
+        }} />
+
+        {/* Floating Geometric Objects */}
+        <div style={{
+          position: 'absolute',
+          top: '12px',
+          left: '18%',
+          width: '10px',
+          height: '10px',
+          borderRadius: '50%',
+          border: '1.5px solid rgba(79, 70, 229, 0.3)',
+          zIndex: 0,
+          animation: 'float-slow 8s infinite ease-in-out'
+        }} />
+        <div style={{
+          position: 'absolute',
+          bottom: '15px',
+          right: '22%',
+          width: '14px',
+          height: '14px',
+          borderRadius: '2px',
+          border: '1.5px solid rgba(6, 182, 212, 0.25)',
+          zIndex: 0,
+          animation: 'float-slow-reverse 10s infinite ease-in-out'
+        }} />
+      </div>
+
+      <div className="container" style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '0 16px' }}>
         
         {/* Left Side: Transparent Logo Banner */}
         <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', flexShrink: 0 }}>
@@ -745,6 +790,16 @@ const Navbar = () => {
           border-color: #ffffff !important;
           box-shadow: none;
           transform: none;
+        }
+
+        /* Keyframes for floating effects */
+        @keyframes float-slow {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-8px) rotate(45deg); }
+        }
+        @keyframes float-slow-reverse {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(8px) rotate(-45deg); }
         }
 
         /* Tablet and below */

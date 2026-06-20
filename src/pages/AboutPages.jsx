@@ -378,7 +378,7 @@ export const defaultAboutKecSbData = {
     title: "Ready to Shape the Future of Technology?",
     text: "Join the IEEE KEC Student Branch family today. Unlock global networking, resources, and career-defining opportunities.",
     "btn1Text": "Become a Member",
-    "btn1Link": "https://www.ieee.org/membership/join/index.html",
+    "btn1Link": "/request/membership",
     "btn2Text": "Explore Societies",
     "btn2Link": "/execomm"
   }
@@ -431,7 +431,12 @@ export const IEEEKECSB = () => {
     const stored = localStorage.getItem('ieee_about_kec_sb_v1');
     if (stored) {
       try {
-        setData(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        if (parsed && parsed.cta && parsed.cta.btn1Link === "https://www.ieee.org/membership/join/index.html") {
+          parsed.cta.btn1Link = "/request/membership";
+          localStorage.setItem('ieee_about_kec_sb_v1', JSON.stringify(parsed));
+        }
+        setData(parsed);
       } catch (e) {
         console.error("Error parsing about kec sb data:", e);
       }
@@ -633,9 +638,15 @@ export const IEEEKECSB = () => {
                 {data.cta.text}
               </p>
               <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                <a href={data.cta.btn1Link} target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ padding: '12px 28px', fontSize: '14px', fontWeight: '700', borderRadius: '30px', textDecoration: 'none' }}>
-                  {data.cta.btn1Text}
-                </a>
+                {data.cta.btn1Link.startsWith('http') ? (
+                  <a href={data.cta.btn1Link} target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ padding: '12px 28px', fontSize: '14px', fontWeight: '700', borderRadius: '30px', textDecoration: 'none' }}>
+                    {data.cta.btn1Text}
+                  </a>
+                ) : (
+                  <Link to={data.cta.btn1Link} className="btn btn-secondary" style={{ padding: '12px 28px', fontSize: '14px', fontWeight: '700', borderRadius: '30px', textDecoration: 'none' }}>
+                    {data.cta.btn1Text}
+                  </Link>
+                )}
                 <Link to={data.cta.btn2Link} className="btn" style={{ padding: '12px 28px', fontSize: '14px', fontWeight: '700', borderRadius: '30px', backgroundColor: 'transparent', color: '#ffffff', border: '2px solid #ffffff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   {data.cta.btn2Text} <ArrowRight size={14} />
                 </Link>

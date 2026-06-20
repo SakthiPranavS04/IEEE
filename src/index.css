@@ -294,6 +294,25 @@ h6 {
   border-color: rgba(79, 70, 229, 0.4);
 }
 
+/* Society Grid (3x2 Desktop Layout) */
+.society-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+}
+
+@media (max-width: 1024px) {
+  .society-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .society-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Sticky Navigation & Glassmorphism */
 header {
   position: sticky;
@@ -1397,6 +1416,16 @@ input, textarea, select {
   .event-slider-arrow.right {
     right: 10px;
   }
+}
+
+.roster-contact-icon-btn {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.roster-contact-icon-btn:hover {
+  transform: scale(1.1) translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  filter: brightness(0.95);
 }
 
 

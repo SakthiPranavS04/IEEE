@@ -175,6 +175,14 @@ const Admin = () => {
   const [studentImage, setStudentImage] = useState('');
   const [editingSocietyId, setEditingSocietyId] = useState(null);
   const [editingStudentId, setEditingStudentId] = useState(null);
+  const [editingFacultyId, setEditingFacultyId] = useState(null);
+  const [facultyName, setFacultyName] = useState('');
+  const [facultyPosition, setFacultyPosition] = useState('');
+  const [facultyPhone, setFacultyPhone] = useState('');
+  const [facultyEmail, setFacultyEmail] = useState('');
+  const [facultyLinkedin, setFacultyLinkedin] = useState('');
+  const [facultyImage, setFacultyImage] = useState('');
+  const [activeDropdown, setActiveDropdown] = useState(null);
   const [editingGalleryId, setEditingGalleryId] = useState(null);
   const [editingEventId, setEditingEventId] = useState(null);
   const [editingAchievementId, setEditingAchievementId] = useState(null);
@@ -480,38 +488,38 @@ const Admin = () => {
     {
       id: 1,
       name: "Computer Society (CS Society)",
-      faculty1: { name: "Dr. S. Varadhaganapathy", position: "Society Chairman", phone: "+91 98427 21111" },
-      faculty2: { name: "Dr. P. Natesan", position: "Society Vice Chairman", phone: "+91 98427 22222" }
+      faculty1: { name: "Dr. S. Varadhaganapathy", position: "Society Chairman", phone: "+91 98427 21111", email: "s.varadhaganapathy@kongu.edu", linkedin: "https://linkedin.com/in/s-varadhaganapathy" },
+      faculty2: { name: "Dr. P. Natesan", position: "Society Vice Chairman", phone: "+91 98427 22222", email: "p.natesan@kongu.edu", linkedin: "https://linkedin.com/in/p-natesan" }
     },
     {
       id: 2,
       name: "Robotics and Automation Society (RAS)",
-      faculty1: { name: "Dr. R. Murugesan", position: "Society Chairman", phone: "+91 98427 23333" },
-      faculty2: { name: "Mr. S. Albert Alexander", position: "Society Vice Chairman", phone: "+91 98427 24444" }
+      faculty1: { name: "Dr. R. Murugesan", position: "Society Chairman", phone: "+91 98427 23333", email: "r.murugesan@kongu.edu", linkedin: "https://linkedin.com/in/r-murugesan" },
+      faculty2: { name: "Mr. S. Albert Alexander", position: "Society Vice Chairman", phone: "+91 98427 24444", email: "s.albert.alexander@kongu.edu", linkedin: "https://linkedin.com/in/s-albert-alexander" }
     },
     {
       id: 3,
       name: "Women in Engineering (WIE)",
-      faculty1: { name: "Dr. J. Premalatha", position: "Society Chairman", phone: "+91 98427 25555" },
-      faculty2: { name: "Dr. S. Kalaiselvi", position: "Society Vice Chairman", phone: "+91 98427 26666" }
+      faculty1: { name: "Dr. J. Premalatha", position: "Society Chairman", phone: "+91 98427 25555", email: "j.premalatha@kongu.edu", linkedin: "https://linkedin.com/in/j-premalatha" },
+      faculty2: { name: "Dr. S. Kalaiselvi", position: "Society Vice Chairman", phone: "+91 98427 26666", email: "s.kalaiselvi@kongu.edu", linkedin: "https://linkedin.com/in/s-kalaiselvi" }
     },
     {
       id: 4,
       name: "Power & Energy Society (PES)",
-      faculty1: { name: "Dr. N. Nithyadevi", position: "Society Chairman", phone: "+91 98427 27777" },
-      faculty2: { name: "Dr. A. Sheela", position: "Society Vice Chairman", phone: "+91 98427 28888" }
+      faculty1: { name: "Dr. N. Nithyadevi", position: "Society Chairman", phone: "+91 98427 27777", email: "n.nithyadevi@kongu.edu", linkedin: "https://linkedin.com/in/n-nithyadevi" },
+      faculty2: { name: "Dr. A. Sheela", position: "Society Vice Chairman", phone: "+91 98427 28888", email: "a.sheela@kongu.edu", linkedin: "https://linkedin.com/in/a-sheela" }
     },
     {
       id: 5,
       name: "Communications Society (ComSoc)",
-      faculty1: { name: "Dr. K. Senthil Kumar", position: "Society Chairman", phone: "+91 98427 29999" },
-      faculty2: { name: "Dr. G. Murugesan", position: "Society Vice Chairman", phone: "+91 98427 20000" }
+      faculty1: { name: "Dr. K. Senthil Kumar", position: "Society Chairman", phone: "+91 98427 29999", email: "k.senthil.kumar@kongu.edu", linkedin: "https://linkedin.com/in/k-senthil-kumar" },
+      faculty2: { name: "Dr. G. Murugesan", position: "Society Vice Chairman", phone: "+91 98427 20000", email: "g.murugesan@kongu.edu", linkedin: "https://linkedin.com/in/g-murugesan" }
     },
     {
       id: 6,
       name: "AP-S (Antennas and Propagation Society)",
-      faculty1: { name: "Dr. T. Meeradevi", position: "Society Chairman", phone: "+91 98427 21122" },
-      faculty2: { name: "Dr. K. Albert", position: "Society Vice Chairman", phone: "+91 98427 33344" }
+      faculty1: { name: "Dr. T. Meeradevi", position: "Society Chairman", phone: "+91 98427 21122", email: "t.meeradevi@kongu.edu", linkedin: "https://linkedin.com/in/t-meeradevi" },
+      faculty2: { name: "Dr. K. Albert", position: "Society Vice Chairman", phone: "+91 98427 33344", email: "k.albert@kongu.edu", linkedin: "https://linkedin.com/in/k-albert" }
     }
   ];
 
@@ -2023,6 +2031,57 @@ const Admin = () => {
     setEditingSocietyId(null);
   };
 
+  const startInlineEditFaculty = (fac) => {
+    setFacultyName(fac.name || '');
+    setFacultyPosition(fac.position || '');
+    setFacultyPhone(fac.phone || '');
+    setFacultyEmail(fac.email || '');
+    setFacultyLinkedin(fac.linkedin || '');
+    setFacultyImage(fac.image || '');
+    setEditingFacultyId(fac.id);
+  };
+
+  const saveInlineFaculty = (id) => {
+    const [socId, facNum] = id.split('_').map(Number);
+    const updated = societies.map(item => {
+      if (item.id === socId) {
+        const updatedFaculty = {
+          name: facultyName,
+          position: facultyPosition,
+          phone: facultyPhone,
+          email: facultyEmail,
+          linkedin: facultyLinkedin,
+          image: facultyImage
+        };
+        return {
+          ...item,
+          [facNum === 1 ? 'faculty1' : 'faculty2']: updatedFaculty
+        };
+      }
+      return item;
+    });
+    setSocieties(updated);
+    localStorage.setItem('ieee_execomm_societies_v3', JSON.stringify(updated));
+    setEditingFacultyId(null);
+  };
+
+  const deleteFaculty = (id) => {
+    if (!window.confirm("Are you sure you want to clear/delete this faculty advisor's details?")) return;
+    const [socId, facNum] = id.split('_').map(Number);
+    const updated = societies.map(item => {
+      if (item.id === socId) {
+        const emptyFaculty = { name: '', position: '', phone: '', email: '', linkedin: '', image: '' };
+        return {
+          ...item,
+          [facNum === 1 ? 'faculty1' : 'faculty2']: emptyFaculty
+        };
+      }
+      return item;
+    });
+    setSocieties(updated);
+    localStorage.setItem('ieee_execomm_societies_v3', JSON.stringify(updated));
+  };
+
   const startInlineEditStudent = (item) => {
     setStudentName(item.name || '');
     setStudentDept(item.department || '');
@@ -3361,59 +3420,194 @@ const Admin = () => {
 
       <div className="container">
         {/* Tab Selection */}
-        <div style={{
-          display: 'flex',
-          gap: '10px',
-          borderBottom: '2px solid var(--border-subtle)',
-          paddingBottom: '16px',
-          marginBottom: '32px',
-          flexWrap: 'wrap'
-        }}>
-          {[
-            { id: 'stats', label: 'Stats & Site Info', icon: <Settings size={16} /> },
-            { id: 'gallery', label: 'Photo Gallery', icon: <ImageIcon size={16} /> },
-            { id: 'events', label: 'Events List', icon: <Calendar size={16} /> },
-            { id: 'highlighted_events', label: 'Highlighted Events', icon: <Flame size={16} /> },
-            { id: 'achievements', label: 'Achievements', icon: <Award size={16} /> },
-            { id: 'execomm', label: 'Execomm SB Leaders', icon: <Users size={16} /> },
-            { id: 'branches', label: 'ExeComm Branches', icon: <Layers size={16} /> },
-            { id: 'about_kec_sb', label: 'About KEC SB Page', icon: <Compass size={16} /> },
-            { id: 'committees', label: 'Committees', icon: <Target size={16} /> },
-            { id: 'news', label: 'News Clippings', icon: <FileText size={16} /> },
-            { id: 'researchpapers', label: 'Research Papers & Projects', icon: <FileText size={16} /> },
-            { id: 'contact_page', label: 'Contact & FAQ Page', icon: <MessageSquare size={16} /> },
-            { id: 'impact_stats', label: 'Impact Numbers', icon: <BarChart3 size={16} /> },
-            { id: 'testimonials', label: 'Testimonials', icon: <MessageSquare size={16} /> },
-            { id: 'documents', label: 'Documents Repository', icon: <FileText size={16} /> },
-            { id: 'request_forms', label: 'Request Forms', icon: <LinkIcon size={16} /> }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`tab-btn ${activeTab === tab.id ? 'active-tab' : ''}`}
-              style={{
+        {(() => {
+          const categories = [
+            {
+              id: 'config',
+              label: 'Site & Stats',
+              icon: <Settings size={16} />,
+              items: [
+                { id: 'stats', label: 'Stats & Site Info', icon: <Settings size={14} /> },
+                { id: 'impact_stats', label: 'Impact Numbers', icon: <BarChart3 size={14} /> },
+                { id: 'contact_page', label: 'Contact & FAQ Page', icon: <MessageSquare size={14} /> }
+              ]
+            },
+            {
+              id: 'roster',
+              label: 'Rosters',
+              icon: <Users size={16} />,
+              items: [
+                { id: 'execomm', label: 'Execomm SB Leaders', icon: <Users size={14} /> },
+                { id: 'branches', label: 'ExeComm Branches', icon: <Layers size={14} /> },
+                { id: 'committees', label: 'Committees', icon: <Target size={14} /> }
+              ]
+            },
+            {
+              id: 'events_media',
+              label: 'Events & Media',
+              icon: <Calendar size={16} />,
+              items: [
+                { id: 'events', label: 'Events List', icon: <Calendar size={14} /> },
+                { id: 'highlighted_events', label: 'Highlighted Events', icon: <Flame size={14} /> },
+                { id: 'gallery', label: 'Photo Gallery', icon: <ImageIcon size={14} /> },
+                { id: 'achievements', label: 'Achievements', icon: <Award size={14} /> }
+              ]
+            },
+            {
+              id: 'pages',
+              label: 'Pages Content',
+              icon: <Compass size={16} />,
+              items: [
+                { id: 'about_kec_sb', label: 'About KEC SB Page', icon: <Compass size={14} /> },
+                { id: 'testimonials', label: 'Testimonials', icon: <MessageSquare size={14} /> }
+              ]
+            },
+            {
+              id: 'resources',
+              label: 'Resources & Forms',
+              icon: <FileText size={16} />,
+              items: [
+                { id: 'news', label: 'News Clippings', icon: <FileText size={14} /> },
+                { id: 'researchpapers', label: 'Research Papers & Projects', icon: <FileText size={14} /> },
+                { id: 'documents', label: 'Documents Repository', icon: <FileText size={14} /> },
+                { id: 'request_forms', label: 'Request Forms', icon: <LinkIcon size={14} /> }
+              ]
+            }
+          ];
+
+          return (
+            <div style={{ marginBottom: '32px' }}>
+              <div style={{
+                display: 'flex',
+                backgroundColor: '#0a385b',
+                borderRadius: '12px',
+                padding: '6px 12px',
+                gap: '8px',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                boxShadow: '0 4px 20px rgba(10,56,91,0.15)',
+                position: 'relative',
+                zIndex: 100,
+                marginBottom: '16px'
+              }}>
+                {categories.map((cat) => {
+                  const isCatActive = cat.items.some(item => item.id === activeTab);
+                  const isOpen = activeDropdown === cat.id;
+
+                  return (
+                    <div 
+                      key={cat.id} 
+                      style={{ position: 'relative' }}
+                      onMouseEnter={() => setActiveDropdown(cat.id)}
+                      onMouseLeave={() => setActiveDropdown(null)}
+                    >
+                      <button
+                        onClick={() => setActiveDropdown(isOpen ? null : cat.id)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '10px 18px',
+                          fontSize: '14px',
+                          fontWeight: '700',
+                          borderRadius: '8px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          backgroundColor: isCatActive ? '#02619a' : 'transparent',
+                          color: '#ffffff',
+                          transition: 'all 0.2s ease',
+                        }}
+                      >
+                        {cat.icon}
+                        {cat.label}
+                        <span style={{ fontSize: '10px', marginLeft: '4px', opacity: 0.7 }}>▼</span>
+                      </button>
+
+                      {/* Dropdown Menu */}
+                      {isOpen && (
+                        <div style={{
+                          position: 'absolute',
+                          top: '100%',
+                          left: 0,
+                          paddingTop: '8px', // Creates the visual gap without breaking the hover box
+                          minWidth: '240px',
+                          zIndex: 101
+                        }}>
+                          <div style={{
+                            backgroundColor: '#ffffff',
+                            borderRadius: '8px',
+                            border: '1px solid #cbd5e1',
+                            boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            padding: '6px',
+                            gap: '4px'
+                          }}>
+                            {cat.items.map((item) => {
+                              const isActive = activeTab === item.id;
+                              return (
+                                <button
+                                  key={item.id}
+                                  onClick={() => {
+                                    setActiveTab(item.id);
+                                    setActiveDropdown(null);
+                                  }}
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '10px',
+                                    padding: '8px 14px',
+                                    fontSize: '13.5px',
+                                    fontWeight: '600',
+                                    textAlign: 'left',
+                                    borderRadius: '6px',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    backgroundColor: isActive ? '#eff6ff' : 'transparent',
+                                    color: isActive ? '#0a385b' : '#334155',
+                                    transition: 'all 0.15s ease',
+                                    width: '100%'
+                                  }}
+                                >
+                                  <span style={{ color: isActive ? '#02619a' : '#64748b', display: 'flex', alignItems: 'center' }}>{item.icon}</span>
+                                  {item.label}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Breadcrumb banner */}
+              <div style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                padding: '10px 22px',
-                fontSize: '13.5px',
-                fontWeight: '700',
-                borderRadius: '30px',
-                border: '1px solid transparent',
-                cursor: 'pointer',
-                backgroundColor: activeTab === tab.id ? 'var(--secondary)' : 'rgba(255, 255, 255, 0.7)',
-                color: activeTab === tab.id ? '#ffffff' : 'var(--text-muted)',
-                boxShadow: activeTab === tab.id ? 'var(--shadow-glow)' : 'var(--shadow-sm)',
-                border: activeTab === tab.id ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid var(--border-subtle)',
-                transition: 'all 0.2s ease',
-                backdropFilter: 'blur(8px)'
-              }}
-            >
-              {tab.icon}
-              {tab.label}
-            </button>
-          ))}
-        </div>
+                fontSize: '13px',
+                color: '#64748b',
+                fontWeight: '600',
+                backgroundColor: '#f8fafc',
+                padding: '10px 16px',
+                borderRadius: '8px',
+                border: '1px solid #e2e8f0'
+              }}>
+                <span>Admin Dashboard</span>
+                <span>/</span>
+                <span style={{ color: '#0a385b' }}>
+                  {categories.find(c => c.items.some(i => i.id === activeTab))?.label || 'General'}
+                </span>
+                <span>/</span>
+                <span style={{ color: '#02619a', fontWeight: '700' }}>
+                  {categories.flatMap(c => c.items).find(i => i.id === activeTab)?.label || activeTab}
+                </span>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Tab 1: Statistics & Site Info Update Panel */}
         {activeTab === 'stats' && (
@@ -5100,69 +5294,91 @@ const Admin = () => {
               </button>
             </div>
 
-            {execommSubTab === 'faculties' && (
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '16px' }}>
-                  <div>
-                    <h2 style={{ fontSize: '18px', color: '#0a385b', fontWeight: '800' }}>Manage Societies (Faculties)</h2>
-                    <p style={{ color: '#64748b', fontSize: '13px', marginTop: '2px' }}>List of operational IEEE societies and their faculty in-charges (Total: {societies.length})</p>
-                  </div>
-                  <button
-                    onClick={() => openAddModal('society')}
-                    style={{
-                      backgroundColor: '#02619a',
-                      color: '#ffffff',
-                      border: 'none',
-                      borderRadius: '30px',
-                      padding: '8px 18px',
-                      fontSize: '13px',
-                      fontWeight: '700',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      boxShadow: '0 4px 12px rgba(2,97,154,0.15)'
-                    }}
-                    className="admin-add-btn"
-                  >
-                    <Plus size={14} /> Add Society
-                  </button>
-                </div>
+            {execommSubTab === 'faculties' && (() => {
+              const flatFaculties = societies.flatMap(item => [
+                {
+                  id: `${item.id}_1`,
+                  societyId: item.id,
+                  societyName: item.name,
+                  index: 1,
+                  name: item.faculty1?.name || '',
+                  position: item.faculty1?.position || '',
+                  phone: item.faculty1?.phone || '',
+                  email: item.faculty1?.email || '',
+                  linkedin: item.faculty1?.linkedin || '',
+                  image: item.faculty1?.image || ''
+                },
+                {
+                  id: `${item.id}_2`,
+                  societyId: item.id,
+                  societyName: item.name,
+                  index: 2,
+                  name: item.faculty2?.name || '',
+                  position: item.faculty2?.position || '',
+                  phone: item.faculty2?.phone || '',
+                  email: item.faculty2?.email || '',
+                  linkedin: item.faculty2?.linkedin || '',
+                  image: item.faculty2?.image || ''
+                }
+              ]);
 
-                <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-                  <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px', tableLayout: 'fixed' }}>
-                      <thead>
-                        <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '1px solid #cbd5e1' }}>
-                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '22%' }}>Society Name</th>
-                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '15%' }}>Profile Picture</th>
-                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '26%' }}>Faculty In-Charge 1</th>
-                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '26%' }}>Faculty In-Charge 2</th>
-                          <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', textAlign: 'center', width: '11%' }}>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {societies.map((item, idx) => {
-                          const isEditing = editingSocietyId === item.id;
-                          return (
-                            <tr key={item.id} style={{ borderBottom: idx < societies.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
-                              {isEditing ? (
-                                <>
-                                  <td style={{ padding: '16px 20px', verticalAlign: 'middle', width: '22%' }}>
-                                    <input
-                                      type="text"
-                                      value={societyName}
-                                      onChange={(e) => setSocietyName(e.target.value)}
-                                      style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px' }}
-                                    />
-                                  </td>
-                                  <td style={{ padding: '16px 20px', verticalAlign: 'middle', width: '15%' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                                        {fac1Image ? (
-                                          <img src={fac1Image} alt="Fac 1 Preview" style={{ width: '36px', height: '36px', borderRadius: '6px', objectFit: 'cover' }} />
+              return (
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '16px' }}>
+                    <div>
+                      <h2 style={{ fontSize: '18px', color: '#0a385b', fontWeight: '800' }}>Manage Faculty Records</h2>
+                      <p style={{ color: '#64748b', fontSize: '13px', marginTop: '2px' }}>List of society faculty advisors and coordinators (Total: {flatFaculties.length})</p>
+                    </div>
+                    <button
+                      onClick={() => openAddModal('society')}
+                      style={{
+                        backgroundColor: '#02619a',
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: '30px',
+                        padding: '8px 18px',
+                        fontSize: '13px',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        boxShadow: '0 4px 12px rgba(2,97,154,0.15)'
+                      }}
+                      className="admin-add-btn"
+                    >
+                      <Plus size={14} /> Add Society
+                    </button>
+                  </div>
+
+                  <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px', tableLayout: 'fixed' }}>
+                        <thead>
+                          <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '1px solid #cbd5e1' }}>
+                            <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '10%' }}>Profile Picture</th>
+                            <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '16%' }}>Name</th>
+                            <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '16%' }}>Position</th>
+                            <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '13%' }}>Phone</th>
+                            <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '15%' }}>Email</th>
+                            <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '15%' }}>LinkedIn</th>
+                            <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', width: '15%' }}>Society</th>
+                            <th style={{ padding: '16px 20px', fontWeight: '700', color: '#0a385b', textAlign: 'center', width: '10%' }}>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {flatFaculties.map((item, idx) => {
+                            const isEditing = editingFacultyId === item.id;
+                            return (
+                              <tr key={item.id} style={{ borderBottom: idx < flatFaculties.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
+                                {isEditing ? (
+                                  <>
+                                    <td style={{ padding: '16px 20px', verticalAlign: 'middle', width: '10%' }}>
+                                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                                        {facultyImage ? (
+                                          <img src={facultyImage} alt="Faculty Preview" style={{ width: '36px', height: '36px', borderRadius: '6px', objectFit: 'cover' }} />
                                         ) : (
-                                          <div style={{ width: '36px', height: '36px', borderRadius: '6px', backgroundColor: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1e40af', fontSize: '12px', fontWeight: 'bold' }}>F1</div>
+                                          <div style={{ width: '36px', height: '36px', borderRadius: '6px', backgroundColor: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1e40af', fontSize: '11px', fontWeight: 'bold' }}>?</div>
                                         )}
                                         <input
                                           type="file"
@@ -5172,7 +5388,7 @@ const Admin = () => {
                                             if (file) {
                                               try {
                                                 const base64 = await compressImage(file);
-                                                setFac1Image(base64);
+                                                setFacultyImage(base64);
                                               } catch (err) {
                                                 console.error(err);
                                               }
@@ -5181,172 +5397,148 @@ const Admin = () => {
                                           style={{ fontSize: '10px', width: '90px' }}
                                         />
                                       </div>
-                                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                                        {fac2Image ? (
-                                          <img src={fac2Image} alt="Fac 2 Preview" style={{ width: '36px', height: '36px', borderRadius: '6px', objectFit: 'cover' }} />
-                                        ) : (
-                                          <div style={{ width: '36px', height: '36px', borderRadius: '6px', backgroundColor: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1e40af', fontSize: '12px', fontWeight: 'bold' }}>F2</div>
-                                        )}
-                                        <input
-                                          type="file"
-                                          accept="image/*"
-                                          onChange={async (e) => {
-                                            const file = e.target.files[0];
-                                            if (file) {
-                                              try {
-                                                const base64 = await compressImage(file);
-                                                setFac2Image(base64);
-                                              } catch (err) {
-                                                console.error(err);
-                                              }
-                                            }
-                                          }}
-                                          style={{ fontSize: '10px', width: '90px' }}
-                                        />
+                                    </td>
+                                    <td style={{ padding: '16px 20px', verticalAlign: 'middle', width: '16%' }}>
+                                      <input
+                                        type="text"
+                                        value={facultyName}
+                                        onChange={(e) => setFacultyName(e.target.value)}
+                                        style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px' }}
+                                      />
+                                    </td>
+                                    <td style={{ padding: '16px 20px', verticalAlign: 'middle', width: '16%' }}>
+                                      <input
+                                        type="text"
+                                        value={facultyPosition}
+                                        onChange={(e) => setFacultyPosition(e.target.value)}
+                                        style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px' }}
+                                      />
+                                    </td>
+                                    <td style={{ padding: '16px 20px', verticalAlign: 'middle', width: '13%' }}>
+                                      <input
+                                        type="text"
+                                        value={facultyPhone}
+                                        onChange={(e) => setFacultyPhone(e.target.value)}
+                                        style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px' }}
+                                      />
+                                    </td>
+                                    <td style={{ padding: '16px 20px', verticalAlign: 'middle', width: '15%' }}>
+                                      <input
+                                        type="text"
+                                        value={facultyEmail}
+                                        onChange={(e) => setFacultyEmail(e.target.value)}
+                                        style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px' }}
+                                      />
+                                    </td>
+                                    <td style={{ padding: '16px 20px', verticalAlign: 'middle', width: '15%' }}>
+                                      <input
+                                        type="text"
+                                        value={facultyLinkedin}
+                                        onChange={(e) => setFacultyLinkedin(e.target.value)}
+                                        style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px' }}
+                                      />
+                                    </td>
+                                    <td style={{ padding: '16px 20px', verticalAlign: 'middle', width: '15%' }}>
+                                      <span style={{
+                                        padding: '4px 10px',
+                                        backgroundColor: '#f1f5f9',
+                                        color: '#475569',
+                                        borderRadius: '4px',
+                                        fontSize: '11px',
+                                        fontWeight: '800'
+                                      }}>
+                                        {item.societyName}
+                                      </span>
+                                    </td>
+                                    <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center', width: '10%' }}>
+                                      <div style={{ display: 'inline-flex', gap: '8px' }}>
+                                        <button
+                                          onClick={() => saveInlineFaculty(item.id)}
+                                          style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                                        >
+                                          Save
+                                        </button>
+                                        <button
+                                          onClick={() => setEditingFacultyId(null)}
+                                          style={{ backgroundColor: '#64748b', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                                        >
+                                          Cancel
+                                        </button>
                                       </div>
-                                    </div>
-                                  </td>
-                                  <td style={{ padding: '16px 20px', verticalAlign: 'middle', width: '26%' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                      <input
-                                        type="text"
-                                        placeholder="Name"
-                                        value={fac1Name}
-                                        onChange={(e) => setFac1Name(e.target.value)}
-                                        style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px' }}
-                                      />
-                                      <input
-                                        type="text"
-                                        placeholder="Position"
-                                        value={fac1Position}
-                                        onChange={(e) => setFac1Position(e.target.value)}
-                                        style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px' }}
-                                      />
-                                      <input
-                                        type="text"
-                                        placeholder="Phone"
-                                        value={fac1Phone}
-                                        onChange={(e) => setFac1Phone(e.target.value)}
-                                        style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px' }}
-                                      />
-                                    </div>
-                                  </td>
-                                  <td style={{ padding: '16px 20px', verticalAlign: 'middle', width: '26%' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                      <input
-                                        type="text"
-                                        placeholder="Name"
-                                        value={fac2Name}
-                                        onChange={(e) => setFac2Name(e.target.value)}
-                                        style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px' }}
-                                      />
-                                      <input
-                                        type="text"
-                                        placeholder="Position"
-                                        value={fac2Position}
-                                        onChange={(e) => setFac2Position(e.target.value)}
-                                        style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px' }}
-                                      />
-                                      <input
-                                        type="text"
-                                        placeholder="Phone"
-                                        value={fac2Phone}
-                                        onChange={(e) => setFac2Phone(e.target.value)}
-                                        style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px' }}
-                                      />
-                                    </div>
-                                  </td>
-                                  <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center', width: '11%' }}>
-                                    <div style={{ display: 'inline-flex', gap: '8px' }}>
-                                      <button
-                                        onClick={() => saveInlineSociety(item.id)}
-                                        style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
-                                      >
-                                        Save
-                                      </button>
-                                      <button
-                                        onClick={() => setEditingSocietyId(null)}
-                                        style={{ backgroundColor: '#64748b', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '6px 10px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
-                                      >
-                                        Cancel
-                                      </button>
-                                    </div>
-                                  </td>
-                                </>
-                              ) : (
-                                <>
-                                  <td style={{ padding: '16px 20px', fontWeight: '600', color: '#0a385b', verticalAlign: 'middle', width: '22%' }}>
-                                    {item.name}
-                                  </td>
-                                  <td style={{ padding: '16px 20px', verticalAlign: 'middle', width: '15%' }}>
-                                    <div style={{ display: 'flex', gap: '12px' }}>
-                                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                        {item.faculty1?.image ? (
-                                          <img src={item.faculty1.image} alt="Fac 1" style={{ width: '40px', height: '40px', borderRadius: '6px', objectFit: 'cover' }} />
-                                        ) : (
-                                          <div style={{ width: '40px', height: '40px', borderRadius: '6px', backgroundColor: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1e40af', fontWeight: 'bold', fontSize: '14px' }}>
-                                            {item.faculty1?.name ? item.faculty1.name.charAt(0) : '?'}
-                                          </div>
-                                        )}
+                                    </td>
+                                  </>
+                                ) : (
+                                  <>
+                                    <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center', width: '10%' }}>
+                                      {item.image ? (
+                                        <img src={item.image} alt={item.name} style={{ width: '40px', height: '40px', borderRadius: '6px', objectFit: 'cover', margin: '0 auto' }} />
+                                      ) : (
+                                        <div style={{ width: '40px', height: '40px', borderRadius: '6px', backgroundColor: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1e40af', fontWeight: 'bold', fontSize: '14px', margin: '0 auto' }}>
+                                          {item.name ? item.name.charAt(0) : '?'}
+                                        </div>
+                                      )}
+                                    </td>
+                                    <td style={{ padding: '16px 20px', fontWeight: '600', color: '#0a385b', verticalAlign: 'middle', width: '16%' }}>
+                                      {item.name || <em style={{ color: '#cbd5e1' }}>Empty</em>}
+                                    </td>
+                                    <td style={{ padding: '16px 20px', color: '#475569', verticalAlign: 'middle', width: '16%' }}>
+                                      {item.position || <em style={{ color: '#cbd5e1' }}>Empty</em>}
+                                    </td>
+                                    <td style={{ padding: '16px 20px', color: '#475569', verticalAlign: 'middle', width: '13%' }}>
+                                      {item.phone || <em style={{ color: '#cbd5e1' }}>Empty</em>}
+                                    </td>
+                                    <td style={{ padding: '16px 20px', color: '#475569', verticalAlign: 'middle', width: '15%', wordBreak: 'break-all' }}>
+                                      {item.email || <em style={{ color: '#cbd5e1' }}>Empty</em>}
+                                    </td>
+                                    <td style={{ padding: '16px 20px', color: '#475569', verticalAlign: 'middle', width: '15%', wordBreak: 'break-all' }}>
+                                      {item.linkedin ? (
+                                        <a href={item.linkedin} target="_blank" rel="noopener noreferrer" style={{ color: '#02619a', textDecoration: 'underline' }}>Link</a>
+                                      ) : (
+                                        <em style={{ color: '#cbd5e1' }}>Empty</em>
+                                      )}
+                                    </td>
+                                    <td style={{ padding: '16px 20px', verticalAlign: 'middle', width: '15%' }}>
+                                      <span style={{
+                                        padding: '4px 10px',
+                                        backgroundColor: '#eff6ff',
+                                        color: '#1e40af',
+                                        borderRadius: '4px',
+                                        fontSize: '11px',
+                                        fontWeight: '800'
+                                      }}>
+                                        {item.societyName}
+                                      </span>
+                                    </td>
+                                    <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center', width: '10%' }}>
+                                      <div style={{ display: 'inline-flex', gap: '8px' }}>
+                                        <button
+                                          onClick={() => startInlineEditFaculty(item)}
+                                          style={{ color: '#02619a', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
+                                          className="action-btn-hover-edit"
+                                        >
+                                          <Edit3 size={15} />
+                                        </button>
+                                        <button
+                                          onClick={() => deleteFaculty(item.id)}
+                                          style={{ color: '#ef4444', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
+                                          className="action-btn-hover-delete"
+                                        >
+                                          <Trash2 size={15} />
+                                        </button>
                                       </div>
-                                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                        {item.faculty2?.image ? (
-                                          <img src={item.faculty2.image} alt="Fac 2" style={{ width: '40px', height: '40px', borderRadius: '6px', objectFit: 'cover' }} />
-                                        ) : (
-                                          <div style={{ width: '40px', height: '40px', borderRadius: '6px', backgroundColor: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1e40af', fontWeight: 'bold', fontSize: '14px' }}>
-                                            {item.faculty2?.name ? item.faculty2.name.charAt(0) : '?'}
-                                          </div>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </td>
-                                  <td style={{ padding: '16px 20px', color: '#475569', fontSize: '13px', verticalAlign: 'middle', width: '26%' }}>
-                                    {item.faculty1 ? (
-                                      <div>
-                                        <div style={{ fontWeight: '700', color: '#0f172a' }}>{item.faculty1.name}</div>
-                                        <div style={{ color: '#02619a', fontWeight: '600', fontSize: '11px', textTransform: 'uppercase' }}>{item.faculty1.position}</div>
-                                        <div style={{ color: '#64748b' }}>📞 {item.faculty1.phone}</div>
-                                      </div>
-                                    ) : 'N/A'}
-                                  </td>
-                                  <td style={{ padding: '16px 20px', color: '#475569', fontSize: '13px', verticalAlign: 'middle', width: '26%' }}>
-                                    {item.faculty2 ? (
-                                      <div>
-                                        <div style={{ fontWeight: '700', color: '#0f172a' }}>{item.faculty2.name}</div>
-                                        <div style={{ color: '#02619a', fontWeight: '600', fontSize: '11px', textTransform: 'uppercase' }}>{item.faculty2.position}</div>
-                                        <div style={{ color: '#64748b' }}>📞 {item.faculty2.phone}</div>
-                                      </div>
-                                    ) : 'N/A'}
-                                  </td>
-                                  <td style={{ padding: '16px 20px', verticalAlign: 'middle', textAlign: 'center', width: '11%' }}>
-                                    <div style={{ display: 'inline-flex', gap: '8px' }}>
-                                      <button
-                                        onClick={() => startInlineEditSociety(item)}
-                                        style={{ color: '#02619a', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
-                                        className="action-btn-hover-edit"
-                                      >
-                                        <Edit3 size={15} />
-                                      </button>
-                                      <button
-                                        onClick={() => handleDeleteItem('society', item.id)}
-                                        style={{ color: '#ef4444', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', borderRadius: '4px', padding: '6px', cursor: 'pointer' }}
-                                        className="action-btn-hover-delete"
-                                      >
-                                        <Trash2 size={15} />
-                                      </button>
-                                    </div>
-                                  </td>
-                                </>
-                              )}
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
+                                    </td>
+                                  </>
+                                )}
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {execommSubTab === 'students' && (
               <div>

@@ -1,6 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Users, Phone, User, Award, Shield, BookOpen, Layers, X } from 'lucide-react';
+import { Users, Phone, User, Award, Shield, BookOpen, Layers, X, Mail } from 'lucide-react';
+
+const Linkedin = ({ size = 16, ...props }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+    <rect width="4" height="12" x="2" y="9" />
+    <circle cx="4" cy="4" r="2" />
+  </svg>
+);
 
 // ─── Page Header ──────────────────────────────────────────────────────────────
 const PageHeader = ({ title, subtitle }) => (
@@ -89,11 +108,25 @@ const getHierarchyLevel = (position) => {
   return 7; // members / default
 };
 
+const getContactInfo = (name, phoneProp, emailProp, linkedinProp) => {
+  const cleanName = name ? name.replace(/Dr\.\s*/g, '').trim() : '';
+  const emailName = cleanName.toLowerCase().split(' ').filter(Boolean).join('.');
+  const linkedinName = cleanName.toLowerCase().split(' ').filter(Boolean).join('-');
+  
+  return {
+    phone: phoneProp || "+91 99999 99999",
+    email: emailProp || `${emailName}@kongu.edu`,
+    linkedin: linkedinProp || `https://linkedin.com/in/${linkedinName}`
+  };
+};
+
 // ─── Faculty Card ───────────────────────────────────────────────────────────
-const FacultyCard = ({ name, position, phone, image, societyName, onClick }) => {
+const FacultyCard = ({ name, position, phone, email, linkedin, image, societyName, onClick }) => {
   const initials = name
     ? name.split(' ').filter(w => !w.includes('.')).map(w => w[0]).join('').slice(0, 2).toUpperCase()
     : '?';
+
+  const contact = getContactInfo(name, phone, email, linkedin);
 
   return (
     <div 
@@ -182,34 +215,70 @@ const FacultyCard = ({ name, position, phone, image, societyName, onClick }) => 
         </div>
 
         <div style={{
-          display: 'flex', gap: '10px', width: '100%', justifyContent: 'center',
+          display: 'flex', gap: '16px', width: '100%', justifyContent: 'center', alignItems: 'center',
           borderTop: '1px solid #f1f5f9', paddingTop: '16px', marginTop: 'auto'
-        }}>
-          {phone && (
-            <a
-              href={`tel:${phone}`}
-              onClick={(e) => e.stopPropagation()}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '8px 16px',
-                borderRadius: '8px',
-                backgroundColor: 'rgba(79, 70, 229, 0.05)',
-                color: 'var(--secondary)',
-                fontSize: '12px',
-                fontWeight: '600',
-                textDecoration: 'none',
-                border: '1px solid var(--border-subtle)',
-                transition: 'all 0.2s ease',
-                width: '100%',
-                justifyContent: 'center'
-              }}
-              className="execomm-contact-btn"
-            >
-              <Phone size={14} /> Call Coordinator
-            </a>
-          )}
+        }}
+        onClick={(e) => e.stopPropagation()}
+        >
+          <a
+            href={`tel:${contact.phone}`}
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(79, 70, 229, 0.08)',
+              color: 'var(--secondary)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease',
+              border: '1px solid rgba(79, 70, 229, 0.15)'
+            }}
+            title={`Call ${name}`}
+            className="roster-contact-icon-btn"
+          >
+            <Phone size={16} />
+          </a>
+          <a
+            href={`mailto:${contact.email}`}
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(6, 182, 212, 0.08)',
+              color: 'var(--accent-cyan)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease',
+              border: '1px solid rgba(6, 182, 212, 0.15)'
+            }}
+            title={`Email ${name}`}
+            className="roster-contact-icon-btn"
+          >
+            <Mail size={16} />
+          </a>
+          <a
+            href={contact.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(14, 118, 168, 0.08)',
+              color: '#0e76a8',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease',
+              border: '1px solid rgba(14, 118, 168, 0.15)'
+            }}
+            title={`Connect with ${name} on LinkedIn`}
+            className="roster-contact-icon-btn"
+          >
+            <Linkedin size={16} />
+          </a>
         </div>
       </div>
     </div>
@@ -221,6 +290,8 @@ const StudentCard = ({ student, onClick }) => {
   const initials = student.name
     ? student.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
     : '?';
+
+  const contact = getContactInfo(student.name, student.phone, student.email, student.linkedin);
 
   return (
     <div 
@@ -276,7 +347,7 @@ const StudentCard = ({ student, onClick }) => {
           {initials}
         </div>
       )}
-      <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+      <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '4px', flexGrow: 1 }}>
         <h3 style={{ fontSize: '16px', color: 'var(--primary)', margin: '0', fontWeight: '800', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {student.name}
         </h3>
@@ -285,10 +356,79 @@ const StudentCard = ({ student, onClick }) => {
           fontWeight: '700',
           color: 'var(--secondary)',
           textTransform: 'uppercase',
-          letterSpacing: '0.5px'
+          letterSpacing: '0.5px',
+          marginBottom: '12px'
         }}>
           {student.position}
         </span>
+
+        {/* Contact Icons for StudentCard */}
+        <div style={{
+          display: 'flex', gap: '16px', width: '100%', justifyContent: 'center', alignItems: 'center',
+          borderTop: '1px solid #f1f5f9', paddingTop: '16px', marginTop: 'auto'
+        }}
+        onClick={(e) => e.stopPropagation()}
+        >
+          <a
+            href={`tel:${contact.phone}`}
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(79, 70, 229, 0.08)',
+              color: 'var(--secondary)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease',
+              border: '1px solid rgba(79, 70, 229, 0.15)'
+            }}
+            title={`Call ${student.name}`}
+            className="roster-contact-icon-btn"
+          >
+            <Phone size={16} />
+          </a>
+          <a
+            href={`mailto:${contact.email}`}
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(6, 182, 212, 0.08)',
+              color: 'var(--accent-cyan)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease',
+              border: '1px solid rgba(6, 182, 212, 0.15)'
+            }}
+            title={`Email ${student.name}`}
+            className="roster-contact-icon-btn"
+          >
+            <Mail size={16} />
+          </a>
+          <a
+            href={contact.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(14, 118, 168, 0.08)',
+              color: '#0e76a8',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease',
+              border: '1px solid rgba(14, 118, 168, 0.15)'
+            }}
+            title={`Connect with ${student.name} on LinkedIn`}
+            className="roster-contact-icon-btn"
+          >
+            <Linkedin size={16} />
+          </a>
+        </div>
       </div>
     </div>
   );
@@ -960,26 +1100,32 @@ const Execomm = () => {
                         gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
                         gap: '24px'
                       }}>
-                        {coordList.map((fac, fIdx) => (
-                          fac && fac.name ? (
+                        {coordList.map((fac, fIdx) => {
+                          if (!fac || !fac.name) return null;
+                          const contact = getContactInfo(fac.name, fac.phone, fac.email, fac.linkedin);
+                          return (
                             <FacultyCard
                               key={fIdx}
                               name={fac.name}
                               position={fac.position}
                               phone={fac.phone}
+                              email={contact.email}
+                              linkedin={contact.linkedin}
                               image={fac.image}
                               societyName={soc.name}
                               onClick={() => setSelectedMember({
                                 name: fac.name,
                                 position: fac.position,
-                                phone: fac.phone,
+                                phone: contact.phone,
+                                email: contact.email,
+                                linkedin: contact.linkedin,
                                 image: fac.image,
                                 branch: soc.name,
                                 type: 'Faculty'
                               })}
                             />
-                          ) : null
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   );
@@ -1044,22 +1190,28 @@ const Execomm = () => {
                           display: 'grid',
                           gap: '24px'
                         }}>
-                          {levelStudents.map((stud) => (
-                            <StudentCard 
-                              key={stud.id} 
-                              student={stud} 
-                              onClick={() => setSelectedMember({
-                                name: stud.name,
-                                position: stud.position,
-                                branch: stud.society || 'IEEE KEC SB',
-                                department: stud.department,
-                                ieeeNumber: stud.ieeeNumber,
-                                year: stud.yearOfStudy,
-                                image: stud.image,
-                                type: 'Student'
-                              })}
-                            />
-                          ))}
+                           {levelStudents.map((stud) => {
+                            const contact = getContactInfo(stud.name, stud.phone, stud.email, stud.linkedin);
+                            return (
+                              <StudentCard 
+                                key={stud.id} 
+                                student={stud} 
+                                onClick={() => setSelectedMember({
+                                  name: stud.name,
+                                  position: stud.position,
+                                  branch: stud.society || 'IEEE KEC SB',
+                                  department: stud.department,
+                                  ieeeNumber: stud.ieeeNumber,
+                                  year: stud.yearOfStudy,
+                                  image: stud.image,
+                                  phone: contact.phone,
+                                  email: contact.email,
+                                  linkedin: contact.linkedin,
+                                  type: 'Student'
+                                })}
+                              />
+                            );
+                          })}
                         </div>
                       </div>
                     );
@@ -1145,6 +1297,11 @@ const Execomm = () => {
           .modal-right-details-container {
             padding: 24px !important;
           }
+        }
+        .roster-contact-icon-btn:hover {
+          transform: scale(1.1) translateY(-2px);
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+          filter: brightness(0.95);
         }
       `}</style>
     </div>

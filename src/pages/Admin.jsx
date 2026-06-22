@@ -2586,7 +2586,6 @@ const Admin = () => {
       alert("No documents in the repository. Connect a Google Drive folder and click 'Sync Documents' to populate first.");
       return;
     }
-    if (!window.confirm(`Are you sure you want to mark all documents as ${makeConfidential ? 'confidential' : 'not confidential'}?`)) return;
     const updated = documents.map(d => ({ ...d, is_confidential: makeConfidential }));
     setDocuments(updated);
     localStorage.setItem('ieee_documents', JSON.stringify(updated));
@@ -8199,12 +8198,14 @@ const Admin = () => {
               <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '750', margin: 0 }}>Documents List</h3>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button
+                  type="button"
                   onClick={() => toggleAllConfidentialDocs(true)}
                   style={{ padding: '6px 12px', backgroundColor: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
                 >
                   <Lock size={12} /> Mark All Confidential
                 </button>
                 <button
+                  type="button"
                   onClick={() => toggleAllConfidentialDocs(false)}
                   style={{ padding: '6px 12px', backgroundColor: '#64748b', color: '#ffffff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
                 >

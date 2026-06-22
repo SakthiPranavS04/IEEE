@@ -148,7 +148,7 @@ const Documents = () => {
 
   const handleAction = (doc, action) => {
     const isPinEnabled = localStorage.getItem('ieee_pin_enabled') !== 'false';
-    if (isPinEnabled && doc.is_confidential && sessionStorage.getItem('ieee_unlocked') !== 'true') {
+    if (isPinEnabled && doc.is_confidential && sessionStorage.getItem(`ieee_unlocked_doc_${doc.id}`) !== 'true') {
       setTargetDoc(doc);
       setTargetAction(action);
       setPinInput('');
@@ -170,7 +170,7 @@ const Documents = () => {
   const handlePinSubmit = () => {
     const correctPin = localStorage.getItem('ieee_access_pin') || '1234';
     if (pinInput === correctPin) {
-      sessionStorage.setItem('ieee_unlocked', 'true');
+      sessionStorage.setItem(`ieee_unlocked_doc_${targetDoc.id}`, 'true');
       setShowPinModal(false);
       executeAction(targetDoc, targetAction);
     } else {
@@ -180,17 +180,32 @@ const Documents = () => {
 
   // Filtering Logic
   const filteredDocuments = documents.filter(doc => {
-    // 1. Search filter (title, description, category, file type)
+    const isMatchedActive = doc.isVisible !== false;
+    const isPinEnabled = localStorage.getItem('ieee_pin_enabled') !== 'false';
+    const isDocLocked = doc.is_confidential && isPinEnabled && sessionStorage.getItem(`ieee_unlocked_doc_${doc.id}`) !== 'true';
+    
     const query = searchQuery.toLowerCase().trim();
-    const matchesSearch = !query || 
-      doc.title.toLowerCase().includes(query) ||
-      (doc.description && doc.description.toLowerCase().includes(query)) ||
-      doc.category.toLowerCase().includes(query) ||
-      doc.name.toLowerCase().includes(query);
+    
+    let matchesSearch = false;
+    let matchesCategory = false;
 
-    // 2. Category filter
-    const matchesCategory = selectedCategory === 'All' || doc.category === selectedCategory;
-
+    if (isDocLocked) {
+      // Security: Prevent search filter from leaking hidden filenames
+      matchesSearch = !query || 
+        'confidential document'.includes(query) ||
+        'restricted file'.includes(query);
+      matchesCategory = selectedCategory === 'All' || selectedCategory === 'Confidential';
+    } else {
+      matchesSearch = !query || 
+        doc.title.toLowerCase().includes(query) ||
+        (doc.description && doc.description.toLowerCase().includes(query)) ||
+        (doc.category && doc.category.toLowerCase().includes(query)) ||
+        doc.name.toLowerCase().includes(query);
+        
+      matchesCategory = selectedCategory === 'All' || doc.category === selectedCategory;
+    }
+    
+    
     // 3. File type filter
     const docCleanType = getCleanFileType(doc.mimeType).toLowerCase();
     let matchesType = true;

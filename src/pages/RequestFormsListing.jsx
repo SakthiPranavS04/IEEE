@@ -100,12 +100,27 @@ const RequestFormsListing = () => {
   const filteredForms = forms.filter(form => {
     const isMatchedActive = form.is_active;
     const query = searchQuery.toLowerCase().trim();
-    const matchesSearch = !query || 
-      form.form_name.toLowerCase().includes(query) ||
-      (form.description && form.description.toLowerCase().includes(query)) ||
-      (form.category && form.category.toLowerCase().includes(query));
-      
-    const matchesCategory = selectedCategory === 'All' || form.category === selectedCategory;
+    
+    const isPinEnabled = localStorage.getItem('ieee_pin_enabled') !== 'false';
+    const isLocked = isPinEnabled && form.is_confidential && sessionStorage.getItem(`ieee_unlocked_form_${form.route_slug}`) !== 'true';
+
+    let matchesSearch = false;
+    let matchesCategory = false;
+
+    if (isLocked) {
+      matchesSearch = !query || 
+        'confidential request form'.includes(query) ||
+        'confidential'.includes(query);
+      matchesCategory = selectedCategory === 'All' || selectedCategory === 'Confidential';
+    } else {
+      matchesSearch = !query || 
+        form.form_name.toLowerCase().includes(query) ||
+        (form.description && form.description.toLowerCase().includes(query)) ||
+        (form.category && form.category.toLowerCase().includes(query));
+        
+      matchesCategory = selectedCategory === 'All' || form.category === selectedCategory;
+    }
+
     return isMatchedActive && matchesSearch && matchesCategory;
   });
 

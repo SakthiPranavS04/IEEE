@@ -27,7 +27,7 @@ const PageHeader = ({ title, subtitle, bgImageGrad = 'var(--gradient-primary)' }
     <div style={{
       position: 'absolute', top: '-10%', right: '-8%',
       width: '320px', height: '320px', borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(79, 70, 229, 0.15) 0%, transparent 70%)', pointerEvents: 'none'
+      background: 'radial-gradient(circle, rgba(var(--secondary-rgb), 0.15) 0%, transparent 70%)', pointerEvents: 'none'
     }} />
     <div style={{
       position: 'absolute', bottom: '-20%', left: '-5%',
@@ -57,9 +57,9 @@ const PageHeader = ({ title, subtitle, bgImageGrad = 'var(--gradient-primary)' }
 const SectionLabel = ({ text }) => (
   <span style={{
     padding: '6px 14px',
-    backgroundColor: 'rgba(79, 70, 229, 0.08)',
+    backgroundColor: 'rgba(var(--secondary-rgb), 0.08)',
     color: 'var(--secondary)',
-    border: '1px solid rgba(79, 70, 229, 0.15)',
+    border: '1px solid rgba(var(--secondary-rgb), 0.15)',
     borderRadius: '20px',
     fontSize: '11px',
     fontWeight: '750',
@@ -84,7 +84,7 @@ const FeatureCard = ({ icon: Icon, title, desc, accent = false }) => (
   }}>
     <div style={{
       width: '48px', height: '48px', borderRadius: '12px',
-      backgroundColor: 'rgba(79, 70, 229, 0.08)', display: 'flex',
+      backgroundColor: 'rgba(var(--secondary-rgb), 0.08)', display: 'flex',
       alignItems: 'center', justifyContent: 'center', flexShrink: 0
     }}>
       <Icon size={22} style={{ color: 'var(--secondary)' }} />
@@ -139,7 +139,7 @@ export const IEEEGlobal = () => (
       </div>
 
     </div>
-    <style>{`.about-feature-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(79,70,229,0.08) !important; }`}</style>
+    <style>{`.about-feature-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(var(--secondary-rgb),0.08) !important; }`}</style>
   </div>
 );
 
@@ -189,7 +189,7 @@ export const KVITTTrust = () => (
         ))}
       </div>
     </div>
-    <style>{`.about-feature-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(79,70,229,0.08) !important; }`}</style>
+    <style>{`.about-feature-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(var(--secondary-rgb),0.08) !important; }`}</style>
   </div>
 );
 
@@ -273,7 +273,7 @@ export const KECSRC = () => (
         ))}
       </div>
     </div>
-    <style>{`.about-feature-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(79,70,229,0.08) !important; }`}</style>
+    <style>{`.about-feature-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(var(--secondary-rgb),0.08) !important; }`}</style>
   </div>
 );
 
@@ -469,7 +469,7 @@ export const IEEEKECSB = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', height: '100%' }}>
             <div className="card" style={{ padding: '24px', borderTop: '3px solid var(--secondary)' }}>
               <div style={{ display: 'flex', gap: '14px', alignItems: 'center', marginBottom: '10px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '8px', backgroundColor: 'rgba(79, 70, 229, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '8px', backgroundColor: 'rgba(var(--secondary-rgb), 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Compass size={20} style={{ color: 'var(--secondary)' }} />
                 </div>
                 <h3 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--primary)', margin: 0 }}>Our Mission</h3>
@@ -510,7 +510,7 @@ export const IEEEKECSB = () => {
                 backgroundColor: 'rgba(255, 255, 255, 0.55)',
                 backdropFilter: 'blur(8px)',
                 WebkitBackdropFilter: 'blur(8px)',
-                border: '1px solid rgba(79, 70, 229, 0.08)',
+                border: '1px solid rgba(var(--secondary-rgb), 0.08)',
                 boxShadow: 'var(--shadow-sm)',
                 transition: 'all 0.3s ease'
               }}>
@@ -576,7 +576,7 @@ export const IEEEKECSB = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
             {data.impact.map((imp, idx) => (
               <div key={idx} className="card about-feature-card scroll-reveal fade-up" style={{ padding: '28px', transition: 'all 0.3s ease', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-                <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: 'rgba(79, 70, 229, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: 'rgba(var(--secondary-rgb), 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   {getAboutSbIcon(imp.icon, { color: 'var(--secondary)' })}
                 </div>
                 <div>
@@ -664,7 +664,7 @@ export const IEEEKECSB = () => {
           top: 0;
           bottom: 0;
           width: 4px;
-          background-color: rgba(79, 70, 229, 0.12);
+          background-color: rgba(var(--secondary-rgb), 0.12);
           transform: translateX(-50%);
         }
         .timeline-item {
@@ -692,7 +692,7 @@ export const IEEEKECSB = () => {
           border-radius: 50%;
           background-color: var(--secondary);
           border: 4px solid #ffffff;
-          box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+          box-shadow: 0 0 0 3px rgba(var(--secondary-rgb), 0.15);
           z-index: 2;
         }
         .timeline-item.left .timeline-dot {
@@ -707,7 +707,7 @@ export const IEEEKECSB = () => {
         }
         .about-feature-card:hover {
           transform: translateY(-4px) !important;
-          box-shadow: 0 12px 24px rgba(79, 70, 229, 0.08) !important;
+          box-shadow: 0 12px 24px rgba(var(--secondary-rgb), 0.08) !important;
         }
 
         @media (max-width: 768px) {
@@ -771,7 +771,7 @@ export const KECSPS = () => (
         ))}
       </div>
     </div>
-    <style>{`.about-feature-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(79,70,229,0.08) !important; }`}</style>
+    <style>{`.about-feature-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(var(--secondary-rgb),0.08) !important; }`}</style>
   </div>
 );
 
@@ -814,7 +814,7 @@ export const KECWIE = () => (
         ))}
       </div>
     </div>
-    <style>{`.about-feature-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(79,70,229,0.08) !important; }`}</style>
+    <style>{`.about-feature-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(var(--secondary-rgb),0.08) !important; }`}</style>
   </div>
 );
 

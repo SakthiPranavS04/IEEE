@@ -45,7 +45,7 @@ const PageHeader = ({ title, subtitle }) => (
     <div style={{
       position: 'absolute', top: '-10%', right: '-8%',
       width: '320px', height: '320px', borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(79, 70, 229, 0.15) 0%, transparent 70%)', pointerEvents: 'none'
+      background: 'radial-gradient(circle, rgba(var(--secondary-rgb), 0.15) 0%, transparent 70%)', pointerEvents: 'none'
     }} />
     <div style={{
       position: 'absolute', bottom: '-20%', left: '-5%',
@@ -75,9 +75,9 @@ const PageHeader = ({ title, subtitle }) => (
 const SectionLabel = ({ text }) => (
   <span style={{
     padding: '6px 14px',
-    backgroundColor: 'rgba(79, 70, 229, 0.08)',
+    backgroundColor: 'rgba(var(--secondary-rgb), 0.08)',
     color: 'var(--secondary)',
-    border: '1px solid rgba(79, 70, 229, 0.15)',
+    border: '1px solid rgba(var(--secondary-rgb), 0.15)',
     borderRadius: '20px',
     fontSize: '11px',
     fontWeight: '750',
@@ -226,13 +226,13 @@ const FacultyCard = ({ name, position, phone, email, linkedin, image, societyNam
               width: '36px',
               height: '36px',
               borderRadius: '50%',
-              backgroundColor: 'rgba(79, 70, 229, 0.08)',
+              backgroundColor: 'rgba(var(--secondary-rgb), 0.08)',
               color: 'var(--secondary)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               transition: 'all 0.2s ease',
-              border: '1px solid rgba(79, 70, 229, 0.15)'
+              border: '1px solid rgba(var(--secondary-rgb), 0.15)'
             }}
             title={`Call ${name}`}
             className="roster-contact-icon-btn"
@@ -335,7 +335,7 @@ const StudentCard = ({ student, onClick }) => {
           style={{
             width: '100%', 
             height: '260px', 
-            background: 'linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)',
+            background: 'var(--gradient-colorful)',
             color: '#ffffff',
             fontSize: '40px', 
             fontWeight: '800',
@@ -375,13 +375,13 @@ const StudentCard = ({ student, onClick }) => {
               width: '36px',
               height: '36px',
               borderRadius: '50%',
-              backgroundColor: 'rgba(79, 70, 229, 0.08)',
+              backgroundColor: 'rgba(var(--secondary-rgb), 0.08)',
               color: 'var(--secondary)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               transition: 'all 0.2s ease',
-              border: '1px solid rgba(79, 70, 229, 0.15)'
+              border: '1px solid rgba(var(--secondary-rgb), 0.15)'
             }}
             title={`Call ${student.name}`}
             className="roster-contact-icon-btn"
@@ -541,7 +541,7 @@ const MemberModal = ({ member, onClose }) => {
             borderRadius: '50%',
             backgroundColor: '#ffffff',
             border: 'none',
-            color: '#3f51b5',
+            color: 'var(--primary)',
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             display: 'flex',
             alignItems: 'center',
@@ -574,7 +574,7 @@ const MemberModal = ({ member, onClose }) => {
               <div style={{
                 width: '100%',
                 height: '100%',
-                background: 'linear-gradient(135deg, #3f51b5 0%, #1a237e 100%)',
+                background: 'var(--gradient-colorful)',
                 color: '#ffffff',
                 fontSize: '110px',
                 fontWeight: '800',
@@ -589,13 +589,13 @@ const MemberModal = ({ member, onClose }) => {
 
           {/* Right Column: Details Section */}
           <div className="modal-right-details-container" style={{ flexGrow: 1, padding: '36px', textAlign: 'left', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <h2 style={{ fontSize: '28px', color: '#3f51b5', fontWeight: '700', margin: '0 0 4px 0' }}>
+            <h2 style={{ fontSize: '28px', color: 'var(--primary)', fontWeight: '700', margin: '0 0 4px 0' }}>
               {member.name}
             </h2>
             <div style={{ 
               fontSize: '14px', 
               fontWeight: '700', 
-              color: '#3f51b5', 
+              color: 'var(--primary)', 
               textTransform: 'uppercase', 
               letterSpacing: '0.5px'
             }}>
@@ -611,28 +611,28 @@ const MemberModal = ({ member, onClose }) => {
               fontSize: '15px'
             }}>
               <div style={{ display: 'flex', alignItems: 'start' }}>
-                <span style={{ fontWeight: '700', color: '#3f51b5', width: '130px', flexShrink: 0 }}>Branch:</span>
+                <span style={{ fontWeight: '700', color: 'var(--primary)', width: '130px', flexShrink: 0 }}>Branch:</span>
                 <span style={{ fontWeight: '500', color: '#334155' }}>{member.branch}</span>
               </div>
               {member.department && (
                 <div style={{ display: 'flex', alignItems: 'start' }}>
-                  <span style={{ fontWeight: '700', color: '#3f51b5', width: '130px', flexShrink: 0 }}>Department:</span>
+                  <span style={{ fontWeight: '700', color: 'var(--primary)', width: '130px', flexShrink: 0 }}>Department:</span>
                   <span style={{ fontWeight: '500', color: '#334155' }}>{member.department}</span>
                 </div>
               )}
               <div style={{ display: 'flex', alignItems: 'start' }}>
-                <span style={{ fontWeight: '700', color: '#3f51b5', width: '130px', flexShrink: 0 }}>IEEE Number:</span>
+                <span style={{ fontWeight: '700', color: 'var(--primary)', width: '130px', flexShrink: 0 }}>IEEE Number:</span>
                 <span style={{ fontWeight: '500', color: '#334155' }}>{member.ieeeNumber || 'N/A'}</span>
               </div>
               {member.year && (
                 <div style={{ display: 'flex', alignItems: 'start' }}>
-                  <span style={{ fontWeight: '700', color: '#3f51b5', width: '130px', flexShrink: 0 }}>Year:</span>
+                  <span style={{ fontWeight: '700', color: 'var(--primary)', width: '130px', flexShrink: 0 }}>Year:</span>
                   <span style={{ fontWeight: '500', color: '#334155' }}>{member.year} Year</span>
                 </div>
               )}
               {member.phone && (
                 <div style={{ display: 'flex', alignItems: 'start' }}>
-                  <span style={{ fontWeight: '700', color: '#3f51b5', width: '130px', flexShrink: 0 }}>Phone:</span>
+                  <span style={{ fontWeight: '700', color: 'var(--primary)', width: '130px', flexShrink: 0 }}>Phone:</span>
                   <span style={{ fontWeight: '500', color: '#334155' }}>
                     <a href={`tel:${member.phone}`} style={{ color: '#334155', textDecoration: 'none', fontWeight: '500' }}>
                       {member.phone}
@@ -996,8 +996,8 @@ const Execomm = () => {
         }}>
           <div style={{
             display: 'inline-flex',
-            backgroundColor: 'rgba(79, 70, 229, 0.05)',
-            border: '1px solid rgba(79, 70, 229, 0.15)',
+            backgroundColor: 'rgba(var(--secondary-rgb), 0.05)',
+            border: '1px solid rgba(var(--secondary-rgb), 0.15)',
             borderRadius: '30px',
             padding: '6px',
             boxShadow: 'var(--shadow-sm)',
@@ -1242,7 +1242,7 @@ const Execomm = () => {
         .execomm-tab-button.active {
           background-color: #ffffff !important;
           color: var(--secondary) !important;
-          box-shadow: 0 4px 12px rgba(79, 70, 229, 0.12) !important;
+          box-shadow: 0 4px 12px rgba(var(--secondary-rgb), 0.12) !important;
         }
         .execomm-students-grid {
           grid-template-columns: repeat(3, 1fr);
@@ -1267,7 +1267,7 @@ const Execomm = () => {
         .execomm-clickable-card:hover,
         .execomm-clickable-card:focus {
           transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(79, 70, 229, 0.15) !important;
+          box-shadow: 0 8px 20px rgba(var(--secondary-rgb), 0.15) !important;
           border-color: var(--border-focus) !important;
         }
         .modal-close-btn {

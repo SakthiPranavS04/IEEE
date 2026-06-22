@@ -165,7 +165,7 @@ const Footer = () => {
           border-color: var(--secondary);
           color: #fff;
           transform: translateY(-3px);
-          box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+          box-shadow: 0 4px 12px rgba(var(--secondary-rgb), 0.3);
         }
         .footer-link-hover:hover {
           color: #fff !important;

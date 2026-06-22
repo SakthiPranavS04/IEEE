@@ -24,7 +24,7 @@ const PageHeader = ({ title, subtitle }) => (
     <div style={{
       position: 'absolute', top: '-10%', right: '-8%',
       width: '320px', height: '320px', borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(79, 70, 229, 0.12) 0%, transparent 70%)', pointerEvents: 'none'
+      background: 'radial-gradient(circle, rgba(var(--secondary-rgb), 0.12) 0%, transparent 70%)', pointerEvents: 'none'
     }} />
     <div style={{
       position: 'absolute', bottom: '-20%', left: '-5%',
@@ -253,7 +253,7 @@ const Contact = () => {
       <style>{`
         .input-focus:focus {
           border-color: var(--secondary) !important;
-          box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
+          box-shadow: 0 0 0 3px rgba(var(--secondary-rgb), 0.15) !important;
         }
       `}</style>
     </div>

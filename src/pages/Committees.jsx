@@ -28,7 +28,7 @@ const PageHeader = ({ title, subtitle }) => (
       width: '300px',
       height: '300px',
       borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(79, 70, 229, 0.12) 0%, transparent 70%)',
+      background: 'radial-gradient(circle, rgba(var(--secondary-rgb), 0.12) 0%, transparent 70%)',
       pointerEvents: 'none'
     }} />
     <div style={{
@@ -175,11 +175,11 @@ const Committees = () => {
                     width: '56px',
                     height: '56px',
                     borderRadius: '12px',
-                    backgroundColor: 'rgba(79, 70, 229, 0.08)',
+                    backgroundColor: 'rgba(var(--secondary-rgb), 0.08)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    boxShadow: 'inset 0 0 10px rgba(79, 70, 229, 0.05)'
+                    boxShadow: 'inset 0 0 10px rgba(var(--secondary-rgb), 0.05)'
                   }}>
                     {renderIcon(comm.name)}
                   </div>
@@ -209,7 +209,7 @@ const Committees = () => {
         {philosophy && (
           <div className="card scroll-reveal fade-up" style={{
             padding: '40px 36px',
-            background: 'rgba(79, 70, 229, 0.03)',
+            background: 'rgba(var(--secondary-rgb), 0.03)',
             borderLeft: '4px solid var(--secondary)',
             borderRadius: '0 12px 12px 0',
             marginBottom: '56px',

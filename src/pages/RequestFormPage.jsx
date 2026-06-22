@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { AlertCircle, ArrowLeft, Loader2, Sparkles, CheckCircle, Upload, Send, FileText } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Loader2, Sparkles, CheckCircle, Upload, Send, FileText, Lock } from 'lucide-react';
 
 const PageHeader = ({ title, subtitle }) => (
   <div style={{
@@ -24,7 +24,7 @@ const PageHeader = ({ title, subtitle }) => (
     <div style={{
       position: 'absolute', top: '-10%', right: '-8%',
       width: '320px', height: '320px', borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(79, 70, 229, 0.15) 0%, transparent 70%)', pointerEvents: 'none'
+      background: 'radial-gradient(circle, rgba(var(--secondary-rgb), 0.15) 0%, transparent 70%)', pointerEvents: 'none'
     }} />
     <div style={{
       position: 'absolute', bottom: '-20%', left: '-5%',
@@ -55,6 +55,11 @@ const RequestFormPage = () => {
   const [formConfig, setFormConfig] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
+
+  // Lock State
+  const [isLocked, setIsLocked] = useState(false);
+  const [pinInput, setPinInput] = useState('');
+  const [pinError, setPinError] = useState('');
 
   // Success State
   const [submitted, setSubmitted] = useState(false);
@@ -141,6 +146,15 @@ const RequestFormPage = () => {
         const matched = forms.find(f => f.route_slug === slug && f.is_active);
         if (matched) {
           setFormConfig(matched);
+          
+          // Check if confidential and locked
+          const isPinEnabled = localStorage.getItem('ieee_pin_enabled') !== 'false';
+          const isUnlocked = sessionStorage.getItem(`ieee_unlocked_form_${slug}`) === 'true';
+          if (isPinEnabled && matched.is_confidential && !isUnlocked) {
+            setIsLocked(true);
+          } else {
+            setIsLocked(false);
+          }
         } else {
           setError(true);
         }
@@ -153,6 +167,16 @@ const RequestFormPage = () => {
     }
     setIsLoading(false);
   }, [slug]);
+
+  const handlePinSubmit = () => {
+    const correctPin = localStorage.getItem('ieee_access_pin') || '1234';
+    if (pinInput === correctPin) {
+      sessionStorage.setItem(`ieee_unlocked_form_${slug}`, 'true');
+      setIsLocked(false);
+    } else {
+      setPinError('Incorrect PIN');
+    }
+  };
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
@@ -394,6 +418,120 @@ const RequestFormPage = () => {
             >
               <ArrowLeft size={16} /> Return to Home
             </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLocked) {
+    return (
+      <div className="animate-fade-in" style={{ backgroundColor: 'var(--bg-light)', paddingBottom: '90px', minHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+        <PageHeader title={formConfig.form_name} subtitle="Confidential request form" />
+        <div className="container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1, padding: '40px 20px' }}>
+          <div className="card animate-fade-in" style={{
+            maxWidth: '450px',
+            width: '100%',
+            textAlign: 'center',
+            padding: '40px 32px',
+            backgroundColor: '#ffffff',
+            borderRadius: '20px',
+            border: '1px solid var(--border-subtle)',
+            boxShadow: 'var(--shadow-premium)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '24px'
+          }}>
+            <div style={{
+              width: '72px',
+              height: '72px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(239, 68, 68, 0.08)',
+              color: '#ef4444',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <Lock size={36} />
+            </div>
+            <div>
+              <h3 style={{ fontSize: '22px', fontWeight: '800', color: 'var(--primary)', marginBottom: '8px', fontFamily: 'var(--font-sans)' }}>Confidential Form</h3>
+              <p style={{ color: 'var(--text-muted)', fontSize: '14.5px', lineHeight: '1.6', margin: 0 }}>
+                Please enter the shared Access PIN to view and submit this confidential request form.
+              </p>
+            </div>
+            
+            <div style={{ width: '100%' }}>
+              <input
+                type="password"
+                placeholder="Enter Access PIN"
+                value={pinInput}
+                onChange={(e) => {
+                  setPinInput(e.target.value);
+                  setPinError('');
+                }}
+                onKeyDown={(e) => e.key === 'Enter' && handlePinSubmit()}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  border: `1.5px solid ${pinError ? '#ef4444' : 'var(--border-subtle)'}`,
+                  fontSize: '16px',
+                  outline: 'none',
+                  textAlign: 'center',
+                  letterSpacing: '4px',
+                  backgroundColor: '#f8fafc',
+                  color: 'var(--text-dark)',
+                  boxSizing: 'border-box'
+                }}
+                autoFocus
+              />
+              {pinError && <div style={{ color: '#ef4444', fontSize: '13px', marginTop: '8px', fontWeight: '600' }}>{pinError}</div>}
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
+              <Link
+                to="/request/forms"
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  backgroundColor: '#f1f5f9',
+                  color: '#475569',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '700',
+                  textDecoration: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease'
+                }}
+                className="btn-outline-hover"
+              >
+                Go Back
+              </Link>
+              <button
+                onClick={handlePinSubmit}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  backgroundColor: 'var(--secondary)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 4px 12px rgba(6, 182, 212, 0.25)'
+                }}
+              >
+                Unlock Form
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -1517,7 +1655,7 @@ const RequestFormPage = () => {
           transition: all 0.2s ease;
         }
         .btn-outline-hover:hover {
-          background-color: rgba(79, 70, 229, 0.05) !important;
+          background-color: rgba(var(--secondary-rgb), 0.05) !important;
           transform: translateY(-2px);
         }
         .animate-spin {

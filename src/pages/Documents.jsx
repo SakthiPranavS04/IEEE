@@ -236,119 +236,164 @@ const Documents = () => {
               gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
               gap: '24px'
             }}>
-              {featuredDocuments.map(doc => (
-                <div
-                  key={`featured-${doc.id}`}
-                  className="card doc-card featured-glow"
-                  style={{
-                    backgroundColor: '#ffffff',
-                    border: '1.5px solid rgba(245, 158, 11, 0.35)',
-                    boxShadow: 'var(--shadow-md)',
-                    borderRadius: '16px',
-                    padding: '24px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    position: 'relative',
-                    transition: 'all 0.3s ease',
-                    overflow: 'hidden'
-                  }}
-                >
-                  <span style={{
-                    position: 'absolute',
-                    top: '12px',
-                    right: '12px',
-                    backgroundColor: '#fef3c7',
-                    color: '#d97706',
-                    fontSize: '10px',
-                    fontWeight: '800',
-                    padding: '3px 8px',
-                    borderRadius: '12px',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px'
-                  }}>
-                    Featured
-                  </span>
+              {featuredDocuments.map(doc => {
+                const isPinEnabled = localStorage.getItem('ieee_pin_enabled') !== 'false';
+                const isDocLocked = doc.is_confidential && isPinEnabled && sessionStorage.getItem(`ieee_unlocked_doc_${doc.id}`) !== 'true';
+                return (
+                  <div
+                    key={`featured-${doc.id}`}
+                    className="card doc-card featured-glow"
+                    style={{
+                      backgroundColor: '#ffffff',
+                      border: '1.5px solid rgba(245, 158, 11, 0.35)',
+                      boxShadow: 'var(--shadow-md)',
+                      borderRadius: '16px',
+                      padding: '24px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      position: 'relative',
+                      transition: 'all 0.3s ease',
+                      overflow: 'hidden'
+                    }}
+                  >
+                    <span style={{
+                      position: 'absolute',
+                      top: '12px',
+                      right: '12px',
+                      backgroundColor: '#fef3c7',
+                      color: '#d97706',
+                      fontSize: '10px',
+                      fontWeight: '800',
+                      padding: '3px 8px',
+                      borderRadius: '12px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}>
+                      Featured
+                    </span>
 
-                  <div>
-                    <div style={{ display: 'flex', gap: '14px', alignItems: 'center', marginBottom: '16px' }}>
-                      <div style={{
-                        width: '56px',
-                        height: '56px',
-                        borderRadius: '12px',
-                        backgroundColor: 'rgba(245, 158, 11, 0.08)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}>
-                        {getFileIcon(doc.mimeType)}
-                      </div>
-                      <div>
-                        <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '750', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{doc.category}</span>
-                        <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>{getCleanFileType(doc.mimeType)} • {doc.size}</div>
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '8px' }}>
-                      <h3 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--primary)', lineHeight: '1.4', margin: 0 }}>{doc.title}</h3>
-                      {doc.is_confidential && localStorage.getItem('ieee_pin_enabled') !== 'false' && (
-                        <div style={{ padding: '2px', backgroundColor: '#fee2e2', borderRadius: '4px', color: '#ef4444', display: 'flex' }} title="Confidential - Requires PIN">
-                          <Lock size={14} />
-                        </div>
-                      )}
-                    </div>
-                    <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: '1.5', marginBottom: '20px' }}>{doc.description || 'No description provided.'}</p>
-                  </div>
-
-                  <div style={{ display: 'flex', gap: '10px', borderTop: '1px solid var(--border-subtle)', paddingTop: '16px', marginTop: 'auto' }}>
-                    {isPreviewSupported(doc.mimeType) && (
-                      <button
-                        onClick={() => handlePreview(doc)}
-                        style={{
-                          flex: 1,
+                    <div>
+                      <div style={{ display: 'flex', gap: '14px', alignItems: 'center', marginBottom: '16px' }}>
+                        <div style={{
+                          width: '56px',
+                          height: '56px',
+                          borderRadius: '12px',
+                          backgroundColor: isDocLocked ? '#fee2e2' : (doc.is_confidential ? '#dcfce7' : 'rgba(245, 158, 11, 0.08)'),
                           display: 'flex',
                           alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '6px',
-                          padding: '9px 12px',
-                          border: '1.5px solid var(--secondary)',
-                          color: 'var(--secondary)',
-                          background: 'transparent',
-                          borderRadius: '8px',
-                          fontSize: '12.5px',
-                          fontWeight: '700',
-                          cursor: 'pointer',
-                          transition: 'all 0.25s ease'
-                        }}
-                        className="doc-btn-preview"
-                      >
-                        <Eye size={14} /> Preview
-                      </button>
-                    )}
-                    <button
-                      onClick={() => handleDownload(doc)}
-                      style={{
-                        flex: 1,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '6px',
-                        padding: '9px 12px',
-                        backgroundColor: 'var(--secondary)',
-                        color: '#ffffff',
-                        border: 'none',
-                        borderRadius: '8px',
-                        fontSize: '12.5px',
-                        fontWeight: '700',
-                        cursor: 'pointer',
-                        transition: 'all 0.25s ease'
-                      }}
-                      className="doc-btn-download"
-                    >
-                      <Download size={14} /> Download
-                    </button>
+                          justifyContent: 'center'
+                        }}>
+                          {getFileIcon(doc.mimeType, isDocLocked, doc.is_confidential)}
+                        </div>
+                        <div>
+                          <span style={{ fontSize: '11px', color: isDocLocked ? '#ef4444' : (doc.is_confidential ? '#22c55e' : '#64748b'), fontWeight: '750', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                            {isDocLocked ? 'Confidential' : (doc.is_confidential ? 'Unlocked Confidential' : doc.category)}
+                          </span>
+                          <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
+                            {isDocLocked ? 'Restricted File' : `${getCleanFileType(doc.mimeType)} • ${doc.size}`}
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '8px' }}>
+                        <h3 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--primary)', lineHeight: '1.4', margin: 0 }}>
+                          {isDocLocked ? 'Confidential Document' : doc.title}
+                        </h3>
+                        {doc.is_confidential && localStorage.getItem('ieee_pin_enabled') !== 'false' && (
+                          isDocLocked ? (
+                            <div style={{ padding: '2px', backgroundColor: '#fee2e2', borderRadius: '4px', color: '#ef4444', display: 'flex' }} title="Confidential - Requires PIN">
+                              <Lock size={14} />
+                            </div>
+                          ) : (
+                            <div style={{ padding: '2px', backgroundColor: '#dcfce7', borderRadius: '4px', color: '#22c55e', display: 'flex' }} title="Confidential - Unlocked">
+                              <Unlock size={14} />
+                            </div>
+                          )
+                        )}
+                      </div>
+                      <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: '1.5', marginBottom: '20px' }}>
+                        {isDocLocked ? 'This document is confidential. Please enter the Access PIN to unlock and view its details.' : (doc.description || 'No description provided.')}
+                      </p>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '10px', borderTop: '1px solid var(--border-subtle)', paddingTop: '16px', marginTop: 'auto' }}>
+                      {isDocLocked ? (
+                        <button
+                          onClick={() => handlePreview(doc)}
+                          style={{
+                            flex: 1,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px',
+                            padding: '9px 12px',
+                            backgroundColor: 'var(--secondary)',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontSize: '12.5px',
+                            fontWeight: '700',
+                            cursor: 'pointer',
+                            transition: 'all 0.25s ease'
+                          }}
+                          className="doc-btn-download"
+                        >
+                          <Lock size={14} /> Unlock Document
+                        </button>
+                      ) : (
+                        <>
+                          {isPreviewSupported(doc.mimeType) && (
+                            <button
+                              onClick={() => handlePreview(doc)}
+                              style={{
+                                flex: 1,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '6px',
+                                padding: '9px 12px',
+                                border: '1.5px solid var(--secondary)',
+                                color: 'var(--secondary)',
+                                background: 'transparent',
+                                borderRadius: '8px',
+                                fontSize: '12.5px',
+                                fontWeight: '700',
+                                cursor: 'pointer',
+                                transition: 'all 0.25s ease'
+                              }}
+                              className="doc-btn-preview"
+                            >
+                              <Eye size={14} /> Preview
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleDownload(doc)}
+                            style={{
+                              flex: 1,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '6px',
+                              padding: '9px 12px',
+                              backgroundColor: 'var(--secondary)',
+                              color: '#ffffff',
+                              border: 'none',
+                              borderRadius: '8px',
+                              fontSize: '12.5px',
+                              fontWeight: '700',
+                              cursor: 'pointer',
+                              transition: 'all 0.25s ease'
+                            }}
+                            className="doc-btn-download"
+                          >
+                            <Download size={14} /> Download
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -512,102 +557,147 @@ const Documents = () => {
                 gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
                 gap: '24px'
               }}>
-                {filteredDocuments.map(doc => (
-                  <div
-                    key={doc.id}
-                    className="card doc-card"
-                    style={{
-                      backgroundColor: '#ffffff',
-                      border: '1px solid var(--border-subtle)',
-                      boxShadow: 'var(--shadow-sm)',
-                      borderRadius: '16px',
-                      padding: '24px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between',
-                      transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                      height: '100%'
-                    }}
-                  >
-                    <div>
-                      <div style={{ display: 'flex', gap: '14px', alignItems: 'center', marginBottom: '16px' }}>
-                        <div style={{
-                          width: '50px',
-                          height: '50px',
-                          borderRadius: '10px',
-                          backgroundColor: 'rgba(79, 70, 229, 0.05)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}>
-                          {getFileIcon(doc.mimeType)}
-                        </div>
-                        <div>
-                          <span style={{ fontSize: '11px', color: 'var(--secondary)', fontWeight: '750', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{doc.category}</span>
-                          <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>{getCleanFileType(doc.mimeType)} • {doc.size}</div>
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '8px' }}>
-                        <h3 style={{ fontSize: '15.5px', fontWeight: '800', color: 'var(--primary)', lineHeight: '1.45', margin: 0 }}>{doc.title}</h3>
-                        {doc.is_confidential && localStorage.getItem('ieee_pin_enabled') !== 'false' && (
-                          <div style={{ padding: '2px', backgroundColor: '#fee2e2', borderRadius: '4px', color: '#ef4444', display: 'flex' }} title="Confidential - Requires PIN">
-                            <Lock size={14} />
-                          </div>
-                        )}
-                      </div>
-                      <p style={{ fontSize: '13.5px', color: 'var(--text-muted)', lineHeight: '1.55', marginBottom: '20px' }}>{doc.description || 'No description provided.'}</p>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '10px', borderTop: '1px solid var(--border-subtle)', paddingTop: '16px', marginTop: 'auto' }}>
-                      {isPreviewSupported(doc.mimeType) && (
-                        <button
-                          onClick={() => handlePreview(doc)}
-                          style={{
-                            flex: 1,
+                {filteredDocuments.map(doc => {
+                  const isPinEnabled = localStorage.getItem('ieee_pin_enabled') !== 'false';
+                  const isDocLocked = doc.is_confidential && isPinEnabled && sessionStorage.getItem(`ieee_unlocked_doc_${doc.id}`) !== 'true';
+                  return (
+                    <div
+                      key={doc.id}
+                      className="card doc-card"
+                      style={{
+                        backgroundColor: '#ffffff',
+                        border: '1px solid var(--border-subtle)',
+                        boxShadow: 'var(--shadow-sm)',
+                        borderRadius: '16px',
+                        padding: '24px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                        height: '100%'
+                      }}
+                    >
+                      <div>
+                        <div style={{ display: 'flex', gap: '14px', alignItems: 'center', marginBottom: '16px' }}>
+                          <div style={{
+                            width: '50px',
+                            height: '50px',
+                            borderRadius: '10px',
+                            backgroundColor: isDocLocked ? '#fee2e2' : (doc.is_confidential ? '#dcfce7' : 'rgba(var(--secondary-rgb), 0.05)'),
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '6px',
-                            padding: '8px 12px',
-                            border: '1.5px solid var(--secondary)',
-                            color: 'var(--secondary)',
-                            background: 'transparent',
-                            borderRadius: '8px',
-                            fontSize: '12px',
-                            fontWeight: '700',
-                            cursor: 'pointer',
-                            transition: 'all 0.25s ease'
-                          }}
-                          className="doc-btn-preview"
-                        >
-                          <Eye size={13} /> Preview
-                        </button>
-                      )}
-                      <button
-                        onClick={() => handleDownload(doc)}
-                        style={{
-                          flex: 1,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '6px',
-                          padding: '8px 12px',
-                          backgroundColor: 'var(--secondary)',
-                          color: '#ffffff',
-                          border: 'none',
-                          borderRadius: '8px',
-                          fontSize: '12px',
-                          fontWeight: '700',
-                          cursor: 'pointer',
-                          transition: 'all 0.25s ease'
-                        }}
-                        className="doc-btn-download"
-                      >
-                        <Download size={13} /> Download
-                      </button>
+                            justifyContent: 'center'
+                          }}>
+                            {getFileIcon(doc.mimeType, isDocLocked, doc.is_confidential)}
+                          </div>
+                          <div>
+                            <span style={{ fontSize: '11px', color: isDocLocked ? '#ef4444' : (doc.is_confidential ? '#22c55e' : 'var(--secondary)'), fontWeight: '750', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                              {isDocLocked ? 'Confidential' : (doc.is_confidential ? 'Unlocked Confidential' : doc.category)}
+                            </span>
+                            <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
+                              {isDocLocked ? 'Restricted File' : `${getCleanFileType(doc.mimeType)} • ${doc.size}`}
+                            </div>
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '8px' }}>
+                          <h3 style={{ fontSize: '15.5px', fontWeight: '800', color: 'var(--primary)', lineHeight: '1.45', margin: 0 }}>
+                            {isDocLocked ? 'Confidential Document' : doc.title}
+                          </h3>
+                          {doc.is_confidential && localStorage.getItem('ieee_pin_enabled') !== 'false' && (
+                            isDocLocked ? (
+                              <div style={{ padding: '2px', backgroundColor: '#fee2e2', borderRadius: '4px', color: '#ef4444', display: 'flex' }} title="Confidential - Requires PIN">
+                                <Lock size={14} />
+                              </div>
+                            ) : (
+                              <div style={{ padding: '2px', backgroundColor: '#dcfce7', borderRadius: '4px', color: '#22c55e', display: 'flex' }} title="Confidential - Unlocked">
+                                <Unlock size={14} />
+                              </div>
+                            )
+                          )}
+                        </div>
+                        <p style={{ fontSize: '13.5px', color: 'var(--text-muted)', lineHeight: '1.55', marginBottom: '20px' }}>
+                          {isDocLocked ? 'This document is confidential. Please enter the Access PIN to unlock and view its details.' : (doc.description || 'No description provided.')}
+                        </p>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '10px', borderTop: '1px solid var(--border-subtle)', paddingTop: '16px', marginTop: 'auto' }}>
+                        {isDocLocked ? (
+                          <button
+                            onClick={() => handlePreview(doc)}
+                            style={{
+                              flex: 1,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '6px',
+                              padding: '8px 12px',
+                              backgroundColor: 'var(--secondary)',
+                              color: '#ffffff',
+                              border: 'none',
+                              borderRadius: '8px',
+                              fontSize: '12px',
+                              fontWeight: '700',
+                              cursor: 'pointer',
+                              transition: 'all 0.25s ease'
+                            }}
+                            className="doc-btn-download"
+                          >
+                            <Lock size={13} /> Unlock Document
+                          </button>
+                        ) : (
+                          <>
+                            {isPreviewSupported(doc.mimeType) && (
+                              <button
+                                onClick={() => handlePreview(doc)}
+                                style={{
+                                  flex: 1,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  gap: '6px',
+                                  padding: '8px 12px',
+                                  border: '1.5px solid var(--secondary)',
+                                  color: 'var(--secondary)',
+                                  background: 'transparent',
+                                  borderRadius: '8px',
+                                  fontSize: '12px',
+                                  fontWeight: '700',
+                                  cursor: 'pointer',
+                                  transition: 'all 0.25s ease'
+                                }}
+                                className="doc-btn-preview"
+                              >
+                                <Eye size={13} /> Preview
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleDownload(doc)}
+                              style={{
+                                flex: 1,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '6px',
+                                padding: '8px 12px',
+                                backgroundColor: 'var(--secondary)',
+                                color: '#ffffff',
+                                border: 'none',
+                                borderRadius: '8px',
+                                fontSize: '12px',
+                                fontWeight: '700',
+                                cursor: 'pointer',
+                                transition: 'all 0.25s ease'
+                              }}
+                              className="doc-btn-download"
+                            >
+                              <Download size={13} /> Download
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               /* Empty State */

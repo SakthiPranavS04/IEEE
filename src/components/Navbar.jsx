@@ -306,7 +306,7 @@ const Navbar = () => {
           width: '10px',
           height: '10px',
           borderRadius: '50%',
-          border: '1.5px solid rgba(79, 70, 229, 0.3)',
+          border: '1.5px solid rgba(var(--secondary-rgb), 0.3)',
           zIndex: 0,
           animation: 'float-slow 8s infinite ease-in-out'
         }} />
@@ -432,7 +432,7 @@ const Navbar = () => {
                                     fontSize: '13px',
                                     fontWeight: '600',
                                     color: isActive ? 'var(--secondary)' : 'var(--text-dark)',
-                                    backgroundColor: isActive ? 'rgba(79, 70, 229, 0.05)' : 'transparent',
+                                    backgroundColor: isActive ? 'rgba(var(--secondary-rgb), 0.05)' : 'transparent',
                                     textDecoration: 'none',
                                     borderBottom: nIdx === subItem.subItems.length - 1 ? 'none' : '1px solid var(--border-subtle)',
                                     borderLeft: isActive ? '3px solid var(--secondary)' : '3px solid transparent'
@@ -460,7 +460,7 @@ const Navbar = () => {
                             fontSize: '13px',
                             fontWeight: '600',
                             color: isActive ? 'var(--secondary)' : 'var(--text-dark)',
-                            backgroundColor: isActive ? 'rgba(79, 70, 229, 0.05)' : 'transparent',
+                            backgroundColor: isActive ? 'rgba(var(--secondary-rgb), 0.05)' : 'transparent',
                             textDecoration: 'none',
                             borderBottom: '1px solid var(--border-subtle)',
                             borderLeft: isActive ? '3px solid var(--secondary)' : '3px solid transparent',

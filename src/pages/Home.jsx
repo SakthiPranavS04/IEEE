@@ -4,7 +4,7 @@ import { Award, BookOpen, Calendar, Users, ArrowRight, ShieldCheck, Flame, Zap, 
 import { societiesData } from '../data/societiesData';
 
 const hexToRgb = (hex) => {
-  if (!hex) return "79, 70, 229";
+  if (!hex) return "15, 76, 92";
   let cleanHex = hex.replace("#", "");
   if (cleanHex.length === 3) {
     cleanHex = cleanHex.split("").map(c => c + c).join("");
@@ -371,8 +371,8 @@ const Home = () => {
     const styles = [
       {
         icon: <Users size={28} />,
-        color: '#4f46e5', // Indigo
-        bgColor: 'rgba(79, 70, 229, 0.08)'
+        color: '#0F4C5C', // Teal
+        bgColor: 'rgba(15, 76, 92, 0.08)'
       },
       {
         icon: <Calendar size={28} />,
@@ -543,7 +543,7 @@ const Home = () => {
             <RouterLink
               to="/contact"
               style={{
-                backgroundColor: 'rgba(79, 70, 229, 0.25)',
+                backgroundColor: 'rgba(var(--secondary-rgb), 0.25)',
                 backdropFilter: 'blur(12px)',
                 border: '1.5px solid rgba(255, 255, 255, 0.3)',
                 color: '#ffffff',
@@ -564,7 +564,7 @@ const Home = () => {
               target="_blank"
               rel="noopener noreferrer"
               style={{
-                backgroundColor: 'rgba(79, 70, 229, 0.25)',
+                backgroundColor: 'rgba(var(--secondary-rgb), 0.25)',
                 backdropFilter: 'blur(12px)',
                 border: '1.5px solid rgba(255, 255, 255, 0.3)',
                 color: '#ffffff',
@@ -607,10 +607,10 @@ const Home = () => {
 
         <style>{`
           .hero-btn-hover:hover {
-            background-color: rgba(79, 70, 229, 0.45) !important;
+            background-color: rgba(var(--secondary-rgb), 0.45) !important;
             border-color: rgba(255, 255, 255, 0.5) !important;
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35) !important;
+            box-shadow: 0 8px 20px rgba(var(--secondary-rgb), 0.35) !important;
           }
           .hero-dot:hover {
             background-color: #ffffff !important;
@@ -687,7 +687,7 @@ const Home = () => {
               fontSize: '15px',
               textDecoration: 'none',
               transition: 'all 0.3s ease',
-              boxShadow: '0 4px 15px rgba(79, 70, 229, 0.25)'
+              boxShadow: '0 4px 15px rgba(var(--secondary-rgb), 0.25)'
             }}
             className="tab-hover"
           >
@@ -807,7 +807,7 @@ const Home = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: color,
-                    boxShadow: `inset 0 0 10px rgba(${color === '#4f46e5' ? '79, 70, 229' : '0, 0, 0'}, 0.02)`
+                    boxShadow: `inset 0 0 10px rgba(${color === '#0F4C5C' ? '15, 76, 92' : '0, 0, 0'}, 0.02)`
                   }}>
                     {icon}
                   </div>
@@ -951,7 +951,7 @@ const Home = () => {
                 minHeight: '220px',
                 justifyContent: 'center'
               }}>
-                <Quote size={40} style={{ color: 'rgba(79, 70, 229, 0.15)', marginBottom: '16px' }} />
+                <Quote size={40} style={{ color: 'rgba(var(--secondary-rgb), 0.15)', marginBottom: '16px' }} />
                 <p style={{
                   fontSize: '16px',
                   lineHeight: '1.7',
@@ -1042,7 +1042,7 @@ const Home = () => {
                     height: '8px',
                     borderRadius: '50%',
                     border: 'none',
-                    backgroundColor: idx === currentTestimonialIdx ? 'var(--secondary)' : 'rgba(79, 70, 229, 0.2)',
+                    backgroundColor: idx === currentTestimonialIdx ? 'var(--secondary)' : 'rgba(var(--secondary-rgb), 0.2)',
                     cursor: 'pointer',
                     padding: 0,
                     transition: 'all 0.3s ease'
@@ -1120,7 +1120,7 @@ const Home = () => {
                       style={{
                         backgroundColor: '#ffffff',
                         border: isCenter ? '2px solid var(--border-focus)' : '1px solid var(--border-subtle)',
-                        boxShadow: isCenter ? '0 20px 45px rgba(79, 70, 229, 0.22)' : 'var(--shadow-sm)'
+                        boxShadow: isCenter ? '0 20px 45px rgba(var(--secondary-rgb), 0.22)' : 'var(--shadow-sm)'
                       }}
                     >
                       {/* Cover Image or pre-defined Gradient Theme */}
@@ -1250,15 +1250,15 @@ const Home = () => {
         }
         .video-frame-container:hover {
           transform: translateY(-4px);
-          box-shadow: 0 30px 60px rgba(15, 23, 42, 0.18), 0 0 25px rgba(79, 70, 229, 0.15) !important;
+          box-shadow: 0 30px 60px rgba(15, 23, 42, 0.18), 0 0 25px rgba(var(--secondary-rgb), 0.15) !important;
         }
         .tab-hover:hover {
           transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(79, 70, 229, 0.2) !important;
+          box-shadow: 0 6px 20px rgba(var(--secondary-rgb), 0.2) !important;
         }
         .stat-card-hover:hover {
           transform: translateY(-4px);
-          border-color: rgba(79, 70, 229, 0.3) !important;
+          border-color: rgba(var(--secondary-rgb), 0.3) !important;
           box-shadow: var(--shadow-md) !important;
         }
         .home-stats-grid {

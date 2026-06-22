@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Filter, ArrowRight, FileText, Sparkles, X, Lock } from 'lucide-react';
+import { Search, Filter, ArrowRight, FileText, Sparkles, X, Lock, Unlock } from 'lucide-react';
 
 const PageHeader = ({ title, subtitle }) => (
   <div style={{
@@ -24,7 +24,7 @@ const PageHeader = ({ title, subtitle }) => (
     <div style={{
       position: 'absolute', top: '-10%', right: '-8%',
       width: '320px', height: '320px', borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(79, 70, 229, 0.12) 0%, transparent 70%)', pointerEvents: 'none'
+      background: 'radial-gradient(circle, rgba(var(--secondary-rgb), 0.12) 0%, transparent 70%)', pointerEvents: 'none'
     }} />
     <div style={{
       position: 'absolute', bottom: '-20%', left: '-5%',
@@ -72,6 +72,7 @@ const RequestFormsListing = () => {
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState('');
   const [targetUrl, setTargetUrl] = useState('');
+  const [targetForm, setTargetForm] = useState(null);
 
   useEffect(() => {
     // Load request forms from localStorage
@@ -118,7 +119,9 @@ const RequestFormsListing = () => {
   const handleFormClick = (e, form) => {
     e.preventDefault();
     const isPinEnabled = localStorage.getItem('ieee_pin_enabled') !== 'false';
-    if (isPinEnabled && form.is_confidential && sessionStorage.getItem('ieee_unlocked') !== 'true') {
+    const isUnlocked = sessionStorage.getItem(`ieee_unlocked_form_${form.route_slug}`) === 'true';
+    if (isPinEnabled && form.is_confidential && !isUnlocked) {
+      setTargetForm(form);
       setTargetUrl(`/request/${form.route_slug}`);
       setPinInput('');
       setPinError('');
@@ -131,7 +134,7 @@ const RequestFormsListing = () => {
   const handlePinSubmit = () => {
     const correctPin = localStorage.getItem('ieee_access_pin') || '1234';
     if (pinInput === correctPin) {
-      sessionStorage.setItem('ieee_unlocked', 'true');
+      sessionStorage.setItem(`ieee_unlocked_form_${targetForm.route_slug}`, 'true');
       setShowPinModal(false);
       navigate(targetUrl);
     } else {
@@ -269,6 +272,8 @@ const RequestFormsListing = () => {
           }}>
             {sortedForms.map((form) => {
               const catStyle = getCategoryStyle(form.category || 'Membership');
+              const isPinEnabled = localStorage.getItem('ieee_pin_enabled') !== 'false';
+              const isLocked = isPinEnabled && form.is_confidential && sessionStorage.getItem(`ieee_unlocked_form_${form.route_slug}`) !== 'true';
               return (
                 <div
                   key={form.id}
@@ -296,9 +301,9 @@ const RequestFormsListing = () => {
                     {/* Badge Row */}
                     <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '16px' }}>
                       <span style={{
-                        backgroundColor: catStyle.bg,
-                        color: catStyle.color,
-                        border: `1px solid ${catStyle.border}`,
+                        backgroundColor: isLocked ? '#fee2e2' : catStyle.bg,
+                        color: isLocked ? '#ef4444' : catStyle.color,
+                        border: `1px solid ${isLocked ? '#fca5a5' : catStyle.border}`,
                         padding: '4px 12px',
                         borderRadius: '20px',
                         fontSize: '11px',
@@ -306,7 +311,7 @@ const RequestFormsListing = () => {
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px'
                       }}>
-                        {form.category || 'Membership'}
+                        {isLocked ? 'Confidential' : (form.category || 'Membership')}
                       </span>
                     </div>
 
@@ -319,12 +324,18 @@ const RequestFormsListing = () => {
                         fontWeight: '800',
                         margin: 0
                       }}>
-                        {form.form_name}
+                        {isLocked ? 'Confidential Request Form' : form.form_name}
                       </h3>
                       {form.is_confidential && localStorage.getItem('ieee_pin_enabled') !== 'false' && (
-                        <div style={{ padding: '2px', backgroundColor: '#fee2e2', borderRadius: '4px', color: '#ef4444', display: 'flex' }} title="Confidential - Requires PIN">
-                          <Lock size={14} />
-                        </div>
+                        isLocked ? (
+                          <div style={{ padding: '2px', backgroundColor: '#fee2e2', borderRadius: '4px', color: '#ef4444', display: 'flex' }} title="Confidential - Requires PIN">
+                            <Lock size={14} />
+                          </div>
+                        ) : (
+                          <div style={{ padding: '2px', backgroundColor: '#dcfce7', borderRadius: '4px', color: '#22c55e', display: 'flex' }} title="Confidential - Unlocked">
+                            <Unlock size={14} />
+                          </div>
+                        )
                       )}
                     </div>
 
@@ -336,7 +347,9 @@ const RequestFormsListing = () => {
                       lineHeight: '1.65',
                       flex: 1
                     }}>
-                      {form.description || 'No description provided.'}
+                      {isLocked 
+                        ? 'This request form is confidential. Please unlock with your Access PIN to view details and register.' 
+                        : (form.description || 'No description provided.')}
                     </p>
 
                     {/* CTA Register Button */}
@@ -357,11 +370,11 @@ const RequestFormsListing = () => {
                         cursor: 'pointer',
                         transition: 'all 0.25s ease',
                         letterSpacing: '0.3px',
-                        boxShadow: '0 4px 12px rgba(79, 70, 229, 0.2)'
+                        boxShadow: '0 4px 12px rgba(var(--secondary-rgb), 0.2)'
                       }}
                       className="request-register-btn"
                     >
-                      {form.is_confidential && localStorage.getItem('ieee_pin_enabled') !== 'false' && sessionStorage.getItem('ieee_unlocked') !== 'true' ? 'Unlock Form' : 'Register'} <ArrowRight size={14} />
+                      {isLocked ? 'Unlock Form' : 'Register'} <ArrowRight size={14} />
                     </button>
                   </div>
                 </div>
@@ -386,7 +399,7 @@ const RequestFormsListing = () => {
               width: '64px',
               height: '64px',
               borderRadius: '50%',
-              backgroundColor: 'rgba(79, 70, 229, 0.05)',
+              backgroundColor: 'rgba(var(--secondary-rgb), 0.05)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -494,12 +507,12 @@ const RequestFormsListing = () => {
       <style>{`
         .request-card:hover {
           transform: translateY(-5px);
-          box-shadow: 0 12px 28px rgba(79, 70, 229, 0.1) !important;
-          border-color: rgba(79, 70, 229, 0.3) !important;
+          box-shadow: 0 12px 28px rgba(var(--secondary-rgb), 0.1) !important;
+          border-color: rgba(var(--secondary-rgb), 0.3) !important;
         }
         .request-register-btn:hover {
           background: var(--gradient-colorful) !important;
-          box-shadow: 0 6px 18px rgba(79, 70, 229, 0.35);
+          box-shadow: 0 6px 18px rgba(var(--secondary-rgb), 0.35);
           transform: translateY(-1px);
         }
         .cat-chip-hover:hover:not(:disabled) {

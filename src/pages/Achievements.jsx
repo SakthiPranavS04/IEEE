@@ -28,7 +28,7 @@ const PageHeader = ({ title, subtitle }) => (
       width: '300px',
       height: '300px',
       borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(79, 70, 229, 0.12) 0%, transparent 70%)',
+      background: 'radial-gradient(circle, rgba(var(--secondary-rgb), 0.12) 0%, transparent 70%)',
       pointerEvents: 'none'
     }} />
     <div style={{
@@ -195,7 +195,7 @@ const Achievements = () => {
             top: 0,
             bottom: 0,
             width: '4px',
-            background: 'linear-gradient(to bottom, var(--secondary) 0%, rgba(79, 70, 229, 0.2) 100%)',
+            background: 'linear-gradient(to bottom, var(--secondary) 0%, rgba(var(--secondary-rgb), 0.2) 100%)',
             borderRadius: '2px',
             zIndex: 1
           }} className="timeline-spine" />
@@ -287,7 +287,7 @@ const Achievements = () => {
                         width: '40px',
                         height: '40px',
                         borderRadius: '50%',
-                        backgroundColor: 'rgba(79, 70, 229, 0.08)',
+                        backgroundColor: 'rgba(var(--secondary-rgb), 0.08)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',

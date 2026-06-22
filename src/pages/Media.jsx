@@ -24,7 +24,7 @@ const PageHeader = ({ title, subtitle }) => (
     <div style={{
       position: 'absolute', top: '-10%', right: '-8%',
       width: '320px', height: '320px', borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(79, 70, 229, 0.12) 0%, transparent 70%)', pointerEvents: 'none'
+      background: 'radial-gradient(circle, rgba(var(--secondary-rgb), 0.12) 0%, transparent 70%)', pointerEvents: 'none'
     }} />
     <div style={{
       position: 'absolute', bottom: '-20%', left: '-5%',
@@ -740,7 +740,7 @@ const Media = () => {
                       width: '56px',
                       height: '56px',
                       borderRadius: '8px',
-                      backgroundColor: 'rgba(79, 70, 229, 0.08)',
+                      backgroundColor: 'rgba(var(--secondary-rgb), 0.08)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -756,7 +756,7 @@ const Media = () => {
                         color: 'var(--secondary)',
                         textTransform: 'uppercase',
                         display: 'inline-block',
-                        backgroundColor: 'rgba(79, 70, 229, 0.05)',
+                        backgroundColor: 'rgba(var(--secondary-rgb), 0.05)',
                         padding: '4px 10px',
                         borderRadius: '4px',
                         marginBottom: '6px'
@@ -804,7 +804,7 @@ const Media = () => {
                         alignItems: 'center',
                         gap: '8px',
                         padding: '10px 16px',
-                        backgroundColor: 'rgba(79, 70, 229, 0.05)',
+                        backgroundColor: 'rgba(var(--secondary-rgb), 0.05)',
                         color: 'var(--secondary)',
                         borderRadius: '6px',
                         textDecoration: 'none',

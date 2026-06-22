@@ -80,13 +80,13 @@ const FacultyCard = ({ faculty, onClick }) => {
                 width: '32px',
                 height: '32px',
                 borderRadius: '50%',
-                backgroundColor: 'rgba(79, 70, 229, 0.08)',
+                backgroundColor: 'rgba(var(--secondary-rgb), 0.08)',
                 color: 'var(--society-primary, #4f46e5)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 transition: 'all 0.2s ease',
-                border: '1px solid rgba(79, 70, 229, 0.15)'
+                border: '1px solid rgba(var(--secondary-rgb), 0.15)'
               }}
               title={`Call ${faculty.name}`}
               className="roster-contact-icon-btn"

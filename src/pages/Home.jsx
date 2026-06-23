@@ -61,7 +61,7 @@ const Home = () => {
   });
 
   const [keystonesVideoUrl, setKeystonesVideoUrl] = useState(() => {
-    return localStorage.getItem('ieee_keystones_video_url') || 'https://www.youtube.com/embed/dQw4w9WgXcQ';
+    return localStorage.getItem('ieee_keystones_video_url_v2') || 'https://youtu.be/_90Hd1qMDGM';
   });
 
   const [impactStats, setImpactStats] = useState(() => {

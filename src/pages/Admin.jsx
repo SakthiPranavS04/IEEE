@@ -883,7 +883,7 @@ const Admin = () => {
     setGalleryItems(parsedGallery);
 
     // Load Media Videos
-    const storedVideos = localStorage.getItem('ieee_media_videos_v1');
+    const storedVideos = localStorage.getItem('ieee_media_videos_v2');
     if (storedVideos) {
       setMediaVideos(JSON.parse(storedVideos));
     } else {
@@ -895,11 +895,11 @@ const Admin = () => {
         },
         {
           title: "GreenTech Hackathon Pitch Finalists",
-          url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          url: "https://youtu.be/8qGIyNu5Qqo",
           desc: "Recap video showcasing student project prototypes and presentation pitches at Perundurai."
         }
       ];
-      localStorage.setItem('ieee_media_videos_v1', JSON.stringify(defaultMediaVideos));
+      localStorage.setItem('ieee_media_videos_v2', JSON.stringify(defaultMediaVideos));
       setMediaVideos(defaultMediaVideos);
     }
 
@@ -979,7 +979,7 @@ const Admin = () => {
 
     // Load dynamic media content
     setAboutImage(localStorage.getItem('ieee_about_image') || '/assets/kec_itpark.jpg');
-    setKeystonesVideoUrl(localStorage.getItem('ieee_keystones_video_url') || 'https://www.youtube.com/embed/dQw4w9WgXcQ');
+    setKeystonesVideoUrl(localStorage.getItem('ieee_keystones_video_url_v2') || 'https://youtu.be/_90Hd1qMDGM');
 
     const storedHero = localStorage.getItem('ieee_hero_images');
     if (storedHero) {
@@ -1512,7 +1512,7 @@ const Admin = () => {
     localStorage.setItem('ieee_access_pin', accessPin);
     localStorage.setItem('ieee_pin_enabled', isPinEnabled);
     localStorage.setItem('ieee_about_image', aboutImage);
-    localStorage.setItem('ieee_keystones_video_url', keystonesVideoUrl);
+    localStorage.setItem('ieee_keystones_video_url_v2', keystonesVideoUrl);
     localStorage.setItem('ieee_hero_images', JSON.stringify(heroImages));
 
     // Convert ticker notices from lines to string array
@@ -2604,7 +2604,7 @@ const Admin = () => {
     };
     const updated = [...mediaVideos, newItem];
     setMediaVideos(updated);
-    localStorage.setItem('ieee_media_videos_v1', JSON.stringify(updated));
+    localStorage.setItem('ieee_media_videos_v2', JSON.stringify(updated));
     setNewVideoTitle('');
     setNewVideoUrl('');
     setNewVideoDesc('');
@@ -2625,7 +2625,7 @@ const Admin = () => {
         : item
     );
     setMediaVideos(updated);
-    localStorage.setItem('ieee_media_videos_v1', JSON.stringify(updated));
+    localStorage.setItem('ieee_media_videos_v2', JSON.stringify(updated));
     setEditingVideoIndex(null);
   };
 
@@ -2633,7 +2633,7 @@ const Admin = () => {
     if (!window.confirm("Are you sure you want to delete this video highlight?")) return;
     const updated = mediaVideos.filter((_, idx) => idx !== index);
     setMediaVideos(updated);
-    localStorage.setItem('ieee_media_videos_v1', JSON.stringify(updated));
+    localStorage.setItem('ieee_media_videos_v2', JSON.stringify(updated));
   };
 
 

@@ -63,7 +63,7 @@ const Media = () => {
     },
     {
       title: "GreenTech Hackathon Pitch Finalists",
-      url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      url: "https://youtu.be/8qGIyNu5Qqo",
       desc: "Recap video showcasing student project prototypes and presentation pitches at Perundurai."
     }
   ];
@@ -110,11 +110,11 @@ const Media = () => {
   };
 
   useEffect(() => {
-    const storedVideos = localStorage.getItem('ieee_media_videos_v1');
+    const storedVideos = localStorage.getItem('ieee_media_videos_v2');
     if (storedVideos) {
       setMediaVideos(JSON.parse(storedVideos));
     } else {
-      localStorage.setItem('ieee_media_videos_v1', JSON.stringify(defaultMediaVideos));
+      localStorage.setItem('ieee_media_videos_v2', JSON.stringify(defaultMediaVideos));
     }
   }, []);
 

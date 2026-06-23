@@ -24,6 +24,18 @@ const hexToRgb = (hex) => {
   return `${r}, ${g}, ${b}`;
 };
 
+const getContactInfo = (name, phoneProp, emailProp, linkedinProp) => {
+  const cleanName = name ? name.replace(/Dr\.\s*/g, '').trim() : '';
+  const emailName = cleanName.toLowerCase().split(' ').filter(Boolean).join('.');
+  const linkedinName = cleanName.toLowerCase().split(' ').filter(Boolean).join('-');
+  
+  return {
+    phone: phoneProp || "+91 99999 99999",
+    email: emailProp || `${emailName}@kongu.edu`,
+    linkedin: linkedinProp || `https://linkedin.com/in/${linkedinName}`
+  };
+};
+
 const SocietyPageLayout = ({ data }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedMember, setSelectedMember] = useState(null);
@@ -358,15 +370,42 @@ const SocietyPageLayout = ({ data }) => {
             {/* Section 1: Faculty In-Charge */}
             <FacultyCard 
               faculty={data.facultyIncharge} 
-              onClick={() => setSelectedMember({ ...data.facultyIncharge, branch: "Faculty Advisor" })}
+              onClick={() => {
+                const contact = getContactInfo(data.facultyIncharge?.name, data.facultyIncharge?.phone, data.facultyIncharge?.email, data.facultyIncharge?.linkedin);
+                setSelectedMember({
+                  ...data.facultyIncharge,
+                  phone: contact.phone,
+                  email: contact.email,
+                  linkedin: contact.linkedin,
+                  branch: "Faculty Advisor"
+                });
+              }}
             />
 
             {/* Section 2: Chairman & Vice Chairman */}
             <LeadershipCard 
               chairman={data.chairman} 
               viceChairman={data.viceChairman}
-              onChairmanClick={() => setSelectedMember({ ...data.chairman, branch: data.name })}
-              onViceChairmanClick={() => setSelectedMember({ ...data.viceChairman, branch: data.name })}
+              onChairmanClick={() => {
+                const contact = getContactInfo(data.chairman?.name, data.chairman?.phone, data.chairman?.email, data.chairman?.linkedin);
+                setSelectedMember({
+                  ...data.chairman,
+                  phone: contact.phone,
+                  email: contact.email,
+                  linkedin: contact.linkedin,
+                  branch: data.name
+                });
+              }}
+              onViceChairmanClick={() => {
+                const contact = getContactInfo(data.viceChairman?.name, data.viceChairman?.phone, data.viceChairman?.email, data.viceChairman?.linkedin);
+                setSelectedMember({
+                  ...data.viceChairman,
+                  phone: contact.phone,
+                  email: contact.email,
+                  linkedin: contact.linkedin,
+                  branch: data.name
+                });
+              }}
             />
 
             {/* Section 3: Office Bearers (Grid: 4 col desktop, 2 col tablet, 1 col mobile) */}
@@ -379,7 +418,16 @@ const SocietyPageLayout = ({ data }) => {
                     person={ob}
                     showSocials={false}
                     animationDelay={`${(idx % 4) * 0.06}s`}
-                    onClick={() => setSelectedMember({ ...ob, branch: data.name })}
+                    onClick={() => {
+                      const contact = getContactInfo(ob.name, ob.phone, ob.email, ob.linkedin);
+                      setSelectedMember({
+                        ...ob,
+                        phone: contact.phone,
+                        email: contact.email,
+                        linkedin: contact.linkedin,
+                        branch: data.name
+                      });
+                    }}
                   />
                 ))}
               </div>
@@ -395,7 +443,17 @@ const SocietyPageLayout = ({ data }) => {
                     person={{ ...mem, position: "Executive Member" }}
                     showSocials={true}
                     animationDelay={`${(idx % 4) * 0.06}s`}
-                    onClick={() => setSelectedMember({ ...mem, position: "Executive Member", branch: data.name })}
+                    onClick={() => {
+                      const contact = getContactInfo(mem.name, mem.phone, mem.email, mem.linkedin);
+                      setSelectedMember({
+                        ...mem,
+                        position: "Executive Member",
+                        phone: contact.phone,
+                        email: contact.email,
+                        linkedin: contact.linkedin,
+                        branch: data.name
+                      });
+                    }}
                   />
                 ))}
               </div>
@@ -532,6 +590,14 @@ const SocietyPageLayout = ({ data }) => {
                     <strong style={{ color: '#64748b', display: 'inline-block', width: '100px' }}>Email:</strong>
                     <a href={`mailto:${selectedMember.email}`} style={{ color: 'var(--society-primary)', fontWeight: '600', textDecoration: 'none' }}>
                       {selectedMember.email}
+                    </a>
+                  </div>
+                )}
+                {selectedMember.linkedin && (
+                  <div>
+                    <strong style={{ color: '#64748b', display: 'inline-block', width: '100px' }}>LinkedIn:</strong>
+                    <a href={selectedMember.linkedin} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--society-primary)', fontWeight: '600', textDecoration: 'underline' }}>
+                      Profile Link
                     </a>
                   </div>
                 )}

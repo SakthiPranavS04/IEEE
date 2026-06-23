@@ -25,7 +25,7 @@ const PageHeader = ({ title, subtitle }) => (
     <div style={{
       position: 'absolute', top: '-10%', right: '-8%',
       width: '320px', height: '320px', borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(79, 70, 229, 0.12) 0%, transparent 70%)', pointerEvents: 'none'
+      background: 'radial-gradient(circle, rgba(var(--secondary-rgb), 0.12) 0%, transparent 70%)', pointerEvents: 'none'
     }} />
     <div style={{
       position: 'absolute', bottom: '-20%', left: '-5%',
@@ -41,6 +41,12 @@ const PageHeader = ({ title, subtitle }) => (
           {subtitle}
         </p>
       )}
+    </div>
+    {/* Decorative Wave Bottom */}
+    <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', overflow: 'hidden', lineHeight: 0, transform: 'translateY(1px)', zIndex: 2 }}>
+      <svg viewBox="0 0 1200 120" preserveAspectRatio="none" style={{ position: 'relative', display: 'block', width: 'calc(100% + 1.3px)', height: '40px' }}>
+        <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118,152.47,101.4,227.14,83.56,258.14,76.22,290.41,68.22,321.39,56.44Z" fill="var(--bg-light)"></path>
+      </svg>
     </div>
   </div>
 );
@@ -316,7 +322,7 @@ const Events = () => {
                 background: active ? 'var(--gradient-colorful)' : '#ffffff',
                 color: active ? '#ffffff' : '#64748b',
                 boxShadow: active
-                  ? '0 4px 15px rgba(79, 70, 229, 0.35)'
+                  ? '0 4px 15px rgba(var(--secondary-rgb), 0.35)'
                   : '0 2px 6px rgba(0, 0, 0, 0.06)',
               }}
             >
@@ -338,9 +344,9 @@ const Events = () => {
           <div>
             <span style={{
               padding: '6px 14px',
-              backgroundColor: 'rgba(79, 70, 229, 0.08)',
+              backgroundColor: 'rgba(var(--secondary-rgb), 0.08)',
               color: 'var(--secondary)',
-              border: '1px solid rgba(79, 70, 229, 0.15)',
+              border: '1px solid rgba(var(--secondary-rgb), 0.15)',
               borderRadius: '20px',
               fontSize: '12px',
               fontWeight: '750',
@@ -524,7 +530,7 @@ const Events = () => {
                            textDecoration: 'none',
                            transition: 'all 0.25s ease',
                            letterSpacing: '0.3px',
-                           boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)'
+                           boxShadow: '0 4px 12px rgba(var(--secondary-rgb), 0.25)'
                          }}
                          className="event-register-btn"
                        >
@@ -560,7 +566,7 @@ const Events = () => {
             marginTop: '56px',
             marginBottom: '56px',
             padding: '40px 36px',
-            background: 'rgba(79, 70, 229, 0.03)',
+            background: 'rgba(var(--secondary-rgb), 0.03)',
             borderLeft: '4px solid var(--secondary)',
             borderRadius: '0 12px 12px 0',
             display: 'grid',
@@ -618,7 +624,7 @@ const Events = () => {
                 minHeight: '200px',
                 justifyContent: 'center'
               }}>
-                <Quote size={40} style={{ color: 'rgba(79, 70, 229, 0.15)', marginBottom: '16px' }} />
+                <Quote size={40} style={{ color: 'rgba(var(--secondary-rgb), 0.15)', marginBottom: '16px' }} />
                 <p style={{
                   fontSize: '15.5px',
                   lineHeight: '1.7',
@@ -709,7 +715,7 @@ const Events = () => {
                     height: '8px',
                     borderRadius: '50%',
                     border: 'none',
-                    backgroundColor: idx === currentHighlightIdx ? 'var(--secondary)' : 'rgba(79, 70, 229, 0.2)',
+                    backgroundColor: idx === currentHighlightIdx ? 'var(--secondary)' : 'rgba(var(--secondary-rgb), 0.2)',
                     cursor: 'pointer',
                     padding: 0,
                     transition: 'all 0.3s ease'
@@ -728,12 +734,12 @@ const Events = () => {
         }
         .event-card:hover {
           transform: translateY(-5px);
-          box-shadow: 0 12px 28px rgba(79, 70, 229, 0.1) !important;
-          border-color: rgba(79, 70, 229, 0.3) !important;
+          box-shadow: 0 12px 28px rgba(var(--secondary-rgb), 0.1) !important;
+          border-color: rgba(var(--secondary-rgb), 0.3) !important;
         }
         .event-register-btn:hover {
           background: var(--gradient-colorful) !important;
-          box-shadow: 0 6px 18px rgba(79, 70, 229, 0.4);
+          box-shadow: 0 6px 18px rgba(var(--secondary-rgb), 0.4);
           transform: translateY(-1px);
         }
         @keyframes pulse-glow {

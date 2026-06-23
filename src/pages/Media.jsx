@@ -24,7 +24,7 @@ const PageHeader = ({ title, subtitle }) => (
     <div style={{
       position: 'absolute', top: '-10%', right: '-8%',
       width: '320px', height: '320px', borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(79, 70, 229, 0.12) 0%, transparent 70%)', pointerEvents: 'none'
+      background: 'radial-gradient(circle, rgba(var(--secondary-rgb), 0.12) 0%, transparent 70%)', pointerEvents: 'none'
     }} />
     <div style={{
       position: 'absolute', bottom: '-20%', left: '-5%',
@@ -34,6 +34,12 @@ const PageHeader = ({ title, subtitle }) => (
     <div className="container" style={{ position: 'relative', zIndex: 1 }}>
       <h1 className="font-serif" style={{ fontSize: '38px', color: '#ffffff', marginBottom: '8px', fontWeight: '800' }}>{title}</h1>
       {subtitle && <p style={{ fontSize: '16px', color: '#d0e4f2', maxWidth: '600px', margin: '0 auto' }}>{subtitle}</p>}
+    </div>
+    {/* Decorative Wave Bottom */}
+    <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', overflow: 'hidden', lineHeight: 0, transform: 'translateY(1px)', zIndex: 2 }}>
+      <svg viewBox="0 0 1200 120" preserveAspectRatio="none" style={{ position: 'relative', display: 'block', width: 'calc(100% + 1.3px)', height: '40px' }}>
+        <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118,152.47,101.4,227.14,83.56,258.14,76.22,290.41,68.22,321.39,56.44Z" fill="var(--bg-light)"></path>
+      </svg>
     </div>
   </div>
 );
@@ -57,7 +63,7 @@ const Media = () => {
     },
     {
       title: "GreenTech Hackathon Pitch Finalists",
-      url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      url: "https://youtu.be/8qGIyNu5Qqo",
       desc: "Recap video showcasing student project prototypes and presentation pitches at Perundurai."
     }
   ];
@@ -104,11 +110,11 @@ const Media = () => {
   };
 
   useEffect(() => {
-    const storedVideos = localStorage.getItem('ieee_media_videos_v1');
+    const storedVideos = localStorage.getItem('ieee_media_videos_v2');
     if (storedVideos) {
       setMediaVideos(JSON.parse(storedVideos));
     } else {
-      localStorage.setItem('ieee_media_videos_v1', JSON.stringify(defaultMediaVideos));
+      localStorage.setItem('ieee_media_videos_v2', JSON.stringify(defaultMediaVideos));
     }
   }, []);
 
@@ -216,6 +222,89 @@ const Media = () => {
       color: "#10b981"
     }
   ];
+
+  const handleDownloadPaper = async (paper, e) => {
+    e.preventDefault();
+    const fileUrl = paper.fileUrl;
+    if (!fileUrl) return;
+
+    // Helper to check if url is a Google Drive link and convert it to a direct download link
+    const getGoogleDriveDownloadUrl = (url) => {
+      const driveRegex = /(?:drive\.google\.com\/(?:file\/d\/|open\?id=)|docs\.google\.com\/file\/d\/)([a-zA-Z0-9_-]+)/;
+      const match = url.match(driveRegex);
+      if (match && match[1]) {
+        return `https://drive.google.com/uc?export=download&id=${match[1]}`;
+      }
+      return null;
+    };
+
+    const driveDownloadUrl = getGoogleDriveDownloadUrl(fileUrl);
+    
+    // If it's a Google Drive link, we can use a hidden iframe to start the download without leaving the page
+    if (driveDownloadUrl) {
+      let iframe = document.getElementById('hidden-download-iframe');
+      if (!iframe) {
+        iframe = document.createElement('iframe');
+        iframe.id = 'hidden-download-iframe';
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+      }
+      iframe.src = driveDownloadUrl;
+      return;
+    }
+
+    // If it's a data URL (base64) or similar
+    if (fileUrl.startsWith('data:')) {
+      const link = document.createElement('a');
+      link.href = fileUrl;
+      link.download = `${paper.title.replace(/\s+/g, '_')}_document`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      return;
+    }
+
+    // Check if it's a local mock PDF file (they don't exist on server)
+    const isMockPdf = fileUrl.endsWith('.pdf') && (fileUrl.startsWith('paper_') || !fileUrl.includes('/'));
+
+    if (isMockPdf) {
+      // Fallback: Generate a clean, styled text file with paper metadata for a flawless mock experience
+      let content = `========================================================================\n`;
+      content += `         IEEE KONGU ENGINEERING COLLEGE STUDENT BRANCH (IEEE KEC SB)   \n`;
+      content += `                     RESEARCH & PROJECT PUBLICATIONS                    \n`;
+      content += `========================================================================\n\n`;
+      content += `Title:       ${paper.title}\n`;
+      content += `Authors:     ${paper.authors}\n`;
+      content += `Category:    ${paper.category}\n`;
+      content += `Year:        ${paper.year}\n\n`;
+      content += `Description/Abstract:\n`;
+      content += `${paper.desc}\n\n`;
+      content += `------------------------------------------------------------------------\n`;
+      content += `Status: Verified Publication Record\n`;
+      content += `IEEE KEC Student Branch - Research Portal\n`;
+      content += `========================================================================\n`;
+
+      const blob = new Blob([content], { type: 'text/plain' });
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      const filename = `${paper.title.toLowerCase().replace(/[^a-z0-9]+/g, '_')}_publication.txt`;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
+      return;
+    }
+
+    // For other links (like standard absolute or relative paths), try to download via link with download attribute
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = fileUrl.split('/').pop() || `${paper.title.replace(/\s+/g, '_')}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   useEffect(() => {
     // Load and migrate gallery items if they are old or lack images
@@ -651,7 +740,7 @@ const Media = () => {
                       width: '56px',
                       height: '56px',
                       borderRadius: '8px',
-                      backgroundColor: 'rgba(79, 70, 229, 0.08)',
+                      backgroundColor: 'rgba(var(--secondary-rgb), 0.08)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -667,7 +756,7 @@ const Media = () => {
                         color: 'var(--secondary)',
                         textTransform: 'uppercase',
                         display: 'inline-block',
-                        backgroundColor: 'rgba(79, 70, 229, 0.05)',
+                        backgroundColor: 'rgba(var(--secondary-rgb), 0.05)',
                         padding: '4px 10px',
                         borderRadius: '4px',
                         marginBottom: '6px'
@@ -708,16 +797,14 @@ const Media = () => {
                   </p>
 
                   {paper.fileUrl && (
-                    <a
-                      href={paper.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={(e) => handleDownloadPaper(paper, e)}
                       style={{
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '8px',
                         padding: '10px 16px',
-                        backgroundColor: 'rgba(79, 70, 229, 0.05)',
+                        backgroundColor: 'rgba(var(--secondary-rgb), 0.05)',
                         color: 'var(--secondary)',
                         borderRadius: '6px',
                         textDecoration: 'none',
@@ -731,7 +818,7 @@ const Media = () => {
                     >
                       <FileText size={16} />
                       Download PDF
-                    </a>
+                    </button>
                   )}
                 </div>
               ))

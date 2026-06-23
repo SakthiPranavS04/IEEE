@@ -1,6 +1,46 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { Award, BookOpen, Calendar, Users, ArrowRight, ShieldCheck, Flame, Zap, ChevronLeft, ChevronRight, Quote, MessageSquare } from 'lucide-react';
+import { Award, BookOpen, Calendar, Users, ArrowRight, ShieldCheck, Flame, Zap, ChevronLeft, ChevronRight, Quote, MessageSquare, Globe } from 'lucide-react';
+import { societiesData } from '../data/societiesData';
+
+const hexToRgb = (hex) => {
+  if (!hex) return "15, 76, 92";
+  let cleanHex = hex.replace("#", "");
+  if (cleanHex.length === 3) {
+    cleanHex = cleanHex.split("").map(c => c + c).join("");
+  }
+  const r = parseInt(cleanHex.substring(0, 2), 16) || 0;
+  const g = parseInt(cleanHex.substring(2, 4), 16) || 0;
+  const b = parseInt(cleanHex.substring(4, 6), 16) || 0;
+  return `${r}, ${g}, ${b}`;
+};
+
+const AnimatedCounter = ({ value, duration = 1500 }) => {
+  const [count, setCount] = useState(0);
+  const target = parseInt(value.replace(/[^0-9]/g, ''), 10) || 0;
+  const isPlus = typeof value === 'string' && value.includes('+');
+
+  useEffect(() => {
+    let start = 0;
+    if (target === 0) {
+      setCount(value);
+      return;
+    }
+    const increment = Math.ceil(target / (duration / 30));
+    const timer = setInterval(() => {
+      start += increment;
+      if (start >= target) {
+        setCount(target);
+        clearInterval(timer);
+      } else {
+        setCount(start);
+      }
+    }, 30);
+    return () => clearInterval(timer);
+  }, [value, target, duration]);
+
+  return <span>{count}{isPlus ? '+' : ''}</span>;
+};
 
 const Home = () => {
   const [activeTab, setActiveTab] = useState('mission');
@@ -21,7 +61,7 @@ const Home = () => {
   });
 
   const [keystonesVideoUrl, setKeystonesVideoUrl] = useState(() => {
-    return localStorage.getItem('ieee_keystones_video_url') || 'https://www.youtube.com/embed/dQw4w9WgXcQ';
+    return localStorage.getItem('ieee_keystones_video_url_v2') || 'https://youtu.be/_90Hd1qMDGM';
   });
 
   const [impactStats, setImpactStats] = useState(() => {
@@ -61,6 +101,24 @@ const Home = () => {
   });
 
   const [currentTestimonialIdx, setCurrentTestimonialIdx] = useState(0);
+
+  const [societiesList, setSocietiesList] = useState([]);
+
+  useEffect(() => {
+    const keys = ['ap-s', 'computer-society', 'wie', 'ras', 'pes', 'comsoc'];
+    const loaded = keys.map(key => {
+      const stored = localStorage.getItem(`ieee_society_data_${key}_v5`);
+      if (stored) {
+        try {
+          return JSON.parse(stored);
+        } catch (e) {
+          console.error("Error parsing stored society data:", e);
+        }
+      }
+      return societiesData[key];
+    });
+    setSocietiesList(loaded.filter(Boolean));
+  }, []);
 
   // Google Sheet URL for Member Count (retained for backward compatibility or future fallback, not currently mapped to UI stats)
   const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS-R4zV8G4N1iA8oD5H1fB8G3C2n2o1K7p_example/pub?output=csv';
@@ -313,8 +371,8 @@ const Home = () => {
     const styles = [
       {
         icon: <Users size={28} />,
-        color: '#4f46e5', // Indigo
-        bgColor: 'rgba(79, 70, 229, 0.08)'
+        color: '#0F4C5C', // Teal
+        bgColor: 'rgba(15, 76, 92, 0.08)'
       },
       {
         icon: <Calendar size={28} />,
@@ -485,7 +543,7 @@ const Home = () => {
             <RouterLink
               to="/contact"
               style={{
-                backgroundColor: 'rgba(79, 70, 229, 0.25)',
+                backgroundColor: 'rgba(var(--secondary-rgb), 0.25)',
                 backdropFilter: 'blur(12px)',
                 border: '1.5px solid rgba(255, 255, 255, 0.3)',
                 color: '#ffffff',
@@ -506,7 +564,7 @@ const Home = () => {
               target="_blank"
               rel="noopener noreferrer"
               style={{
-                backgroundColor: 'rgba(79, 70, 229, 0.25)',
+                backgroundColor: 'rgba(var(--secondary-rgb), 0.25)',
                 backdropFilter: 'blur(12px)',
                 border: '1.5px solid rgba(255, 255, 255, 0.3)',
                 color: '#ffffff',
@@ -549,10 +607,10 @@ const Home = () => {
 
         <style>{`
           .hero-btn-hover:hover {
-            background-color: rgba(79, 70, 229, 0.45) !important;
+            background-color: rgba(var(--secondary-rgb), 0.45) !important;
             border-color: rgba(255, 255, 255, 0.5) !important;
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35) !important;
+            box-shadow: 0 8px 20px rgba(var(--secondary-rgb), 0.35) !important;
           }
           .hero-dot:hover {
             background-color: #ffffff !important;
@@ -607,49 +665,120 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Why Join IEEE Section */}
+      {/* Why Join IEEE Section (Replaced duplicate grid with navigation link) */}
+      <section className="section-padding scroll-reveal" style={{ backgroundColor: 'var(--bg-light)', borderBottom: '1px solid var(--border-subtle)' }}>
+        <div className="container" style={{ textAlign: 'center' }}>
+          <h2 style={{ fontSize: '32px', marginBottom: '12px', fontWeight: '800', color: 'var(--primary)' }}>Why Join IEEE?</h2>
+          <div style={{ width: '60px', height: '3px', backgroundColor: 'var(--secondary)', margin: '0 auto 20px' }}></div>
+          <p style={{ color: 'var(--text-muted)', maxWidth: '600px', marginInline: 'auto', marginBottom: '32px', fontSize: '15px', lineHeight: '1.75' }}>
+            Being part of the world's largest technical professional organization offers unparalleled benefits including global networking, technical resources, leadership roles, and exclusive learning programs.
+          </p>
+          <RouterLink
+            to="/about/ieee-kec-sb"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              backgroundColor: 'var(--secondary)',
+              color: '#ffffff',
+              fontWeight: '700',
+              padding: '12px 30px',
+              borderRadius: '30px',
+              fontSize: '15px',
+              textDecoration: 'none',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 4px 15px rgba(var(--secondary-rgb), 0.25)'
+            }}
+            className="tab-hover"
+          >
+            Explore Benefits & Membership Details <ArrowRight size={16} />
+          </RouterLink>
+        </div>
+      </section>
+
+      {/* Society Quick Access Section */}
       <section className="section-padding scroll-reveal" style={{ backgroundColor: 'var(--bg-light)', borderBottom: '1px solid var(--border-subtle)' }}>
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '32px', marginBottom: '12px', fontWeight: '800', color: 'var(--primary)' }}>Why Join IEEE?</h2>
+            <h2 style={{ fontSize: '32px', marginBottom: '12px', fontWeight: '800', color: 'var(--primary)' }}>Society Quick Access</h2>
             <div style={{ width: '60px', height: '3px', backgroundColor: 'var(--secondary)', margin: '0 auto 16px' }}></div>
             <p style={{ color: 'var(--text-muted)', maxWidth: '600px', marginInline: 'auto' }}>
-              Being part of the world's largest technical professional organization offers unparalleled benefits.
+              Quick access to our specialized technical societies and affinity chapters.
             </p>
           </div>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: '30px'
-          }}>
-            {[
-              { title: "Global Networking", text: "Connect with students, professionals, and researchers worldwide.", icon: <Users size={24} /> },
-              { title: "Technical Learning", text: "Access workshops, technical resources, competitions, and certifications.", icon: <BookOpen size={24} /> },
-              { title: "Leadership Development", text: "Build communication, management, and teamwork skills.", icon: <Award size={24} /> },
-              { title: "Research Opportunities", text: "Participate in innovation projects, conferences, and publications.", icon: <ShieldCheck size={24} /> },
-              { title: "Career Growth", text: "Gain industry exposure, mentorship, and internship opportunities.", icon: <Flame size={24} /> },
-              { title: "Exclusive Resources", text: "Access IEEE standards, publications, and professional communities.", icon: <Zap size={24} /> }
-            ].map((card, idx) => (
-              <div key={idx} className="card stat-card-hover" style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '24px' }}>
-                <div style={{
-                  width: '50px',
-                  height: '50px',
-                  borderRadius: '10px',
-                  backgroundColor: 'rgba(79, 70, 229, 0.08)',
+          <div className="society-grid">
+            {societiesList.map((soc) => {
+              let key = '';
+              const nameLower = soc.name.toLowerCase();
+              if (nameLower.includes('antennas') || nameLower.includes('propagation') || nameLower.includes('aps')) key = 'ap-s';
+              else if (nameLower.includes('computer')) key = 'computer-society';
+              else if (nameLower.includes('women') || nameLower.includes('wie')) key = 'wie';
+              else if (nameLower.includes('robotics') || nameLower.includes('ras')) key = 'ras';
+              else if (nameLower.includes('power') || nameLower.includes('pes')) key = 'pes';
+              else if (nameLower.includes('communications') || nameLower.includes('comsoc')) key = 'comsoc';
+
+              const themeColor = soc.theme?.primary || 'var(--secondary)';
+              
+              // Choose appropriate icon
+              let socIcon = <BookOpen size={24} />;
+              if (key === 'ap-s') socIcon = <MessageSquare size={24} />;
+              else if (key === 'computer-society') socIcon = <Award size={24} />;
+              else if (key === 'wie') socIcon = <Users size={24} />;
+              else if (key === 'ras') socIcon = <Award size={24} />;
+              else if (key === 'pes') socIcon = <Zap size={24} />;
+              else if (key === 'comsoc') socIcon = <Globe size={24} />;
+
+              return (
+                <div key={key} className="card society-card-hover" style={{
                   display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'var(--secondary)',
-                  boxShadow: 'inset 0 0 10px rgba(79, 70, 229, 0.02)'
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  backgroundColor: '#ffffff',
+                  borderTop: `4px solid ${themeColor}`,
+                  borderLeft: `1px solid rgba(${hexToRgb(themeColor)}, 0.15)`,
+                  borderRight: `1px solid rgba(${hexToRgb(themeColor)}, 0.15)`,
+                  borderBottom: `1px solid rgba(${hexToRgb(themeColor)}, 0.15)`,
+                  borderRadius: '16px',
+                  padding: '28px',
+                  transition: 'all 0.3s ease',
+                  height: '100%'
                 }}>
-                  {card.icon}
+                  <div>
+                    <div style={{
+                      width: '48px',
+                      height: '48px',
+                      borderRadius: '10px',
+                      backgroundColor: `rgba(${hexToRgb(themeColor)}, 0.08)`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: themeColor,
+                      marginBottom: '20px'
+                    }}>
+                      {socIcon}
+                    </div>
+                    <h3 style={{ fontSize: '17px', fontWeight: '800', marginBottom: '8px', color: 'var(--primary)' }}>
+                      {soc.name}
+                    </h3>
+                    <p style={{ fontSize: '13.5px', color: 'var(--text-muted)', lineHeight: '1.6', marginBottom: '24px', margin: '0' }}>
+                      {soc.tagline || soc.description}
+                    </p>
+                  </div>
+                  <RouterLink to={`/execomm/${key}`} style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    color: themeColor,
+                    fontWeight: '700',
+                    fontSize: '13.5px',
+                    textDecoration: 'none',
+                    marginTop: 'auto'
+                  }}>
+                    View Roster & Milestones <ArrowRight size={14} />
+                  </RouterLink>
                 </div>
-                <div>
-                  <h3 style={{ fontSize: '18px', fontWeight: '750', marginBottom: '8px', color: 'var(--primary)' }}>{card.title}</h3>
-                  <p style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: '1.6' }}>{card.text}</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -678,12 +807,14 @@ const Home = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: color,
-                    boxShadow: `inset 0 0 10px rgba(${color === '#4f46e5' ? '79, 70, 229' : '0, 0, 0'}, 0.02)`
+                    boxShadow: `inset 0 0 10px rgba(${color === '#0F4C5C' ? '15, 76, 92' : '0, 0, 0'}, 0.02)`
                   }}>
                     {icon}
                   </div>
                   <div>
-                    <div className="home-stat-value" style={{ fontSize: '28px', fontWeight: '800', color: 'var(--primary)', lineHeight: '1.2' }}>{stat.value}</div>
+                    <div className="home-stat-value" style={{ fontSize: '28px', fontWeight: '800', color: 'var(--primary)', lineHeight: '1.2' }}>
+                      <AnimatedCounter value={stat.value} />
+                    </div>
                     <div className="home-stat-label" style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: '500' }}>{stat.label}</div>
                   </div>
                 </div>
@@ -820,7 +951,7 @@ const Home = () => {
                 minHeight: '220px',
                 justifyContent: 'center'
               }}>
-                <Quote size={40} style={{ color: 'rgba(79, 70, 229, 0.15)', marginBottom: '16px' }} />
+                <Quote size={40} style={{ color: 'rgba(var(--secondary-rgb), 0.15)', marginBottom: '16px' }} />
                 <p style={{
                   fontSize: '16px',
                   lineHeight: '1.7',
@@ -911,7 +1042,7 @@ const Home = () => {
                     height: '8px',
                     borderRadius: '50%',
                     border: 'none',
-                    backgroundColor: idx === currentTestimonialIdx ? 'var(--secondary)' : 'rgba(79, 70, 229, 0.2)',
+                    backgroundColor: idx === currentTestimonialIdx ? 'var(--secondary)' : 'rgba(var(--secondary-rgb), 0.2)',
                     cursor: 'pointer',
                     padding: 0,
                     transition: 'all 0.3s ease'
@@ -989,7 +1120,7 @@ const Home = () => {
                       style={{
                         backgroundColor: '#ffffff',
                         border: isCenter ? '2px solid var(--border-focus)' : '1px solid var(--border-subtle)',
-                        boxShadow: isCenter ? '0 20px 45px rgba(79, 70, 229, 0.22)' : 'var(--shadow-sm)'
+                        boxShadow: isCenter ? '0 20px 45px rgba(var(--secondary-rgb), 0.22)' : 'var(--shadow-sm)'
                       }}
                     >
                       {/* Cover Image or pre-defined Gradient Theme */}
@@ -1119,15 +1250,15 @@ const Home = () => {
         }
         .video-frame-container:hover {
           transform: translateY(-4px);
-          box-shadow: 0 30px 60px rgba(15, 23, 42, 0.18), 0 0 25px rgba(79, 70, 229, 0.15) !important;
+          box-shadow: 0 30px 60px rgba(15, 23, 42, 0.18), 0 0 25px rgba(var(--secondary-rgb), 0.15) !important;
         }
         .tab-hover:hover {
           transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(79, 70, 229, 0.2) !important;
+          box-shadow: 0 6px 20px rgba(var(--secondary-rgb), 0.2) !important;
         }
         .stat-card-hover:hover {
           transform: translateY(-4px);
-          border-color: rgba(79, 70, 229, 0.3) !important;
+          border-color: rgba(var(--secondary-rgb), 0.3) !important;
           box-shadow: var(--shadow-md) !important;
         }
         .home-stats-grid {

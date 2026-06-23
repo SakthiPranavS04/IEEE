@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Award, Trophy, Star, Sparkles, ArrowRight, Calendar } from 'lucide-react';
+import { Award, Trophy, Star, Sparkles, ArrowRight, Calendar, X } from 'lucide-react';
 
 const PageHeader = ({ title, subtitle }) => (
   <div style={{
@@ -28,7 +28,7 @@ const PageHeader = ({ title, subtitle }) => (
       width: '300px',
       height: '300px',
       borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(79, 70, 229, 0.12) 0%, transparent 70%)',
+      background: 'radial-gradient(circle, rgba(var(--secondary-rgb), 0.12) 0%, transparent 70%)',
       pointerEvents: 'none'
     }} />
     <div style={{
@@ -44,6 +44,12 @@ const PageHeader = ({ title, subtitle }) => (
     <div className="container" style={{ position: 'relative', zIndex: 1 }}>
       <h1 className="font-serif" style={{ fontSize: '38px', color: '#ffffff', marginBottom: '12px', fontWeight: '800' }}>{title}</h1>
       {subtitle && <p style={{ fontSize: '16px', color: '#d0e4f2', maxWidth: '600px', margin: '0 auto' }}>{subtitle}</p>}
+    </div>
+    {/* Decorative Wave Bottom */}
+    <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', overflow: 'hidden', lineHeight: 0, transform: 'translateY(1px)', zIndex: 2 }}>
+      <svg viewBox="0 0 1200 120" preserveAspectRatio="none" style={{ position: 'relative', display: 'block', width: 'calc(100% + 1.3px)', height: '40px' }}>
+        <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118,152.47,101.4,227.14,83.56,258.14,76.22,290.41,68.22,321.39,56.44Z" fill="var(--bg-light)"></path>
+      </svg>
     </div>
   </div>
 );
@@ -71,6 +77,8 @@ const getGradient = (index) => {
 const Achievements = () => {
   const [achievements, setAchievements] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalAch, setModalAch] = useState(null);
 
   useEffect(() => {
     const defaultAchievements = [
@@ -159,8 +167,6 @@ const Achievements = () => {
     }
   }, []);
 
-  const selectedAch = achievements.find(a => a.id === selectedId) || achievements[0];
-
   return (
     <div className="animate-fade-in" style={{ backgroundColor: 'var(--bg-light)', paddingBottom: '90px', minHeight: '80vh' }}>
       <PageHeader
@@ -170,253 +176,7 @@ const Achievements = () => {
 
       <div className="container">
         
-        {/* SECTION 1: STAIRCASE CHART SHOWCASE */}
-        {achievements.length > 0 && (
-          <div className="card" style={{
-            padding: '40px',
-            backgroundColor: '#ffffff',
-            borderRadius: '16px',
-            boxShadow: 'var(--shadow-md)',
-            border: '1px solid var(--border-subtle)',
-            marginBottom: '50px'
-          }}>
-            <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-              <span style={{
-                padding: '4px 12px',
-                backgroundColor: 'var(--accent-light)',
-                color: 'var(--primary)',
-                borderRadius: '20px',
-                fontSize: '12px',
-                fontWeight: '700',
-                textTransform: 'uppercase',
-                letterSpacing: '1px'
-              }}>
-                Interactive Timeline Chart
-              </span>
-              <h2 className="font-serif" style={{ fontSize: '26px', color: 'var(--primary)', marginTop: '10px' }}>Highlights of Accomplishments</h2>
-              <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '6px' }}>Click any tier to spotlight the achievement details below</p>
-            </div>
-
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '48px',
-              flexWrap: 'wrap',
-              justifyContent: 'center'
-            }}>
-              
-              {/* Left Side: Elegant Trophy SVG Illustration */}
-              <div style={{
-                flex: '1 1 260px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                position: 'relative',
-                padding: '20px'
-              }}>
-                <div className="trophy-container" style={{ position: 'relative' }}>
-                  {/* Floating sparkles behind */}
-                  <div style={{
-                    position: 'absolute',
-                    top: '-10px',
-                    left: '-10px',
-                    width: '100%',
-                    height: '100%',
-                    animation: 'spin 15s linear infinite',
-                    pointerEvents: 'none',
-                    opacity: 0.5
-                  }}>
-                    <div style={{ position: 'absolute', top: '10%', left: '10%', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#f59e0b' }} />
-                    <div style={{ position: 'absolute', bottom: '15%', right: '15%', width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#fbbf24' }} />
-                  </div>
-
-                  <svg width="200" height="200" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{
-                    filter: 'drop-shadow(0 12px 24px rgba(245, 158, 11, 0.25))',
-                    animation: 'float 4s ease-in-out infinite'
-                  }}>
-                    <defs>
-                      <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#fff3c4" />
-                        <stop offset="35%" stopColor="#fbbf24" />
-                        <stop offset="70%" stopColor="#d97706" />
-                        <stop offset="100%" stopColor="#b45309" />
-                      </linearGradient>
-                      <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#02619a" />
-                        <stop offset="100%" stopColor="#0a385b" />
-                      </linearGradient>
-                    </defs>
-                    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18" stroke="url(#goldGradient)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M6 3h12v6c0 3.314-2.686 6-6 6s-6-2.686-6-6V3Z" fill="url(#goldGradient)" />
-                    <path d="M12 15v5M8 21h8" stroke="url(#goldGradient)" strokeWidth="2" strokeLinecap="round"/>
-                    {/* Star detail inside trophy */}
-                    <path d="M12 6.5l.9 1.8 2 .3-1.4 1.4.3 2-1.8-.9-1.8.9.3-2-1.4-1.4 2-.3.9-1.8z" fill="#ffffff" />
-                  </svg>
-                </div>
-                <div style={{
-                  marginTop: '16px',
-                  textAlign: 'center',
-                  fontWeight: '700',
-                  color: 'var(--primary)',
-                  fontSize: '15px'
-                }}>
-                  Hall of Laurels
-                </div>
-              </div>
-
-              {/* Right Side: Staircase tiers */}
-              <div style={{
-                flex: '2 2 450px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px',
-                width: '100%'
-              }}>
-                {achievements.map((ach, idx) => {
-                  const widthPercent = achievements.length <= 1
-                    ? 100
-                    : 65 + (idx / (achievements.length - 1)) * 35;
-                  const grad = getGradient(idx);
-                  const isSelected = selectedId === ach.id;
-
-                  return (
-                    <div
-                      key={ach.id}
-                      onClick={() => setSelectedId(ach.id)}
-                      style={{
-                        width: `${widthPercent}%`,
-                        background: `linear-gradient(135deg, ${grad.start} 0%, ${grad.end} 100%)`,
-                        borderRadius: '30px 12px 12px 30px',
-                        padding: '12px 20px',
-                        color: '#ffffff',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                        boxShadow: isSelected 
-                          ? '0 8px 20px rgba(79, 70, 229, 0.35)' 
-                          : '0 2px 6px rgba(0, 0, 0, 0.05)',
-                        transform: isSelected ? 'translateX(12px) scale(1.01)' : 'none',
-                        border: isSelected ? '2px solid var(--secondary)' : '2px solid transparent',
-                        position: 'relative',
-                        overflow: 'hidden'
-                      }}
-                      className="staircase-bar"
-                    >
-                      {/* Subtle reflection overlay */}
-                      <div style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '50%',
-                        background: 'linear-gradient(to bottom, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 100%)',
-                        pointerEvents: 'none'
-                      }} />
-
-                      {/* Bar Info */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '14px', zIndex: 1, minWidth: 0, flex: 1 }}>
-                        <span style={{
-                          fontWeight: '800',
-                          fontSize: '14px',
-                          color: '#ffe066',
-                          opacity: 0.9,
-                          flexShrink: 0
-                        }}>
-                          #{idx + 1}
-                        </span>
-                        <span style={{
-                          fontWeight: '700',
-                          fontSize: '13.5px',
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          letterSpacing: '0.2px'
-                        }} title={ach.title}>
-                          {ach.title}
-                        </span>
-                      </div>
-
-                      {/* Icon Circle */}
-                      <div style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '50%',
-                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        zIndex: 1,
-                        flexShrink: 0,
-                        marginLeft: '12px',
-                        border: '1px solid rgba(255,255,255,0.3)'
-                      }}>
-                        {renderIcon(ach.iconType, 16, '#ffffff')}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-            </div>
-
-            {/* Spotlight Detail Card */}
-            {selectedAch && (
-              <div style={{
-                marginTop: '40px',
-                padding: '28px',
-                borderRadius: '16px',
-                background: 'var(--gradient-soft)',
-                border: '1px solid var(--border-subtle)',
-                borderLeft: '5px solid var(--secondary)',
-                display: 'flex',
-                gap: '24px',
-                alignItems: 'start',
-                animation: 'slideUp 0.3s ease-out',
-                flexWrap: 'wrap'
-              }}>
-                <div style={{
-                  width: '56px',
-                  height: '56px',
-                  borderRadius: '12px',
-                  backgroundColor: '#ffffff',
-                  boxShadow: '0 4px 12px rgba(10,56,91,0.08)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#f59e0b',
-                  flexShrink: 0
-                }}>
-                  {renderIcon(selectedAch.iconType, 28, '#f59e0b')}
-                </div>
-                <div style={{ flex: 1, minWidth: '240px' }}>
-                  <span style={{
-                    fontSize: '11px',
-                    fontWeight: '800',
-                    color: '#02619a',
-                    textTransform: 'uppercase',
-                    letterSpacing: '1.2px',
-                    display: 'block',
-                    marginBottom: '4px'
-                  }}>
-                    {selectedAch.category}
-                  </span>
-                  <h3 style={{ fontSize: '18px', color: 'var(--primary)', margin: '0 0 8px 0', fontWeight: '800' }}>
-                    {selectedAch.title}
-                  </h3>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', lineHeight: '1.6', margin: 0 }}>
-                    {selectedAch.desc}
-                  </p>
-                </div>
-              </div>
-            )}
-
-          </div>
-        )}
-
-        {/* SECTION 2: GRID OF ALL CARDS */}
+        {/* Historical Gallery of Achievements */}
         <div style={{ marginBottom: '24px' }}>
           <h2 className="font-serif" style={{ fontSize: '24px', color: 'var(--primary)', fontWeight: '800', marginBottom: '8px' }}>
             Historical Gallery of Achievements
@@ -426,63 +186,169 @@ const Achievements = () => {
           </p>
         </div>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: '30px'
-        }}>
-          {achievements.map((ach) => {
-            const isHighlighted = selectedId === ach.id;
-            return (
-              <div
-                key={ach.id}
-                onClick={() => setSelectedId(ach.id)}
-                className="card"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '16px',
-                  cursor: 'pointer',
-                  backgroundColor: '#ffffff',
-                  border: isHighlighted ? '2px solid var(--secondary)' : '1px solid var(--border-subtle)',
-                  transform: isHighlighted ? 'translateY(-4px)' : 'none',
-                  boxShadow: isHighlighted ? 'var(--shadow-md)' : 'var(--shadow-sm)',
-                  transition: 'all 0.3s ease'
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{
-                    width: '56px',
-                    height: '56px',
-                    borderRadius: '50%',
-                    backgroundColor: isHighlighted ? '#eff6ff' : '#f1f5f9',
+        <div className="timeline-container" style={{ position: 'relative', margin: '40px auto 0', padding: '20px 0' }}>
+          {/* Vertical line spine */}
+          <div style={{
+            position: 'absolute',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            top: 0,
+            bottom: 0,
+            width: '4px',
+            background: 'linear-gradient(to bottom, var(--secondary) 0%, rgba(var(--secondary-rgb), 0.2) 100%)',
+            borderRadius: '2px',
+            zIndex: 1
+          }} className="timeline-spine" />
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '40px', position: 'relative', zIndex: 2 }}>
+            {achievements.map((ach, idx) => {
+              const isLeft = idx % 2 === 0;
+              return (
+                <div
+                  key={ach.id}
+                  onClick={() => {
+                    setModalAch(ach);
+                    setIsModalOpen(true);
+                  }}
+                  className={`timeline-item ${isLeft ? 'left' : 'right'}`}
+                  style={{
                     display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'all 0.3s ease'
-                  }}>
-                    {renderIcon(ach.iconType, 24, isHighlighted ? '#02619a' : '#64748b')}
+                    justifyContent: 'flex-start',
+                    width: '100%',
+                    cursor: 'pointer',
+                    position: 'relative'
+                  }}
+                >
+                  {/* Timeline Dot */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      top: '24px',
+                      width: '20px',
+                      height: '20px',
+                      borderRadius: '50%',
+                      backgroundColor: '#ffffff',
+                      border: '4px solid var(--secondary)',
+                      boxShadow: '0 0 0 4px rgba(6, 182, 212, 0.15)',
+                      zIndex: 3,
+                      transition: 'all 0.3s ease'
+                    }}
+                    className="timeline-dot"
+                  />
+
+                  {/* Timeline Content Card */}
+                  <div
+                    className="timeline-card-wrapper"
+                    style={{
+                      width: '45%',
+                      marginLeft: isLeft ? '0' : 'auto',
+                      marginRight: isLeft ? 'auto' : '0',
+                      paddingLeft: isLeft ? '0' : '20px',
+                      paddingRight: isLeft ? '20px' : '0'
+                    }}
+                  >
+                    <div
+                      className="card timeline-card"
+                      style={{
+                        backgroundColor: '#ffffff',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: '16px',
+                        padding: '24px',
+                        boxShadow: 'var(--shadow-sm)',
+                        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                        position: 'relative',
+                        display: 'flex',
+                        gap: '16px',
+                        alignItems: 'start'
+                      }}
+                    >
+                      {/* Card Arrow */}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '24px',
+                          [isLeft ? 'right' : 'left']: '-8px',
+                          width: '16px',
+                          height: '16px',
+                          backgroundColor: '#ffffff',
+                          borderLeft: isLeft ? 'none' : '1px solid var(--border-subtle)',
+                          borderBottom: isLeft ? 'none' : '1px solid var(--border-subtle)',
+                          borderRight: isLeft ? '1px solid var(--border-subtle)' : 'none',
+                          borderTop: isLeft ? '1px solid var(--border-subtle)' : 'none',
+                          transform: 'rotate(45deg)',
+                          zIndex: 2
+                        }}
+                        className="timeline-arrow"
+                      />
+
+                      <div style={{
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%',
+                        backgroundColor: 'rgba(var(--secondary-rgb), 0.08)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'var(--secondary)',
+                        flexShrink: 0
+                      }}>
+                        {renderIcon(ach.iconType, 20, 'var(--secondary)')}
+                      </div>
+
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <span style={{
+                          fontSize: '11px',
+                          fontWeight: '800',
+                          color: 'var(--secondary)',
+                          textTransform: 'uppercase',
+                          letterSpacing: '1px',
+                          display: 'block',
+                          marginBottom: '6px'
+                        }}>
+                          {ach.category}
+                        </span>
+                        <h3 style={{
+                          fontSize: '16px',
+                          color: 'var(--primary)',
+                          fontWeight: '800',
+                          margin: '0 0 8px 0',
+                          lineHeight: '1.4'
+                        }}>
+                          {ach.title}
+                        </h3>
+                        <p style={{
+                          color: 'var(--text-muted)',
+                          fontSize: '13px',
+                          lineHeight: '1.6',
+                          margin: 0,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical'
+                        }}>
+                          {ach.desc}
+                        </p>
+                        <div style={{
+                          marginTop: '12px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          fontSize: '12px',
+                          color: 'var(--primary)',
+                          fontWeight: '700'
+                        }}>
+                          Read Details <ArrowRight size={12} />
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <span style={{
-                    fontSize: '11px',
-                    fontWeight: '800',
-                    color: isHighlighted ? '#02619a' : '#94a3b8',
-                    textTransform: 'uppercase',
-                    backgroundColor: isHighlighted ? '#dbeafe' : '#f1f5f9',
-                    padding: '4px 10px',
-                    borderRadius: '20px',
-                    transition: 'all 0.3s ease'
-                  }}>
-                    {ach.category}
-                  </span>
                 </div>
-                <div>
-                  <h3 style={{ fontSize: '17px', color: 'var(--primary)', margin: '4px 0 10px', fontWeight: '750' }}>{ach.title}</h3>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', lineHeight: '1.6', margin: 0 }}>{ach.desc}</p>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
 
         {/* Student Success Stories & Media Mentions */}
@@ -530,6 +396,108 @@ const Achievements = () => {
 
       </div>
 
+      {/* Achievement Details Modal */}
+      {isModalOpen && modalAch && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.65)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '20px',
+          animation: 'fadeIn 0.2s ease-out'
+        }}
+        onClick={() => setIsModalOpen(false)}
+        >
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '16px',
+            maxWidth: '600px',
+            width: '100%',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            overflow: 'hidden',
+            position: 'relative',
+            animation: 'modalScale 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+          }}
+          onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header pattern */}
+            <div style={{
+              background: 'var(--gradient-primary)',
+              padding: '24px 32px',
+              color: '#ffffff',
+              position: 'relative'
+            }}>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                style={{
+                  position: 'absolute',
+                  top: '20px',
+                  right: '20px',
+                  background: 'rgba(255, 255, 255, 0.15)',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#ffffff',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                className="modal-close-btn"
+              >
+                <X size={18} />
+              </button>
+              <span style={{
+                fontSize: '11px',
+                fontWeight: '800',
+                color: '#d0e4f2',
+                textTransform: 'uppercase',
+                letterSpacing: '1.2px',
+                display: 'block',
+                marginBottom: '6px'
+              }}>
+                {modalAch.category}
+              </span>
+              <h3 style={{ fontSize: '20px', color: '#ffffff', margin: 0, fontWeight: '800', paddingRight: '36px' }}>
+                {modalAch.title}
+              </h3>
+            </div>
+            <div style={{ padding: '32px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '50%',
+                  backgroundColor: '#eff6ff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#02619a'
+                }}>
+                  {renderIcon(modalAch.iconType, 22, '#02619a')}
+                </div>
+                <div>
+                  <span style={{ fontSize: '13px', color: 'var(--text-muted)', display: 'block' }}>Recognition Category</span>
+                  <strong style={{ fontSize: '14px', color: 'var(--primary)' }}>{modalAch.category}</strong>
+                </div>
+              </div>
+              <p style={{ color: 'var(--text-muted)', fontSize: '14.5px', lineHeight: '1.7', margin: 0 }}>
+                {modalAch.desc}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Embedded Animations and Keyframes */}
       <style>{`
         @keyframes float {
@@ -548,6 +516,52 @@ const Achievements = () => {
         .staircase-bar:hover {
           transform: translateX(6px) scale(1.005) !important;
           box-shadow: 0 6px 15px rgba(2,97,154,0.25) !important;
+        }
+        .timeline-card:hover {
+          transform: translateY(-4px) scale(1.01) !important;
+          box-shadow: var(--shadow-md) !important;
+          border-color: var(--secondary) !important;
+        }
+        .timeline-item:hover .timeline-dot {
+          background-color: var(--secondary) !important;
+          box-shadow: 0 0 0 6px rgba(6, 182, 212, 0.3) !important;
+        }
+        @media (max-width: 768px) {
+          .timeline-spine {
+            left: 20px !important;
+            transform: none !important;
+          }
+          .timeline-dot {
+            left: 20px !important;
+            transform: translateX(-50%) !important;
+          }
+          .timeline-card-wrapper {
+            width: calc(100% - 40px) !important;
+            margin-left: 40px !important;
+            margin-right: 0 !important;
+            padding-left: 12px !important;
+            padding-right: 0 !important;
+          }
+          .timeline-arrow {
+            left: -8px !important;
+            right: auto !important;
+            border-left: 1px solid var(--border-subtle) !important;
+            border-bottom: 1px solid var(--border-subtle) !important;
+            border-right: none !important;
+            border-top: none !important;
+          }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes modalScale {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        .modal-close-btn:hover {
+          background-color: rgba(255, 255, 255, 0.25) !important;
+          transform: scale(1.05);
         }
       `}</style>
     </div>

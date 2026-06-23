@@ -24,7 +24,7 @@ const PageHeader = ({ title, subtitle }) => (
     <div style={{
       position: 'absolute', top: '-10%', right: '-8%',
       width: '320px', height: '320px', borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(79, 70, 229, 0.12) 0%, transparent 70%)', pointerEvents: 'none'
+      background: 'radial-gradient(circle, rgba(var(--secondary-rgb), 0.12) 0%, transparent 70%)', pointerEvents: 'none'
     }} />
     <div style={{
       position: 'absolute', bottom: '-20%', left: '-5%',
@@ -34,6 +34,12 @@ const PageHeader = ({ title, subtitle }) => (
     <div className="container" style={{ position: 'relative', zIndex: 1 }}>
       <h1 className="font-serif" style={{ fontSize: '38px', color: '#ffffff', marginBottom: '8px', fontWeight: '800' }}>{title}</h1>
       {subtitle && <p style={{ fontSize: '16px', color: '#d0e4f2', maxWidth: '600px', margin: '0 auto' }}>{subtitle}</p>}
+    </div>
+    {/* Decorative Wave Bottom */}
+    <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', overflow: 'hidden', lineHeight: 0, transform: 'translateY(1px)', zIndex: 2 }}>
+      <svg viewBox="0 0 1200 120" preserveAspectRatio="none" style={{ position: 'relative', display: 'block', width: 'calc(100% + 1.3px)', height: '40px' }}>
+        <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118,152.47,101.4,227.14,83.56,258.14,76.22,290.41,68.22,321.39,56.44Z" fill="var(--bg-light)"></path>
+      </svg>
     </div>
   </div>
 );
@@ -247,7 +253,7 @@ const Contact = () => {
       <style>{`
         .input-focus:focus {
           border-color: var(--secondary) !important;
-          box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
+          box-shadow: 0 0 0 3px rgba(var(--secondary-rgb), 0.15) !important;
         }
       `}</style>
     </div>

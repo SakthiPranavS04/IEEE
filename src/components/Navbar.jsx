@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { ChevronDown, ChevronRight, Menu, X } from 'lucide-react';
 
@@ -7,6 +7,85 @@ const Navbar = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [activeSubDropdown, setActiveSubDropdown] = useState(null);
   const { pathname } = useLocation();
+  const [requestForms, setRequestForms] = useState([]);
+
+  useEffect(() => {
+    const defaultRequestForms = [
+      {
+        id: 1,
+        form_name: "Event Pre-Proposal",
+        route_slug: "event-pre-proposal",
+        google_form_url: "https://docs.google.com/forms/d/e/1FAIpQLSchXAD6IMgd7yYgQG4wLhIPiDScyktCw_h0NCeP5SiQrfFf7Q/viewform?embedded=true",
+        description: "Submit event details, dates, speakers, and budget estimates for verification and approval.",
+        category: "Event Management",
+        display_order: 1,
+        is_active: true,
+        updated_at: new Date().toLocaleDateString(),
+        updated_by: "Admin"
+      },
+      {
+        id: 2,
+        form_name: "Bill Settlement",
+        route_slug: "bill-settlement",
+        google_form_url: "https://docs.google.com/forms/d/e/1FAIpQLSe4rh67hrSDSVHx58-oBOGbOtNNiqi9R9dX_NyxHNOM1IEUgg/viewform?embedded=true",
+        description: "Submit final expense sheets, vouchers, invoice scans, and bank details for event accounts closure.",
+        category: "Finance",
+        display_order: 2,
+        is_active: true,
+        updated_at: new Date().toLocaleDateString(),
+        updated_by: "Admin"
+      },
+      {
+        id: 3,
+        form_name: "Membership",
+        route_slug: "membership",
+        google_form_url: "",
+        description: "Register for IEEE KEC SB membership. Fill in your personal details, department, year, and complete the payment via UPI.",
+        category: "Membership",
+        display_order: 3,
+        is_active: true,
+        updated_at: new Date().toLocaleDateString(),
+        updated_by: "Admin"
+      }
+    ];
+
+    const stored = localStorage.getItem('ieee_request_forms');
+    if (stored) {
+      try {
+        let parsed = JSON.parse(stored);
+        // Inject membership form if not yet present
+        if (!parsed.find(f => f.route_slug === 'membership')) {
+          parsed = [...parsed, defaultRequestForms.find(f => f.route_slug === 'membership')];
+          localStorage.setItem('ieee_request_forms', JSON.stringify(parsed));
+        }
+        setRequestForms(parsed);
+      } catch (e) {
+        console.error("Error loading request forms:", e);
+        setRequestForms(defaultRequestForms);
+      }
+    } else {
+      localStorage.setItem('ieee_request_forms', JSON.stringify(defaultRequestForms));
+      setRequestForms(defaultRequestForms);
+    }
+
+    const handleStorage = () => {
+      const storedVal = localStorage.getItem('ieee_request_forms');
+      if (storedVal) {
+        try {
+          setRequestForms(JSON.parse(storedVal));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorage);
+    const interval = setInterval(handleStorage, 1000);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      clearInterval(interval);
+    };
+  }, []);
 
   const isItemActive = (name) => {
     switch (name) {
@@ -18,7 +97,7 @@ const Navbar = () => {
         return pathname.startsWith('/achievements');
       case 'About':
         return (
-          (pathname.startsWith('/about') && !pathname.startsWith('/about/ieee')) ||
+          pathname.startsWith('/about') ||
           pathname === '/faculties' ||
           pathname === '/committee'
         );
@@ -31,7 +110,7 @@ const Navbar = () => {
       case 'Media':
         return pathname.startsWith('/media');
       case 'Request':
-        return pathname.startsWith('/about/ieee');
+        return pathname.startsWith('/request');
       case 'Documents':
         return pathname.startsWith('/documents');
       case 'Contact':
@@ -81,6 +160,11 @@ const Navbar = () => {
           name: 'About IEEE KEC SB', 
           link: '/about/ieee-kec-sb',
           icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        },
+        { 
+          name: 'About IEEE (Global)', 
+          link: '/about/ieee',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
         },
         { 
           name: 'Operational Committees', 
@@ -162,11 +246,11 @@ const Navbar = () => {
     {
       name: 'Request',
       items: [
-        { 
-          name: 'IEEE Guidelines', 
-          link: '/about/ieee',
-          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
-        }, // fallback
+        {
+          name: 'Request Forms',
+          link: '/request/forms',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
+        }
       ],
     },
     { name: 'Documents', link: '/documents' },
@@ -194,7 +278,52 @@ const Navbar = () => {
       alignItems: 'center',
       color: '#ffffff'
     }}>
-      <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '0 16px' }}>
+      {/* Background visual container containing grid and floating objects with overflow clip */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        overflow: 'hidden',
+        pointerEvents: 'none',
+        zIndex: 0
+      }}>
+        {/* Blueprint Grid Overlay */}
+        <div style={{
+          position: 'absolute',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px)',
+          backgroundSize: '20px 20px',
+          zIndex: 0
+        }} />
+
+        {/* Floating Geometric Objects */}
+        <div style={{
+          position: 'absolute',
+          top: '12px',
+          left: '18%',
+          width: '10px',
+          height: '10px',
+          borderRadius: '50%',
+          border: '1.5px solid rgba(var(--secondary-rgb), 0.3)',
+          zIndex: 0,
+          animation: 'float-slow 8s infinite ease-in-out'
+        }} />
+        <div style={{
+          position: 'absolute',
+          bottom: '15px',
+          right: '22%',
+          width: '14px',
+          height: '14px',
+          borderRadius: '2px',
+          border: '1.5px solid rgba(6, 182, 212, 0.25)',
+          zIndex: 0,
+          animation: 'float-slow-reverse 10s infinite ease-in-out'
+        }} />
+      </div>
+
+      <div className="container" style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '0 16px' }}>
         
         {/* Left Side: Transparent Logo Banner */}
         <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', flexShrink: 0 }}>
@@ -303,7 +432,7 @@ const Navbar = () => {
                                     fontSize: '13px',
                                     fontWeight: '600',
                                     color: isActive ? 'var(--secondary)' : 'var(--text-dark)',
-                                    backgroundColor: isActive ? 'rgba(79, 70, 229, 0.05)' : 'transparent',
+                                    backgroundColor: isActive ? 'rgba(var(--secondary-rgb), 0.05)' : 'transparent',
                                     textDecoration: 'none',
                                     borderBottom: nIdx === subItem.subItems.length - 1 ? 'none' : '1px solid var(--border-subtle)',
                                     borderLeft: isActive ? '3px solid var(--secondary)' : '3px solid transparent'
@@ -331,7 +460,7 @@ const Navbar = () => {
                             fontSize: '13px',
                             fontWeight: '600',
                             color: isActive ? 'var(--secondary)' : 'var(--text-dark)',
-                            backgroundColor: isActive ? 'rgba(79, 70, 229, 0.05)' : 'transparent',
+                            backgroundColor: isActive ? 'rgba(var(--secondary-rgb), 0.05)' : 'transparent',
                             textDecoration: 'none',
                             borderBottom: '1px solid var(--border-subtle)',
                             borderLeft: isActive ? '3px solid var(--secondary)' : '3px solid transparent',
@@ -661,6 +790,16 @@ const Navbar = () => {
           border-color: #ffffff !important;
           box-shadow: none;
           transform: none;
+        }
+
+        /* Keyframes for floating effects */
+        @keyframes float-slow {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-8px) rotate(45deg); }
+        }
+        @keyframes float-slow-reverse {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(8px) rotate(-45deg); }
         }
 
         /* Tablet and below */

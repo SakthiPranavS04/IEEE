@@ -1,6 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Users, Phone, User, Award, Shield, BookOpen, Layers, X } from 'lucide-react';
+import { Users, Phone, User, Award, Shield, BookOpen, Layers, X, Mail } from 'lucide-react';
+
+const Linkedin = ({ size = 16, ...props }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+    <rect width="4" height="12" x="2" y="9" />
+    <circle cx="4" cy="4" r="2" />
+  </svg>
+);
 
 // ─── Page Header ──────────────────────────────────────────────────────────────
 const PageHeader = ({ title, subtitle }) => (
@@ -26,7 +45,7 @@ const PageHeader = ({ title, subtitle }) => (
     <div style={{
       position: 'absolute', top: '-10%', right: '-8%',
       width: '320px', height: '320px', borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(79, 70, 229, 0.15) 0%, transparent 70%)', pointerEvents: 'none'
+      background: 'radial-gradient(circle, rgba(var(--secondary-rgb), 0.15) 0%, transparent 70%)', pointerEvents: 'none'
     }} />
     <div style={{
       position: 'absolute', bottom: '-20%', left: '-5%',
@@ -43,6 +62,12 @@ const PageHeader = ({ title, subtitle }) => (
         </p>
       )}
     </div>
+    {/* Decorative Wave Bottom */}
+    <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', overflow: 'hidden', lineHeight: 0, transform: 'translateY(1px)', zIndex: 2 }}>
+      <svg viewBox="0 0 1200 120" preserveAspectRatio="none" style={{ position: 'relative', display: 'block', width: 'calc(100% + 1.3px)', height: '40px' }}>
+        <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118,152.47,101.4,227.14,83.56,258.14,76.22,290.41,68.22,321.39,56.44Z" fill="var(--bg-light)"></path>
+      </svg>
+    </div>
   </div>
 );
 
@@ -50,9 +75,9 @@ const PageHeader = ({ title, subtitle }) => (
 const SectionLabel = ({ text }) => (
   <span style={{
     padding: '6px 14px',
-    backgroundColor: 'rgba(79, 70, 229, 0.08)',
+    backgroundColor: 'rgba(var(--secondary-rgb), 0.08)',
     color: 'var(--secondary)',
-    border: '1px solid rgba(79, 70, 229, 0.15)',
+    border: '1px solid rgba(var(--secondary-rgb), 0.15)',
     borderRadius: '20px',
     fontSize: '11px',
     fontWeight: '750',
@@ -83,11 +108,25 @@ const getHierarchyLevel = (position) => {
   return 7; // members / default
 };
 
+const getContactInfo = (name, phoneProp, emailProp, linkedinProp) => {
+  const cleanName = name ? name.replace(/Dr\.\s*/g, '').trim() : '';
+  const emailName = cleanName.toLowerCase().split(' ').filter(Boolean).join('.');
+  const linkedinName = cleanName.toLowerCase().split(' ').filter(Boolean).join('-');
+  
+  return {
+    phone: phoneProp || "+91 99999 99999",
+    email: emailProp || `${emailName}@kongu.edu`,
+    linkedin: linkedinProp || `https://linkedin.com/in/${linkedinName}`
+  };
+};
+
 // ─── Faculty Card ───────────────────────────────────────────────────────────
-const FacultyCard = ({ name, position, phone, image, societyName, onClick }) => {
+const FacultyCard = ({ name, position, phone, email, linkedin, image, societyName, onClick }) => {
   const initials = name
     ? name.split(' ').filter(w => !w.includes('.')).map(w => w[0]).join('').slice(0, 2).toUpperCase()
     : '?';
+
+  const contact = getContactInfo(name, phone, email, linkedin);
 
   return (
     <div 
@@ -176,34 +215,70 @@ const FacultyCard = ({ name, position, phone, image, societyName, onClick }) => 
         </div>
 
         <div style={{
-          display: 'flex', gap: '10px', width: '100%', justifyContent: 'center',
+          display: 'flex', gap: '16px', width: '100%', justifyContent: 'center', alignItems: 'center',
           borderTop: '1px solid #f1f5f9', paddingTop: '16px', marginTop: 'auto'
-        }}>
-          {phone && (
-            <a
-              href={`tel:${phone}`}
-              onClick={(e) => e.stopPropagation()}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '8px 16px',
-                borderRadius: '8px',
-                backgroundColor: 'rgba(79, 70, 229, 0.05)',
-                color: 'var(--secondary)',
-                fontSize: '12px',
-                fontWeight: '600',
-                textDecoration: 'none',
-                border: '1px solid var(--border-subtle)',
-                transition: 'all 0.2s ease',
-                width: '100%',
-                justifyContent: 'center'
-              }}
-              className="execomm-contact-btn"
-            >
-              <Phone size={14} /> Call Coordinator
-            </a>
-          )}
+        }}
+        onClick={(e) => e.stopPropagation()}
+        >
+          <a
+            href={`tel:${contact.phone}`}
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(var(--secondary-rgb), 0.08)',
+              color: 'var(--secondary)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease',
+              border: '1px solid rgba(var(--secondary-rgb), 0.15)'
+            }}
+            title={`Call ${name}`}
+            className="roster-contact-icon-btn"
+          >
+            <Phone size={16} />
+          </a>
+          <a
+            href={`mailto:${contact.email}`}
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(6, 182, 212, 0.08)',
+              color: 'var(--accent-cyan)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease',
+              border: '1px solid rgba(6, 182, 212, 0.15)'
+            }}
+            title={`Email ${name}`}
+            className="roster-contact-icon-btn"
+          >
+            <Mail size={16} />
+          </a>
+          <a
+            href={contact.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(14, 118, 168, 0.08)',
+              color: '#0e76a8',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease',
+              border: '1px solid rgba(14, 118, 168, 0.15)'
+            }}
+            title={`Connect with ${name} on LinkedIn`}
+            className="roster-contact-icon-btn"
+          >
+            <Linkedin size={16} />
+          </a>
         </div>
       </div>
     </div>
@@ -215,6 +290,8 @@ const StudentCard = ({ student, onClick }) => {
   const initials = student.name
     ? student.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
     : '?';
+
+  const contact = getContactInfo(student.name, student.phone, student.email, student.linkedin);
 
   return (
     <div 
@@ -258,7 +335,7 @@ const StudentCard = ({ student, onClick }) => {
           style={{
             width: '100%', 
             height: '260px', 
-            background: 'linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)',
+            background: 'var(--gradient-colorful)',
             color: '#ffffff',
             fontSize: '40px', 
             fontWeight: '800',
@@ -270,7 +347,7 @@ const StudentCard = ({ student, onClick }) => {
           {initials}
         </div>
       )}
-      <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+      <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '4px', flexGrow: 1 }}>
         <h3 style={{ fontSize: '16px', color: 'var(--primary)', margin: '0', fontWeight: '800', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {student.name}
         </h3>
@@ -279,10 +356,79 @@ const StudentCard = ({ student, onClick }) => {
           fontWeight: '700',
           color: 'var(--secondary)',
           textTransform: 'uppercase',
-          letterSpacing: '0.5px'
+          letterSpacing: '0.5px',
+          marginBottom: '12px'
         }}>
           {student.position}
         </span>
+
+        {/* Contact Icons for StudentCard */}
+        <div style={{
+          display: 'flex', gap: '16px', width: '100%', justifyContent: 'center', alignItems: 'center',
+          borderTop: '1px solid #f1f5f9', paddingTop: '16px', marginTop: 'auto'
+        }}
+        onClick={(e) => e.stopPropagation()}
+        >
+          <a
+            href={`tel:${contact.phone}`}
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(var(--secondary-rgb), 0.08)',
+              color: 'var(--secondary)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease',
+              border: '1px solid rgba(var(--secondary-rgb), 0.15)'
+            }}
+            title={`Call ${student.name}`}
+            className="roster-contact-icon-btn"
+          >
+            <Phone size={16} />
+          </a>
+          <a
+            href={`mailto:${contact.email}`}
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(6, 182, 212, 0.08)',
+              color: 'var(--accent-cyan)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease',
+              border: '1px solid rgba(6, 182, 212, 0.15)'
+            }}
+            title={`Email ${student.name}`}
+            className="roster-contact-icon-btn"
+          >
+            <Mail size={16} />
+          </a>
+          <a
+            href={contact.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(14, 118, 168, 0.08)',
+              color: '#0e76a8',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease',
+              border: '1px solid rgba(14, 118, 168, 0.15)'
+            }}
+            title={`Connect with ${student.name} on LinkedIn`}
+            className="roster-contact-icon-btn"
+          >
+            <Linkedin size={16} />
+          </a>
+        </div>
       </div>
     </div>
   );
@@ -395,7 +541,7 @@ const MemberModal = ({ member, onClose }) => {
             borderRadius: '50%',
             backgroundColor: '#ffffff',
             border: 'none',
-            color: '#3f51b5',
+            color: 'var(--primary)',
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             display: 'flex',
             alignItems: 'center',
@@ -428,7 +574,7 @@ const MemberModal = ({ member, onClose }) => {
               <div style={{
                 width: '100%',
                 height: '100%',
-                background: 'linear-gradient(135deg, #3f51b5 0%, #1a237e 100%)',
+                background: 'var(--gradient-colorful)',
                 color: '#ffffff',
                 fontSize: '110px',
                 fontWeight: '800',
@@ -443,13 +589,13 @@ const MemberModal = ({ member, onClose }) => {
 
           {/* Right Column: Details Section */}
           <div className="modal-right-details-container" style={{ flexGrow: 1, padding: '36px', textAlign: 'left', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <h2 style={{ fontSize: '28px', color: '#3f51b5', fontWeight: '700', margin: '0 0 4px 0' }}>
+            <h2 style={{ fontSize: '28px', color: 'var(--primary)', fontWeight: '700', margin: '0 0 4px 0' }}>
               {member.name}
             </h2>
             <div style={{ 
               fontSize: '14px', 
               fontWeight: '700', 
-              color: '#3f51b5', 
+              color: 'var(--primary)', 
               textTransform: 'uppercase', 
               letterSpacing: '0.5px'
             }}>
@@ -465,28 +611,28 @@ const MemberModal = ({ member, onClose }) => {
               fontSize: '15px'
             }}>
               <div style={{ display: 'flex', alignItems: 'start' }}>
-                <span style={{ fontWeight: '700', color: '#3f51b5', width: '130px', flexShrink: 0 }}>Branch:</span>
+                <span style={{ fontWeight: '700', color: 'var(--primary)', width: '130px', flexShrink: 0 }}>Branch:</span>
                 <span style={{ fontWeight: '500', color: '#334155' }}>{member.branch}</span>
               </div>
               {member.department && (
                 <div style={{ display: 'flex', alignItems: 'start' }}>
-                  <span style={{ fontWeight: '700', color: '#3f51b5', width: '130px', flexShrink: 0 }}>Department:</span>
+                  <span style={{ fontWeight: '700', color: 'var(--primary)', width: '130px', flexShrink: 0 }}>Department:</span>
                   <span style={{ fontWeight: '500', color: '#334155' }}>{member.department}</span>
                 </div>
               )}
               <div style={{ display: 'flex', alignItems: 'start' }}>
-                <span style={{ fontWeight: '700', color: '#3f51b5', width: '130px', flexShrink: 0 }}>IEEE Number:</span>
+                <span style={{ fontWeight: '700', color: 'var(--primary)', width: '130px', flexShrink: 0 }}>IEEE Number:</span>
                 <span style={{ fontWeight: '500', color: '#334155' }}>{member.ieeeNumber || 'N/A'}</span>
               </div>
               {member.year && (
                 <div style={{ display: 'flex', alignItems: 'start' }}>
-                  <span style={{ fontWeight: '700', color: '#3f51b5', width: '130px', flexShrink: 0 }}>Year:</span>
+                  <span style={{ fontWeight: '700', color: 'var(--primary)', width: '130px', flexShrink: 0 }}>Year:</span>
                   <span style={{ fontWeight: '500', color: '#334155' }}>{member.year} Year</span>
                 </div>
               )}
               {member.phone && (
                 <div style={{ display: 'flex', alignItems: 'start' }}>
-                  <span style={{ fontWeight: '700', color: '#3f51b5', width: '130px', flexShrink: 0 }}>Phone:</span>
+                  <span style={{ fontWeight: '700', color: 'var(--primary)', width: '130px', flexShrink: 0 }}>Phone:</span>
                   <span style={{ fontWeight: '500', color: '#334155' }}>
                     <a href={`tel:${member.phone}`} style={{ color: '#334155', textDecoration: 'none', fontWeight: '500' }}>
                       {member.phone}
@@ -506,19 +652,28 @@ const MemberModal = ({ member, onClose }) => {
 const Execomm = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const facultiesRef = React.useRef(null);
-  const studentsRef = React.useRef(null);
+
+  const getTabFromPath = (path) => {
+    if (path.includes('/students')) {
+      return 'students';
+    }
+    return 'faculties';
+  };
+
+  const [activeTab, setActiveTab] = useState(() => getTabFromPath(location.pathname));
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (location.pathname.includes('/students')) {
-        studentsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      } else if (location.pathname.includes('/faculties')) {
-        facultiesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 200);
-    return () => clearTimeout(timer);
+    setActiveTab(getTabFromPath(location.pathname));
   }, [location.pathname]);
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    if (tab === 'students') {
+      navigate('/execomm/students');
+    } else {
+      navigate('/execomm/faculties');
+    }
+  };
 
   const [societies, setSocieties] = useState([]);
   const [students, setStudents] = useState([]);
@@ -832,121 +987,93 @@ const Execomm = () => {
         subtitle="Meet the professional advisors and student leaders steering the IEEE KEC Student Branch"
       />
 
-      {/* ExeComm Content Container */}
-      <div className="container">
-        {/* ── FACULTIES SECTION ────────────────────────────────────── */}
-        <div ref={facultiesRef} style={{ scrollMarginTop: '100px' }}>
-          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-            <SectionLabel text="Advisory Board" />
-            <h2 className="font-serif" style={{ fontSize: '28px', color: 'var(--primary)', fontWeight: '800', marginTop: '8px' }}>
-              Faculty Coordinators
-            </h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '14px', maxWidth: '600px', margin: '0 auto' }}>
-              Experienced advisors providing leadership, technical guidance, and administrative support across core IEEE societies.
-            </p>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
-            {sortedSocieties.map((soc) => {
-              // Determine order of faculty in-charges within the society by hierarchy
-              const fac1Level = getHierarchyLevel(soc.faculty1?.position);
-              const fac2Level = getHierarchyLevel(soc.faculty2?.position);
-              
-              const showFac1First = fac1Level <= fac2Level;
-              const coordList = showFac1First
-                ? [soc.faculty1, soc.faculty2]
-                : [soc.faculty2, soc.faculty1];
-
-              return (
-                <div key={soc.id} style={{
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '16px',
-                  padding: '32px',
-                  backgroundColor: '#ffffff',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
-                }}>
-                  <h3 style={{
-                    fontSize: '20px',
-                    color: 'var(--primary)',
-                    fontWeight: '800',
-                    marginBottom: '24px',
-                    textAlign: 'left',
-                    borderBottom: '2px solid var(--border-subtle)',
-                    paddingBottom: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px'
-                  }}>
-                    <span style={{ fontSize: '24px' }}>🏫</span> {soc.name}
-                  </h3>
-                  
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                    gap: '24px'
-                  }}>
-                    {coordList.map((fac, fIdx) => (
-                      fac && fac.name ? (
-                        <FacultyCard
-                          key={fIdx}
-                          name={fac.name}
-                          position={fac.position}
-                          phone={fac.phone}
-                          image={fac.image}
-                          societyName={soc.name}
-                          onClick={() => setSelectedMember({
-                            name: fac.name,
-                            position: fac.position,
-                            phone: fac.phone,
-                            image: fac.image,
-                            branch: soc.name,
-                            type: 'Faculty'
-                          })}
-                        />
-                      ) : null
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
+      {/* ExeComm Tabs Navigation */}
+      <div className="container" style={{ marginBottom: '40px' }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+          <div style={{
+            display: 'inline-flex',
+            backgroundColor: 'rgba(var(--secondary-rgb), 0.05)',
+            border: '1px solid rgba(var(--secondary-rgb), 0.15)',
+            borderRadius: '30px',
+            padding: '6px',
+            boxShadow: 'var(--shadow-sm)',
+            backdropFilter: 'blur(10px)',
+          }}>
+            <button
+              onClick={() => handleTabChange('faculties')}
+              className={`execomm-tab-button ${activeTab === 'faculties' ? 'active' : ''}`}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 24px',
+                borderRadius: '24px',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '700',
+                outline: 'none',
+                backgroundColor: 'transparent',
+                color: 'var(--text-muted)',
+              }}
+            >
+              <Award size={16} /> Faculty Coordinators
+            </button>
+            <button
+              onClick={() => handleTabChange('students')}
+              className={`execomm-tab-button ${activeTab === 'students' ? 'active' : ''}`}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 24px',
+                borderRadius: '24px',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '700',
+                outline: 'none',
+                backgroundColor: 'transparent',
+                color: 'var(--text-muted)',
+              }}
+            >
+              <Shield size={16} /> Student Office Bearers
+            </button>
           </div>
         </div>
+      </div>
 
-        {/* ── SECTION DIVIDER ────────────────────────────────────────── */}
-        <div style={{ margin: '60px 0', borderTop: '2px dashed var(--border-subtle)' }} />
-
-        {/* ── STUDENTS SECTION ─────────────────────────────────────── */}
-        {(() => {
-          const HIERARCHY_LEVEL_LABELS = {
-            1: "Student Branch Chairpersons",
-            2: "Society Chairpersons",
-            3: "Additional Secretaries",
-            4: "Joint Secretaries",
-            5: "Committee Heads",
-            6: "Executive Members",
-            7: "Student Members"
-          };
-          const levels = [1, 2, 3, 4, 5, 6, 7];
-          
-          return (
-            <div ref={studentsRef} style={{ scrollMarginTop: '100px' }}>
+      {/* ExeComm Content Container */}
+      <div className="container">
+        <div key={activeTab} className="animate-fade-in">
+          {activeTab === 'faculties' && (
+            <div>
               <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-                <SectionLabel text="Student Leadership" />
+                <SectionLabel text="Advisory Board" />
                 <h2 className="font-serif" style={{ fontSize: '28px', color: 'var(--primary)', fontWeight: '800', marginTop: '8px' }}>
-                  Student Office Bearers
+                  Faculty Coordinators
                 </h2>
                 <p style={{ color: 'var(--text-muted)', fontSize: '14px', maxWidth: '600px', margin: '0 auto' }}>
-                  Active student coordinators managing chapter operations, workshops, project expos, and community outreach.
+                  Experienced advisors providing leadership, technical guidance, and administrative support across core IEEE societies.
                 </p>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
-                {levels.map(level => {
-                  const levelStudents = sortedStudents.filter(stud => getHierarchyLevel(stud.position) === level);
-                  if (levelStudents.length === 0) return null;
+                {sortedSocieties.map((soc) => {
+                  const fac1Level = getHierarchyLevel(soc.faculty1?.position);
+                  const fac2Level = getHierarchyLevel(soc.faculty2?.position);
+                  
+                  const showFac1First = fac1Level <= fac2Level;
+                  const coordList = showFac1First
+                    ? [soc.faculty1, soc.faculty2]
+                    : [soc.faculty2, soc.faculty1];
 
                   return (
-                    <div key={level} style={{
+                    <div key={soc.id} style={{
                       border: '1px solid #e2e8f0',
                       borderRadius: '16px',
                       padding: '32px',
@@ -965,37 +1092,135 @@ const Execomm = () => {
                         alignItems: 'center',
                         gap: '10px'
                       }}>
-                        <span style={{ fontSize: '24px' }}>🛡️</span> {HIERARCHY_LEVEL_LABELS[level]}
+                        <span style={{ fontSize: '24px' }}>🏫</span> {soc.name}
                       </h3>
                       
-                      <div className="execomm-students-grid" style={{
+                      <div style={{
                         display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
                         gap: '24px'
                       }}>
-                        {levelStudents.map((stud) => (
-                          <StudentCard 
-                            key={stud.id} 
-                            student={stud} 
-                            onClick={() => setSelectedMember({
-                              name: stud.name,
-                              position: stud.position,
-                              branch: stud.society || 'IEEE KEC SB',
-                              department: stud.department,
-                              ieeeNumber: stud.ieeeNumber,
-                              year: stud.yearOfStudy,
-                              image: stud.image,
-                              type: 'Student'
-                            })}
-                          />
-                        ))}
+                        {coordList.map((fac, fIdx) => {
+                          if (!fac || !fac.name) return null;
+                          const contact = getContactInfo(fac.name, fac.phone, fac.email, fac.linkedin);
+                          return (
+                            <FacultyCard
+                              key={fIdx}
+                              name={fac.name}
+                              position={fac.position}
+                              phone={fac.phone}
+                              email={contact.email}
+                              linkedin={contact.linkedin}
+                              image={fac.image}
+                              societyName={soc.name}
+                              onClick={() => setSelectedMember({
+                                name: fac.name,
+                                position: fac.position,
+                                phone: contact.phone,
+                                email: contact.email,
+                                linkedin: contact.linkedin,
+                                image: fac.image,
+                                branch: soc.name,
+                                type: 'Faculty'
+                              })}
+                            />
+                          );
+                        })}
                       </div>
                     </div>
                   );
                 })}
               </div>
             </div>
-          );
-        })()}
+          )}
+
+          {activeTab === 'students' && (() => {
+            const HIERARCHY_LEVEL_LABELS = {
+              1: "Student Branch Chairpersons",
+              2: "Society Chairpersons",
+              3: "Additional Secretaries",
+              4: "Joint Secretaries",
+              5: "Committee Heads",
+              6: "Executive Members",
+              7: "Student Members"
+            };
+            const levels = [1, 2, 3, 4, 5, 6, 7];
+            
+            return (
+              <div>
+                <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+                  <SectionLabel text="Student Leadership" />
+                  <h2 className="font-serif" style={{ fontSize: '28px', color: 'var(--primary)', fontWeight: '800', marginTop: '8px' }}>
+                    Student Office Bearers
+                  </h2>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '14px', maxWidth: '600px', margin: '0 auto' }}>
+                    Active student coordinators managing chapter operations, workshops, project expos, and community outreach.
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
+                  {levels.map(level => {
+                    const levelStudents = sortedStudents.filter(stud => getHierarchyLevel(stud.position) === level);
+                    if (levelStudents.length === 0) return null;
+
+                    return (
+                      <div key={level} style={{
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '16px',
+                        padding: '32px',
+                        backgroundColor: '#ffffff',
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
+                      }}>
+                        <h3 style={{
+                          fontSize: '20px',
+                          color: 'var(--primary)',
+                          fontWeight: '800',
+                          marginBottom: '24px',
+                          textAlign: 'left',
+                          borderBottom: '2px solid var(--border-subtle)',
+                          paddingBottom: '12px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '10px'
+                        }}>
+                          <span style={{ fontSize: '24px' }}>🛡️</span> {HIERARCHY_LEVEL_LABELS[level]}
+                        </h3>
+                        
+                        <div className="execomm-students-grid" style={{
+                          display: 'grid',
+                          gap: '24px'
+                        }}>
+                           {levelStudents.map((stud) => {
+                            const contact = getContactInfo(stud.name, stud.phone, stud.email, stud.linkedin);
+                            return (
+                              <StudentCard 
+                                key={stud.id} 
+                                student={stud} 
+                                onClick={() => setSelectedMember({
+                                  name: stud.name,
+                                  position: stud.position,
+                                  branch: stud.society || 'IEEE KEC SB',
+                                  department: stud.department,
+                                  ieeeNumber: stud.ieeeNumber,
+                                  year: stud.yearOfStudy,
+                                  image: stud.image,
+                                  phone: contact.phone,
+                                  email: contact.email,
+                                  linkedin: contact.linkedin,
+                                  type: 'Student'
+                                })}
+                              />
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
+        </div>
 
         {/* Modal Portal/Conditional rendering */}
         {selectedMember && (
@@ -1007,6 +1232,18 @@ const Execomm = () => {
       </div>
 
       <style>{`
+        .execomm-tab-button {
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .execomm-tab-button:hover {
+          color: var(--secondary) !important;
+          background-color: rgba(255, 255, 255, 0.5) !important;
+        }
+        .execomm-tab-button.active {
+          background-color: #ffffff !important;
+          color: var(--secondary) !important;
+          box-shadow: 0 4px 12px rgba(var(--secondary-rgb), 0.12) !important;
+        }
         .execomm-students-grid {
           grid-template-columns: repeat(3, 1fr);
         }
@@ -1030,7 +1267,7 @@ const Execomm = () => {
         .execomm-clickable-card:hover,
         .execomm-clickable-card:focus {
           transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(79, 70, 229, 0.15) !important;
+          box-shadow: 0 8px 20px rgba(var(--secondary-rgb), 0.15) !important;
           border-color: var(--border-focus) !important;
         }
         .modal-close-btn {
@@ -1060,6 +1297,11 @@ const Execomm = () => {
           .modal-right-details-container {
             padding: 24px !important;
           }
+        }
+        .roster-contact-icon-btn:hover {
+          transform: scale(1.1) translateY(-2px);
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+          filter: brightness(0.95);
         }
       `}</style>
     </div>

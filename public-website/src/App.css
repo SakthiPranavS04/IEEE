@@ -1,0 +1,54 @@
+/* App scoped styles */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex-grow: 1;
+}
+
+/* Responsive utilities */
+@media (max-width: 1024px) {
+  main {
+    padding: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  main {
+    padding: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  main {
+    padding: 0;
+  }
+}
+
+/* Ensure images don't overflow */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Responsive grid utilities */
+@media (max-width: 1024px) {
+  [style*="gridTemplateColumns"] {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  [style*="gridTemplateColumns"] {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  [style*="gridTemplateColumns"] {
+    grid-template-columns: 1fr !important;
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "info": {
+    "name": "IEEE Backend APIs",
+    "description": "Collection for testing IEEE Backend APIs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Contact",
+      "item": [
+        { "name": "Get Contacts", "request": { "method": "GET", "url": { "raw": "http://localhost:5000/api/contact", "host": ["http://localhost:5000"], "path": ["api", "contact"] } } },
+        { "name": "Create Contact", "request": { "method": "POST", "url": { "raw": "http://localhost:5000/api/contact", "host": ["http://localhost:5000"], "path": ["api", "contact"] }, "header": [{"key": "Content-Type", "value": "application/json"}], "body": { "mode": "raw", "raw": "{\"fullName\": \"John Doe\", \"email\": \"john@example.com\", \"phone\": \"1234567890\", \"college\": \"Engineering College\", \"department\": \"CS\", \"message\": \"Hello IEEE\"}" } } },
+        { "name": "Get Contact by ID", "request": { "method": "GET", "url": { "raw": "http://localhost:5000/api/contact/:id", "host": ["http://localhost:5000"], "path": ["api", "contact", ":id"], "variable": [{"key": "id", "value": "replace_with_id"}] } } },
+        { "name": "Update Contact", "request": { "method": "PUT", "url": { "raw": "http://localhost:5000/api/contact/:id", "host": ["http://localhost:5000"], "path": ["api", "contact", ":id"], "variable": [{"key": "id", "value": "replace_with_id"}] }, "header": [{"key": "Content-Type", "value": "application/json"}], "body": { "mode": "raw", "raw": "{\"status\": \"Reviewed\"}" } } },
+        { "name": "Delete Contact", "request": { "method": "DELETE", "url": { "raw": "http://localhost:5000/api/contact/:id", "host": ["http://localhost:5000"], "path": ["api", "contact", ":id"], "variable": [{"key": "id", "value": "replace_with_id"}] } } }
+      ]
+    },
+    {
+      "name": "Events",
+      "item": [
+        { "name": "Get Events", "request": { "method": "GET", "url": { "raw": "http://localhost:5000/api/events", "host": ["http://localhost:5000"], "path": ["api", "events"] } } },
+        { "name": "Create Event", "request": { "method": "POST", "url": { "raw": "http://localhost:5000/api/events", "host": ["http://localhost:5000"], "path": ["api", "events"] }, "header": [{"key": "Content-Type", "value": "application/json"}], "body": { "mode": "raw", "raw": "{\"title\": \"Hackathon 2026\", \"description\": \"Annual Hackathon\", \"date\": \"2026-08-15\", \"location\": \"Main Auditorium\"}" } } },
+        { "name": "Get Event by ID", "request": { "method": "GET", "url": { "raw": "http://localhost:5000/api/events/:id", "host": ["http://localhost:5000"], "path": ["api", "events", ":id"], "variable": [{"key": "id", "value": "replace_with_id"}] } } },
+        { "name": "Update Event", "request": { "method": "PUT", "url": { "raw": "http://localhost:5000/api/events/:id", "host": ["http://localhost:5000"], "path": ["api", "events", ":id"], "variable": [{"key": "id", "value": "replace_with_id"}] }, "header": [{"key": "Content-Type", "value": "application/json"}], "body": { "mode": "raw", "raw": "{\"title\": \"Hackathon 2026 Updated\"}" } } },
+        { "name": "Delete Event", "request": { "method": "DELETE", "url": { "raw": "http://localhost:5000/api/events/:id", "host": ["http://localhost:5000"], "path": ["api", "events", ":id"], "variable": [{"key": "id", "value": "replace_with_id"}] } } }
+      ]
+    },
+    {
+      "name": "Team",
+      "item": [
+        { "name": "Get Team", "request": { "method": "GET", "url": { "raw": "http://localhost:5000/api/team", "host": ["http://localhost:5000"], "path": ["api", "team"] } } },
+        { "name": "Create Team Member", "request": { "method": "POST", "url": { "raw": "http://localhost:5000/api/team", "host": ["http://localhost:5000"], "path": ["api", "team"] }, "header": [{"key": "Content-Type", "value": "application/json"}], "body": { "mode": "raw", "raw": "{\"name\": \"Alice\", \"role\": \"Chairperson\", \"category\": \"Executive\"}" } } },
+        { "name": "Get Team Member", "request": { "method": "GET", "url": { "raw": "http://localhost:5000/api/team/:id", "host": ["http://localhost:5000"], "path": ["api", "team", ":id"], "variable": [{"key": "id", "value": "replace_with_id"}] } } },
+        { "name": "Update Team Member", "request": { "method": "PUT", "url": { "raw": "http://localhost:5000/api/team/:id", "host": ["http://localhost:5000"], "path": ["api", "team", ":id"], "variable": [{"key": "id", "value": "replace_with_id"}] }, "header": [{"key": "Content-Type", "value": "application/json"}], "body": { "mode": "raw", "raw": "{\"role\": \"Former Chairperson\"}" } } },
+        { "name": "Delete Team Member", "request": { "method": "DELETE", "url": { "raw": "http://localhost:5000/api/team/:id", "host": ["http://localhost:5000"], "path": ["api", "team", ":id"], "variable": [{"key": "id", "value": "replace_with_id"}] } } }
+      ]
+    },
+    {
+      "name": "Announcements",
+      "item": [
+        { "name": "Get Announcements", "request": { "method": "GET", "url": { "raw": "http://localhost:5000/api/announcements", "host": ["http://localhost:5000"], "path": ["api", "announcements"] } } },
+        { "name": "Create Announcement", "request": { "method": "POST", "url": { "raw": "http://localhost:5000/api/announcements", "host": ["http://localhost:5000"], "path": ["api", "announcements"] }, "header": [{"key": "Content-Type", "value": "application/json"}], "body": { "mode": "raw", "raw": "{\"title\": \"Important Notice\", \"content\": \"Please read the guidelines.\"}" } } },
+        { "name": "Get Announcement", "request": { "method": "GET", "url": { "raw": "http://localhost:5000/api/announcements/:id", "host": ["http://localhost:5000"], "path": ["api", "announcements", ":id"], "variable": [{"key": "id", "value": "replace_with_id"}] } } },
+        { "name": "Update Announcement", "request": { "method": "PUT", "url": { "raw": "http://localhost:5000/api/announcements/:id", "host": ["http://localhost:5000"], "path": ["api", "announcements", ":id"], "variable": [{"key": "id", "value": "replace_with_id"}] }, "header": [{"key": "Content-Type", "value": "application/json"}], "body": { "mode": "raw", "raw": "{\"isPublished\": false}" } } },
+        { "name": "Delete Announcement", "request": { "method": "DELETE", "url": { "raw": "http://localhost:5000/api/announcements/:id", "host": ["http://localhost:5000"], "path": ["api", "announcements", ":id"], "variable": [{"key": "id", "value": "replace_with_id"}] } } }
+      ]
+    },
+    {
+      "name": "Feedback",
+      "item": [
+        { "name": "Get Feedback", "request": { "method": "GET", "url": { "raw": "http://localhost:5000/api/feedback", "host": ["http://localhost:5000"], "path": ["api", "feedback"] } } },
+        { "name": "Create Feedback", "request": { "method": "POST", "url": { "raw": "http://localhost:5000/api/feedback", "host": ["http://localhost:5000"], "path": ["api", "feedback"] }, "header": [{"key": "Content-Type", "value": "application/json"}], "body": { "mode": "raw", "raw": "{\"name\": \"User\", \"email\": \"user@example.com\", \"rating\": 5, \"feedback\": \"Great event!\"}" } } },
+        { "name": "Get Feedback by ID", "request": { "method": "GET", "url": { "raw": "http://localhost:5000/api/feedback/:id", "host": ["http://localhost:5000"], "path": ["api", "feedback", ":id"], "variable": [{"key": "id", "value": "replace_with_id"}] } } },
+        { "name": "Delete Feedback", "request": { "method": "DELETE", "url": { "raw": "http://localhost:5000/api/feedback/:id", "host": ["http://localhost:5000"], "path": ["api", "feedback", ":id"], "variable": [{"key": "id", "value": "replace_with_id"}] } } }
+      ]
+    },
+    {
+      "name": "Newsletter",
+      "item": [
+        { "name": "Get Subscribers", "request": { "method": "GET", "url": { "raw": "http://localhost:5000/api/newsletter", "host": ["http://localhost:5000"], "path": ["api", "newsletter"] } } },
+        { "name": "Subscribe", "request": { "method": "POST", "url": { "raw": "http://localhost:5000/api/newsletter", "host": ["http://localhost:5000"], "path": ["api", "newsletter"] }, "header": [{"key": "Content-Type", "value": "application/json"}], "body": { "mode": "raw", "raw": "{\"email\": \"sub@example.com\"}" } } },
+        { "name": "Update Status", "request": { "method": "PUT", "url": { "raw": "http://localhost:5000/api/newsletter/:id", "host": ["http://localhost:5000"], "path": ["api", "newsletter", ":id"], "variable": [{"key": "id", "value": "replace_with_id"}] }, "header": [{"key": "Content-Type", "value": "application/json"}], "body": { "mode": "raw", "raw": "{\"status\": \"Unsubscribed\"}" } } },
+        { "name": "Delete Subscriber", "request": { "method": "DELETE", "url": { "raw": "http://localhost:5000/api/newsletter/:id", "host": ["http://localhost:5000"], "path": ["api", "newsletter", ":id"], "variable": [{"key": "id", "value": "replace_with_id"}] } } }
+      ]
+    },
+    {
+      "name": "Join",
+      "item": [
+        { "name": "Get Registrations", "request": { "method": "GET", "url": { "raw": "http://localhost:5000/api/join", "host": ["http://localhost:5000"], "path": ["api", "join"] } } },
+        { "name": "Create Registration", "request": { "method": "POST", "url": { "raw": "http://localhost:5000/api/join", "host": ["http://localhost:5000"], "path": ["api", "join"] }, "header": [{"key": "Content-Type", "value": "application/json"}], "body": { "mode": "raw", "raw": "{\"name\": \"Applicant\", \"email\": \"app@example.com\", \"phone\": \"0987654321\", \"college\": \"Tech U\", \"department\": \"EE\", \"year\": \"3rd\", \"membershipType\": \"Student\"}" } } },
+        { "name": "Get Registration", "request": { "method": "GET", "url": { "raw": "http://localhost:5000/api/join/:id", "host": ["http://localhost:5000"], "path": ["api", "join", ":id"], "variable": [{"key": "id", "value": "replace_with_id"}] } } },
+        { "name": "Update Registration", "request": { "method": "PUT", "url": { "raw": "http://localhost:5000/api/join/:id", "host": ["http://localhost:5000"], "path": ["api", "join", ":id"], "variable": [{"key": "id", "value": "replace_with_id"}] }, "header": [{"key": "Content-Type", "value": "application/json"}], "body": { "mode": "raw", "raw": "{\"status\": \"Approved\"}" } } },
+        { "name": "Delete Registration", "request": { "method": "DELETE", "url": { "raw": "http://localhost:5000/api/join/:id", "host": ["http://localhost:5000"], "path": ["api", "join", ":id"], "variable": [{"key": "id", "value": "replace_with_id"}] } } }
+      ]
+    },
+    {
+      "name": "Sponsors",
+      "item": [
+        { "name": "Get Sponsors", "request": { "method": "GET", "url": { "raw": "http://localhost:5000/api/sponsors", "host": ["http://localhost:5000"], "path": ["api", "sponsors"] } } },
+        { "name": "Create Sponsor", "request": { "method": "POST", "url": { "raw": "http://localhost:5000/api/sponsors", "host": ["http://localhost:5000"], "path": ["api", "sponsors"] }, "header": [{"key": "Content-Type", "value": "application/json"}], "body": { "mode": "raw", "raw": "{\"name\": \"TechCorp\", \"logo\": \"http://example.com/logo.png\", \"tier\": \"Gold\"}" } } },
+        { "name": "Get Sponsor", "request": { "method": "GET", "url": { "raw": "http://localhost:5000/api/sponsors/:id", "host": ["http://localhost:5000"], "path": ["api", "sponsors", ":id"], "variable": [{"key": "id", "value": "replace_with_id"}] } } },
+        { "name": "Update Sponsor", "request": { "method": "PUT", "url": { "raw": "http://localhost:5000/api/sponsors/:id", "host": ["http://localhost:5000"], "path": ["api", "sponsors", ":id"], "variable": [{"key": "id", "value": "replace_with_id"}] }, "header": [{"key": "Content-Type", "value": "application/json"}], "body": { "mode": "raw", "raw": "{\"tier\": \"Platinum\"}" } } },
+        { "name": "Delete Sponsor", "request": { "method": "DELETE", "url": { "raw": "http://localhost:5000/api/sponsors/:id", "host": ["http://localhost:5000"], "path": ["api", "sponsors", ":id"], "variable": [{"key": "id", "value": "replace_with_id"}] } } }
+      ]
+    },
+    {
+      "name": "Gallery",
+      "item": [
+        { "name": "Get Gallery Items", "request": { "method": "GET", "url": { "raw": "http://localhost:5000/api/gallery", "host": ["http://localhost:5000"], "path": ["api", "gallery"] } } },
+        { "name": "Create Gallery Item", "request": { "method": "POST", "url": { "raw": "http://localhost:5000/api/gallery", "host": ["http://localhost:5000"], "path": ["api", "gallery"] }, "header": [{"key": "Content-Type", "value": "application/json"}], "body": { "mode": "raw", "raw": "{\"title\": \"Hackathon Pic\", \"imageUrl\": \"http://example.com/pic.jpg\"}" } } },
+        { "name": "Get Gallery Item", "request": { "method": "GET", "url": { "raw": "http://localhost:5000/api/gallery/:id", "host": ["http://localhost:5000"], "path": ["api", "gallery", ":id"], "variable": [{"key": "id", "value": "replace_with_id"}] } } },
+        { "name": "Update Gallery Item", "request": { "method": "PUT", "url": { "raw": "http://localhost:5000/api/gallery/:id", "host": ["http://localhost:5000"], "path": ["api", "gallery", ":id"], "variable": [{"key": "id", "value": "replace_with_id"}] }, "header": [{"key": "Content-Type", "value": "application/json"}], "body": { "mode": "raw", "raw": "{\"title\": \"Hackathon Pic 1\"}" } } },
+        { "name": "Delete Gallery Item", "request": { "method": "DELETE", "url": { "raw": "http://localhost:5000/api/gallery/:id", "host": ["http://localhost:5000"], "path": ["api", "gallery", ":id"], "variable": [{"key": "id", "value": "replace_with_id"}] } } }
+      ]
+    },
+    {
+      "name": "Settings",
+      "item": [
+        { "name": "Get Settings", "request": { "method": "GET", "url": { "raw": "http://localhost:5000/api/settings", "host": ["http://localhost:5000"], "path": ["api", "settings"] } } },
+        { "name": "Create Setting", "request": { "method": "POST", "url": { "raw": "http://localhost:5000/api/settings", "host": ["http://localhost:5000"], "path": ["api", "settings"] }, "header": [{"key": "Content-Type", "value": "application/json"}], "body": { "mode": "raw", "raw": "{\"key\": \"siteTitle\", \"value\": \"IEEE Branch\", \"description\": \"Main site title\"}" } } },
+        { "name": "Get Setting by Key", "request": { "method": "GET", "url": { "raw": "http://localhost:5000/api/settings/:key", "host": ["http://localhost:5000"], "path": ["api", "settings", ":key"], "variable": [{"key": "key", "value": "siteTitle"}] } } },
+        { "name": "Update Setting", "request": { "method": "PUT", "url": { "raw": "http://localhost:5000/api/settings/:key", "host": ["http://localhost:5000"], "path": ["api", "settings", ":key"], "variable": [{"key": "key", "value": "siteTitle"}] }, "header": [{"key": "Content-Type", "value": "application/json"}], "body": { "mode": "raw", "raw": "{\"value\": \"IEEE Student Branch\"}" } } },
+        { "name": "Delete Setting", "request": { "method": "DELETE", "url": { "raw": "http://localhost:5000/api/settings/:key", "host": ["http://localhost:5000"], "path": ["api", "settings", ":key"], "variable": [{"key": "key", "value": "siteTitle"}] } } }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        { "name": "Get Dashboard Stats", "request": { "method": "GET", "url": { "raw": "http://localhost:5000/api/dashboard/stats", "host": ["http://localhost:5000"], "path": ["api", "dashboard", "stats"] } } }
+      ]
+    }
+  ]
+}

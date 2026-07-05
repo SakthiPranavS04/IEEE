@@ -1,0 +1,252 @@
+[
+  {
+    "module": "dashboard",
+    "operation": "GET",
+    "status": 200
+  },
+  {
+    "module": "contact",
+    "operation": "POST",
+    "status": 201
+  },
+  {
+    "module": "contact",
+    "operation": "GET ALL",
+    "status": 200
+  },
+  {
+    "module": "contact",
+    "operation": "GET ID",
+    "status": 200
+  },
+  {
+    "module": "contact",
+    "operation": "PUT",
+    "status": 200
+  },
+  {
+    "module": "contact",
+    "operation": "DELETE",
+    "status": 200
+  },
+  {
+    "module": "events",
+    "operation": "POST",
+    "status": 201
+  },
+  {
+    "module": "events",
+    "operation": "GET ALL",
+    "status": 200
+  },
+  {
+    "module": "events",
+    "operation": "GET ID",
+    "status": 200
+  },
+  {
+    "module": "events",
+    "operation": "PUT",
+    "status": 200
+  },
+  {
+    "module": "events",
+    "operation": "DELETE",
+    "status": 200
+  },
+  {
+    "module": "team",
+    "operation": "POST",
+    "status": 201
+  },
+  {
+    "module": "team",
+    "operation": "GET ALL",
+    "status": 200
+  },
+  {
+    "module": "team",
+    "operation": "GET ID",
+    "status": 200
+  },
+  {
+    "module": "team",
+    "operation": "PUT",
+    "status": 200
+  },
+  {
+    "module": "team",
+    "operation": "DELETE",
+    "status": 200
+  },
+  {
+    "module": "announcements",
+    "operation": "POST",
+    "status": 201
+  },
+  {
+    "module": "announcements",
+    "operation": "GET ALL",
+    "status": 200
+  },
+  {
+    "module": "announcements",
+    "operation": "GET ID",
+    "status": 200
+  },
+  {
+    "module": "announcements",
+    "operation": "PUT",
+    "status": 200
+  },
+  {
+    "module": "announcements",
+    "operation": "DELETE",
+    "status": 200
+  },
+  {
+    "module": "feedback",
+    "operation": "POST",
+    "status": 201
+  },
+  {
+    "module": "feedback",
+    "operation": "GET ALL",
+    "status": 200
+  },
+  {
+    "module": "feedback",
+    "operation": "GET ID",
+    "status": 200
+  },
+  {
+    "module": "feedback",
+    "operation": "DELETE",
+    "status": 200
+  },
+  {
+    "module": "newsletter",
+    "operation": "POST",
+    "status": 201
+  },
+  {
+    "module": "newsletter",
+    "operation": "GET ALL",
+    "status": 200
+  },
+  {
+    "module": "newsletter",
+    "operation": "GET ID",
+    "status": 200
+  },
+  {
+    "module": "newsletter",
+    "operation": "PUT",
+    "status": 200
+  },
+  {
+    "module": "newsletter",
+    "operation": "DELETE",
+    "status": 200
+  },
+  {
+    "module": "join",
+    "operation": "POST",
+    "status": 201
+  },
+  {
+    "module": "join",
+    "operation": "GET ALL",
+    "status": 200
+  },
+  {
+    "module": "join",
+    "operation": "GET ID",
+    "status": 200
+  },
+  {
+    "module": "join",
+    "operation": "PUT",
+    "status": 200
+  },
+  {
+    "module": "join",
+    "operation": "DELETE",
+    "status": 200
+  },
+  {
+    "module": "sponsors",
+    "operation": "POST",
+    "status": 201
+  },
+  {
+    "module": "sponsors",
+    "operation": "GET ALL",
+    "status": 200
+  },
+  {
+    "module": "sponsors",
+    "operation": "GET ID",
+    "status": 200
+  },
+  {
+    "module": "sponsors",
+    "operation": "PUT",
+    "status": 200
+  },
+  {
+    "module": "sponsors",
+    "operation": "DELETE",
+    "status": 200
+  },
+  {
+    "module": "gallery",
+    "operation": "POST",
+    "status": 201
+  },
+  {
+    "module": "gallery",
+    "operation": "GET ALL",
+    "status": 200
+  },
+  {
+    "module": "gallery",
+    "operation": "GET ID",
+    "status": 200
+  },
+  {
+    "module": "gallery",
+    "operation": "PUT",
+    "status": 200
+  },
+  {
+    "module": "gallery",
+    "operation": "DELETE",
+    "status": 200
+  },
+  {
+    "module": "settings",
+    "operation": "POST",
+    "status": 201
+  },
+  {
+    "module": "settings",
+    "operation": "GET ALL",
+    "status": 200
+  },
+  {
+    "module": "settings",
+    "operation": "GET ID",
+    "status": 200
+  },
+  {
+    "module": "settings",
+    "operation": "PUT",
+    "status": 200
+  },
+  {
+    "module": "settings",
+    "operation": "DELETE",
+    "status": 200
+  }
+]

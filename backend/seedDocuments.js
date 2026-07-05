@@ -1,0 +1,347 @@
+import mongoose from 'mongoose';
+import Document from './models/Document.js';
+import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
+
+dotenv.config();
+
+const WORD_MIME = 'application/vnd.google-apps.document';
+
+const defaultSyncFiles = [
+  {
+    id: '1dWx_EHkN8NqA2262RByrP34Gx0Y4dlCPRI4Sp4AZ36A',
+    name: 'IEEE_FUNDS_AND_OPPORTUNITIES.docx',
+    title: 'IEEE Funds and Opportunities',
+    mimeType: WORD_MIME,
+    size: '1.5 MB',
+    uploadDate: '2026-02-10',
+    category: 'Membership Documents',
+    description: 'Overview of IEEE funding sources and membership opportunities.',
+    isVisible: true,
+    isFeatured: true,
+    featuredOrder: 1
+  },
+  {
+    id: '1a57H2QGMvJ7axgOE19c6pl33dhvhWsmLaP4qOafHA18',
+    name: 'IEEE_MEMBERSHIP_FEE_DETAILS.docx',
+    title: 'IEEE Membership Fee Details',
+    mimeType: WORD_MIME,
+    size: '1.5 MB',
+    uploadDate: '2026-02-09',
+    category: 'Membership Documents',
+    description: 'Detailed breakdown of IEEE membership fees and payment information.',
+    isVisible: true,
+    isFeatured: true,
+    featuredOrder: 2
+  },
+  {
+    id: '1aU6T4HcDxsNWAgoMRPH4E3CWATXcfSF3DstdrkXwB9A',
+    name: 'Attendance_Sheet_IEEE_SB_Silver_Jubilee.docx',
+    title: 'Attendance Sheet - IEEE SB Silver Jubilee Celebration',
+    mimeType: WORD_MIME,
+    size: '1.4 MB',
+    uploadDate: '2026-04-02',
+    category: 'Event Resources',
+    description: 'Attendance sheet template for the IEEE Student Branch Silver Jubilee celebration.',
+    isVisible: true,
+    isFeatured: false,
+    featuredOrder: 99
+  },
+  {
+    id: '1xLzzDd_WT9KY_MkoQh07DaSyI5uuAxa9G7E_Tig2ziQ',
+    name: 'Attendance_Sheet_Yugam.docx',
+    title: 'Attendance Sheet - Yugam',
+    mimeType: WORD_MIME,
+    size: '1.4 MB',
+    uploadDate: '2026-03-08',
+    category: 'Event Resources',
+    description: 'Attendance sheet template for Yugam event participants.',
+    isVisible: true,
+    isFeatured: false,
+    featuredOrder: 99
+  },
+  {
+    id: '113sIFiMk5DWflFQSgw0SfQmuIhfGq9_3CPkvfcvcUC8',
+    name: 'Attendance_Sheet_Yugam_Coordinators.docx',
+    title: 'Attendance Sheet - Yugam Coordinators',
+    mimeType: WORD_MIME,
+    size: '1.4 MB',
+    uploadDate: '2026-03-08',
+    category: 'Event Resources',
+    description: 'Attendance sheet template for Yugam event coordinators.',
+    isVisible: true,
+    isFeatured: false,
+    featuredOrder: 99
+  },
+  {
+    id: '1eDk-hRHAUX6l8P1CNT0TPIkCeVfqyXwK-9wOf02xHGo',
+    name: 'Bill_Settlement_Format.docx',
+    title: 'Bill Settlement Format',
+    mimeType: WORD_MIME,
+    size: '1.5 MB',
+    uploadDate: '2026-02-01',
+    category: 'IEEE Forms',
+    description: 'Official template for submitting bill settlement requests.',
+    isVisible: true,
+    isFeatured: true,
+    featuredOrder: 3
+  },
+  {
+    id: '1gmn2UP5SESv8OlrhRTozZecjJ-cE1192tzo6nMcSq24',
+    name: 'Circular_Jun_2026.docx',
+    title: 'Circular (June 2026)',
+    mimeType: WORD_MIME,
+    size: '1.5 MB',
+    uploadDate: '2026-06-15',
+    category: 'IEEE Forms',
+    description: 'Official circular template for branch communications.',
+    isVisible: true,
+    isFeatured: false,
+    featuredOrder: 99
+  },
+  {
+    id: '1GWACCXxT5llhUSFVEhliBelv4_ecuDPl1Pjf5E9cFSo',
+    name: 'Circular_Mar_2026.docx',
+    title: 'Circular (March 2026)',
+    mimeType: WORD_MIME,
+    size: '1.5 MB',
+    uploadDate: '2026-03-07',
+    category: 'IEEE Forms',
+    description: 'Official circular template for branch communications.',
+    isVisible: true,
+    isFeatured: false,
+    featuredOrder: 99
+  },
+  {
+    id: '1JPROhdggPDqQaqUnRriqCOvEU5YOT992m3m-QmJ8V5w',
+    name: 'Copy_of_Bill_Settlement_Format_v2.docx',
+    title: 'Copy of Bill Settlement Format (v2)',
+    mimeType: WORD_MIME,
+    size: '1.8 MB',
+    uploadDate: '2026-03-28',
+    category: 'IEEE Forms',
+    description: 'Updated copy of the bill settlement format template.',
+    isVisible: true,
+    isFeatured: false,
+    featuredOrder: 99
+  },
+  {
+    id: '1J48QavdiaTcwQT0OSNwgVIDZ6RALq3Fhn27lrHmtQvA',
+    name: 'Copy_of_Bill_Settlement_Format.docx',
+    title: 'Copy of Bill Settlement Format',
+    mimeType: WORD_MIME,
+    size: '1.5 MB',
+    uploadDate: '2026-03-26',
+    category: 'IEEE Forms',
+    description: 'Copy of the bill settlement format template.',
+    isVisible: true,
+    isFeatured: false,
+    featuredOrder: 99
+  },
+  {
+    id: '1LHXqutwpgdUOj13x4VGVBySS_Nb5KA2eC-NbYZJ2718',
+    name: 'Evaluation_Sheet_Project.docx',
+    title: 'Evaluation Sheet - Project',
+    mimeType: WORD_MIME,
+    size: '1.9 MB',
+    uploadDate: '2026-03-08',
+    category: 'Workshop Materials',
+    description: 'Evaluation sheet template for project presentations.',
+    isVisible: true,
+    isFeatured: false,
+    featuredOrder: 99
+  },
+  {
+    id: '1lSHLFoHNI8CKWSipcKdcUYS3VKJFwQGWyePN0kfwi3Y',
+    name: 'Evaluation_Sheet_Rapid_PPT.docx',
+    title: 'Evaluation Sheet - Rapid PPT',
+    mimeType: WORD_MIME,
+    size: '1.9 MB',
+    uploadDate: '2026-03-08',
+    category: 'Workshop Materials',
+    description: 'Evaluation sheet template for rapid PPT sessions.',
+    isVisible: true,
+    isFeatured: false,
+    featuredOrder: 99
+  },
+  {
+    id: '1XVcYhnbqIRNomXG3ljvtmKMuvXKc1p8msITQtLQAh0c',
+    name: 'Event_Report_Format.docx',
+    title: 'Event Report Format',
+    mimeType: WORD_MIME,
+    size: '154 KB',
+    uploadDate: '2026-03-15',
+    category: 'Reports',
+    description: 'Standard format for submitting event reports to the student branch.',
+    isVisible: true,
+    isFeatured: false,
+    featuredOrder: 99
+  },
+  {
+    id: '1OHdu5MIOn-NVxjRqNxpN1-H3AaVR90GjtSA1pPITSiE',
+    name: 'Jury_List.docx',
+    title: 'Jury List',
+    mimeType: WORD_MIME,
+    size: '1.9 MB',
+    uploadDate: '2026-04-09',
+    category: 'Event Resources',
+    description: 'Template for maintaining jury member lists for events.',
+    isVisible: true,
+    isFeatured: false,
+    featuredOrder: 99
+  },
+  {
+    id: '1WB11MGups1Md4Wg3xDKR8b16dAbEN-lAhKKs-goW6OU',
+    name: 'Letter_Template.docx',
+    title: 'Letter Template',
+    mimeType: WORD_MIME,
+    size: '721 KB',
+    uploadDate: '2026-05-18',
+    category: 'IEEE Forms',
+    description: 'Official letterhead and letter format for branch correspondence.',
+    isVisible: true,
+    isFeatured: false,
+    featuredOrder: 99
+  },
+  {
+    id: '1VcTwoyT2ua2v7DcH-buBxSGQ91xcBeMy8utKAXqkbIo',
+    name: 'Proposal_Format.docx',
+    title: 'Proposal Format',
+    mimeType: WORD_MIME,
+    size: '1.5 MB',
+    uploadDate: '2026-01-29',
+    category: 'IEEE Forms',
+    description: 'Official template for submitting event and activity proposals.',
+    isVisible: true,
+    isFeatured: false,
+    featuredOrder: 99
+  },
+  {
+    id: '1NSAcSR1TKt01P3BVSQyNVBaCyTZtqAaGBYzxy4k75-Y',
+    name: 'Remuneration_Format.docx',
+    title: 'Remuneration Format',
+    mimeType: WORD_MIME,
+    size: '1.5 MB',
+    uploadDate: '2026-01-29',
+    category: 'IEEE Forms',
+    description: 'Template for submitting remuneration and honorarium requests.',
+    isVisible: true,
+    isFeatured: false,
+    featuredOrder: 99
+  },
+  {
+    id: '11EMyCHIegfsWK-Up5UvypocJsiYPzWyUVNo2TKTF4Ww',
+    name: 'SB_2026_2027_Posting.docx',
+    title: 'SB 2026-2027 Posting',
+    mimeType: WORD_MIME,
+    size: '1.5 MB',
+    uploadDate: '2026-06-08',
+    category: 'Others',
+    description: 'Student branch posting template for the 2026-2027 academic year.',
+    isVisible: true,
+    isFeatured: false,
+    featuredOrder: 99
+  },
+  {
+    id: '1sjmijwQ52ookYxpCCfY-SQav4DA9zPgTnUOL7dsEvvk',
+    name: 'Stage_Note.docx',
+    title: 'Stage Note',
+    mimeType: WORD_MIME,
+    size: '1.4 MB',
+    uploadDate: '2026-03-08',
+    category: 'Event Resources',
+    description: 'Stage note template for event anchoring and announcements.',
+    isVisible: true,
+    isFeatured: false,
+    featuredOrder: 99
+  },
+  {
+    id: '1Q_nvnGe6PWaGVjCOz-GcOuz4UFdsaebBxlMAv4Uybzo',
+    name: 'T_Shirt_Letter.docx',
+    title: 'T Shirt Letter',
+    mimeType: WORD_MIME,
+    size: '1.5 MB',
+    uploadDate: '2026-03-09',
+    category: 'IEEE Forms',
+    description: 'Letter template for T-shirt procurement and approval requests.',
+    isVisible: true,
+    isFeatured: false,
+    featuredOrder: 99
+  },
+  {
+    id: '1lnW3YS0R5zoPOI_BkvYVuZyFMPFuo5xf9XgjKL769mQ',
+    name: 'Travel_Assessment_Format.docx',
+    title: 'Travel Assessment Format',
+    mimeType: WORD_MIME,
+    size: '1.5 MB',
+    uploadDate: '2026-03-13',
+    category: 'IEEE Forms',
+    description: 'Template for submitting travel expense assessments and claims.',
+    isVisible: true,
+    isFeatured: false,
+    featuredOrder: 99
+  },
+  {
+    id: '1yhJr0vBWlGi7JI6tu0AFokAYsbHh6m4zuCi-xYSVdOg',
+    name: 'Yugam_Anchore.docx',
+    title: 'Yugam Anchore',
+    mimeType: WORD_MIME,
+    size: '1.4 MB',
+    uploadDate: '2026-03-08',
+    category: 'Event Resources',
+    description: 'Anchoring script and notes for Yugam events.',
+    isVisible: true,
+    isFeatured: false,
+    featuredOrder: 99
+  },
+  {
+    id: '1iul7toSfWPNDInbqkB-i4qye0tPSQ-GLos9qsggjFNY',
+    name: 'Yugam_Welcome_Address_Vote_of_Thanks.docx',
+    title: 'Yugam Welcome Address and Vote of Thanks',
+    mimeType: WORD_MIME,
+    size: '1.4 MB',
+    uploadDate: '2026-03-08',
+    category: 'Event Resources',
+    description: 'Welcome address and vote of thanks script for Yugam events.',
+    isVisible: true,
+    isFeatured: false,
+    featuredOrder: 99
+  }
+];
+
+const seedDocuments = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/ieee_db', {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log('MongoDB connected');
+
+    await Document.deleteMany({});
+    
+    const docsToInsert = defaultSyncFiles.map(doc => ({
+      name: doc.name,
+      title: doc.title,
+      mimeType: doc.mimeType,
+      size: doc.size,
+      uploadDate: doc.uploadDate,
+      category: doc.category,
+      description: doc.description,
+      isVisible: doc.isVisible,
+      isFeatured: doc.isFeatured,
+      featuredOrder: doc.featuredOrder,
+      fileUrl: `https://docs.google.com/document/d/${doc.id}/export?format=docx`
+    }));
+
+    await Document.insertMany(docsToInsert);
+    
+    console.log(`Seeded ${docsToInsert.length} documents successfully!`);
+    mongoose.connection.close();
+  } catch (err) {
+    console.error(err);
+    mongoose.connection.close();
+  }
+};
+
+seedDocuments();

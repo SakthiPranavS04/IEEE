@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
+import API from '../services/api';
 import { Award, BookOpen, Calendar, Users, ArrowRight, ShieldCheck, Flame, Zap, ChevronLeft, ChevronRight, Quote, MessageSquare, Globe } from 'lucide-react';
 import { societiesData } from '../data/societiesData';
 
@@ -120,29 +121,55 @@ const Home = () => {
     setSocietiesList(loaded.filter(Boolean));
   }, []);
 
-  // Google Sheet URL for Member Count (retained for backward compatibility or future fallback, not currently mapped to UI stats)
-  const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS-R4zV8G4N1iA8oD5H1fB8G3C2n2o1K7p_example/pub?output=csv';
-
   useEffect(() => {
-    const fetchMemberCount = async () => {
+    const fetchStats = async () => {
       try {
-        const response = await fetch(GOOGLE_SHEET_CSV_URL);
-        if (!response.ok) throw new Error('Sheet load failed');
-        const csv = await response.text();
-        const rows = csv.split('\n').map(r => r.split(','));
-        if (rows.length > 0 && rows[0].length > 0) {
-          const firstVal = rows[0][0].replace(/"/g, '').trim();
-          if (firstVal && !isNaN(firstVal.replace(/[+,\s]/g, ''))) {
-            // Keep stats array sync if needed, otherwise skip
-          }
+        const response = await fetch(`${API}/settings`);
+        if (response.ok) {
+          const settings = await response.json();
+          const getVal = (key) => {
+            const s = settings.find(s => s.key === key);
+            return s ? s.value : null;
+          };
+          
+          const mCount = getVal('memberCount');
+          if (mCount) setMemberCount(mCount);
+          
+          const eCount = getVal('eventsCount');
+          if (eCount) setEventsCount(eCount);
+          
+          const aCount = getVal('awardsCount');
+          if (aCount) setAwardsCount(aCount);
+          
+          const pCount = getVal('papersCount');
+          if (pCount) setPapersCount(pCount);
+          
+          const m = getVal('mission');
+          if (m) setMission(m);
+          
+          const v = getVal('vision');
+          if (v) setVision(v);
+          
+          const hImgs = getVal('heroImages');
+          if (hImgs) setHeroImages(hImgs);
+          
+          const aImg = getVal('aboutImage');
+          if (aImg) setAboutImage(aImg);
+          
+          const kVid = getVal('keystonesVideoUrl');
+          if (kVid) setKeystonesVideoUrl(kVid);
+          
+          const iStats = getVal('impactStats');
+          if (iStats) setImpactStats(iStats);
+          
+          const tmonials = getVal('testimonials');
+          if (tmonials) setTestimonials(tmonials);
         }
-      } catch (e) {
-        console.warn("Could not load member count from Google Sheet", e);
+      } catch (err) {
+        console.error('Failed to load stats', err);
       }
     };
-    if (GOOGLE_SHEET_CSV_URL && !GOOGLE_SHEET_CSV_URL.includes('_example') && !localStorage.getItem('ieee_member_count')) {
-      fetchMemberCount();
-    }
+    fetchStats();
   }, []);
 
   useEffect(() => {
@@ -278,90 +305,34 @@ const Home = () => {
   };
 
   useEffect(() => {
-    const defaultPast = [
-      {
-        id: 101,
-        title: "Workshop on Digital Signal Processing & IoT",
-        desc: "A 3-day practical bootcamp focusing on capturing and processing real-time sensor waveforms using ESP32 and DSP filtering algorithms.",
-        date: "May 18, 2026",
-        venue: "DSP Lab, ECE Dept, KEC",
-        tag: "SPS Chapter",
-        highlights: "50+ participants built smart ECG filter prototypes.",
-        isHighlighted: true,
-        highlightOrder: 1,
-        highlightDescription: "A 3-day practical bootcamp focusing on capturing and processing real-time sensor waveforms using ESP32 and DSP filtering algorithms. 50+ participants built smart ECG filter prototypes.",
-        highlightImage: null,
-        highlightTheme: "Purple"
-      },
-      {
-        id: 102,
-        title: "WIE CodeQuest: Coding Bootcamp for Girls",
-        desc: "A bootcamp dedicated to teaching web building, database structure, and frontend hosting to young female engineers.",
-        date: "April 24, 2026",
-        venue: "Internet Lab, KEC",
-        tag: "WIE Group",
-        highlights: "Participated by 80 girls, 5 projects were selected for incubation support.",
-        isHighlighted: true,
-        highlightOrder: 2,
-        highlightDescription: "A bootcamp dedicated to teaching web building, database structure, and frontend hosting to young female engineers. Participated by 80 girls, 5 projects were selected for incubation support.",
-        highlightImage: null,
-        highlightTheme: "Cyan"
-      },
-      {
-        id: 103,
-        title: "National Conference on Computing & Communication (NCCC 2026)",
-        desc: "Flagship paper presentation event featuring research papers from student groups across the region, judged by Anna University faculty.",
-        date: "March 15, 2026",
-        venue: "Maharaja Auditorium, KEC",
-        tag: "Conference",
-        highlights: "30+ research papers published in local IEEE digital archives.",
-        isHighlighted: true,
-        highlightOrder: 3,
-        highlightDescription: "Flagship paper presentation event featuring research papers from student groups across the region, judged by Anna University faculty. 30+ research papers published in local IEEE digital archives.",
-        highlightImage: null,
-        highlightTheme: "IEEE Blue"
-      },
-      {
-        id: 104,
-        title: "Guest Lecture: Opportunities in Edge AI & TinyML",
-        desc: "A seminar on running micro neural-network models directly on resource-constrained microcontrollers.",
-        date: "February 12, 2026",
-        venue: "Mechanical Dept Seminar Hall, KEC",
-        tag: "Guest Lecture",
-        highlights: "Delivered by senior R&D engineer from Intel India.",
-        isHighlighted: false,
-        highlightOrder: 4,
-        highlightDescription: "A seminar on running micro neural-network models directly on resource-constrained microcontrollers. Delivered by senior R&D engineer from Intel India.",
-        highlightImage: null,
-        highlightTheme: "Green"
+    const fetchHighlights = async () => {
+      try {
+        const response = await fetch(`${API}/events`);
+        if (response.ok) {
+          const data = await response.json();
+          const eventsList = Array.isArray(data) ? data : (data.events || []);
+          
+          let filtered = eventsList.filter(evt => evt.isHighlighted);
+          
+          if (filtered.length === 0) {
+            filtered = eventsList.slice(0, 3).map((evt, idx) => ({
+              ...evt,
+              isHighlighted: true,
+              highlightOrder: idx + 1,
+              highlightDescription: evt.highlightDescription || evt.desc || '',
+              highlightTheme: idx === 0 ? 'Purple' : idx === 1 ? 'Cyan' : 'IEEE Blue'
+            }));
+          }
+          
+          filtered.sort((a, b) => (a.highlightOrder || 0) - (b.highlightOrder || 0));
+          setHighlights(filtered);
+        }
+      } catch (err) {
+        console.error("Failed to fetch highlighted events:", err);
       }
-    ];
-
-    const storedPast = localStorage.getItem('ieee_events_past');
-    let pastList = [];
-    if (storedPast) {
-      pastList = JSON.parse(storedPast);
-    } else {
-      localStorage.setItem('ieee_events_past', JSON.stringify(defaultPast));
-      pastList = defaultPast;
-    }
-
-    // Filter and sort highlights
-    let filtered = pastList.filter(evt => evt.isHighlighted);
+    };
     
-    // If no highlighted items are found, default to first 3 completed past events
-    if (filtered.length === 0) {
-      filtered = pastList.slice(0, 3).map((evt, idx) => ({
-        ...evt,
-        isHighlighted: true,
-        highlightOrder: idx + 1,
-        highlightDescription: evt.highlightDescription || evt.desc || '',
-        highlightTheme: idx === 0 ? 'Purple' : idx === 1 ? 'Cyan' : 'IEEE Blue'
-      }));
-    }
-
-    filtered.sort((a, b) => (a.highlightOrder || 0) - (b.highlightOrder || 0));
-    setHighlights(filtered);
+    fetchHighlights();
   }, []);
 
   const getStatIconAndColor = (label, index) => {

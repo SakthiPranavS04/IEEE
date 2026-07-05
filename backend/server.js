@@ -19,6 +19,7 @@ import sponsorRoutes from './routes/sponsorRoutes.js';
 import galleryRoutes from './routes/galleryRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
+import researchRoutes from './routes/researchRoutes.js';
 import { errorHandler, notFound } from './middlewares/errorMiddleware.js';
 
 dotenv.config();
@@ -31,7 +32,7 @@ connectDB();
 const app = express();
 
 // Security Middlewares
-app.use(helmet());
+app.use(helmet({ hsts: false }));
 app.use(cors());
 app.use(express.json());
 app.use(mongoSanitize());
@@ -58,6 +59,7 @@ app.use('/api/sponsors', sponsorRoutes);
 app.use('/api/gallery', galleryRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/research', researchRoutes);
 
 app.get('/', (req, res) => {
   res.send('API is running...');

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { AlertCircle, ArrowLeft, Loader2, Sparkles, CheckCircle, Upload, Send, FileText, Lock } from 'lucide-react';
+import API from '../services/api';
+
 
 const PageHeader = ({ title, subtitle }) => (
   <div style={{
@@ -229,24 +231,51 @@ const RequestFormPage = () => {
     return errs;
   };
 
-  const handleMembershipSubmit = (e) => {
+  const handleMembershipSubmit = async (e) => {
     e.preventDefault();
     const errs = validateMembership();
     if (Object.keys(errs).length > 0) { setMembershipErrors(errs); return; }
     setMembershipErrors({});
-    const refNum = 'MEM-' + Math.floor(100000 + Math.random() * 900000);
-    const newSubmission = {
-      id: 'SUB-' + Date.now(),
-      refNum,
-      form_slug: 'membership',
-      form_name: 'Membership',
-      submitted_at: new Date().toISOString(),
-      data: membershipData
-    };
-    const existing = JSON.parse(localStorage.getItem('ieee_form_submissions') || '[]');
-    localStorage.setItem('ieee_form_submissions', JSON.stringify([newSubmission, ...existing]));
-    setSubmissionRef(refNum);
-    setSubmitted(true);
+    
+    try {
+      const payload = {
+        name: membershipData.name,
+        email: membershipData.personalEmail || membershipData.collegeEmail,
+        phone: membershipData.contactNumber,
+        college: "Kongu Engineering College",
+        department: membershipData.department === 'Other' ? membershipData.customDepartment : membershipData.department,
+        year: membershipData.year,
+        membershipType: membershipData.membershipType
+      };
+
+      const response = await fetch(`${API}/join`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        const refNum = 'MEM-' + Math.floor(100000 + Math.random() * 900000);
+        // Keep the local storage save so the success screen still works perfectly
+        const newSubmission = {
+          id: 'SUB-' + Date.now(),
+          refNum,
+          form_slug: 'membership',
+          form_name: 'Membership',
+          submitted_at: new Date().toISOString(),
+          data: membershipData
+        };
+        const existing = JSON.parse(localStorage.getItem('ieee_form_submissions') || '[]');
+        localStorage.setItem('ieee_form_submissions', JSON.stringify([newSubmission, ...existing]));
+        setSubmissionRef(refNum);
+        setSubmitted(true);
+      } else {
+        alert("Failed to submit membership request. Please try again.");
+      }
+    } catch (error) {
+      console.error("Membership submission error:", error);
+      alert("Error connecting to the backend server. Make sure it is running.");
+    }
   };
 
   const validateProposal = () => {

@@ -33,13 +33,16 @@ export const getGalleryItemById = async (req, res) => {
 // @access  Private/Admin
 export const createGalleryItem = async (req, res) => {
   try {
-    const { title, imageUrl, description, eventId } = req.body;
+    const { title, images, description, eventId, category, isFeatured, displayOrder } = req.body;
 
     const item = new Gallery({
       title,
-      imageUrl,
+      images,
       description,
       eventId,
+      category,
+      isFeatured,
+      displayOrder
     });
 
     const createdItem = await item.save();
@@ -54,15 +57,18 @@ export const createGalleryItem = async (req, res) => {
 // @access  Private/Admin
 export const updateGalleryItem = async (req, res) => {
   try {
-    const { title, imageUrl, description, eventId } = req.body;
+    const { title, images, description, eventId, category, isFeatured, displayOrder } = req.body;
 
     const item = await Gallery.findById(req.params.id);
 
     if (item) {
-      item.title = title || item.title;
-      item.imageUrl = imageUrl || item.imageUrl;
-      item.description = description || item.description;
-      item.eventId = eventId || item.eventId;
+      item.title = title !== undefined ? title : item.title;
+      item.images = images !== undefined ? images : item.images;
+      item.description = description !== undefined ? description : item.description;
+      item.eventId = eventId !== undefined ? eventId : item.eventId;
+      item.category = category !== undefined ? category : item.category;
+      item.isFeatured = isFeatured !== undefined ? isFeatured : item.isFeatured;
+      item.displayOrder = displayOrder !== undefined ? displayOrder : item.displayOrder;
 
       const updatedItem = await item.save();
       res.json(updatedItem);

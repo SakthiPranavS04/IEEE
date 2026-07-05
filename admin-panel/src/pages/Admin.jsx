@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Lock, Unlock, LogOut, Check, Trash2, Edit3, Plus, Image as ImageIcon, BarChart3, Database, X, Calendar, Award, Users, Target, Settings, Link as LinkIcon, AlertCircle, FileText, Compass, Layers, Save, RefreshCw, MessageSquare, ArrowUp, ArrowDown, Flame } from 'lucide-react';
+import { API, authFetch } from '../services/api';
 import { apsData } from '../data/aps';
 import { computerSocietyData } from '../data/computerSociety';
 import { wieData } from '../data/wie';
@@ -1331,24 +1332,30 @@ const Admin = () => {
     setBranchSaved(false);
   }, [selectedBranchKey]);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setLoginError('');
 
-    // Fetch registered admins from localStorage
-    const storedAdmins = JSON.parse(localStorage.getItem('ieee_registered_admins') || '[]');
-    const allAdmins = [...defaultAdmins, ...storedAdmins];
+    try {
+      const response = await fetch(`${API}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
 
-    const matchedAdmin = allAdmins.find(
-      (admin) => admin.email.toLowerCase() === email.toLowerCase() && admin.password === password
-    );
+      const data = await response.json();
 
-    if (matchedAdmin) {
-      setIsLoggedIn(true);
-      sessionStorage.setItem('ieee_admin_session', 'active');
-      setLoginError('');
-    } else {
-      setLoginError('Invalid Email or Password');
+      if (response.ok) {
+        setIsLoggedIn(true);
+        sessionStorage.setItem('ieee_admin_session', 'active');
+        localStorage.setItem('ieee_admin_token', data.token);
+        setLoginError('');
+      } else {
+        setLoginError(data.message || 'Invalid Email or Password');
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setLoginError("Failed to connect to backend server.");
     }
   };
 

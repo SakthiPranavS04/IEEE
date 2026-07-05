@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Image, FileText, X, Maximize2 } from 'lucide-react';
+import API from '../services/api';
 
 const PageHeader = ({ title, subtitle }) => (
   <div style={{
@@ -307,51 +308,78 @@ const Media = () => {
   };
 
   useEffect(() => {
-    // Load and migrate gallery items if they are old or lack images
-    const storedGallery = localStorage.getItem('ieee_gallery_items');
-    let parsedGallery = storedGallery ? JSON.parse(storedGallery) : null;
-    if (!parsedGallery || parsedGallery.length === 0 || !parsedGallery[0].images || parsedGallery[0].title === 'Flutter Bootcamp 2026') {
-      localStorage.setItem('ieee_gallery_items', JSON.stringify(defaultGallery));
-      parsedGallery = defaultGallery;
-    } else {
-      // Migrate existing localStorage gallery items from fit=crop to fit=max
-      let migrated = false;
-      const updatedGallery = parsedGallery.map(item => {
-        if (item.images) {
-          const updatedImages = item.images.map(img => {
-            if (typeof img === 'string' && img.includes('fit=crop')) {
-              migrated = true;
-              return img.replace('fit=crop', 'fit=max');
-            }
-            return img;
-          });
-          return { ...item, images: updatedImages };
+    const fetchMediaData = async () => {
+      try {
+        const [galleryRes, newsRes] = await Promise.all([
+          fetch(`${API}/gallery`),
+          fetch(`${API}/announcements`)
+        ]);
+        
+        if (galleryRes.ok) {
+          const gData = await galleryRes.json();
+          // Map backend gallery data which has { title, description, category, images } to frontend expected structure { title, cat, text, images }
+          const mappedGallery = gData.map(g => ({
+            id: g._id,
+            title: g.title,
+            cat: g.category || 'General',
+            text: g.description,
+            images: g.images && g.images.length > 0 ? g.images : []
+          }));
+          setGalleryItems(mappedGallery.length > 0 ? mappedGallery : defaultGallery);
+        } else {
+          setGalleryItems(defaultGallery);
         }
-        return item;
-      });
-      if (migrated) {
-        localStorage.setItem('ieee_gallery_items', JSON.stringify(updatedGallery));
-        parsedGallery = updatedGallery;
+
+        if (newsRes.ok) {
+          const nData = await newsRes.json();
+          // Filter active announcements and map
+          const activeNews = nData.filter(n => n.isActive);
+          const mappedNews = activeNews.map(n => ({
+            id: n._id,
+            title: n.title,
+            cat: n.category || 'Announcement',
+            source: n.source || 'IEEE SB KEC',
+            date: new Date(n.date || n.createdAt).toLocaleDateString(),
+            snippet: n.content,
+            color: n.color || '#06b6d4'
+          }));
+          setNewsItems(mappedNews.length > 0 ? mappedNews : defaultNews);
+        } else {
+          setNewsItems(defaultNews);
+        }
+      } catch (err) {
+        setGalleryItems(defaultGallery);
+        setNewsItems(defaultNews);
       }
-    }
-    setGalleryItems(parsedGallery);
+    };
+    
+    fetchMediaData();
 
     // Load Research Papers
-    const storedPapers = localStorage.getItem('ieee_research_papers');
-    if (storedPapers) {
-      setResearchPapers(JSON.parse(storedPapers));
-    } else {
-      setResearchPapers([]);
-    }
-
-    // Load and migrate news items
-    const storedNews = localStorage.getItem('ieee_news_items');
-    let parsedNews = storedNews ? JSON.parse(storedNews) : null;
-    if (!parsedNews || parsedNews.length === 0 || !parsedNews[0].cat) {
-      localStorage.setItem('ieee_news_items', JSON.stringify(defaultNews));
-      parsedNews = defaultNews;
-    }
-    setNewsItems(parsedNews);
+    const fetchResearch = async () => {
+      try {
+        const res = await fetch(`${API}/research`);
+        if (res.ok) {
+          const data = await res.json();
+          const mappedPapers = data.map(p => ({
+            id: p._id,
+            title: p.title,
+            authors: p.authors,
+            category: p.category,
+            desc: p.desc,
+            year: p.year,
+            fileUrl: p.fileUrl
+          }));
+          setResearchPapers(mappedPapers);
+        } else {
+          setResearchPapers([]);
+        }
+      } catch (err) {
+        console.error("Failed to fetch research papers", err);
+        setResearchPapers([]);
+      }
+    };
+    fetchResearch();
 
     // Escape key listener for lightbox modal
     const handleKeyDown = (e) => {

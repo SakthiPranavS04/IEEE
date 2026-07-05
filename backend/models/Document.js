@@ -9,6 +9,7 @@ const documentSchema = mongoose.Schema(
     uploadDate: { type: String, required: true },
     category: { type: String, required: true },
     description: { type: String, required: true },
+    fileUrl: { type: String },
     isVisible: { type: Boolean, required: true, default: true },
     isFeatured: { type: Boolean, required: true, default: false },
     featuredOrder: { type: Number, required: true, default: 99 },

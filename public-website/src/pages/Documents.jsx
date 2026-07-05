@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import API from '../services/api';
 import { FileText, FileVideo, FileCode, FileArchive, Search, Download, Eye, X, Sparkles, Filter, ChevronRight, Image as ImageIcon, Lock } from 'lucide-react';
 
 const PageHeader = ({ title, subtitle }) => (
@@ -77,15 +78,44 @@ const Documents = () => {
   const [targetAction, setTargetAction] = useState('');
 
   useEffect(() => {
-    // Load documents from localStorage
-    const stored = localStorage.getItem('ieee_documents');
-    if (stored) {
-      // Filter out hidden/invisible documents
-      const parsed = JSON.parse(stored).filter(d => d.isVisible !== false);
-      setDocuments(parsed);
-    } else {
-      setDocuments([]);
-    }
+    // Fetch documents from API
+    const fetchDocuments = async () => {
+      try {
+        const response = await fetch(`${API}/documents`);
+        if (response.ok) {
+          const data = await response.json();
+          // Filter out hidden/invisible documents
+          // Backend has `isPublic` field for visibility, map it to frontend expected format
+          const mappedDocs = data
+            .filter(d => d.isVisible !== false)
+            .map(d => ({
+              id: d._id,
+              name: d.name || d.title,
+              title: d.title,
+              category: d.category,
+              mimeType: d.mimeType || (d.fileUrl?.endsWith('pdf') ? 'application/pdf' : 
+                        d.fileUrl?.match(/\.(jpeg|jpg|gif|png)$/) ? 'image/jpeg' : 
+                        'application/octet-stream'),
+              fileUrl: d.fileUrl,
+              size: d.size,
+              description: d.description,
+              is_confidential: d.is_confidential || false,
+              isVisible: d.isVisible !== false,
+              isFeatured: d.isFeatured,
+              featuredOrder: d.featuredOrder,
+              date: d.uploadDate || d.createdAt
+            }));
+          setDocuments(mappedDocs);
+        } else {
+          setDocuments([]);
+        }
+      } catch (err) {
+        console.error('Failed to fetch documents', err);
+        setDocuments([]);
+      }
+    };
+    
+    fetchDocuments();
     
     // Simulate loading animation for rich UX
     const timer = setTimeout(() => {
@@ -132,6 +162,9 @@ const Documents = () => {
   };
 
   const getDownloadUrl = (doc) => {
+    if (doc.fileUrl) {
+      return doc.fileUrl; // Use fileUrl directly if present from backend
+    }
     if (isWordDocument(doc.mimeType)) {
       return `https://docs.google.com/document/d/${doc.id}/export?format=docx`;
     }

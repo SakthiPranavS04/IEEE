@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send, CheckCircle } from 'lucide-react';
-
+import API from '../services/api';
 const PageHeader = ({ title, subtitle }) => (
   <div style={{
     background: 'var(--gradient-primary)',
@@ -47,12 +47,43 @@ const PageHeader = ({ title, subtitle }) => (
 const Contact = () => {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.name && formData.email && formData.message) {
-      setIsSubmitted(true);
-      setFormData({ name: '', email: '', subject: '', message: '' });
+      setIsSubmitting(true);
+      try {
+        // Map frontend fields to match backend schema requirements without changing UI
+        const payload = {
+          fullName: formData.name,
+          email: formData.email,
+          phone: "Not provided",
+          college: "Not provided",
+          department: formData.subject || "Not provided",
+          message: formData.message
+        };
+
+        const response = await fetch(`${API}/contact`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+          setIsSubmitted(true);
+          setFormData({ name: '', email: '', subject: '', message: '' });
+        } else {
+          alert("Failed to send message. Please try again.");
+        }
+      } catch (error) {
+        console.error("Failed to submit form:", error);
+        alert("Error connecting to the backend server. Make sure it is running.");
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -239,11 +270,13 @@ const Contact = () => {
 
                 <button
                   type="submit"
+                  disabled={isSubmitting}
                   className="btn btn-primary"
-                  style={{ width: '100%', padding: '12px', fontSize: '14px', display: 'flex', gap: '8px', justifyContent: 'center' }}
+                  style={{ width: '100%', padding: '12px', fontSize: '14px', display: 'flex', gap: '8px', justifyContent: 'center', opacity: isSubmitting ? 0.7 : 1 }}
                 >
-                  Send Message <Send size={14} />
+                  {isSubmitting ? 'Sending...' : 'Send Message'} {!isSubmitting && <Send size={14} />}
                 </button>
+
               </form>
             )}
           </div>

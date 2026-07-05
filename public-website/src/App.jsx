@@ -37,10 +37,28 @@ import RequestFormPage from './pages/RequestFormPage';
 import RequestFormsListing from './pages/RequestFormsListing';
 
 import './App.css';
+import API from './services/api';
 
 function App() {
   const location = useLocation();
   const [showScrollTop, setShowScrollTop] = useState(false);
+
+  // Backend Connection Test
+  useEffect(() => {
+    console.log("Attempting to connect to Backend URL:", API);
+    
+    // We try to fetch the /events route (or any route) to see if the server responds
+    fetch(`${API}/events`)
+      .then(response => {
+        if (response.ok) {
+           console.log("✅ SUCCESSFULLY CONNECTED TO BACKEND! Data was retrieved.");
+        } else {
+           console.log("✅ SUCCESSFULLY CONNECTED TO BACKEND! (The server responded, even though this specific route might be protected/empty. Status:", response.status, ")");
+        }
+      })
+      .catch(error => console.error("❌ FAILED TO CONNECT TO BACKEND! Make sure the backend server is running.", error));
+  }, []);
+
 
   useEffect(() => {
     window.scrollTo(0, 0);

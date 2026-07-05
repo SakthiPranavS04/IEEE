@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
+import API from '../services/api';
 import { Calendar, MapPin, Clock, ExternalLink, CheckCircle2, Sparkles, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const PageHeader = ({ title, subtitle }) => (
@@ -129,114 +130,40 @@ const Events = () => {
     setShowAll(false);
   }, [isUpcoming]);
 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
-    const defaultUpcoming = [
-      {
-        id: 1,
-        title: "Hands-on Workshop: Flutter Application Development",
-        desc: "Learn to build cross-platform mobile applications from scratch. Topics include widgets, state management, and API integration. Open to all branches.",
-        date: "June 12, 2026",
-        time: "09:00 AM - 04:30 PM",
-        venue: "Advanced Computing Lab, KEC",
-        tag: "Workshop",
-        link: "https://forms.gle/mockregister"
-      },
-      {
-        id: 2,
-        title: "GreenTech Hackathon 2026",
-        desc: "A 24-hour national hackathon challenging student groups to solve sustainability problems using hardware prototypes or intelligent software.",
-        date: "June 26-27, 2026",
-        time: "Starting 10:00 AM",
-        venue: "KEC Technology Business Incubator",
-        tag: "Hackathon",
-        link: "https://forms.gle/mockregister"
-      },
-      {
-        id: 3,
-        title: "IEEE Membership Awareness Drive",
-        desc: "Learn about the benefits of IEEE student membership, research databases access, grants, societies, and international networking events.",
-        date: "July 03, 2026",
-        time: "02:00 PM - 04:00 PM",
-        venue: "Seminar Hall, CSE Dept, KEC",
-        tag: "Seminar",
-        link: "https://forms.gle/mockregister"
+    const fetchEvents = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${API}/events`);
+        if (!response.ok) throw new Error('Failed to fetch events');
+        
+        const data = await response.json();
+        const eventsArray = Array.isArray(data) ? data : (data.events || []);
+
+        const upcoming = [];
+        const past = [];
+
+        eventsArray.forEach(evt => {
+          if (isEventCompleted(evt.date)) {
+            past.push(evt);
+          } else {
+            upcoming.push(evt);
+          }
+        });
+
+        setUpcomingEvents(upcoming);
+        setPastEvents(past);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
-    ];
+    };
 
-    const defaultPast = [
-      {
-        id: 101,
-        title: "Workshop on Digital Signal Processing & IoT",
-        desc: "A 3-day practical bootcamp focusing on capturing and processing real-time sensor waveforms using ESP32 and DSP filtering algorithms.",
-        date: "May 18, 2026",
-        venue: "DSP Lab, ECE Dept, KEC",
-        tag: "SPS Chapter",
-        highlights: "50+ participants built smart ECG filter prototypes.",
-        isHighlighted: true,
-        highlightOrder: 1,
-        highlightDescription: "A 3-day practical bootcamp focusing on capturing and processing real-time sensor waveforms using ESP32 and DSP filtering algorithms. 50+ participants built smart ECG filter prototypes.",
-        highlightImage: null,
-        highlightTheme: "Purple"
-      },
-      {
-        id: 102,
-        title: "WIE CodeQuest: Coding Bootcamp for Girls",
-        desc: "A bootcamp dedicated to teaching web building, database structure, and frontend hosting to young female engineers.",
-        date: "April 24, 2026",
-        venue: "Internet Lab, KEC",
-        tag: "WIE Group",
-        highlights: "Participated by 80 girls, 5 projects were selected for incubation support.",
-        isHighlighted: true,
-        highlightOrder: 2,
-        highlightDescription: "A bootcamp dedicated to teaching web building, database structure, and frontend hosting to young female engineers. Participated by 80 girls, 5 projects were selected for incubation support.",
-        highlightImage: null,
-        highlightTheme: "Cyan"
-      },
-      {
-        id: 103,
-        title: "National Conference on Computing & Communication (NCCC 2026)",
-        desc: "Flagship paper presentation event featuring research papers from student groups across the region, judged by Anna University faculty.",
-        date: "March 15, 2026",
-        venue: "Maharaja Auditorium, KEC",
-        tag: "Conference",
-        highlights: "30+ research papers published in local IEEE digital archives.",
-        isHighlighted: true,
-        highlightOrder: 3,
-        highlightDescription: "Flagship paper presentation event featuring research papers from student groups across the region, judged by Anna University faculty. 30+ research papers published in local IEEE digital archives.",
-        highlightImage: null,
-        highlightTheme: "IEEE Blue"
-      },
-      {
-        id: 104,
-        title: "Guest Lecture: Opportunities in Edge AI & TinyML",
-        desc: "A seminar on running micro neural-network models directly on resource-constrained microcontrollers.",
-        date: "February 12, 2026",
-        venue: "Mechanical Dept Seminar Hall, KEC",
-        tag: "Guest Lecture",
-        highlights: "Delivered by senior R&D engineer from Intel India.",
-        isHighlighted: false,
-        highlightOrder: 4,
-        highlightDescription: "A seminar on running micro neural-network models directly on resource-constrained microcontrollers. Delivered by senior R&D engineer from Intel India.",
-        highlightImage: null,
-        highlightTheme: "Green"
-      }
-    ];
-
-    const storedUpcoming = localStorage.getItem('ieee_events_upcoming');
-    if (storedUpcoming) {
-      setUpcomingEvents(JSON.parse(storedUpcoming));
-    } else {
-      localStorage.setItem('ieee_events_upcoming', JSON.stringify(defaultUpcoming));
-      setUpcomingEvents(defaultUpcoming);
-    }
-
-    const storedPast = localStorage.getItem('ieee_events_past');
-    if (storedPast) {
-      setPastEvents(JSON.parse(storedPast));
-    } else {
-      localStorage.setItem('ieee_events_past', JSON.stringify(defaultPast));
-      setPastEvents(defaultPast);
-    }
+    fetchEvents();
   }, []);
 
   const defaultEventsStats = [
@@ -389,7 +316,17 @@ const Events = () => {
         </div>
 
         {/* Event Cards Grid */}
-        {filteredEvents.length > 0 ? (
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '40px' }}>
+            <div style={{ width: '40px', height: '40px', border: '3px solid #f3f3f3', borderTop: '3px solid var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
+            <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+            <p style={{ marginTop: '16px', color: 'var(--text-muted)' }}>Loading events...</p>
+          </div>
+        ) : error ? (
+          <div className="card" style={{ padding: '48px', textAlign: 'center', color: 'var(--error)' }}>
+            Error loading events: {error}
+          </div>
+        ) : filteredEvents.length > 0 ? (
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
@@ -491,7 +428,7 @@ const Events = () => {
                       lineHeight: '1.65',
                       flex: 1
                     }}>
-                      {evt.desc}
+                      {evt.description || evt.desc}
                     </p>
 
                     {/* Meta Info */}
@@ -512,7 +449,7 @@ const Events = () => {
                       )}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-muted)' }}>
                         <MapPin size={13} style={{ color: isPast ? '#94a3b8' : 'var(--secondary)', flexShrink: 0 }} />
-                        <span>{evt.venue}</span>
+                        <span>{evt.location || evt.venue}</span>
                       </div>
                     </div>
 

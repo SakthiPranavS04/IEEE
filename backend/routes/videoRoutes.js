@@ -1,6 +1,6 @@
 import express from 'express';
 import { getVideos, createVideo, updateVideo, deleteVideo } from '../controllers/videoController.js';
-import { protect, admin } from '../middlewares/authMiddleware.js';
+import { protect } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 

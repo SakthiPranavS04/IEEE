@@ -1,6 +1,6 @@
 import express from 'express';
 import { getCommittees, createCommittee, updateCommittee, deleteCommittee } from '../controllers/committeeController.js';
-import { protect, admin } from '../middlewares/authMiddleware.js';
+import { protect } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 

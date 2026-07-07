@@ -1,6 +1,6 @@
 import express from 'express';
 import { getDocuments, createDocument, updateDocument, deleteDocument } from '../controllers/documentController.js';
-import { protect, admin } from '../middlewares/authMiddleware.js';
+import { protect } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 

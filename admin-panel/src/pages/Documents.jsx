@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { FileText, FileVideo, FileCode, FileArchive, Search, Download, Eye, X, Sparkles, Filter, ChevronRight, Image as ImageIcon, Lock } from 'lucide-react';
+import { settingsService } from '../services/api';
 
 const PageHeader = ({ title, subtitle }) => (
   <div style={{
@@ -77,22 +78,24 @@ const Documents = () => {
   const [targetAction, setTargetAction] = useState('');
 
   useEffect(() => {
-    // Load documents from localStorage
-    const stored = localStorage.getItem('ieee_documents');
-    if (stored) {
-      // Filter out hidden/invisible documents
-      const parsed = JSON.parse(stored).filter(d => d.isVisible !== false);
-      setDocuments(parsed);
-    } else {
-      setDocuments([]);
-    }
-    
-    // Simulate loading animation for rich UX
-    const timer = setTimeout(() => {
+    const fetchDocuments = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/documents`);
+        if (response.ok) {
+          const data = await response.json();
+          const parsed = data.filter(d => d.isVisible !== false);
+          setDocuments(parsed);
+        } else {
+          setDocuments([]);
+        }
+      } catch (err) {
+        console.error("Failed to load documents", err);
+        setDocuments([]);
+      }
       setLoading(false);
-    }, 600);
-    
-    return () => clearTimeout(timer);
+    };
+
+    fetchDocuments();
   }, []);
 
   const isWordDocument = (mimeType) => {

@@ -303,24 +303,37 @@ const RequestFormPage = () => {
     return errs;
   };
 
-  const handleProposalSubmit = (e) => {
+  const handleProposalSubmit = async (e) => {
     e.preventDefault();
     const errs = validateProposal();
     if (Object.keys(errs).length > 0) { setProposalErrors(errs); return; }
     setProposalErrors({});
+    
     const refNum = 'PROP-' + Math.floor(100000 + Math.random() * 900000);
-    const newSubmission = {
-      id: 'SUB-' + Date.now(),
-      refNum,
+    const payload = {
+      referenceNumber: refNum,
       form_slug: 'event-pre-proposal',
       form_name: 'Event Pre-Proposal',
-      submitted_at: new Date().toISOString(),
       data: proposalData
     };
-    const existing = JSON.parse(localStorage.getItem('ieee_form_submissions') || '[]');
-    localStorage.setItem('ieee_form_submissions', JSON.stringify([newSubmission, ...existing]));
-    setSubmissionRef(refNum);
-    setSubmitted(true);
+
+    try {
+      const response = await fetch(`${API}/requests`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        setSubmissionRef(refNum);
+        setSubmitted(true);
+      } else {
+        alert("Failed to submit event pre-proposal. Please try again.");
+      }
+    } catch (error) {
+      console.error("Proposal submission error:", error);
+      alert("Error connecting to the backend server.");
+    }
   };
 
   const validateBill = () => {
@@ -351,24 +364,37 @@ const RequestFormPage = () => {
     return errs;
   };
 
-  const handleBillSubmit = (e) => {
+  const handleBillSubmit = async (e) => {
     e.preventDefault();
     const errs = validateBill();
     if (Object.keys(errs).length > 0) { setBillErrors(errs); return; }
     setBillErrors({});
+    
     const refNum = 'BILL-' + Math.floor(100000 + Math.random() * 900000);
-    const newSubmission = {
-      id: 'SUB-' + Date.now(),
-      refNum,
+    const payload = {
+      referenceNumber: refNum,
       form_slug: 'bill-settlement',
       form_name: 'Bill Settlement',
-      submitted_at: new Date().toISOString(),
       data: billData
     };
-    const existing = JSON.parse(localStorage.getItem('ieee_form_submissions') || '[]');
-    localStorage.setItem('ieee_form_submissions', JSON.stringify([newSubmission, ...existing]));
-    setSubmissionRef(refNum);
-    setSubmitted(true);
+
+    try {
+      const response = await fetch(`${API}/requests`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        setSubmissionRef(refNum);
+        setSubmitted(true);
+      } else {
+        alert("Failed to submit bill settlement. Please try again.");
+      }
+    } catch (error) {
+      console.error("Bill submission error:", error);
+      alert("Error connecting to the backend server.");
+    }
   };
 
   // Clean and prepare the embed URL

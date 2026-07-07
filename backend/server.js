@@ -20,6 +20,15 @@ import galleryRoutes from './routes/galleryRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import researchRoutes from './routes/researchRoutes.js';
+import requestRoutes from './routes/requestRoutes.js';
+
+import achievementRoutes from './routes/achievementRoutes.js';
+import committeeRoutes from './routes/committeeRoutes.js';
+import societyRoutes from './routes/societyRoutes.js';
+import formtemplateRoutes from './routes/formtemplateRoutes.js';
+import videoRoutes from './routes/videoRoutes.js';
+import newsitemRoutes from './routes/newsitemRoutes.js';
+
 import { errorHandler, notFound } from './middlewares/errorMiddleware.js';
 
 dotenv.config();
@@ -34,7 +43,8 @@ const app = express();
 // Security Middlewares
 app.use(helmet({ hsts: false }));
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(mongoSanitize());
 app.use(xss());
 
@@ -60,6 +70,14 @@ app.use('/api/gallery', galleryRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/research', researchRoutes);
+app.use('/api/requests', requestRoutes);
+
+app.use('/api/achievements', achievementRoutes);
+app.use('/api/committees', committeeRoutes);
+app.use('/api/societies', societyRoutes);
+app.use('/api/formtemplates', formtemplateRoutes);
+app.use('/api/videos', videoRoutes);
+app.use('/api/newsitems', newsitemRoutes);
 
 app.get('/', (req, res) => {
   res.send('API is running...');

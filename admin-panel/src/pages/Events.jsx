@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { Calendar, MapPin, Clock, ExternalLink, CheckCircle2, Sparkles, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
+import { settingsService } from '../services/api';
 
 const PageHeader = ({ title, subtitle }) => (
   <div style={{

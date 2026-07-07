@@ -7,6 +7,7 @@ import { rasData } from '../data/ras';
 import { pesData } from '../data/pes';
 import { comsocData } from '../data/comsoc';
 import { defaultSyncFiles, WORD_MIME } from '../data/defaultDocuments';
+import API from '../services/api';
 
 
 const compressImage = (file) => {
@@ -50,6 +51,12 @@ const compressImage = (file) => {
 };
 
 const Admin = () => {
+  const [dashboardData, setDashboardData] = useState(null);
+  const [isDashboardLoading, setIsDashboardLoading] = useState(true);
+  const [dashboardError, setDashboardError] = useState(null);
+  const [isEventsLoading, setIsEventsLoading] = useState(true);
+  const [eventsError, setEventsError] = useState(null);
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -853,6 +860,34 @@ const Admin = () => {
   ];
 
   useEffect(() => {
+    if (isLoggedIn) {
+      const fetchDashboardData = async () => {
+        setIsDashboardLoading(true);
+        setDashboardError(null);
+        try {
+          const token = localStorage.getItem('token') || localStorage.getItem('ieee_token') || localStorage.getItem('ieee_admin_token') || '';
+          const response = await fetch(`${API}/dashboard`, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          if (!response.ok) {
+            throw new Error(`Failed to fetch dashboard data (${response.status})`);
+          }
+          const data = await response.json();
+          setDashboardData(data);
+        } catch (err) {
+          console.error("Dashboard fetch error:", err);
+          setDashboardError(err.message);
+        } finally {
+          setIsDashboardLoading(false);
+        }
+      };
+      fetchDashboardData();
+    }
+  }, [isLoggedIn]);
+
+  useEffect(() => {
     // Check if session exists
     const adminSession = sessionStorage.getItem('ieee_admin_session');
     if (adminSession === 'active') {
@@ -906,22 +941,34 @@ const Admin = () => {
       setMediaVideos(defaultMediaVideos);
     }
 
-    // Load Events
-    const storedUpcoming = localStorage.getItem('ieee_events_upcoming');
-    if (storedUpcoming) {
-      setUpcomingEvents(JSON.parse(storedUpcoming));
-    } else {
-      localStorage.setItem('ieee_events_upcoming', JSON.stringify(defaultUpcomingEvents));
-      setUpcomingEvents(defaultUpcomingEvents);
-    }
-
-    const storedPast = localStorage.getItem('ieee_events_past');
-    if (storedPast) {
-      setPastEvents(JSON.parse(storedPast));
-    } else {
-      localStorage.setItem('ieee_events_past', JSON.stringify(defaultPastEvents));
-      setPastEvents(defaultPastEvents);
-    }
+    // Load Events from API
+    const fetchEvents = async () => {
+      setIsEventsLoading(true);
+      setEventsError(null);
+      try {
+        const token = localStorage.getItem('token') || localStorage.getItem('ieee_token') || localStorage.getItem('ieee_admin_token') || '';
+        const response = await fetch(`${API}/events`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!response.ok) throw new Error(`Failed to load events (${response.status})`);
+        
+        const data = await response.json();
+        // The backend returns an array of documents where `_id` should be mapped to `id` for the UI
+        const formattedData = data.map(evt => ({ ...evt, id: evt._id }));
+        
+        const upcoming = formattedData.filter(evt => evt.isUpcoming);
+        const past = formattedData.filter(evt => !evt.isUpcoming);
+        
+        setUpcomingEvents(upcoming);
+        setPastEvents(past);
+      } catch (err) {
+        console.error("Events fetch error:", err);
+        setEventsError(err.message);
+      } finally {
+        setIsEventsLoading(false);
+      }
+    };
+    if (isLoggedIn) fetchEvents();
 
     // Load Achievements
     const storedAchievements = localStorage.getItem('ieee_achievements');
@@ -1714,7 +1761,7 @@ const Admin = () => {
   };
 
   // Generic Delete Actions
-  const handleDeleteItem = (type, id) => {
+  const handleDeleteItem = async (type, id) => {
     if (!window.confirm(`Are you sure you want to delete this ${type} item?`)) return;
 
     if (type === 'gallery') {
@@ -1722,12 +1769,22 @@ const Admin = () => {
       setGalleryItems(updated);
       localStorage.setItem('ieee_gallery_items', JSON.stringify(updated));
     } else if (type === 'event') {
-      const updatedUpcoming = upcomingEvents.filter(item => item.id !== id);
-      const updatedPast = pastEvents.filter(item => item.id !== id);
-      setUpcomingEvents(updatedUpcoming);
-      setPastEvents(updatedPast);
-      localStorage.setItem('ieee_events_upcoming', JSON.stringify(updatedUpcoming));
-      localStorage.setItem('ieee_events_past', JSON.stringify(updatedPast));
+      try {
+        const token = localStorage.getItem('token') || localStorage.getItem('ieee_token') || localStorage.getItem('ieee_admin_token') || '';
+        const response = await fetch(`${API}/events/${id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!response.ok) throw new Error('Failed to delete event');
+        
+        const updatedUpcoming = upcomingEvents.filter(item => item.id !== id);
+        const updatedPast = pastEvents.filter(item => item.id !== id);
+        setUpcomingEvents(updatedUpcoming);
+        setPastEvents(updatedPast);
+      } catch (err) {
+        console.error(err);
+        alert('Error deleting event: ' + err.message);
+      }
     } else if (type === 'achievement') {
       const updated = achievements.filter(item => item.id !== id);
       setAchievements(updated);
@@ -1762,7 +1819,8 @@ const Admin = () => {
   };
 
   // Generic Save Logic
-  const handleSaveItem = (e) => {
+  const handleSaveItem = async (e) => {
+    console.log("STEP 1 - handleSaveItem started");
     e.preventDefault();
 
     if (modalType === 'gallery') {
@@ -1788,67 +1846,90 @@ const Admin = () => {
       localStorage.setItem('ieee_gallery_items', JSON.stringify(updated));
 
     } else if (modalType === 'event') {
-      if (!eventTitle.trim() || !eventDesc.trim() || !eventDate.trim() || !eventVenue.trim()) return;
+      console.log("STEP 2 - Validation started");
+      const missingFields = [];
+      if (!eventTitle.trim()) missingFields.push('Event Title');
+      if (!eventDesc.trim()) missingFields.push('Description');
+      if (!eventDate.trim()) missingFields.push('Date');
+      if (!eventVenue.trim()) missingFields.push('Venue');
+      
+      if (missingFields.length > 0) {
+        alert(`Please fill out the following required fields:\n- ${missingFields.join('\n- ')}`);
+        return;
+      }
+      
+      console.log("STEP 3 - Validation passed");
 
-      const combinedId = currentItemId || Date.now();
-      let updatedUpcoming = [...upcomingEvents];
-      let updatedPast = [...pastEvents];
-
-      // Remove existing item from both lists if editing
-      if (modalMode === 'edit') {
-        updatedUpcoming = updatedUpcoming.filter(e => e.id !== currentItemId);
-        updatedPast = updatedPast.filter(e => e.id !== currentItemId);
+      if (!eventIsUpcoming && isEventHighlighted) {
+        const currentlyHighlighted = pastEvents.filter(e => e.isHighlighted && e.id !== currentItemId);
+        if (currentlyHighlighted.length >= 5) {
+          alert("A maximum of 5 highlighted events is allowed. Please remove another event from highlights first.");
+          return;
+        }
       }
 
-      if (eventIsUpcoming) {
-        const newEvent = {
-          id: combinedId,
-          title: eventTitle,
-          desc: eventDesc,
-          date: eventDate,
-          time: eventTime,
-          venue: eventVenue,
-          tag: eventTag,
-          link: eventLink,
-          showNewBadge: eventShowNewBadge
-        };
-        updatedUpcoming.push(newEvent);
-      } else {
-        // Limit check
-        if (isEventHighlighted) {
-          const currentlyHighlighted = updatedPast.filter(e => e.isHighlighted && e.id !== combinedId);
-          if (currentlyHighlighted.length >= 5) {
-            alert("A maximum of 5 highlighted events is allowed. Please remove another event from highlights first.");
-            return;
-          }
+      const newEventData = {
+        title: eventTitle,
+        desc: eventDesc,
+        date: eventDate,
+        time: eventTime,
+        venue: eventVenue,
+        tag: eventTag,
+        link: eventLink,
+        highlights: eventHighlights,
+        isHighlighted: isEventHighlighted,
+        highlightOrder: pastEvents.find(e => e.id === currentItemId)?.highlightOrder || (pastEvents.filter(e => e.isHighlighted).length + 1),
+        highlightDescription: highlightDescription || eventDesc,
+        highlightImage: highlightImage,
+        highlightTheme: highlightTheme,
+        isUpcoming: eventIsUpcoming
+      };
+
+      try {
+        const token = localStorage.getItem('token') || localStorage.getItem('ieee_token') || localStorage.getItem('ieee_admin_token') || '';
+        let url = `${API}/events`;
+        let method = 'POST';
+
+        if (modalMode === 'edit') {
+          url = `${API}/events/${currentItemId}`;
+          method = 'PUT';
         }
 
-        const oldEvent = pastEvents.find(e => e.id === combinedId) || {};
-        const nextOrder = oldEvent.highlightOrder !== undefined 
-          ? oldEvent.highlightOrder 
-          : (pastEvents.filter(e => e.isHighlighted).length + 1);
+        console.log("STEP 4 - Before fetch");
 
-        const newEvent = {
-          id: combinedId,
-          title: eventTitle,
-          desc: eventDesc,
-          date: eventDate,
-          venue: eventVenue,
-          tag: eventTag,
-          highlights: eventHighlights,
-          isHighlighted: isEventHighlighted,
-          highlightOrder: nextOrder,
-          highlightDescription: highlightDescription || eventDesc,
-          highlightImage: highlightImage,
-          highlightTheme: highlightTheme
-        };
-        updatedPast.push(newEvent);
+        const response = await fetch(url, {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(newEventData)
+        });
+
+        console.log("STEP 5 - After fetch");
+
+        if (!response.ok) {
+          throw new Error('Failed to save event');
+        }
+        const savedEvent = await response.json();
+        savedEvent.id = savedEvent._id; 
+
+        if (modalMode === 'edit') {
+          setUpcomingEvents(prev => prev.filter(e => e.id !== currentItemId));
+          setPastEvents(prev => prev.filter(e => e.id !== currentItemId));
+        }
+
+        if (savedEvent.isUpcoming) {
+          setUpcomingEvents(prev => [...prev, savedEvent]);
+        } else {
+          setPastEvents(prev => [...prev, savedEvent]);
+        }
+        console.log("STEP 6 - End");
+      } catch (err) {
+        console.error(err);
+        alert('Error saving event: ' + err.message);
+        return;
       }
-
-      setUpcomingEvents(updatedUpcoming);
-      setPastEvents(updatedPast);
-      localStorage.setItem('ieee_events_upcoming', JSON.stringify(updatedUpcoming));
-      localStorage.setItem('ieee_events_past', JSON.stringify(updatedPast));
 
     } else if (modalType === 'achievement') {
       if (!achTitle.trim() || !achCategory.trim() || !achDesc.trim()) return;
@@ -2170,42 +2251,48 @@ const Admin = () => {
     setEditingEventId(item.id);
   };
 
-  const saveInlineEvent = (id) => {
-    if (!eventTitle.trim() || !eventDesc.trim() || !eventDate.trim() || !eventVenue.trim()) return;
-    if (eventIsUpcoming) {
-      const updated = upcomingEvents.map(item =>
-        item.id === id
-          ? {
-              ...item,
-              title: eventTitle,
-              desc: eventDesc,
-              date: eventDate,
-              time: eventTime,
-              venue: eventVenue,
-              tag: eventTag,
-              link: eventLink
-            }
-          : item
-      );
-      setUpcomingEvents(updated);
-      localStorage.setItem('ieee_events_upcoming', JSON.stringify(updated));
-    } else {
-      const updated = pastEvents.map(item =>
-        item.id === id
-          ? {
-              ...item,
-              title: eventTitle,
-              desc: eventDesc,
-              date: eventDate,
-              time: eventTime,
-              venue: eventVenue,
-              tag: eventTag,
-              highlights: eventHighlights
-            }
-          : item
-      );
-      setPastEvents(updated);
-      localStorage.setItem('ieee_events_past', JSON.stringify(updated));
+  const saveInlineEvent = async (id) => {
+    const missingFields = [];
+    if (!eventTitle.trim()) missingFields.push('Event Title');
+    if (!eventDesc.trim()) missingFields.push('Description');
+    if (!eventDate.trim()) missingFields.push('Date');
+    if (!eventVenue.trim()) missingFields.push('Venue');
+    
+    if (missingFields.length > 0) {
+      alert(`Please fill out the following required fields:\n- ${missingFields.join('\n- ')}`);
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token') || localStorage.getItem('ieee_token') || localStorage.getItem('ieee_admin_token') || '';
+      
+      const updateData = eventIsUpcoming 
+        ? { title: eventTitle, desc: eventDesc, date: eventDate, time: eventTime, venue: eventVenue, tag: eventTag, link: eventLink, isUpcoming: true }
+        : { title: eventTitle, desc: eventDesc, date: eventDate, time: eventTime, venue: eventVenue, tag: eventTag, highlights: eventHighlights, isUpcoming: false };
+        
+      const response = await fetch(`${API}/events/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(updateData)
+      });
+      
+      if (!response.ok) throw new Error('Failed to update event inline');
+      const savedEvent = await response.json();
+      savedEvent.id = savedEvent._id;
+      
+      if (eventIsUpcoming) {
+        const updated = upcomingEvents.map(item => item.id === id ? { ...item, ...savedEvent } : item);
+        setUpcomingEvents(updated);
+      } else {
+        const updated = pastEvents.map(item => item.id === id ? { ...item, ...savedEvent } : item);
+        setPastEvents(updated);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error updating event: ' + err.message);
     }
     setEditingEventId(null);
   };
@@ -2973,23 +3060,42 @@ const Admin = () => {
     );
   }
 
-  const toggleHighlightStatus = (item) => {
+  const syncEventUpdates = async (eventsToUpdate) => {
+    try {
+      const token = localStorage.getItem('token') || localStorage.getItem('ieee_token') || localStorage.getItem('ieee_admin_token') || '';
+      await Promise.all(eventsToUpdate.map(evt => 
+        fetch(`${API}/events/${evt.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(evt)
+        })
+      ));
+    } catch (err) {
+      console.error("Failed to sync event updates:", err);
+    }
+  };
+
+  const toggleHighlightStatus = async (item) => {
     let updated = [];
+    let changedEvents = [];
     if (item.isHighlighted) {
-      // Remove from highlights
       updated = pastEvents.map(evt => {
         if (evt.id === item.id) {
-          return { ...evt, isHighlighted: false, highlightOrder: undefined };
+          const updatedEvt = { ...evt, isHighlighted: false, highlightOrder: undefined };
+          changedEvents.push(updatedEvt);
+          return updatedEvt;
         }
         return evt;
       });
-      // Recalculate orders for remaining highlighted events
       const highlighted = updated.filter(e => e.isHighlighted).sort((a, b) => a.highlightOrder - b.highlightOrder);
       highlighted.forEach((e, idx) => {
         e.highlightOrder = idx + 1;
+        changedEvents.push(e);
       });
     } else {
-      // Add to highlights
       const currentCount = pastEvents.filter(e => e.isHighlighted).length;
       if (currentCount >= 5) {
         alert("A maximum of 5 highlighted events is allowed. Please remove another event from highlights first.");
@@ -2997,7 +3103,7 @@ const Admin = () => {
       }
       updated = pastEvents.map(evt => {
         if (evt.id === item.id) {
-          return {
+          const updatedEvt = {
             ...evt,
             isHighlighted: true,
             highlightOrder: currentCount + 1,
@@ -3005,25 +3111,25 @@ const Admin = () => {
             highlightTheme: evt.highlightTheme || 'Purple',
             highlightImage: evt.highlightImage || null
           };
+          changedEvents.push(updatedEvt);
+          return updatedEvt;
         }
         return evt;
       });
     }
     setPastEvents(updated);
-    localStorage.setItem('ieee_events_past', JSON.stringify(updated));
+    await syncEventUpdates(changedEvents);
   };
 
-  const moveHighlightItemManual = (index, direction) => {
+  const moveHighlightItemManual = async (index, direction) => {
     const highlighted = pastEvents.filter(e => e.isHighlighted).sort((a, b) => a.highlightOrder - b.highlightOrder);
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= highlighted.length) return;
     
-    // Swap orders
     const temp = highlighted[index].highlightOrder;
     highlighted[index].highlightOrder = highlighted[newIndex].highlightOrder;
     highlighted[newIndex].highlightOrder = temp;
     
-    // Update pastEvents list
     const updated = pastEvents.map(evt => {
       const hlMatch = highlighted.find(h => h.id === evt.id);
       if (hlMatch) {
@@ -3033,23 +3139,25 @@ const Admin = () => {
     });
     
     setPastEvents(updated);
-    localStorage.setItem('ieee_events_past', JSON.stringify(updated));
+    await syncEventUpdates([highlighted[index], highlighted[newIndex]]);
   };
 
-  const saveHighlightDetails = (id, desc, theme, img) => {
+  const saveHighlightDetails = async (id, desc, theme, img) => {
+    let changedEvent = null;
     const updated = pastEvents.map(evt => {
       if (evt.id === id) {
-        return {
+        changedEvent = {
           ...evt,
           highlightDescription: desc,
           highlightTheme: theme,
           highlightImage: img
         };
+        return changedEvent;
       }
       return evt;
     });
     setPastEvents(updated);
-    localStorage.setItem('ieee_events_past', JSON.stringify(updated));
+    if (changedEvent) await syncEventUpdates([changedEvent]);
     setEditingHighlightEventId(null);
   };
 
@@ -3065,19 +3173,16 @@ const Admin = () => {
     const highlighted = pastEvents.filter(evt => evt.isHighlighted).sort((a, b) => a.highlightOrder - b.highlightOrder);
     const draggedItem = highlighted[draggedIndex];
     
-    // Reorder
     const temp = [...highlighted];
     temp.splice(draggedIndex, 1);
     temp.splice(index, 0, draggedItem);
     
-    // Update indices
     temp.forEach((item, idx) => {
       item.highlightOrder = idx + 1;
     });
     
     setDraggedIndex(index);
     
-    // Merge back
     const updated = pastEvents.map(evt => {
       const hlMatch = temp.find(h => h.id === evt.id);
       if (hlMatch) {
@@ -3087,11 +3192,12 @@ const Admin = () => {
     });
     
     setPastEvents(updated);
-    localStorage.setItem('ieee_events_past', JSON.stringify(updated));
   };
 
-  const handleDragEndHighlight = () => {
+  const handleDragEndHighlight = async () => {
     setDraggedIndex(null);
+    const highlighted = pastEvents.filter(evt => evt.isHighlighted);
+    await syncEventUpdates(highlighted);
   };
 
   return (
@@ -3146,6 +3252,54 @@ const Admin = () => {
       </div>
 
       <div className="container">
+        {/* Live Database Overview */}
+        <div style={{ marginBottom: '32px' }}>
+          <h2 style={{ fontSize: '20px', color: '#0a385b', fontWeight: '800', marginBottom: '16px' }}>Live Database Overview</h2>
+          {isDashboardLoading ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
+              {[...Array(7)].map((_, i) => (
+                <div key={i} className="card" style={{ height: '95px', backgroundColor: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}></div>
+              ))}
+            </div>
+          ) : dashboardError ? (
+            <div style={{ padding: '16px', backgroundColor: '#fef2f2', color: '#ef4444', borderRadius: '8px', border: '1px solid #fecaca' }}>
+              <AlertCircle size={18} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} />
+              Failed to load live statistics: {dashboardError}
+            </div>
+          ) : dashboardData ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '16px' }}>
+              <div className="card" style={{ padding: '16px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Events</span>
+                <span style={{ fontSize: '28px', color: '#0a385b', fontWeight: '800', lineHeight: 1 }}>{dashboardData.totalEvents || 0}</span>
+              </div>
+              <div className="card" style={{ padding: '16px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Team Members</span>
+                <span style={{ fontSize: '28px', color: '#0a385b', fontWeight: '800', lineHeight: 1 }}>{dashboardData.totalTeamMembers || 0}</span>
+              </div>
+              <div className="card" style={{ padding: '16px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Gallery Images</span>
+                <span style={{ fontSize: '28px', color: '#0a385b', fontWeight: '800', lineHeight: 1 }}>{dashboardData.totalGalleryImages || 0}</span>
+              </div>
+              <div className="card" style={{ padding: '16px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Contacts</span>
+                <span style={{ fontSize: '28px', color: '#0a385b', fontWeight: '800', lineHeight: 1 }}>{dashboardData.totalContacts || 0}</span>
+              </div>
+              <div className="card" style={{ padding: '16px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Join Requests</span>
+                <span style={{ fontSize: '28px', color: '#0a385b', fontWeight: '800', lineHeight: 1 }}>{dashboardData.totalJoinRequests || 0}</span>
+              </div>
+              <div className="card" style={{ padding: '16px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Subscribers</span>
+                <span style={{ fontSize: '28px', color: '#0a385b', fontWeight: '800', lineHeight: 1 }}>{dashboardData.totalSubscribers || 0}</span>
+              </div>
+              <div className="card" style={{ padding: '16px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Feedbacks</span>
+                <span style={{ fontSize: '28px', color: '#0a385b', fontWeight: '800', lineHeight: 1 }}>{dashboardData.totalFeedbacks || 0}</span>
+              </div>
+            </div>
+          ) : null}
+        </div>
+
         {/* Tab Selection */}
         {(() => {
           const categories = [
@@ -10720,6 +10874,7 @@ const Admin = () => {
                 </button>
                 <button
                   type="submit"
+                  onClick={() => console.log("Save button clicked")}
                   style={{ padding: '10px 22px', fontSize: '13.5px', fontWeight: '700', color: '#ffffff', backgroundColor: 'var(--secondary)', border: 'none', borderRadius: '30px', cursor: 'pointer' }}
                 >
                   Save Record

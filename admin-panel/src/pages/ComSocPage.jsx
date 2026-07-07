@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { comsocData } from '../data/comsoc';
 import SocietyPageLayout from '../components/SocietyPageLayout';
+import { settingsService } from '../services/api';
 
 const ComSocPage = () => {
   const [data, setData] = useState(comsocData);

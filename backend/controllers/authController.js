@@ -13,22 +13,37 @@ const generateToken = (id) => {
 // @access  Public
 export const authAdmin = async (req, res) => {
   const { email, password } = req.body;
+  
+  console.log("Email:", email);
 
   try {
     const admin = await Admin.findOne({ email });
+    console.log("Admin Found:", admin);
 
-    if (admin && (await admin.matchPassword(password))) {
-      res.json({
+    if (!admin) {
+      return res.status(401).json({
+        message: "Invalid email or password"
+      });
+    }
+
+    const isMatch = await admin.matchPassword(password);
+    console.log("Password Match:", isMatch);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        message: "Invalid email or password"
+      });
+    }
+
+    res.status(200).json({
+      token: generateToken(admin._id),
+      admin: {
         _id: admin._id,
         name: admin.name,
         email: admin.email,
         role: admin.role,
-        token: generateToken(admin._id),
-      });
-    } else {
-      res.status(401);
-      throw new Error('Invalid email or password');
-    }
+      }
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

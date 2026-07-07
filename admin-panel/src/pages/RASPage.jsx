@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { rasData } from '../data/ras';
 import SocietyPageLayout from '../components/SocietyPageLayout';
+import { settingsService } from '../services/api';
 
 const RASPage = () => {
   const [data, setData] = useState(rasData);

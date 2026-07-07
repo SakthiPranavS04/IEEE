@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { wieData } from '../data/wie';
 import SocietyPageLayout from '../components/SocietyPageLayout';
+import { settingsService } from '../services/api';
 
 const WIEPage = () => {
   const [data, setData] = useState(wieData);

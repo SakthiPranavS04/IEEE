@@ -20,7 +20,8 @@ const eventSchema = mongoose.Schema(
     highlightImage: { type: String },
     highlightTheme: { type: String },
     link: { type: String },
-    time: { type: String }
+    time: { type: String },
+    isUpcoming: { type: Boolean, default: true }
   },
   {
     timestamps: true,

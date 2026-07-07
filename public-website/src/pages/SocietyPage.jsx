@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   Mail, Phone, MapPin, Award, X, ChevronRight, Compass, Target, Send
 } from 'lucide-react';
+import API from '../services/api';
 
 const Linkedin = ({ size = 16, ...props }) => (
   <svg 
@@ -175,17 +176,38 @@ const SocietyPage = () => {
     '--society-stats-border': society.theme.statsBg ? '1px solid rgba(0,0,0,0.06)' : `1px solid rgba(${hexToRgb(society.theme.primary)}, 0.15)`,
   };
 
-  const handleEnquirySubmit = (e) => {
+  const handleEnquirySubmit = async (e) => {
     e.preventDefault();
     if (!formName || !formEmail || !formMsg) return;
     setFormSent(true);
-    setTimeout(() => {
-      setFormName('');
-      setFormEmail('');
-      setFormMsg('');
+    
+    try {
+      const payload = {
+        name: formName,
+        email: formEmail,
+        message: formMsg,
+      };
+
+      const response = await fetch(`${API}/feedback`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        setFormName('');
+        setFormEmail('');
+        setFormMsg('');
+        alert('Your enquiry has been successfully submitted! The society coordinators will contact you soon.');
+      } else {
+        alert("Failed to submit feedback. Please try again.");
+      }
+    } catch (error) {
+      console.error("Feedback submission error:", error);
+      alert("Error connecting to the backend server. Make sure it is running.");
+    } finally {
       setFormSent(false);
-      alert('Your enquiry has been successfully submitted! The society coordinators will contact you soon.');
-    }, 1000);
+    }
   };
 
   // Render Skeleton Loader
@@ -722,8 +744,8 @@ const SocietyPage = () => {
                   value={formMsg}
                   onChange={(e) => setFormMsg(e.target.value)}
                 />
-                <button type="submit" className="btn btn-primary" style={{ gap: '8px', alignSelf: 'flex-start' }}>
-                  <Send size={15} /> Send Message
+                <button type="submit" className="btn btn-primary" style={{ gap: '8px', alignSelf: 'flex-start' }} disabled={formSent}>
+                  <Send size={15} /> {formSent ? 'Sending...' : 'Send Message'}
                 </button>
               </form>
             </div>

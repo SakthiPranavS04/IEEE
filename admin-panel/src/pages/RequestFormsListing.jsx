@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, Filter, ArrowRight, FileText, Sparkles, X, Lock, Unlock } from 'lucide-react';
+import { settingsService } from '../services/api';
 
 const PageHeader = ({ title, subtitle }) => (
   <div style={{

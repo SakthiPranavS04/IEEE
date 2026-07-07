@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { Award, BookOpen, Calendar, Users, ArrowRight, ShieldCheck, Flame, Zap, ChevronLeft, ChevronRight, Quote, MessageSquare, Globe } from 'lucide-react';
 import { societiesData } from '../data/societiesData';
+import { settingsService } from '../services/api';
 
 const hexToRgb = (hex) => {
   if (!hex) return "15, 76, 92";

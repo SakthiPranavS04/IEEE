@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Lock, Unlock, LogOut, Check, Trash2, Edit3, Plus, Image as ImageIcon, BarChart3, Database, X, Calendar, Award, Users, Target, Settings, Link as LinkIcon, AlertCircle, FileText, Compass, Layers, Save, RefreshCw, MessageSquare, ArrowUp, ArrowDown, Flame } from 'lucide-react';
-import { API, authFetch } from '../services/api';
+import { API, authFetch, settingsService, galleryService, achievementsService, societiesService, teamService, committeesService } from '../services/api';
 import { apsData } from '../data/aps';
 import { computerSocietyData } from '../data/computerSociety';
 import { wieData } from '../data/wie';
@@ -861,16 +861,16 @@ const Admin = () => {
     }
 
     // Load Overview/Stats & Site Content Values
-    setMemberCount(localStorage.getItem('ieee_member_count') || '45');
-    setEventsCount(localStorage.getItem('ieee_events_count') || '75+');
-    setAwardsCount(localStorage.getItem('ieee_awards_count') || '18+');
-    setPapersCount(localStorage.getItem('ieee_papers_count') || '15');
-    setMission(localStorage.getItem('ieee_mission') || defaultMission);
-    setVision(localStorage.getItem('ieee_vision') || defaultVision);
-    setAccessPin(localStorage.getItem('ieee_access_pin') || '1234');
-    setIsPinEnabled(localStorage.getItem('ieee_pin_enabled') !== 'false');
+    setMemberCount(null /* migrated to API */ || '45');
+    setEventsCount(null /* migrated to API */ || '75+');
+    setAwardsCount(null /* migrated to API */ || '18+');
+    setPapersCount(null /* migrated to API */ || '15');
+    setMission(null /* migrated to API */ || defaultMission);
+    setVision(null /* migrated to API */ || defaultVision);
+    setAccessPin(null /* migrated to API */ || '1234');
+    setIsPinEnabled(null /* migrated to API */ !== 'false');
 
-    const storedTicker = localStorage.getItem('ieee_ticker_notices');
+    const storedTicker = null /* migrated to API */;
     if (storedTicker) {
       setTickerNoticesText(JSON.parse(storedTicker).join('\n'));
     } else {
@@ -878,16 +878,16 @@ const Admin = () => {
     }
 
     // Load Gallery
-    const storedGallery = localStorage.getItem('ieee_gallery_items');
+    const storedGallery = null /* migrated to API */;
     let parsedGallery = storedGallery ? JSON.parse(storedGallery) : null;
     if (!parsedGallery || parsedGallery.length === 0 || !parsedGallery[0].images || parsedGallery[0].title === 'Flutter Bootcamp 2026') {
-      localStorage.setItem('ieee_gallery_items', JSON.stringify(defaultGallery));
+      settingsService.set('ieee_gallery_items', JSON.stringify(defaultGallery));
       parsedGallery = defaultGallery;
     }
     setGalleryItems(parsedGallery);
 
     // Load Media Videos
-    const storedVideos = localStorage.getItem('ieee_media_videos_v2');
+    const storedVideos = null /* migrated to API */;
     if (storedVideos) {
       setMediaVideos(JSON.parse(storedVideos));
     } else {
@@ -903,99 +903,138 @@ const Admin = () => {
           desc: "Recap video showcasing student project prototypes and presentation pitches at Perundurai."
         }
       ];
-      localStorage.setItem('ieee_media_videos_v2', JSON.stringify(defaultMediaVideos));
+      settingsService.set('ieee_media_videos_v2', JSON.stringify(defaultMediaVideos));
       setMediaVideos(defaultMediaVideos);
     }
 
-    // Load Events
-    const storedUpcoming = localStorage.getItem('ieee_events_upcoming');
-    if (storedUpcoming) {
-      setUpcomingEvents(JSON.parse(storedUpcoming));
-    } else {
-      localStorage.setItem('ieee_events_upcoming', JSON.stringify(defaultUpcomingEvents));
-      setUpcomingEvents(defaultUpcomingEvents);
-    }
-
-    const storedPast = localStorage.getItem('ieee_events_past');
-    if (storedPast) {
-      setPastEvents(JSON.parse(storedPast));
-    } else {
-      localStorage.setItem('ieee_events_past', JSON.stringify(defaultPastEvents));
-      setPastEvents(defaultPastEvents);
+    // Load Events from API
+    const fetchEvents = async () => {
+      try {
+        const response = await authFetch(`${API}/events`);
+        if (!response.ok) throw new Error(`Failed to load events (${response.status})`);
+        
+        const data = await response.json();
+        const formattedData = data.map(evt => ({ ...evt, id: evt._id }));
+        
+        const upcoming = formattedData.filter(evt => evt.isUpcoming);
+        const past = formattedData.filter(evt => !evt.isUpcoming);
+        
+        setUpcomingEvents(upcoming);
+        setPastEvents(past);
+      } catch (err) {
+        console.error("Events fetch error:", err);
+      }
+    };
+    if (isLoggedIn) {
+      fetchEvents();
+      
+      const fetchSettingsData = async () => {
+        try {
+          const keysAndSetters = [
+            { key: 'ieee_gallery_items', setter: setGalleryItems, def: [] },
+            { key: 'ieee_achievements', setter: setAchievements, def: [] },
+            { key: 'ieee_operational_committees', setter: setCommittees, def: [] },
+            { key: 'ieee_research_papers', setter: setResearchPapers, def: [] },
+            { key: 'ieee_news_items', setter: setNewsItems, def: [] },
+            { key: 'ieee_media_videos_v2', setter: setMediaVideos, def: [] },
+            { key: 'ieee_execomm_societies_v3', setter: setSocieties, def: [] },
+            { key: 'ieee_execomm_students_v3', setter: setStudents, def: [] },
+            { key: 'ieee_request_forms', setter: setRequestForms, def: [] },
+            { key: 'ieee_documents', setter: setDocuments, def: [] }
+          ];
+          
+          const settings = await settingsService.getAll();
+          // settings is an array of { key, value }
+          const settingsMap = {};
+          if (Array.isArray(settings)) {
+            settings.forEach(s => settingsMap[s.key] = s.value);
+          }
+          
+          keysAndSetters.forEach(({ key, setter, def }) => {
+            if (settingsMap[key]) {
+              setter(settingsMap[key]);
+            } else {
+              setter(def);
+            }
+          });
+        } catch (e) { console.error("Error loading settings data:", e); }
+      };
+      
+      fetchSettingsData();
     }
 
     // Load Achievements
-    const storedAchievements = localStorage.getItem('ieee_achievements');
+    const storedAchievements = null /* migrated to API */;
     if (storedAchievements) {
       setAchievements(JSON.parse(storedAchievements));
     } else {
-      localStorage.setItem('ieee_achievements', JSON.stringify(defaultAchievements));
+      settingsService.set('ieee_achievements', JSON.stringify(defaultAchievements));
       setAchievements(defaultAchievements);
     }
 
     // Load Execomm Societies
-    const storedSocieties = localStorage.getItem('ieee_execomm_societies_v3');
+    const storedSocieties = null /* migrated to API */;
     if (storedSocieties) {
       setSocieties(JSON.parse(storedSocieties));
     } else {
-      localStorage.setItem('ieee_execomm_societies_v3', JSON.stringify(defaultSocieties));
+      settingsService.set('ieee_execomm_societies_v3', JSON.stringify(defaultSocieties));
       setSocieties(defaultSocieties);
     }
 
     // Load Execomm Students
-    const storedStudents = localStorage.getItem('ieee_execomm_students_v3');
+    const storedStudents = null /* migrated to API */;
     if (storedStudents) {
       setStudents(JSON.parse(storedStudents));
     } else {
-      localStorage.setItem('ieee_execomm_students_v3', JSON.stringify(defaultStudents));
+      settingsService.set('ieee_execomm_students_v3', JSON.stringify(defaultStudents));
       setStudents(defaultStudents);
     }
 
     // Load Committees
-    const storedCommittees = localStorage.getItem('ieee_operational_committees');
+    const storedCommittees = null /* migrated to API */;
     if (storedCommittees) {
       setCommittees(JSON.parse(storedCommittees));
     } else {
-      localStorage.setItem('ieee_operational_committees', JSON.stringify(defaultCommittees));
+      settingsService.set('ieee_operational_committees', JSON.stringify(defaultCommittees));
       setCommittees(defaultCommittees);
     }
 
     // Load Research Papers
-    const storedPapers = localStorage.getItem('ieee_research_papers');
+    const storedPapers = null /* migrated to API */;
     if (storedPapers) {
       setResearchPapers(JSON.parse(storedPapers));
     } else {
-      localStorage.setItem('ieee_research_papers', JSON.stringify(defaultResearchPapers));
+      settingsService.set('ieee_research_papers', JSON.stringify(defaultResearchPapers));
       setResearchPapers(defaultResearchPapers);
       // Set initial papers count
-      localStorage.setItem('ieee_papers_count', defaultResearchPapers.length.toString());
+      settingsService.set('ieee_papers_count', defaultResearchPapers.length.toString());
       setPapersCount(defaultResearchPapers.length.toString());
     }
 
     // Load News Items
-    const storedNews = localStorage.getItem('ieee_news_items');
+    const storedNews = null /* migrated to API */;
     let parsedNews = storedNews ? JSON.parse(storedNews) : null;
     if (!parsedNews || parsedNews.length === 0 || !parsedNews[0].cat) {
-      localStorage.setItem('ieee_news_items', JSON.stringify(defaultNews));
+      settingsService.set('ieee_news_items', JSON.stringify(defaultNews));
       parsedNews = defaultNews;
     }
     setNewsItems(parsedNews);
 
     // Load dynamic media content
-    setAboutImage(localStorage.getItem('ieee_about_image') || '/assets/kec_itpark.jpg');
-    setKeystonesVideoUrl(localStorage.getItem('ieee_keystones_video_url_v2') || 'https://youtu.be/_90Hd1qMDGM');
+    setAboutImage(null /* migrated to API */ || '/assets/kec_itpark.jpg');
+    setKeystonesVideoUrl(null /* migrated to API */ || 'https://youtu.be/_90Hd1qMDGM');
 
-    const storedHero = localStorage.getItem('ieee_hero_images');
+    const storedHero = null /* migrated to API */;
     if (storedHero) {
       setHeroImages(JSON.parse(storedHero));
     } else {
       const defaultHeroImages = ['/assets/kec_gate.jpg', '/assets/kec_itpark.jpg', '/assets/kec_admin.jpg'];
-      localStorage.setItem('ieee_hero_images', JSON.stringify(defaultHeroImages));
+      settingsService.set('ieee_hero_images', JSON.stringify(defaultHeroImages));
       setHeroImages(defaultHeroImages);
     }
 
     // Load impact stats
-    const storedImpact = localStorage.getItem('ieee_impact_stats');
+    const storedImpact = null /* migrated to API */;
     if (storedImpact) {
       setImpactStats(JSON.parse(storedImpact));
     } else {
@@ -1007,12 +1046,12 @@ const Admin = () => {
         { id: 5, value: "20+", label: "Workshops Conducted" },
         { id: 6, value: "10+", label: "Industry Collaborations" }
       ];
-      localStorage.setItem('ieee_impact_stats', JSON.stringify(defaultImpactStats));
+      settingsService.set('ieee_impact_stats', JSON.stringify(defaultImpactStats));
       setImpactStats(defaultImpactStats);
     }
 
     // Load testimonials
-    const storedTestimonials = localStorage.getItem('ieee_testimonials');
+    const storedTestimonials = null /* migrated to API */;
     if (storedTestimonials) {
       setTestimonials(JSON.parse(storedTestimonials));
     } else {
@@ -1021,34 +1060,34 @@ const Admin = () => {
         { id: 2, text: "The networking opportunities and workshops provided valuable industry exposure and practical knowledge.", author: "IEEE Alumni", role: "KEC IEEE SB" },
         { id: 3, text: "Being part of IEEE motivated me to explore research, innovation, and professional development beyond academics.", author: "IEEE Graduate", role: "KEC IEEE SB" }
       ];
-      localStorage.setItem('ieee_testimonials', JSON.stringify(defaultTestimonials));
+      settingsService.set('ieee_testimonials', JSON.stringify(defaultTestimonials));
       setTestimonials(defaultTestimonials);
     }
 
     // Load Drive folder and Documents settings
-    const storedDriveUrl = localStorage.getItem('ieee_drive_folder_url');
+    const storedDriveUrl = null /* migrated to API */;
     if (storedDriveUrl) {
       setDriveFolderUrl(storedDriveUrl);
     } else {
       const defaultUrl = 'https://drive.google.com/drive/folders/1mdrfLwOWprcKEB5PbK6BhWgv1MrrSE-m';
-      localStorage.setItem('ieee_drive_folder_url', defaultUrl);
+      settingsService.set('ieee_drive_folder_url', defaultUrl);
       setDriveFolderUrl(defaultUrl);
     }
 
-    const storedDocs = localStorage.getItem('ieee_documents');
+    const storedDocs = null /* migrated to API */;
     let parsedDocs = [];
     if (storedDocs) {
       parsedDocs = JSON.parse(storedDocs);
     }
     if (!storedDocs || parsedDocs.length === 0) {
-      localStorage.setItem('ieee_documents', JSON.stringify(defaultSyncFiles));
+      settingsService.set('ieee_documents', JSON.stringify(defaultSyncFiles));
       setDocuments(defaultSyncFiles);
     } else {
       setDocuments(parsedDocs);
     }
 
     // Load Request Forms
-    const storedRequestForms = localStorage.getItem('ieee_request_forms');
+    const storedRequestForms = null /* migrated to API */;
     const defaultRequestForms = [
       {
         id: 1,
@@ -1111,7 +1150,7 @@ const Admin = () => {
           return updated;
         });
         if (mutated) {
-          localStorage.setItem('ieee_request_forms', JSON.stringify(parsed));
+          settingsService.set('ieee_request_forms', JSON.stringify(parsed));
         }
         setRequestForms(parsed);
       } catch (e) {
@@ -1119,21 +1158,21 @@ const Admin = () => {
         setRequestForms(defaultRequestForms);
       }
     } else {
-      localStorage.setItem('ieee_request_forms', JSON.stringify(defaultRequestForms));
+      settingsService.set('ieee_request_forms', JSON.stringify(defaultRequestForms));
       setRequestForms(defaultRequestForms);
     }
 
     // Load Request Form Submissions
-    const storedSubmissions = localStorage.getItem('ieee_form_submissions');
+    const storedSubmissions = null /* migrated to API */;
     if (storedSubmissions) {
       setSubmissions(JSON.parse(storedSubmissions));
     } else {
-      localStorage.setItem('ieee_form_submissions', JSON.stringify([]));
+      settingsService.set('ieee_form_submissions', JSON.stringify([]));
       setSubmissions([]);
     }
 
     // Load About KEC SB data
-    const storedAboutSb = localStorage.getItem('ieee_about_kec_sb_v1');
+    const storedAboutSb = null /* migrated to API */;
     if (storedAboutSb) {
       setAboutKecSb(JSON.parse(storedAboutSb));
     } else {
@@ -1184,11 +1223,11 @@ const Admin = () => {
         }
       };
       setAboutKecSb(defaultAboutKecSb);
-      localStorage.setItem('ieee_about_kec_sb_v1', JSON.stringify(defaultAboutKecSb));
+      settingsService.set('ieee_about_kec_sb_v1', JSON.stringify(defaultAboutKecSb));
     }
 
     // Load Contact Page data
-    const storedContactPage = localStorage.getItem('ieee_contact_page_v1');
+    const storedContactPage = null /* migrated to API */;
     if (storedContactPage) {
       setContactPage(JSON.parse(storedContactPage));
     } else {
@@ -1213,11 +1252,11 @@ const Admin = () => {
         }
       };
       setContactPage(defaultContact);
-      localStorage.setItem('ieee_contact_page_v1', JSON.stringify(defaultContact));
+      settingsService.set('ieee_contact_page_v1', JSON.stringify(defaultContact));
     }
 
     // Load Events stats and philosophy
-    const storedEventsStats = localStorage.getItem('ieee_events_stats_v1');
+    const storedEventsStats = null /* migrated to API */;
     if (storedEventsStats) {
       setEventsStats(JSON.parse(storedEventsStats));
     } else {
@@ -1228,10 +1267,10 @@ const Admin = () => {
         { label: "Total Participants", count: "3000+" }
       ];
       setEventsStats(defaultEventsStats);
-      localStorage.setItem('ieee_events_stats_v1', JSON.stringify(defaultEventsStats));
+      settingsService.set('ieee_events_stats_v1', JSON.stringify(defaultEventsStats));
     }
 
-    const storedEventsPhilosophy = localStorage.getItem('ieee_events_philosophy_v1');
+    const storedEventsPhilosophy = null /* migrated to API */;
     if (storedEventsPhilosophy) {
       setEventPhilosophy(JSON.parse(storedEventsPhilosophy));
     } else {
@@ -1240,11 +1279,11 @@ const Admin = () => {
         description: "At IEEE KEC SB, our events are designed around practical engineering experience. We bridge the gap between academic theory and active technology deployment through hands-on hackathons, research publications, and peer-to-peer programming."
       };
       setEventPhilosophy(defaultPhilosophy);
-      localStorage.setItem('ieee_events_philosophy_v1', JSON.stringify(defaultPhilosophy));
+      settingsService.set('ieee_events_philosophy_v1', JSON.stringify(defaultPhilosophy));
     }
 
     // Load Achievements stats and success stories
-    const storedAchievementsStats = localStorage.getItem('ieee_achievements_stats_v1');
+    const storedAchievementsStats = null /* migrated to API */;
     if (storedAchievementsStats) {
       setAchievementsStats(JSON.parse(storedAchievementsStats));
     } else {
@@ -1255,10 +1294,10 @@ const Admin = () => {
         { label: "Indexed Research Papers", count: "25+" }
       ];
       setAchievementsStats(defaultAchievementsStats);
-      localStorage.setItem('ieee_achievements_stats_v1', JSON.stringify(defaultAchievementsStats));
+      settingsService.set('ieee_achievements_stats_v1', JSON.stringify(defaultAchievementsStats));
     }
 
-    const storedSuccessStories = localStorage.getItem('ieee_success_stories_v1');
+    const storedSuccessStories = null /* migrated to API */;
     if (storedSuccessStories) {
       setSuccessStories(JSON.parse(storedSuccessStories));
     } else {
@@ -1277,11 +1316,11 @@ const Admin = () => {
         }
       ];
       setSuccessStories(defaultSuccessStories);
-      localStorage.setItem('ieee_success_stories_v1', JSON.stringify(defaultSuccessStories));
+      settingsService.set('ieee_success_stories_v1', JSON.stringify(defaultSuccessStories));
     }
 
     // Load Committees philosophy and CTA
-    const storedCommitteesPhilosophy = localStorage.getItem('ieee_committees_philosophy_v1');
+    const storedCommitteesPhilosophy = null /* migrated to API */;
     if (storedCommitteesPhilosophy) {
       setCommitteesPhilosophy(JSON.parse(storedCommitteesPhilosophy));
     } else {
@@ -1290,10 +1329,10 @@ const Admin = () => {
         text: "Volunteering is at the core of IEEE's mission. At KEC, we believe that real engineering skills are forged by organizing, leading, and serving. Our committees offer students an experimental workspace to practice project management, professional communication, and group dynamics while working on real community initiatives."
       };
       setCommitteesPhilosophy(defaultPhilosophy);
-      localStorage.setItem('ieee_committees_philosophy_v1', JSON.stringify(defaultPhilosophy));
+      settingsService.set('ieee_committees_philosophy_v1', JSON.stringify(defaultPhilosophy));
     }
 
-    const storedCommitteesCta = localStorage.getItem('ieee_committees_cta_v1');
+    const storedCommitteesCta = null /* migrated to API */;
     if (storedCommitteesCta) {
       setCommitteesCta(JSON.parse(storedCommitteesCta));
     } else {
@@ -1306,14 +1345,14 @@ const Admin = () => {
         btnMailLink: "mailto:ieee@kongu.edu"
       };
       setCommitteesCta(defaultCta);
-      localStorage.setItem('ieee_committees_cta_v1', JSON.stringify(defaultCta));
+      settingsService.set('ieee_committees_cta_v1', JSON.stringify(defaultCta));
     }
   }, []);
 
   // Load current branch details on selected branch key changes
   useEffect(() => {
     const key = selectedBranchKey;
-    const stored = localStorage.getItem(`ieee_society_data_${key}_v5`);
+    const stored = null;
     if (stored) {
       try {
         setBranchData(JSON.parse(stored));
@@ -1375,7 +1414,7 @@ const Admin = () => {
     }
 
     // Fetch existing custom registered admins and check for duplicates
-    const storedAdmins = JSON.parse(localStorage.getItem('ieee_registered_admins') || '[]');
+    const storedAdmins = JSON.parse(null /* migrated to API */ || '[]');
     const allAdmins = [...defaultAdmins, ...storedAdmins];
 
     const exists = allAdmins.some(
@@ -1390,7 +1429,7 @@ const Admin = () => {
     // Save newly registered admin
     const newAdmin = { email: regEmail, password: regPassword };
     const updatedAdmins = [...storedAdmins, newAdmin];
-    localStorage.setItem('ieee_registered_admins', JSON.stringify(updatedAdmins));
+    settingsService.set('ieee_registered_admins', JSON.stringify(updatedAdmins));
 
     setRegSuccess('Registration successful! You can now log in.');
     setEmail(regEmail); // Pre-populate the login field for convenience
@@ -1491,7 +1530,7 @@ const Admin = () => {
     }
 
     setRequestForms(updatedForms);
-    localStorage.setItem('ieee_request_forms', JSON.stringify(updatedForms));
+    settingsService.set('ieee_request_forms', JSON.stringify(updatedForms));
     setEditingFormId(null);
     setPreviewFormUrl('');
   };
@@ -1500,37 +1539,37 @@ const Admin = () => {
     if (!window.confirm("Are you sure you want to permanently delete this request form template?")) return;
     const updated = requestForms.filter(form => form.id !== id);
     setRequestForms(updated);
-    localStorage.setItem('ieee_request_forms', JSON.stringify(updated));
+    settingsService.set('ieee_request_forms', JSON.stringify(updated));
   };
 
   const handleDeleteSubmission = (id) => {
     if (!window.confirm("Are you sure you want to delete this submission?")) return;
     const updated = submissions.filter(s => s.id !== id);
     setSubmissions(updated);
-    localStorage.setItem('ieee_form_submissions', JSON.stringify(updated));
+    settingsService.set('ieee_form_submissions', JSON.stringify(updated));
   };
 
   // Stats & Site Settings Save
   const handleSaveStats = (e) => {
     e.preventDefault();
-    localStorage.setItem('ieee_member_count', memberCount);
-    localStorage.setItem('ieee_events_count', eventsCount);
-    localStorage.setItem('ieee_awards_count', awardsCount);
-    localStorage.setItem('ieee_papers_count', papersCount);
-    localStorage.setItem('ieee_mission', mission);
-    localStorage.setItem('ieee_vision', vision);
-    localStorage.setItem('ieee_access_pin', accessPin);
-    localStorage.setItem('ieee_pin_enabled', isPinEnabled);
-    localStorage.setItem('ieee_about_image', aboutImage);
-    localStorage.setItem('ieee_keystones_video_url_v2', keystonesVideoUrl);
-    localStorage.setItem('ieee_hero_images', JSON.stringify(heroImages));
+    settingsService.set('ieee_member_count', memberCount);
+    settingsService.set('ieee_events_count', eventsCount);
+    settingsService.set('ieee_awards_count', awardsCount);
+    settingsService.set('ieee_papers_count', papersCount);
+    settingsService.set('ieee_mission', mission);
+    settingsService.set('ieee_vision', vision);
+    settingsService.set('ieee_access_pin', accessPin);
+    settingsService.set('ieee_pin_enabled', isPinEnabled);
+    settingsService.set('ieee_about_image', aboutImage);
+    settingsService.set('ieee_keystones_video_url_v2', keystonesVideoUrl);
+    settingsService.set('ieee_hero_images', JSON.stringify(heroImages));
 
     // Convert ticker notices from lines to string array
     const tickerArray = tickerNoticesText
       .split('\n')
       .map(line => line.trim())
       .filter(line => line.length > 0);
-    localStorage.setItem('ieee_ticker_notices', JSON.stringify(tickerArray));
+    settingsService.set('ieee_ticker_notices', JSON.stringify(tickerArray));
 
     setStatsSaved(true);
     setTimeout(() => setStatsSaved(false), 3000);
@@ -1721,55 +1760,64 @@ const Admin = () => {
   };
 
   // Generic Delete Actions
-  const handleDeleteItem = (type, id) => {
+  const handleDeleteItem = async (type, id) => {
     if (!window.confirm(`Are you sure you want to delete this ${type} item?`)) return;
 
     if (type === 'gallery') {
       const updated = galleryItems.filter(item => item.id !== id);
       setGalleryItems(updated);
-      localStorage.setItem('ieee_gallery_items', JSON.stringify(updated));
+      settingsService.set('ieee_gallery_items', JSON.stringify(updated));
     } else if (type === 'event') {
-      const updatedUpcoming = upcomingEvents.filter(item => item.id !== id);
-      const updatedPast = pastEvents.filter(item => item.id !== id);
-      setUpcomingEvents(updatedUpcoming);
-      setPastEvents(updatedPast);
-      localStorage.setItem('ieee_events_upcoming', JSON.stringify(updatedUpcoming));
-      localStorage.setItem('ieee_events_past', JSON.stringify(updatedPast));
+      const deleteEvent = async () => {
+        try {
+          const response = await authFetch(`${API}/events/${id}`, { method: 'DELETE' });
+          if (!response.ok) throw new Error('Failed to delete event');
+          
+          const updatedUpcoming = upcomingEvents.filter(item => item.id !== id);
+          const updatedPast = pastEvents.filter(item => item.id !== id);
+          setUpcomingEvents(updatedUpcoming);
+          setPastEvents(updatedPast);
+        } catch (err) {
+          console.error(err);
+          alert('Error deleting event: ' + err.message);
+        }
+      };
+      deleteEvent();
     } else if (type === 'achievement') {
       const updated = achievements.filter(item => item.id !== id);
       setAchievements(updated);
-      localStorage.setItem('ieee_achievements', JSON.stringify(updated));
+      settingsService.set('ieee_achievements', JSON.stringify(updated));
     } else if (type === 'society') {
       const updated = societies.filter(item => item.id !== id);
       setSocieties(updated);
-      localStorage.setItem('ieee_execomm_societies_v3', JSON.stringify(updated));
+      settingsService.set('ieee_execomm_societies_v3', JSON.stringify(updated));
     } else if (type === 'student') {
       const updated = students.filter(item => item.id !== id);
       setStudents(updated);
-      localStorage.setItem('ieee_execomm_students_v3', JSON.stringify(updated));
+      settingsService.set('ieee_execomm_students_v3', JSON.stringify(updated));
     } else if (type === 'committee') {
       const updated = committees.filter(item => item.id !== id);
       setCommittees(updated);
-      localStorage.setItem('ieee_operational_committees', JSON.stringify(updated));
+      settingsService.set('ieee_operational_committees', JSON.stringify(updated));
     } else if (type === 'researchpaper') {
       const updated = researchPapers.filter(item => item.id !== id);
       setResearchPapers(updated);
-      localStorage.setItem('ieee_research_papers', JSON.stringify(updated));
+      settingsService.set('ieee_research_papers', JSON.stringify(updated));
       
       // Decrement papers count when a paper is deleted
       const currentCount = parseInt(papersCount) || 0;
       const newCount = Math.max(currentCount - 1, 0);
       setPapersCount(newCount.toString());
-      localStorage.setItem('ieee_papers_count', newCount.toString());
+      settingsService.set('ieee_papers_count', newCount.toString());
     } else if (type === 'news') {
       const updated = newsItems.filter(item => item.id !== id);
       setNewsItems(updated);
-      localStorage.setItem('ieee_news_items', JSON.stringify(updated));
+      settingsService.set('ieee_news_items', JSON.stringify(updated));
     }
   };
 
   // Generic Save Logic
-  const handleSaveItem = (e) => {
+  const handleSaveItem = async (e) => {
     e.preventDefault();
 
     if (modalType === 'gallery') {
@@ -1792,70 +1840,66 @@ const Admin = () => {
         );
       }
       setGalleryItems(updated);
-      localStorage.setItem('ieee_gallery_items', JSON.stringify(updated));
+      settingsService.set('ieee_gallery_items', JSON.stringify(updated));
 
     } else if (modalType === 'event') {
       if (!eventTitle.trim() || !eventDesc.trim() || !eventDate.trim() || !eventVenue.trim()) return;
 
-      const combinedId = currentItemId || Date.now();
-      let updatedUpcoming = [...upcomingEvents];
-      let updatedPast = [...pastEvents];
+      const newEventData = {
+        title: eventTitle,
+        desc: eventDesc,
+        date: eventDate,
+        time: eventTime,
+        venue: eventVenue,
+        tag: eventTag,
+        link: eventLink,
+        highlights: eventHighlights,
+        isHighlighted: isEventHighlighted,
+        highlightOrder: isEventHighlighted ? pastEvents.find(e => e.id === currentItemId)?.highlightOrder || (pastEvents.filter(e => e.isHighlighted).length + 1) : 0,
+        highlightDescription: highlightDescription || eventDesc,
+        highlightImage: highlightImage,
+        highlightTheme: highlightTheme,
+        isUpcoming: eventIsUpcoming
+      };
 
-      // Remove existing item from both lists if editing
-      if (modalMode === 'edit') {
-        updatedUpcoming = updatedUpcoming.filter(e => e.id !== currentItemId);
-        updatedPast = updatedPast.filter(e => e.id !== currentItemId);
-      }
+      const saveEvent = async () => {
+        try {
+          let url = `${API}/events`;
+          let method = 'POST';
 
-      if (eventIsUpcoming) {
-        const newEvent = {
-          id: combinedId,
-          title: eventTitle,
-          desc: eventDesc,
-          date: eventDate,
-          time: eventTime,
-          venue: eventVenue,
-          tag: eventTag,
-          link: eventLink,
-          showNewBadge: eventShowNewBadge
-        };
-        updatedUpcoming.push(newEvent);
-      } else {
-        // Limit check
-        if (isEventHighlighted) {
-          const currentlyHighlighted = updatedPast.filter(e => e.isHighlighted && e.id !== combinedId);
-          if (currentlyHighlighted.length >= 5) {
-            alert("A maximum of 5 highlighted events is allowed. Please remove another event from highlights first.");
-            return;
+          if (modalMode === 'edit') {
+            url = `${API}/events/${currentItemId}`;
+            method = 'PUT';
           }
+
+          const response = await authFetch(url, {
+            method,
+            body: JSON.stringify(newEventData)
+          });
+
+          if (!response.ok) throw new Error('Failed to save event');
+          
+          const savedEvent = await response.json();
+          savedEvent.id = savedEvent._id; 
+
+          if (modalMode === 'edit') {
+            setUpcomingEvents(prev => prev.filter(e => e.id !== currentItemId));
+            setPastEvents(prev => prev.filter(e => e.id !== currentItemId));
+          }
+
+          if (savedEvent.isUpcoming) {
+            setUpcomingEvents(prev => [...prev, savedEvent]);
+          } else {
+            setPastEvents(prev => [...prev, savedEvent]);
+          }
+          setIsModalOpen(false);
+        } catch (err) {
+          console.error(err);
+          alert('Error saving event: ' + err.message);
+          return;
         }
-
-        const oldEvent = pastEvents.find(e => e.id === combinedId) || {};
-        const nextOrder = oldEvent.highlightOrder !== undefined 
-          ? oldEvent.highlightOrder 
-          : (pastEvents.filter(e => e.isHighlighted).length + 1);
-
-        const newEvent = {
-          id: combinedId,
-          title: eventTitle,
-          desc: eventDesc,
-          date: eventDate,
-          venue: eventVenue,
-          tag: eventTag,
-          highlights: eventHighlights,
-          isHighlighted: isEventHighlighted,
-          highlightOrder: nextOrder,
-          highlightDescription: highlightDescription || eventDesc,
-          highlightImage: highlightImage,
-          highlightTheme: highlightTheme
-        };
-        updatedPast.push(newEvent);
-      }
-
-      setUpcomingEvents(updatedUpcoming);
-      setPastEvents(updatedPast);
-      localStorage.setItem('ieee_events_upcoming', JSON.stringify(updatedUpcoming));
-      localStorage.setItem('ieee_events_past', JSON.stringify(updatedPast));
+      };
+      saveEvent();
 
     } else if (modalType === 'achievement') {
       if (!achTitle.trim() || !achCategory.trim() || !achDesc.trim()) return;
@@ -1877,7 +1921,7 @@ const Admin = () => {
         );
       }
       setAchievements(updated);
-      localStorage.setItem('ieee_achievements', JSON.stringify(updated));
+      settingsService.set('ieee_achievements', JSON.stringify(updated));
 
     } else if (modalType === 'society') {
       if (!societyName.trim()) return;
@@ -1903,7 +1947,7 @@ const Admin = () => {
         );
       }
       setSocieties(updated);
-      localStorage.setItem('ieee_execomm_societies_v3', JSON.stringify(updated));
+      settingsService.set('ieee_execomm_societies_v3', JSON.stringify(updated));
 
     } else if (modalType === 'student') {
       if (!studentName.trim() || !studentDept.trim() || !studentYear.trim() || !studentIeeeNumber.trim() || !studentPosition.trim()) return;
@@ -1943,7 +1987,7 @@ const Admin = () => {
         );
       }
       setStudents(updated);
-      localStorage.setItem('ieee_execomm_students_v3', JSON.stringify(updated));
+      settingsService.set('ieee_execomm_students_v3', JSON.stringify(updated));
 
     } else if (modalType === 'committee') {
       if (!commName.trim() || !commDesc.trim() || !commLead.trim() || !commCoLead.trim()) return;
@@ -1966,7 +2010,7 @@ const Admin = () => {
         );
       }
       setCommittees(updated);
-      localStorage.setItem('ieee_operational_committees', JSON.stringify(updated));
+      settingsService.set('ieee_operational_committees', JSON.stringify(updated));
 
     } else if (modalType === 'researchpaper') {
       if (!paperTitle.trim() || !paperAuthors.trim() || !paperDesc.trim()) return;
@@ -1987,7 +2031,7 @@ const Admin = () => {
         const currentCount = parseInt(papersCount) || 0;
         const newCount = currentCount + 1;
         setPapersCount(newCount.toString());
-        localStorage.setItem('ieee_papers_count', newCount.toString());
+        settingsService.set('ieee_papers_count', newCount.toString());
       } else {
         updated = researchPapers.map(item =>
           item.id === currentItemId
@@ -1996,7 +2040,7 @@ const Admin = () => {
         );
       }
       setResearchPapers(updated);
-      localStorage.setItem('ieee_research_papers', JSON.stringify(updated));
+      settingsService.set('ieee_research_papers', JSON.stringify(updated));
     } else if (modalType === 'news') {
       if (!newsTitle.trim() || !newsSource.trim() || !newsDate.trim() || !newsSnippet.trim()) return;
       let updated = [];
@@ -2019,7 +2063,7 @@ const Admin = () => {
         );
       }
       setNewsItems(updated);
-      localStorage.setItem('ieee_news_items', JSON.stringify(updated));
+      settingsService.set('ieee_news_items', JSON.stringify(updated));
     }
 
     setIsModalOpen(false);
@@ -2051,7 +2095,7 @@ const Admin = () => {
         : item
     );
     setSocieties(updated);
-    localStorage.setItem('ieee_execomm_societies_v3', JSON.stringify(updated));
+    settingsService.set('ieee_execomm_societies_v3', JSON.stringify(updated));
     setEditingSocietyId(null);
   };
 
@@ -2085,7 +2129,7 @@ const Admin = () => {
       return item;
     });
     setSocieties(updated);
-    localStorage.setItem('ieee_execomm_societies_v3', JSON.stringify(updated));
+    settingsService.set('ieee_execomm_societies_v3', JSON.stringify(updated));
     setEditingFacultyId(null);
   };
 
@@ -2103,7 +2147,7 @@ const Admin = () => {
       return item;
     });
     setSocieties(updated);
-    localStorage.setItem('ieee_execomm_societies_v3', JSON.stringify(updated));
+    settingsService.set('ieee_execomm_societies_v3', JSON.stringify(updated));
   };
 
   const startInlineEditStudent = (item) => {
@@ -2140,7 +2184,7 @@ const Admin = () => {
         : item
     );
     setStudents(updated);
-    localStorage.setItem('ieee_execomm_students_v3', JSON.stringify(updated));
+    settingsService.set('ieee_execomm_students_v3', JSON.stringify(updated));
     setEditingStudentId(null);
   };
 
@@ -2160,7 +2204,7 @@ const Admin = () => {
         : item
     );
     setGalleryItems(updated);
-    localStorage.setItem('ieee_gallery_items', JSON.stringify(updated));
+    settingsService.set('ieee_gallery_items', JSON.stringify(updated));
     setEditingGalleryId(null);
   };
 
@@ -2179,42 +2223,36 @@ const Admin = () => {
 
   const saveInlineEvent = (id) => {
     if (!eventTitle.trim() || !eventDesc.trim() || !eventDate.trim() || !eventVenue.trim()) return;
-    if (eventIsUpcoming) {
-      const updated = upcomingEvents.map(item =>
-        item.id === id
-          ? {
-              ...item,
-              title: eventTitle,
-              desc: eventDesc,
-              date: eventDate,
-              time: eventTime,
-              venue: eventVenue,
-              tag: eventTag,
-              link: eventLink
-            }
-          : item
-      );
-      setUpcomingEvents(updated);
-      localStorage.setItem('ieee_events_upcoming', JSON.stringify(updated));
-    } else {
-      const updated = pastEvents.map(item =>
-        item.id === id
-          ? {
-              ...item,
-              title: eventTitle,
-              desc: eventDesc,
-              date: eventDate,
-              time: eventTime,
-              venue: eventVenue,
-              tag: eventTag,
-              highlights: eventHighlights
-            }
-          : item
-      );
-      setPastEvents(updated);
-      localStorage.setItem('ieee_events_past', JSON.stringify(updated));
-    }
-    setEditingEventId(null);
+    
+    const saveEvent = async () => {
+      try {
+        const updateData = eventIsUpcoming 
+          ? { title: eventTitle, desc: eventDesc, date: eventDate, time: eventTime, venue: eventVenue, tag: eventTag, link: eventLink, isUpcoming: true }
+          : { title: eventTitle, desc: eventDesc, date: eventDate, time: eventTime, venue: eventVenue, tag: eventTag, highlights: eventHighlights, isUpcoming: false };
+          
+        const response = await authFetch(`${API}/events/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify(updateData)
+        });
+        
+        if (!response.ok) throw new Error('Failed to update event inline');
+        const savedEvent = await response.json();
+        savedEvent.id = savedEvent._id;
+        
+        if (eventIsUpcoming) {
+          const updated = upcomingEvents.map(item => item.id === id ? { ...item, ...savedEvent } : item);
+          setUpcomingEvents(updated);
+        } else {
+          const updated = pastEvents.map(item => item.id === id ? { ...item, ...savedEvent } : item);
+          setPastEvents(updated);
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error updating event: ' + err.message);
+      }
+      setEditingEventId(null);
+    };
+    saveEvent();
   };
 
   const startInlineEditAchievement = (item) => {
@@ -2233,7 +2271,7 @@ const Admin = () => {
         : item
     );
     setAchievements(updated);
-    localStorage.setItem('ieee_achievements', JSON.stringify(updated));
+    settingsService.set('ieee_achievements', JSON.stringify(updated));
     setEditingAchievementId(null);
   };
 
@@ -2254,7 +2292,7 @@ const Admin = () => {
         : item
     );
     setCommittees(updated);
-    localStorage.setItem('ieee_operational_committees', JSON.stringify(updated));
+    settingsService.set('ieee_operational_committees', JSON.stringify(updated));
     setEditingCommitteeId(null);
   };
 
@@ -2287,7 +2325,7 @@ const Admin = () => {
         : item
     );
     setNewsItems(updated);
-    localStorage.setItem('ieee_news_items', JSON.stringify(updated));
+    settingsService.set('ieee_news_items', JSON.stringify(updated));
     setEditingNewsId(null);
   };
 
@@ -2309,7 +2347,7 @@ const Admin = () => {
         : item
     );
     setResearchPapers(updated);
-    localStorage.setItem('ieee_research_papers', JSON.stringify(updated));
+    settingsService.set('ieee_research_papers', JSON.stringify(updated));
     setEditingResearchPaperId(null);
   };
 
@@ -2328,7 +2366,7 @@ const Admin = () => {
         : item
     );
     setImpactStats(updated);
-    localStorage.setItem('ieee_impact_stats', JSON.stringify(updated));
+    settingsService.set('ieee_impact_stats', JSON.stringify(updated));
     setEditingImpactId(null);
   };
 
@@ -2336,7 +2374,7 @@ const Admin = () => {
     if (!window.confirm("Are you sure you want to delete this statistic?")) return;
     const updated = impactStats.filter(item => item.id !== id);
     setImpactStats(updated);
-    localStorage.setItem('ieee_impact_stats', JSON.stringify(updated));
+    settingsService.set('ieee_impact_stats', JSON.stringify(updated));
   };
 
   const handleAddImpact = (e) => {
@@ -2349,7 +2387,7 @@ const Admin = () => {
     };
     const updated = [...impactStats, newItem];
     setImpactStats(updated);
-    localStorage.setItem('ieee_impact_stats', JSON.stringify(updated));
+    settingsService.set('ieee_impact_stats', JSON.stringify(updated));
     setNewImpactValue('');
     setNewImpactLabel('');
   };
@@ -2361,7 +2399,7 @@ const Admin = () => {
     updated[index] = updated[index - 1];
     updated[index - 1] = temp;
     setImpactStats(updated);
-    localStorage.setItem('ieee_impact_stats', JSON.stringify(updated));
+    settingsService.set('ieee_impact_stats', JSON.stringify(updated));
   };
 
   const handleMoveImpactDown = (index) => {
@@ -2371,7 +2409,7 @@ const Admin = () => {
     updated[index] = updated[index + 1];
     updated[index + 1] = temp;
     setImpactStats(updated);
-    localStorage.setItem('ieee_impact_stats', JSON.stringify(updated));
+    settingsService.set('ieee_impact_stats', JSON.stringify(updated));
   };
 
   // Helper functions for Testimonials
@@ -2390,7 +2428,7 @@ const Admin = () => {
         : item
     );
     setTestimonials(updated);
-    localStorage.setItem('ieee_testimonials', JSON.stringify(updated));
+    settingsService.set('ieee_testimonials', JSON.stringify(updated));
     setEditingTestimonialId(null);
   };
 
@@ -2398,7 +2436,7 @@ const Admin = () => {
     if (!window.confirm("Are you sure you want to delete this testimonial?")) return;
     const updated = testimonials.filter(item => item.id !== id);
     setTestimonials(updated);
-    localStorage.setItem('ieee_testimonials', JSON.stringify(updated));
+    settingsService.set('ieee_testimonials', JSON.stringify(updated));
   };
 
   const handleAddTestimonial = (e) => {
@@ -2412,7 +2450,7 @@ const Admin = () => {
     };
     const updated = [...testimonials, newItem];
     setTestimonials(updated);
-    localStorage.setItem('ieee_testimonials', JSON.stringify(updated));
+    settingsService.set('ieee_testimonials', JSON.stringify(updated));
     setNewTestimonialText('');
     setNewTestimonialAuthor('');
     setNewTestimonialRole('');
@@ -2428,7 +2466,7 @@ const Admin = () => {
   const handleSaveDriveUrl = (e) => {
     e.preventDefault();
     if (!driveFolderUrl.trim()) return;
-    localStorage.setItem('ieee_drive_folder_url', driveFolderUrl.trim());
+    settingsService.set('ieee_drive_folder_url', driveFolderUrl.trim());
     setSyncMessage('Drive folder link saved successfully!');
     setTimeout(() => setSyncMessage(''), 3000);
   };
@@ -2513,7 +2551,7 @@ const Admin = () => {
       }
       
       // Load current documents from localStorage
-      const currentDocs = JSON.parse(localStorage.getItem('ieee_documents') || '[]');
+      const currentDocs = JSON.parse(null /* migrated to API */ || '[]');
       
       // Merge logic: preserve category, description, isVisible, isFeatured, featuredOrder if file exists
       const updatedDocs = sourceFiles.map(syncedFile => {
@@ -2534,7 +2572,7 @@ const Admin = () => {
       });
       
       setDocuments(updatedDocs);
-      localStorage.setItem('ieee_documents', JSON.stringify(updatedDocs));
+      settingsService.set('ieee_documents', JSON.stringify(updatedDocs));
       setIsSyncing(false);
       setSyncMessage(`Successfully synchronized ${updatedDocs.length} documents from Google Drive!`);
     }, 1200);
@@ -2548,7 +2586,7 @@ const Admin = () => {
     setEditingDocId(doc.id);
   };
 
-  const saveInlineDoc = (id) => {
+  const saveInlineDoc = async (id) => {
     if (!docTitleInput.trim()) return;
     const updated = documents.map(d => 
       d.id === id 
@@ -2556,19 +2594,19 @@ const Admin = () => {
         : d
     );
     setDocuments(updated);
-    localStorage.setItem('ieee_documents', JSON.stringify(updated));
+    settingsService.set('ieee_documents', JSON.stringify(updated));
     setEditingDocId(null);
   };
 
-  const toggleDocVisibility = (id) => {
+  const toggleDocVisibility = async (id) => {
     const updated = documents.map(d => 
       d.id === id ? { ...d, isVisible: !d.isVisible } : d
     );
     setDocuments(updated);
-    localStorage.setItem('ieee_documents', JSON.stringify(updated));
+    settingsService.set('ieee_documents', JSON.stringify(updated));
   };
 
-  const toggleDocFeatured = (id) => {
+  const toggleDocFeatured = async (id) => {
     const updated = documents.map(d => {
       if (d.id === id) {
         const isFeaturedNow = !d.isFeatured;
@@ -2583,10 +2621,10 @@ const Admin = () => {
       return d;
     });
     setDocuments(updated);
-    localStorage.setItem('ieee_documents', JSON.stringify(updated));
+    settingsService.set('ieee_documents', JSON.stringify(updated));
   };
 
-  const moveDocFeatured = (id, direction) => {
+  const moveDocFeatured = async (id, direction) => {
     const featured = documents.filter(d => d.isFeatured).sort((a, b) => a.featuredOrder - b.featuredOrder);
     const index = featured.findIndex(d => d.id === id);
     const newIndex = direction === 'up' ? index - 1 : index + 1;
@@ -2603,17 +2641,17 @@ const Admin = () => {
     });
     
     setDocuments(updated);
-    localStorage.setItem('ieee_documents', JSON.stringify(updated));
+    settingsService.set('ieee_documents', JSON.stringify(updated));
   };
 
-  const toggleAllConfidentialDocs = (makeConfidential) => {
+  const toggleAllConfidentialDocs = async (makeConfidential) => {
     if (documents.length === 0) {
       alert("No documents in the repository. Connect a Google Drive folder and click 'Sync Documents' to populate first.");
       return;
     }
     const updated = documents.map(d => ({ ...d, is_confidential: makeConfidential }));
     setDocuments(updated);
-    localStorage.setItem('ieee_documents', JSON.stringify(updated));
+    settingsService.set('ieee_documents', JSON.stringify(updated));
     setSyncMessage(`Successfully marked all ${updated.length} documents as ${makeConfidential ? 'confidential' : 'not confidential'}!`);
     setTimeout(() => setSyncMessage(''), 4000);
   };
@@ -2629,7 +2667,7 @@ const Admin = () => {
     };
     const updated = [...mediaVideos, newItem];
     setMediaVideos(updated);
-    localStorage.setItem('ieee_media_videos_v2', JSON.stringify(updated));
+    settingsService.set('ieee_media_videos_v2', JSON.stringify(updated));
     setNewVideoTitle('');
     setNewVideoUrl('');
     setNewVideoDesc('');
@@ -2650,7 +2688,7 @@ const Admin = () => {
         : item
     );
     setMediaVideos(updated);
-    localStorage.setItem('ieee_media_videos_v2', JSON.stringify(updated));
+    settingsService.set('ieee_media_videos_v2', JSON.stringify(updated));
     setEditingVideoIndex(null);
   };
 
@@ -2658,7 +2696,7 @@ const Admin = () => {
     if (!window.confirm("Are you sure you want to delete this video highlight?")) return;
     const updated = mediaVideos.filter((_, idx) => idx !== index);
     setMediaVideos(updated);
-    localStorage.setItem('ieee_media_videos_v2', JSON.stringify(updated));
+    settingsService.set('ieee_media_videos_v2', JSON.stringify(updated));
   };
 
 
@@ -3017,7 +3055,7 @@ const Admin = () => {
       });
     }
     setPastEvents(updated);
-    localStorage.setItem('ieee_events_past', JSON.stringify(updated));
+    settingsService.set('ieee_events_past', JSON.stringify(updated));
   };
 
   const moveHighlightItemManual = (index, direction) => {
@@ -3040,7 +3078,7 @@ const Admin = () => {
     });
     
     setPastEvents(updated);
-    localStorage.setItem('ieee_events_past', JSON.stringify(updated));
+    settingsService.set('ieee_events_past', JSON.stringify(updated));
   };
 
   const saveHighlightDetails = (id, desc, theme, img) => {
@@ -3056,7 +3094,7 @@ const Admin = () => {
       return evt;
     });
     setPastEvents(updated);
-    localStorage.setItem('ieee_events_past', JSON.stringify(updated));
+    settingsService.set('ieee_events_past', JSON.stringify(updated));
     setEditingHighlightEventId(null);
   };
 
@@ -3094,7 +3132,7 @@ const Admin = () => {
     });
     
     setPastEvents(updated);
-    localStorage.setItem('ieee_events_past', JSON.stringify(updated));
+    settingsService.set('ieee_events_past', JSON.stringify(updated));
   };
 
   const handleDragEndHighlight = () => {
@@ -4016,8 +4054,8 @@ const Admin = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    localStorage.setItem('ieee_events_stats_v1', JSON.stringify(eventsStats));
-                    localStorage.setItem('ieee_events_philosophy_v1', JSON.stringify(eventPhilosophy));
+                    settingsService.set('ieee_events_stats_v1', JSON.stringify(eventsStats));
+                    settingsService.set('ieee_events_philosophy_v1', JSON.stringify(eventPhilosophy));
                     alert("Events stats & philosophy saved successfully!");
                   }}
                   style={{ padding: '6px 14px', fontSize: '12px', fontWeight: '750', cursor: 'pointer', border: 'none', borderRadius: '4px', backgroundColor: '#e0f2fe', color: '#0369a1' }}
@@ -4733,8 +4771,8 @@ const Admin = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    localStorage.setItem('ieee_achievements_stats_v1', JSON.stringify(achievementsStats));
-                    localStorage.setItem('ieee_success_stories_v1', JSON.stringify(successStories));
+                    settingsService.set('ieee_achievements_stats_v1', JSON.stringify(achievementsStats));
+                    settingsService.set('ieee_success_stories_v1', JSON.stringify(successStories));
                     alert("Achievements stats & success stories saved successfully!");
                   }}
                   style={{ padding: '6px 14px', fontSize: '12px', fontWeight: '750', cursor: 'pointer', border: 'none', borderRadius: '4px', backgroundColor: '#e0f2fe', color: '#0369a1' }}
@@ -5525,7 +5563,7 @@ const Admin = () => {
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button
                   onClick={() => {
-                    localStorage.setItem(`ieee_society_data_${selectedBranchKey}_v5`, JSON.stringify(branchData));
+                    settingsService.set(`ieee_society_data_${selectedBranchKey}_v5`, JSON.stringify(branchData));
                     setBranchSaved(true);
                     setTimeout(() => setBranchSaved(false), 3000);
                   }}
@@ -7407,8 +7445,8 @@ const Admin = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    localStorage.setItem('ieee_committees_philosophy_v1', JSON.stringify(committeesPhilosophy));
-                    localStorage.setItem('ieee_committees_cta_v1', JSON.stringify(committeesCta));
+                    settingsService.set('ieee_committees_philosophy_v1', JSON.stringify(committeesPhilosophy));
+                    settingsService.set('ieee_committees_cta_v1', JSON.stringify(committeesCta));
                     alert("Committees philosophy & CTA saved successfully!");
                   }}
                   style={{ padding: '6px 14px', fontSize: '12px', fontWeight: '750', cursor: 'pointer', border: 'none', borderRadius: '4px', backgroundColor: '#e0f2fe', color: '#0369a1' }}
@@ -8463,7 +8501,7 @@ const Admin = () => {
               </div>
               <button
                 onClick={() => {
-                  localStorage.setItem('ieee_about_kec_sb_v1', JSON.stringify(aboutKecSb));
+                  settingsService.set('ieee_about_kec_sb_v1', JSON.stringify(aboutKecSb));
                   setAboutSaved(true);
                   setTimeout(() => setAboutSaved(false), 3000);
                 }}
@@ -8839,7 +8877,7 @@ const Admin = () => {
               </div>
               <button
                 onClick={() => {
-                  localStorage.setItem('ieee_contact_page_v1', JSON.stringify(contactPage));
+                  settingsService.set('ieee_contact_page_v1', JSON.stringify(contactPage));
                   setContactSaved(true);
                   setTimeout(() => setContactSaved(false), 3000);
                 }}
@@ -9024,7 +9062,7 @@ const Admin = () => {
                 type="button"
                 onClick={() => {
                   setRequestFormsSubTab('submissions');
-                  const stored = localStorage.getItem('ieee_form_submissions');
+                  const stored = null /* migrated to API */;
                   if (stored) setSubmissions(JSON.parse(stored));
                 }}
                 style={{

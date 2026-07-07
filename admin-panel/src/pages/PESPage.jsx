@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { pesData } from '../data/pes';
 import SocietyPageLayout from '../components/SocietyPageLayout';
+import { settingsService } from '../services/api';
 
 const PESPage = () => {
   const [data, setData] = useState(pesData);

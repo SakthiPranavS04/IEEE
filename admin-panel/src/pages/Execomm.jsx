@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Users, Phone, User, Award, Shield, BookOpen, Layers, X, Mail } from 'lucide-react';
+import { settingsService } from '../services/api';
 
 const Linkedin = ({ size = 16, ...props }) => (
   <svg 

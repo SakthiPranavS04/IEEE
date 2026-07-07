@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Image, FileText, X, Maximize2 } from 'lucide-react';
+import { settingsService } from '../services/api';
 
 const PageHeader = ({ title, subtitle }) => (
   <div style={{

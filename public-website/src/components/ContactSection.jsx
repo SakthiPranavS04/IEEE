@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import API from '../services/api';
 
 const ContactSection = ({ contact }) => {
   const [formName, setFormName] = useState('');
@@ -9,17 +10,38 @@ const ContactSection = ({ contact }) => {
 
   if (!contact) return null;
 
-  const handleEnquirySubmit = (e) => {
+  const handleEnquirySubmit = async (e) => {
     e.preventDefault();
     if (!formName || !formEmail || !formMsg) return;
     setFormSent(true);
-    setTimeout(() => {
-      setFormName('');
-      setFormEmail('');
-      setFormMsg('');
+    
+    try {
+      const payload = {
+        name: formName,
+        email: formEmail,
+        message: formMsg,
+      };
+
+      const response = await fetch(`${API}/feedback`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        setFormName('');
+        setFormEmail('');
+        setFormMsg('');
+        alert('Your enquiry has been successfully submitted! The society coordinators will contact you soon.');
+      } else {
+        alert("Failed to submit feedback. Please try again.");
+      }
+    } catch (error) {
+      console.error("Feedback submission error:", error);
+      alert("Error connecting to the backend server. Make sure it is running.");
+    } finally {
       setFormSent(false);
-      alert('Your enquiry has been successfully submitted! The society coordinators will contact you soon.');
-    }, 1000);
+    }
   };
 
   return (
@@ -103,8 +125,8 @@ const ContactSection = ({ contact }) => {
                 value={formMsg}
                 onChange={(e) => setFormMsg(e.target.value)}
               />
-              <button type="submit" className="btn btn-primary" style={{ gap: '8px', alignSelf: 'flex-start' }}>
-                <Send size={15} /> Send Message
+              <button type="submit" className="btn btn-primary" style={{ gap: '8px', alignSelf: 'flex-start' }} disabled={formSent}>
+                <Send size={15} /> {formSent ? 'Sending...' : 'Send Message'}
               </button>
             </form>
           </div>

@@ -33,17 +33,29 @@ export const getEventById = async (req, res) => {
 // @access  Private/Admin
 export const createEvent = async (req, res) => {
   try {
-    const { title, description, date, location, banner, isPublished, isRegistrationOpen, gallery } = req.body;
+    const { title, description, desc, date, location, venue, banner, isPublished, isRegistrationOpen, gallery, tag, highlights, isHighlighted, highlightOrder, highlightDescription, highlightImage, highlightTheme, link, time, isUpcoming } = req.body;
 
     const event = new Event({
       title,
       description,
+      desc,
       date,
       location,
+      venue,
       banner,
       isPublished,
       isRegistrationOpen,
       gallery,
+      tag,
+      highlights,
+      isHighlighted,
+      highlightOrder,
+      highlightDescription,
+      highlightImage,
+      highlightTheme,
+      link,
+      time,
+      isUpcoming
     });
 
     const createdEvent = await event.save();
@@ -58,19 +70,31 @@ export const createEvent = async (req, res) => {
 // @access  Private/Admin
 export const updateEvent = async (req, res) => {
   try {
-    const { title, description, date, location, banner, isPublished, isRegistrationOpen, gallery } = req.body;
+    const { title, description, desc, date, location, venue, banner, isPublished, isRegistrationOpen, gallery, tag, highlights, isHighlighted, highlightOrder, highlightDescription, highlightImage, highlightTheme, link, time, isUpcoming } = req.body;
 
     const event = await Event.findById(req.params.id);
 
     if (event) {
       event.title = title || event.title;
       event.description = description || event.description;
+      event.desc = desc !== undefined ? desc : event.desc;
       event.date = date || event.date;
       event.location = location || event.location;
+      event.venue = venue !== undefined ? venue : event.venue;
       event.banner = banner || event.banner;
       event.isPublished = isPublished !== undefined ? isPublished : event.isPublished;
       event.isRegistrationOpen = isRegistrationOpen !== undefined ? isRegistrationOpen : event.isRegistrationOpen;
       event.gallery = gallery || event.gallery;
+      event.tag = tag !== undefined ? tag : event.tag;
+      event.highlights = highlights !== undefined ? highlights : event.highlights;
+      event.isHighlighted = isHighlighted !== undefined ? isHighlighted : event.isHighlighted;
+      event.highlightOrder = highlightOrder !== undefined ? highlightOrder : event.highlightOrder;
+      event.highlightDescription = highlightDescription !== undefined ? highlightDescription : event.highlightDescription;
+      event.highlightImage = highlightImage !== undefined ? highlightImage : event.highlightImage;
+      event.highlightTheme = highlightTheme !== undefined ? highlightTheme : event.highlightTheme;
+      event.link = link !== undefined ? link : event.link;
+      event.time = time !== undefined ? time : event.time;
+      event.isUpcoming = isUpcoming !== undefined ? isUpcoming : event.isUpcoming;
 
       const updatedEvent = await event.save();
       res.json(updatedEvent);

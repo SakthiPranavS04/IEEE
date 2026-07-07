@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Award, Shield, Users, Compass, BookOpen, Target, Landmark, GraduationCap, CheckCircle2, Sparkles, Cpu, Heart, Globe, Calendar, ArrowRight } from 'lucide-react';
+import { settingsService } from '../services/api';
 
 
 // ─── Shared PageHeader ────────────────────────────────────────────────────────

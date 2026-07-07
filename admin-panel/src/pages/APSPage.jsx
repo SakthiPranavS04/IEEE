@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apsData } from '../data/aps';
 import SocietyPageLayout from '../components/SocietyPageLayout';
+import { settingsService } from '../services/api';
 
 const APSPage = () => {
   const [data, setData] = useState(apsData);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { computerSocietyData } from '../data/computerSociety';
 import SocietyPageLayout from '../components/SocietyPageLayout';
+import { settingsService } from '../services/api';
 
 const ComputerSocietyPage = () => {
   const [data, setData] = useState(computerSocietyData);

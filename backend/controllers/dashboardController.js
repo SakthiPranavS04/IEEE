@@ -2,6 +2,9 @@ import Event from '../models/Event.js';
 import TeamMember from '../models/TeamMember.js';
 import ContactMessage from '../models/ContactMessage.js';
 import JoinRegistration from '../models/JoinRegistration.js';
+import Gallery from '../models/Gallery.js';
+import NewsletterSubscriber from '../models/NewsletterSubscriber.js';
+import Feedback from '../models/Feedback.js';
 
 // @desc    Get dashboard statistics
 // @route   GET /api/dashboard/stats
@@ -27,6 +30,33 @@ export const getDashboardStats = async (req, res) => {
         recentMessages,
         recentJoinRequests,
       }
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Get complete dashboard data
+// @route   GET /api/dashboard
+// @access  Private/Admin
+export const getDashboardData = async (req, res) => {
+  try {
+    const totalEvents = await Event.countDocuments();
+    const totalTeamMembers = await TeamMember.countDocuments();
+    const totalGalleryImages = await Gallery.countDocuments();
+    const totalContacts = await ContactMessage.countDocuments();
+    const totalJoinRequests = await JoinRegistration.countDocuments();
+    const totalSubscribers = await NewsletterSubscriber.countDocuments();
+    const totalFeedbacks = await Feedback.countDocuments();
+
+    res.json({
+      totalEvents,
+      totalTeamMembers,
+      totalGalleryImages,
+      totalContacts,
+      totalJoinRequests,
+      totalSubscribers,
+      totalFeedbacks
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

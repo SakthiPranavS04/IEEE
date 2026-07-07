@@ -24,6 +24,7 @@ const Linkedin = ({ size = 16, ...props }) => (
 );
 import { societiesData } from '../data/societiesData';
 import './SocietyPage.css';
+import { settingsService } from '../services/api';
 
 // ─── Animated Counter Component ──────────────────────────────────────────────
 const AnimatedCounter = ({ target }) => {

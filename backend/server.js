@@ -21,14 +21,6 @@ import settingsRoutes from './routes/settingsRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import researchRoutes from './routes/researchRoutes.js';
 import requestRoutes from './routes/requestRoutes.js';
-
-import achievementRoutes from './routes/achievementRoutes.js';
-import committeeRoutes from './routes/committeeRoutes.js';
-import societyRoutes from './routes/societyRoutes.js';
-import formtemplateRoutes from './routes/formtemplateRoutes.js';
-import videoRoutes from './routes/videoRoutes.js';
-import newsitemRoutes from './routes/newsitemRoutes.js';
-
 import { errorHandler, notFound } from './middlewares/errorMiddleware.js';
 
 dotenv.config();
@@ -71,13 +63,6 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/research', researchRoutes);
 app.use('/api/requests', requestRoutes);
-
-app.use('/api/achievements', achievementRoutes);
-app.use('/api/committees', committeeRoutes);
-app.use('/api/societies', societyRoutes);
-app.use('/api/formtemplates', formtemplateRoutes);
-app.use('/api/videos', videoRoutes);
-app.use('/api/newsitems', newsitemRoutes);
 
 app.get('/', (req, res) => {
   res.send('API is running...');

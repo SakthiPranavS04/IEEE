@@ -48,77 +48,51 @@ const Home = () => {
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
 
   // Dynamic state hooks for admin-editable components
-  const [heroImages, setHeroImages] = useState(() => {
-    const stored = localStorage.getItem('ieee_hero_images');
-    return stored ? JSON.parse(stored) : [
-      '/assets/kec_gate.jpg',
-      '/assets/kec_itpark.jpg',
-      '/assets/kec_admin.jpg'
-    ];
-  });
-
-  const [aboutImage, setAboutImage] = useState(() => {
-    return localStorage.getItem('ieee_about_image') || '/assets/kec_itpark.jpg';
-  });
-
-  const [keystonesVideoUrl, setKeystonesVideoUrl] = useState(() => {
-    return localStorage.getItem('ieee_keystones_video_url_v2') || 'https://youtu.be/_90Hd1qMDGM';
-  });
-
-  const [impactStats, setImpactStats] = useState(() => {
-    const stored = localStorage.getItem('ieee_impact_stats');
-    return stored ? JSON.parse(stored) : [
-      { id: 1, value: "45+", label: "Active Members" },
-      { id: 2, value: "75+", label: "Technical Events Organized" },
-      { id: 3, value: "18+", label: "National Awards" },
-      { id: 4, value: "3+", label: "Research Publications" },
-      { id: 5, value: "20+", label: "Workshops Conducted" },
-      { id: 6, value: "10+", label: "Industry Collaborations" }
-    ];
-  });
-
-  const [testimonials, setTestimonials] = useState(() => {
-    const stored = localStorage.getItem('ieee_testimonials');
-    return stored ? JSON.parse(stored) : [
-      { id: 1, text: "IEEE helped me improve my leadership skills and technical confidence through hands-on event organization.", author: "Student Member", role: "KEC IEEE SB" },
-      { id: 2, text: "The networking opportunities and workshops provided valuable industry exposure and practical knowledge.", author: "IEEE Alumni", role: "KEC IEEE SB" },
-      { id: 3, text: "Being part of IEEE motivated me to explore research, innovation, and professional development beyond academics.", author: "IEEE Graduate", role: "KEC IEEE SB" }
-    ];
-  });
-
-
-
-  const [memberCount, setMemberCount] = useState(() => {
-    return localStorage.getItem('ieee_member_count') || '45';
-  });
-  const [eventsCount, setEventsCount] = useState(() => {
-    return localStorage.getItem('ieee_events_count') || '75+';
-  });
-  const [awardsCount, setAwardsCount] = useState(() => {
-    return localStorage.getItem('ieee_awards_count') || '18+';
-  });
-  const [papersCount, setPapersCount] = useState(() => {
-    return localStorage.getItem('ieee_papers_count') || '15';
-  });
+  const [heroImages, setHeroImages] = useState(['/assets/kec_gate.jpg', '/assets/kec_itpark.jpg', '/assets/kec_admin.jpg']);
+  const [aboutImage, setAboutImage] = useState('/assets/kec_itpark.jpg');
+  const [keystonesVideoUrl, setKeystonesVideoUrl] = useState('https://youtu.be/_90Hd1qMDGM');
+  const [impactStats, setImpactStats] = useState([
+    { id: 1, value: "45+", label: "Active Members" },
+    { id: 2, value: "75+", label: "Technical Events Organized" },
+    { id: 3, value: "18+", label: "National Awards" },
+    { id: 4, value: "3+", label: "Research Publications" },
+    { id: 5, value: "20+", label: "Workshops Conducted" },
+    { id: 6, value: "10+", label: "Industry Collaborations" }
+  ]);
+  const [testimonials, setTestimonials] = useState([
+    { id: 1, text: "IEEE helped me improve my leadership skills and technical confidence through hands-on event organization.", author: "Student Member", role: "KEC IEEE SB" },
+    { id: 2, text: "The networking opportunities and workshops provided valuable industry exposure and practical knowledge.", author: "IEEE Alumni", role: "KEC IEEE SB" },
+    { id: 3, text: "Being part of IEEE motivated me to explore research, innovation, and professional development beyond academics.", author: "IEEE Graduate", role: "KEC IEEE SB" }
+  ]);
+  const [memberCount, setMemberCount] = useState('45');
+  const [eventsCount, setEventsCount] = useState('75+');
+  const [awardsCount, setAwardsCount] = useState('18+');
+  const [papersCount, setPapersCount] = useState('15');
 
   const [currentTestimonialIdx, setCurrentTestimonialIdx] = useState(0);
 
   const [societiesList, setSocietiesList] = useState([]);
 
   useEffect(() => {
-    const keys = ['ap-s', 'computer-society', 'wie', 'ras', 'pes', 'comsoc'];
-    const loaded = keys.map(key => {
-      const stored = localStorage.getItem(`ieee_society_data_${key}_v5`);
-      if (stored) {
-        try {
-          return JSON.parse(stored);
-        } catch (e) {
-          console.error("Error parsing stored society data:", e);
+    const fetchSocieties = async () => {
+      try {
+        const response = await fetch(`${API}/societies`);
+        if (response.ok) {
+          const data = await response.json();
+          // Filter out societies that are not meant for the grid if needed, or just use them all.
+          // Fallback to default societiesData if none exist
+          if (data && data.length > 0) {
+            setSocietiesList(data);
+          } else {
+            setSocietiesList(Object.values(societiesData));
+          }
         }
+      } catch (e) {
+        console.error("Error fetching societies:", e);
+        setSocietiesList(Object.values(societiesData));
       }
-      return societiesData[key];
-    });
-    setSocietiesList(loaded.filter(Boolean));
+    };
+    fetchSocieties();
   }, []);
 
   useEffect(() => {
@@ -132,38 +106,49 @@ const Home = () => {
             return s ? s.value : null;
           };
           
-          const mCount = getVal('memberCount');
+          const mCount = getVal('ieee_member_count');
           if (mCount) setMemberCount(mCount);
           
-          const eCount = getVal('eventsCount');
+          const eCount = getVal('ieee_events_count');
           if (eCount) setEventsCount(eCount);
           
-          const aCount = getVal('awardsCount');
+          const aCount = getVal('ieee_awards_count');
           if (aCount) setAwardsCount(aCount);
           
-          const pCount = getVal('papersCount');
+          const pCount = getVal('ieee_papers_count');
           if (pCount) setPapersCount(pCount);
           
-          const m = getVal('mission');
+          const m = getVal('ieee_mission');
           if (m) setMission(m);
           
-          const v = getVal('vision');
+          const v = getVal('ieee_vision');
           if (v) setVision(v);
           
-          const hImgs = getVal('heroImages');
-          if (hImgs) setHeroImages(hImgs);
+          const hImgs = getVal('ieee_hero_images');
+          if (hImgs) {
+            try { setHeroImages(typeof hImgs === 'string' ? JSON.parse(hImgs) : hImgs); } catch(e){}
+          }
           
-          const aImg = getVal('aboutImage');
+          const aImg = getVal('ieee_about_image');
           if (aImg) setAboutImage(aImg);
           
-          const kVid = getVal('keystonesVideoUrl');
+          const kVid = getVal('ieee_keystones_video_url_v2');
           if (kVid) setKeystonesVideoUrl(kVid);
           
-          const iStats = getVal('impactStats');
-          if (iStats) setImpactStats(iStats);
+          const iStats = getVal('ieee_impact_stats');
+          if (iStats) {
+            try { setImpactStats(typeof iStats === 'string' ? JSON.parse(iStats) : iStats); } catch(e){}
+          }
           
-          const tmonials = getVal('testimonials');
-          if (tmonials) setTestimonials(tmonials);
+          const tmonials = getVal('ieee_testimonials');
+          if (tmonials) {
+            try { setTestimonials(typeof tmonials === 'string' ? JSON.parse(tmonials) : tmonials); } catch(e){}
+          }
+
+          const notices = getVal('ieee_ticker_notices');
+          if (notices) {
+            try { setTickerNotices(typeof notices === 'string' ? JSON.parse(notices) : notices); } catch(e){}
+          }
         }
       } catch (err) {
         console.error('Failed to load stats', err);
@@ -179,17 +164,14 @@ const Home = () => {
     return () => clearInterval(timer);
   }, [heroImages.length]);
 
-  const [mission, setMission] = useState(() => localStorage.getItem('ieee_mission') || "To cultivate a culture of innovation, foster teamwork, and enhance student capability in research and design through seminars, hands-on workshops, student-led projects, and professional networking.");
-  const [vision, setVision] = useState(() => localStorage.getItem('ieee_vision') || "To build a world-class center of technical learning and professional excellence that empowers young minds to create engineering solutions for a sustainable and technologically advanced society.");
-  const [tickerNotices, setTickerNotices] = useState(() => {
-    const stored = localStorage.getItem('ieee_ticker_notices');
-    return stored ? JSON.parse(stored) : [
-      "🌿 IEEE KEC Student Branch membership drive 2026 is now live! Sign up today.",
-      "🏆 KEC Student Branch recognized as one of the most active branches in the Madras Section.",
-      "🚀 Register for 'CodeSprint 2026' - National level Hackathon organized by KEC IEEE Computer Society.",
-      "📢 Guest Lecture on 'AI & Edge Computing' scheduled for June 15, 2026."
-    ];
-  });
+  const [mission, setMission] = useState("To cultivate a culture of innovation, foster teamwork, and enhance student capability in research and design through seminars, hands-on workshops, student-led projects, and professional networking.");
+  const [vision, setVision] = useState("To build a world-class center of technical learning and professional excellence that empowers young minds to create engineering solutions for a sustainable and technologically advanced society.");
+  const [tickerNotices, setTickerNotices] = useState([
+    "🌿 IEEE KEC Student Branch membership drive 2026 is now live! Sign up today.",
+    "🏆 KEC Student Branch recognized as one of the most active branches in the Madras Section.",
+    "🚀 Register for 'CodeSprint 2026' - National level Hackathon organized by KEC IEEE Computer Society.",
+    "📢 Guest Lecture on 'AI & Edge Computing' scheduled for June 15, 2026."
+  ]);
 
   const stats = [
     { icon: <Users size={32} style={{ color: 'var(--secondary)' }} />, value: memberCount, label: 'Active Members' },

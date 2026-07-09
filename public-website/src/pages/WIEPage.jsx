@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import API from '../services/api';
 import { wieData } from '../data/wie';
 import SocietyPageLayout from '../components/SocietyPageLayout';
 

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Lock, Unlock, LogOut, Check, Trash2, Edit3, Plus, Image as ImageIcon, BarChart3, Database, X, Calendar, Award, Users, Target, Settings, Link as LinkIcon, AlertCircle, FileText, Compass, Layers, Save, RefreshCw, MessageSquare, ArrowUp, ArrowDown, Flame } from 'lucide-react';
-import { API, authFetch, settingsService, galleryService, achievementsService, societiesService, teamService, committeesService } from '../services/api';
+import { API, authFetch, settingsService, galleryService, achievementsService, societiesService, teamService, committeesService, eventService, researchService, newsService, videoService, formTemplateService, documentService } from '../services/api';
 import { apsData } from '../data/aps';
 import { computerSocietyData } from '../data/computerSociety';
 import { wieData } from '../data/wie';
@@ -178,7 +178,7 @@ const Admin = () => {
   const [fac1Image, setFac1Image] = useState('');
   const [fac2Image, setFac2Image] = useState('');
   const [studentImage, setStudentImage] = useState('');
-  const [editingSocietyId, setEditingSocietyId] = useState(null);
+
   const [editingStudentId, setEditingStudentId] = useState(null);
   const [editingFacultyId, setEditingFacultyId] = useState(null);
   const [facultyName, setFacultyName] = useState('');
@@ -192,11 +192,14 @@ const Admin = () => {
   const [editingEventId, setEditingEventId] = useState(null);
   const [editingAchievementId, setEditingAchievementId] = useState(null);
   const [editingCommitteeId, setEditingCommitteeId] = useState(null);
-  const [editingNewsId, setEditingNewsId] = useState(null);
+
   const [committees, setCommittees] = useState([]);
 
   // Custom Page States
   const [aboutKecSb, setAboutKecSb] = useState(null);
+  const [, setAboutText] = useState('');
+  const [, setHeroVideoUrl] = useState('');
+  const [, setEventsPhilosophy] = useState('');
   const [contactPage, setContactPage] = useState(null);
   const [eventsStats, setEventsStats] = useState([]);
   const [eventPhilosophy, setEventPhilosophy] = useState(null);
@@ -276,7 +279,6 @@ const Admin = () => {
 
   // Modal Form Inputs: News Items
   const [newsTitle, setNewsTitle] = useState('');
-  const [newsCat, setNewsCat] = useState('News');
   const [newsSource, setNewsSource] = useState('');
   const [newsDate, setNewsDate] = useState('');
   const [newsSnippet, setNewsSnippet] = useState('');
@@ -293,556 +295,6 @@ const Admin = () => {
     { email: 'ieee@kongu.edu', password: 'admin123' }
   ];
 
-  const defaultGallery = [
-    {
-      id: 1,
-      title: "Sports & Athletics",
-      cat: "Campus Life",
-      text: "State-level facilities",
-      images: ["https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=800&auto=format&fit=max"]
-    },
-    {
-      id: 2,
-      title: "Cultural Events",
-      cat: "Events",
-      text: "Annual tech fest & symposiums",
-      images: ["https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=800&auto=format&fit=max"]
-    },
-    {
-      id: 3,
-      title: "Learning Spaces",
-      cat: "Academic",
-      text: "24/7 library access",
-      images: ["https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=800&auto=format&fit=max"]
-    },
-    {
-      id: 4,
-      title: "Student Clubs",
-      cat: "Engagement",
-      text: "50+ active clubs",
-      images: ["https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800&auto=format&fit=max"]
-    },
-    {
-      id: 5,
-      title: "World-Class Hostel Facilities",
-      cat: "Living",
-      text: "Separate hostels for boys & girls with modern amenities, Wi-Fi, and 24/7 security",
-      images: ["https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=1200&auto=format&fit=max"]
-    },
-    {
-      id: 6,
-      title: "Transport Facilities",
-      cat: "Services",
-      text: "Extensive bus network for easy commute",
-      images: ["https://images.unsplash.com/photo-1557223562-6c77ef16210f?q=80&w=800&auto=format&fit=max"]
-    },
-    {
-      id: 7,
-      title: "Smart Auditoriums",
-      cat: "Infrastructure",
-      text: "Air-conditioned seminar halls with advanced AV systems",
-      images: ["https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=800&auto=format&fit=max"]
-    },
-    {
-      id: 8,
-      title: "Research Labs",
-      cat: "Innovation",
-      text: "Advanced centers for computing and hardware testing",
-      images: ["https://images.unsplash.com/photo-1507413245164-6160d8298b31?q=80&w=800&auto=format&fit=max"]
-    },
-    {
-      id: 9,
-      title: "Green Campus",
-      cat: "Environment",
-      text: "Solar energy grids and eco-friendly spaces",
-      images: ["https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?q=80&w=800&auto=format&fit=max"]
-    },
-    {
-      id: 10,
-      title: "Main Campus Gateway",
-      cat: "KEC",
-      text: "Welcome to Kongu Engineering College autonomous campus",
-      images: ["https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=800&auto=format&fit=max"]
-    }
-  ];
-
-  const defaultUpcomingEvents = [
-    {
-      id: 1,
-      title: "Hands-on Workshop: Flutter Application Development",
-      desc: "Learn to build cross-platform mobile applications from scratch. Topics include widgets, state management, and API integration. Open to all branches.",
-      date: "June 12, 2026",
-      time: "09:00 AM - 04:30 PM",
-      venue: "Advanced Computing Lab, KEC",
-      tag: "Workshop",
-      link: "https://forms.gle/KEC-IEEE-Events-Registration"
-    },
-    {
-      id: 2,
-      title: "GreenTech Hackathon 2026",
-      desc: "A 24-hour national hackathon challenging student groups to solve sustainability problems using hardware prototypes or intelligent software.",
-      date: "June 26-27, 2026",
-      time: "Starting 10:00 AM",
-      venue: "KEC Technology Business Incubator",
-      tag: "Hackathon",
-      link: "https://forms.gle/KEC-IEEE-Events-Registration"
-    },
-    {
-      id: 3,
-      title: "IEEE Membership Awareness Drive",
-      desc: "Learn about the benefits of IEEE student membership, research databases access, grants, societies, and international networking events.",
-      date: "July 03, 2026",
-      time: "02:00 PM - 04:00 PM",
-      venue: "Seminar Hall, CSE Dept, KEC",
-      tag: "Seminar",
-      link: "https://forms.gle/KEC-IEEE-Events-Registration"
-    }
-  ];
-
-  const defaultPastEvents = [
-    {
-      id: 101,
-      title: "Workshop on Digital Signal Processing & IoT",
-      desc: "A 3-day practical bootcamp focusing on capturing and processing real-time sensor waveforms using ESP32 and DSP filtering algorithms.",
-      date: "May 18, 2026",
-      venue: "DSP Lab, ECE Dept, KEC",
-      tag: "SPS Chapter",
-      highlights: "50+ participants built smart ECG filter prototypes.",
-      isHighlighted: true,
-      highlightOrder: 1,
-      highlightDescription: "A 3-day practical bootcamp focusing on capturing and processing real-time sensor waveforms using ESP32 and DSP filtering algorithms. 50+ participants built smart ECG filter prototypes.",
-      highlightImage: null,
-      highlightTheme: "Purple"
-    },
-    {
-      id: 102,
-      title: "WIE CodeQuest: Coding Bootcamp for Girls",
-      desc: "A bootcamp dedicated to teaching web building, database structure, and frontend hosting to young female engineers.",
-      date: "April 24, 2026",
-      venue: "Internet Lab, KEC",
-      tag: "WIE Group",
-      highlights: "Participated by 80 girls, 5 projects were selected for incubation support.",
-      isHighlighted: true,
-      highlightOrder: 2,
-      highlightDescription: "A bootcamp dedicated to teaching web building, database structure, and frontend hosting to young female engineers. Participated by 80 girls, 5 projects were selected for incubation support.",
-      highlightImage: null,
-      highlightTheme: "Cyan"
-    },
-    {
-      id: 103,
-      title: "National Conference on Computing & Communication (NCCC 2026)",
-      desc: "Flagship paper presentation event featuring research papers from student groups across the region, judged by Anna University faculty.",
-      date: "March 15, 2026",
-      venue: "Maharaja Auditorium, KEC",
-      tag: "Conference",
-      highlights: "30+ research papers published in local IEEE digital archives.",
-      isHighlighted: true,
-      highlightOrder: 3,
-      highlightDescription: "Flagship paper presentation event featuring research papers from student groups across the region, judged by Anna University faculty. 30+ research papers published in local IEEE digital archives.",
-      highlightImage: null,
-      highlightTheme: "IEEE Blue"
-    },
-    {
-      id: 104,
-      title: "Guest Lecture: Opportunities in Edge AI & TinyML",
-      desc: "A seminar on running micro neural-network models directly on resource-constrained microcontrollers.",
-      date: "February 12, 2026",
-      venue: "Mechanical Dept Seminar Hall, KEC",
-      tag: "Guest Lecture",
-      highlights: "Delivered by senior R&D engineer from Intel India.",
-      isHighlighted: false,
-      highlightOrder: 4,
-      highlightDescription: "A seminar on running micro neural-network models directly on resource-constrained microcontrollers. Delivered by senior R&D engineer from Intel India.",
-      highlightImage: null,
-      highlightTheme: "Green"
-    }
-  ];
-
-  const defaultAchievements = [
-    {
-      id: 1,
-      iconType: 'trophy',
-      title: "Best Student Branch Award 2025",
-      category: "Section-level Recognition",
-      desc: "Recognized as the 'Most Active Student Branch' under the IEEE Madras Section for executing 70+ technical events, community drives, and registering 400+ members in 2025."
-    },
-    {
-      id: 2,
-      iconType: 'award',
-      title: "First Prize - Anna University Project Expo",
-      category: "Student Accomplishment",
-      desc: "A team of IEEE KEC final year students won the 1st prize of ₹50,000 for their prototype 'Smart Assistive Glove for Quadriplegic Patients' sponsored by IEEE SPS & KEC SRC."
-    },
-    {
-      id: 3,
-      iconType: 'star',
-      title: "IEEE SPS Travel Grant Recipient",
-      category: "Global Travel Grant",
-      desc: "SPS Student Chair Karthik Raja was awarded a full travel and accommodation grant to present his research on edge voice filtering at IEEE ICASSP 2025 in Seoul, South Korea."
-    },
-    {
-      id: 4,
-      iconType: 'sparkles',
-      title: "Outstanding Student Volunteer Award",
-      category: "Individual Recognition",
-      desc: "Student Branch Chair Abhishek M. received the Outstanding Volunteer Award from the IEEE Madras Section for his leadership in hosting E-Waste awareness campaigns across Erode."
-    }
-  ];
-
-  const defaultSocieties = [
-    {
-      id: 1,
-      name: "Computer Society (CS Society)",
-      faculty1: { image: "/assets/faculty_male.png", name: "Dr. S. Varadhaganapathy", position: "Society Chairman", phone: "+91 98427 21111", email: "s.varadhaganapathy@kongu.edu", linkedin: "https://linkedin.com/in/s-varadhaganapathy" },
-      faculty2: { image: "/assets/faculty_male_1.png", name: "Dr. P. Natesan", position: "Society Vice Chairman", phone: "+91 98427 22222", email: "p.natesan@kongu.edu", linkedin: "https://linkedin.com/in/p-natesan" }
-    },
-    {
-      id: 2,
-      name: "Robotics and Automation Society (RAS)",
-      faculty1: { image: "/assets/faculty_male_2.png", name: "Dr. R. Murugesan", position: "Society Chairman", phone: "+91 98427 23333", email: "r.murugesan@kongu.edu", linkedin: "https://linkedin.com/in/r-murugesan" },
-      faculty2: { image: "/assets/faculty_male_3.png", name: "Mr. S. Albert Alexander", position: "Society Vice Chairman", phone: "+91 98427 24444", email: "s.albert.alexander@kongu.edu", linkedin: "https://linkedin.com/in/s-albert-alexander" }
-    },
-    {
-      id: 3,
-      name: "Women in Engineering (WIE)",
-      faculty1: { image: "/assets/faculty_female.png", name: "Dr. J. Premalatha", position: "Society Chairman", phone: "+91 98427 25555", email: "j.premalatha@kongu.edu", linkedin: "https://linkedin.com/in/j-premalatha" },
-      faculty2: { image: "/assets/faculty_female_1.png", name: "Dr. S. Kalaiselvi", position: "Society Vice Chairman", phone: "+91 98427 26666", email: "s.kalaiselvi@kongu.edu", linkedin: "https://linkedin.com/in/s-kalaiselvi" }
-    },
-    {
-      id: 4,
-      name: "Power & Energy Society (PES)",
-      faculty1: { image: "/assets/faculty_female_2.png", name: "Dr. N. Nithyadevi", position: "Society Chairman", phone: "+91 98427 27777", email: "n.nithyadevi@kongu.edu", linkedin: "https://linkedin.com/in/n-nithyadevi" },
-      faculty2: { image: "/assets/faculty_female_3.png", name: "Dr. A. Sheela", position: "Society Vice Chairman", phone: "+91 98427 28888", email: "a.sheela@kongu.edu", linkedin: "https://linkedin.com/in/a-sheela" }
-    },
-    {
-      id: 5,
-      name: "Communications Society (ComSoc)",
-      faculty1: { image: "/assets/faculty_male_4.png", name: "Dr. K. Senthil Kumar", position: "Society Chairman", phone: "+91 98427 29999", email: "k.senthil.kumar@kongu.edu", linkedin: "https://linkedin.com/in/k-senthil-kumar" },
-      faculty2: { image: "/assets/faculty_male.png", name: "Dr. G. Murugesan", position: "Society Vice Chairman", phone: "+91 98427 20000", email: "g.murugesan@kongu.edu", linkedin: "https://linkedin.com/in/g-murugesan" }
-    },
-    {
-      id: 6,
-      name: "AP-S (Antennas and Propagation Society)",
-      faculty1: { image: "/assets/faculty_female_4.png", name: "Dr. T. Meeradevi", position: "Society Chairman", phone: "+91 98427 21122", email: "t.meeradevi@kongu.edu", linkedin: "https://linkedin.com/in/t-meeradevi" },
-      faculty2: { image: "/assets/faculty_male_1.png", name: "Dr. K. Albert", position: "Society Vice Chairman", phone: "+91 98427 33344", email: "k.albert@kongu.edu", linkedin: "https://linkedin.com/in/k-albert" }
-    }
-  ];
-
-  const defaultStudents = [
-    {
-      id: 1,
-      name: "Abhishek M.",
-      department: "Computer Science and Engineering",
-      yearOfStudy: "IV",
-      ieeeNumber: "92837482",
-      position: "Chairman",
-      society: "IEEE KEC SB",
-      image: "/assets/student_male.png"
-    },
-    {
-      id: 2,
-      name: "Sneha R.",
-      department: "Electronics and Communication Engineering",
-      yearOfStudy: "IV",
-      ieeeNumber: "92837483",
-      position: "Vice Chairman",
-      society: "IEEE KEC SB",
-      image: "/assets/student_female.png"
-    },
-    {
-      id: 3,
-      name: "Rajesh Kumar K.",
-      department: "Computer Science and Engineering",
-      yearOfStudy: "IV",
-      ieeeNumber: "92837494",
-      position: "Student Branch Chair",
-      society: "IEEE KEC SB",
-      image: "/assets/student_male_1.png"
-    },
-    {
-      id: 4,
-      name: "Karthik Raja V.",
-      department: "Electrical and Electronics Engineering",
-      yearOfStudy: "IV",
-      ieeeNumber: "92837484",
-      position: "Society Chairman",
-      society: "Computer Society (CS Society)",
-      image: "/assets/student_male_1.png"
-    },
-    {
-      id: 5,
-      name: "Priyanka S.",
-      department: "Information Technology",
-      yearOfStudy: "IV",
-      ieeeNumber: "92837485",
-      position: "Society Vice Chairman",
-      society: "Women in Engineering (WIE)",
-      image: "/assets/faculty_female_4.png"
-    },
-    {
-      id: 6,
-      name: "Manoj Prabhakar S.",
-      department: "Mechanical Engineering",
-      yearOfStudy: "IV",
-      ieeeNumber: "92837495",
-      position: "Society Chairman",
-      society: "Robotics and Automation Society (RAS)",
-      image: "/assets/student_male_2.png"
-    },
-    {
-      id: 7,
-      name: "Harish K.",
-      department: "Electronics and Instrumentation Engineering",
-      yearOfStudy: "III",
-      ieeeNumber: "92837486",
-      position: "Additional Secretary",
-      society: "IEEE KEC SB",
-      image: "/assets/student_male_2.png"
-    },
-    {
-      id: 8,
-      name: "Deepa N.",
-      department: "Electronics and Communication Engineering",
-      yearOfStudy: "III",
-      ieeeNumber: "92837496",
-      position: "Additional Secretary",
-      society: "IEEE KEC SB",
-      image: "/assets/student_female.png"
-    },
-    {
-      id: 9,
-      name: "Vijay Anand R.",
-      department: "Information Technology",
-      yearOfStudy: "III",
-      ieeeNumber: "92837497",
-      position: "Additional Secretary",
-      society: "IEEE KEC SB",
-      image: "/assets/student_male_3.png"
-    },
-    {
-      id: 10,
-      name: "Naveen S.",
-      department: "Mechanical Engineering",
-      yearOfStudy: "III",
-      ieeeNumber: "92837487",
-      position: "Joint Secretary",
-      society: "IEEE KEC SB",
-      image: "/assets/student_male_3.png"
-    },
-    {
-      id: 11,
-      name: "Keerthana M.",
-      department: "Electrical and Electronics Engineering",
-      yearOfStudy: "III",
-      ieeeNumber: "92837498",
-      position: "Joint Secretary",
-      society: "IEEE KEC SB",
-      image: "/assets/student_female.png"
-    },
-    {
-      id: 12,
-      name: "Rahul E.",
-      department: "Electronics and Instrumentation Engineering",
-      yearOfStudy: "III",
-      ieeeNumber: "92837499",
-      position: "Joint Secretary",
-      society: "IEEE KEC SB",
-      image: "/assets/student_male_4.png"
-    },
-    {
-      id: 13,
-      name: "Dharini P.",
-      department: "Computer Science and Engineering",
-      yearOfStudy: "III",
-      ieeeNumber: "92837488",
-      position: "Web Team Chairman",
-      society: "IEEE KEC SB",
-      image: "/assets/faculty_female_3.png"
-    },
-    {
-      id: 14,
-      name: "Arun Kumar S.",
-      department: "Chemical Engineering",
-      yearOfStudy: "III",
-      ieeeNumber: "92837489",
-      position: "Event Team Chairman",
-      society: "IEEE KEC SB",
-      image: "/assets/student_male_4.png"
-    },
-    {
-      id: 15,
-      name: "Sanjay B.",
-      department: "Information Technology",
-      yearOfStudy: "III",
-      ieeeNumber: "92837500",
-      position: "Media Team Chairman",
-      society: "IEEE KEC SB",
-      image: "/assets/student_male_1.png"
-    },
-    {
-      id: 16,
-      name: "Divya K.",
-      department: "Food Technology",
-      yearOfStudy: "II",
-      ieeeNumber: "92837490",
-      position: "Office Bearer",
-      society: "Women in Engineering (WIE)",
-      image: "/assets/faculty_female_2.png"
-    },
-    {
-      id: 17,
-      name: "Vignesh S.",
-      department: "Electrical and Electronics Engineering",
-      yearOfStudy: "II",
-      ieeeNumber: "92837501",
-      position: "Executive Member",
-      society: "Power & Energy Society (PES)",
-      image: "/assets/student_male.png"
-    },
-    {
-      id: 18,
-      name: "Sandhya R.",
-      department: "Electronics and Communication Engineering",
-      yearOfStudy: "II",
-      ieeeNumber: "92837502",
-      position: "Executive Member",
-      society: "Communications Society (ComSoc)",
-      image: "/assets/student_female.png"
-    },
-    {
-      id: 19,
-      name: "Kavya R.",
-      department: "Electronics and Communication Engineering",
-      yearOfStudy: "II",
-      ieeeNumber: "92837491",
-      position: "Member",
-      society: "Robotics and Automation Society (RAS)",
-      image: "/assets/faculty_female_1.png"
-    },
-    {
-      id: 20,
-      name: "Surya K.",
-      department: "Electronics and Communication Engineering",
-      yearOfStudy: "II",
-      ieeeNumber: "92837503",
-      position: "Student Member",
-      society: "AP-S (Antennas and Propagation Society)",
-      image: "/assets/student_male.png"
-    },
-    {
-      id: 21,
-      name: "Shalini D.",
-      department: "Computer Science and Engineering",
-      yearOfStudy: "II",
-      ieeeNumber: "92837504",
-      position: "Student Member",
-      society: "Computer Society (CS Society)",
-      image: "/assets/student_female.png"
-    }
-  ];
-
-  const defaultCommittees = [
-    {
-      id: 1,
-      name: "Technical Committee",
-      desc: "Manages hardware training, coding hackathons, project incubation labs, and website updates.",
-      lead: "Manoj Kumar K. (Final ECE)",
-      coLead: "Sandhiya R. (Third CSE)",
-      teamCount: 15
-    },
-    {
-      id: 2,
-      name: "Editorial & Content Committee",
-      desc: "In charge of publishing monthly newsletters, event documentations, and press releases.",
-      lead: "Abirami S. (Final EEE)",
-      coLead: "Gautham V. (Third IT)",
-      teamCount: 10
-    },
-    {
-      id: 3,
-      name: "Creative & Design Committee",
-      desc: "Handles branding assets, designing event posters, UI mockups, and video promos.",
-      lead: "Sujith M. (Final Mech)",
-      coLead: "Deepa N. (Third EIE)",
-      teamCount: 12
-    },
-    {
-      id: 4,
-      name: "Public Relations & Publicity Committee",
-      desc: "Drives student enrollment, social media marketing, and coordinates section-level announcements.",
-      lead: "Vijay R. (Final ECE)",
-      coLead: "Haritha P. (Third CSE)",
-      teamCount: 14
-    },
-    {
-      id: 5,
-      name: "Event Management Committee",
-      desc: "Manages logistics, registrations, hospitality for guests, and overall venue setup operations.",
-      lead: "Arun Kumar S. (Final Chemical)",
-      coLead: "Meena K. (Third EEE)",
-      teamCount: 18
-    }
-  ];
-
-  const defaultResearchPapers = [
-    {
-      id: 1,
-      title: "Smart Assistive Glove for Quadriplegic Patients using IoT",
-      authors: "Abhishek M., Sneha R.",
-      category: "IEEE",
-      desc: "A voice-controlled assistive glove prototype using IoT sensors and machine learning for rehabilitation.",
-      year: "2026",
-      fileUrl: "paper_001.pdf"
-    },
-    {
-      id: 2,
-      title: "Edge Computing for Real-Time ECG Processing",
-      authors: "Karthik Raja, Harish K.",
-      category: "IEEE",
-      desc: "Implementation of digital signal processing algorithms on microcontrollers for cardiac monitoring.",
-      year: "2025",
-      fileUrl: "paper_002.pdf"
-    },
-    {
-      id: 3,
-      title: "GreenTech Solutions for Sustainable Agriculture Automation",
-      authors: "Dharini P., Naveen S.",
-      category: "Conference",
-      desc: "Solar-powered smart irrigation system with AI-based crop monitoring.",
-      year: "2025",
-      fileUrl: "paper_003.pdf"
-    }
-  ];
-
-  const defaultNews = [
-    {
-      id: 1,
-      title: "IEEE Student Branch KEC wins Best Branch Laurels",
-      cat: "Award",
-      source: "Erode Daily",
-      date: "Oct 14, 2025",
-      snippet: "Kongu Engineering College student branch recognized under Madras Section for outstanding technical contributions and volunteering.",
-      color: "#8b5cf6"
-    },
-    {
-      id: 2,
-      title: "Students showcase Smart Assistive Device at State Expo",
-      cat: "Exhibition",
-      source: "Tech Journal",
-      date: "Nov 02, 2025",
-      snippet: "Sponsored by IEEE SPS and KEC SRC, a student team built a voice-assisted glove prototype for quadriplegic rehabilitation.",
-      color: "#06b6d4"
-    },
-    {
-      id: 3,
-      title: "National Hackathon on Green Energy hosted by KEC IEEE SB",
-      cat: "Hackathon",
-      source: "The Campus News",
-      date: "Jan 18, 2026",
-      snippet: "More than 50 teams from across Southern India participated to pitch solar tracking and smart grid distribution prototypes.",
-      color: "#10b981"
-    }
-  ];
 
   const defaultMission = "To cultivate a culture of innovation, foster teamwork, and enhance student capability in research and design through seminars, hands-on workshops, student-led projects, and professional networking.";
   const defaultVision = "To build a world-class center of technical learning and professional excellence that empowers young minds to create engineering solutions for a sustainable and technologically advanced society.";
@@ -857,63 +309,27 @@ const Admin = () => {
     // Check if session exists
     const adminSession = sessionStorage.getItem('ieee_admin_session');
     if (adminSession === 'active') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsLoggedIn(true);
     }
 
     // Load Overview/Stats & Site Content Values
-    setMemberCount(null /* migrated to API */ || '45');
-    setEventsCount(null /* migrated to API */ || '75+');
-    setAwardsCount(null /* migrated to API */ || '18+');
-    setPapersCount(null /* migrated to API */ || '15');
-    setMission(null /* migrated to API */ || defaultMission);
-    setVision(null /* migrated to API */ || defaultVision);
-    setAccessPin(null /* migrated to API */ || '1234');
-    setIsPinEnabled(null /* migrated to API */ !== 'false');
+    setMemberCount('45');
+    setEventsCount('75+');
+    setAwardsCount('18+');
+    setPapersCount('15');
+    setMission(defaultMission);
+    setVision(defaultVision);
+    setAccessPin('1234');
+    setIsPinEnabled(false);
 
-    const storedTicker = null /* migrated to API */;
-    if (storedTicker) {
-      setTickerNoticesText(JSON.parse(storedTicker).join('\n'));
-    } else {
-      setTickerNoticesText(defaultTicker.join('\n'));
-    }
-
-    // Load Gallery
-    const storedGallery = null /* migrated to API */;
-    let parsedGallery = storedGallery ? JSON.parse(storedGallery) : null;
-    if (!parsedGallery || parsedGallery.length === 0 || !parsedGallery[0].images || parsedGallery[0].title === 'Flutter Bootcamp 2026') {
-      settingsService.set('ieee_gallery_items', JSON.stringify(defaultGallery));
-      parsedGallery = defaultGallery;
-    }
-    setGalleryItems(parsedGallery);
-
-    // Load Media Videos
-    const storedVideos = null /* migrated to API */;
-    if (storedVideos) {
-      setMediaVideos(JSON.parse(storedVideos));
-    } else {
-      const defaultMediaVideos = [
-        {
-          title: "IEEE KEC SB Decade Celebration Promo",
-          url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-          desc: "An overview reel capturing 10 years of student leadership, technical symposiums, and outreach drives."
-        },
-        {
-          title: "GreenTech Hackathon Pitch Finalists",
-          url: "https://youtu.be/8qGIyNu5Qqo",
-          desc: "Recap video showcasing student project prototypes and presentation pitches at Perundurai."
-        }
-      ];
-      settingsService.set('ieee_media_videos_v2', JSON.stringify(defaultMediaVideos));
-      setMediaVideos(defaultMediaVideos);
-    }
+    setTickerNoticesText(defaultTicker.join('\n'));
+    // Load Gallery and Videos are now handled entirely by the API fetch
 
     // Load Events from API
     const fetchEvents = async () => {
       try {
-        const response = await authFetch(`${API}/events`);
-        if (!response.ok) throw new Error(`Failed to load events (${response.status})`);
-        
-        const data = await response.json();
+        const data = await eventService.getAll();
         const formattedData = data.map(evt => ({ ...evt, id: evt._id }));
         
         const upcoming = formattedData.filter(evt => evt.isUpcoming);
@@ -925,427 +341,88 @@ const Admin = () => {
         console.error("Events fetch error:", err);
       }
     };
+    
+    // Load Gallery from API
+    const fetchGallery = async () => {
+      try {
+        const data = await galleryService.getAll();
+        const formattedData = data.map(g => ({
+          id: g._id,
+          title: g.title,
+          cat: g.category,
+          text: g.description,
+          images: g.images || []
+        }));
+        setGalleryItems(formattedData);
+      } catch (err) {
+        console.error("Gallery fetch error:", err);
+      }
+    };
+    
     if (isLoggedIn) {
       fetchEvents();
+      fetchGallery();
       
-      const fetchSettingsData = async () => {
+      const loadAllData = async () => {
         try {
-          const keysAndSetters = [
-            { key: 'ieee_gallery_items', setter: setGalleryItems, def: [] },
-            { key: 'ieee_achievements', setter: setAchievements, def: [] },
-            { key: 'ieee_operational_committees', setter: setCommittees, def: [] },
-            { key: 'ieee_research_papers', setter: setResearchPapers, def: [] },
-            { key: 'ieee_news_items', setter: setNewsItems, def: [] },
-            { key: 'ieee_media_videos_v2', setter: setMediaVideos, def: [] },
-            { key: 'ieee_execomm_societies_v3', setter: setSocieties, def: [] },
-            { key: 'ieee_execomm_students_v3', setter: setStudents, def: [] },
-            { key: 'ieee_request_forms', setter: setRequestForms, def: [] },
-            { key: 'ieee_documents', setter: setDocuments, def: [] }
-          ];
-          
+          const [
+            achievementsRes,
+            committeesRes,
+            researchRes,
+            newsRes,
+            videosRes,
+            societiesRes,
+            studentsRes,
+            formsRes,
+            documentsRes
+          ] = await Promise.all([
+            achievementsService.getAll().catch(() => []),
+            committeesService.getAll().catch(() => []),
+            researchService.getAll().catch(() => []),
+            newsService.getAll().catch(() => []),
+            videoService.getAll().catch(() => []),
+            societiesService.getAll().catch(() => []),
+            teamService.getAll().catch(() => []), // Assuming team is for students
+            formTemplateService.getAll().catch(() => []),
+            documentService.getAll().catch(() => [])
+          ]);
+
+          setAchievements(achievementsRes);
+          setCommittees(committeesRes);
+          setResearchPapers(researchRes);
+          setNewsItems(newsRes);
+          setMediaVideos(videosRes);
+          setSocieties(societiesRes);
+          setStudents(studentsRes);
+          setRequestForms(formsRes);
+          setDocuments(documentsRes);
+        } catch (e) { console.error("Error loading module data:", e); }
+      };
+      
+      loadAllData();
+      
+      // Still load true settings
+      const loadSettings = async () => {
+        try {
           const settings = await settingsService.getAll();
-          // settings is an array of { key, value }
           const settingsMap = {};
           if (Array.isArray(settings)) {
             settings.forEach(s => settingsMap[s.key] = s.value);
           }
-          
-          keysAndSetters.forEach(({ key, setter, def }) => {
-            if (settingsMap[key]) {
-              setter(settingsMap[key]);
-            } else {
-              setter(def);
-            }
-          });
-        } catch (e) { console.error("Error loading settings data:", e); }
+          // Apply individual settings
+          if (settingsMap['ieee_about_text']) setAboutText(settingsMap['ieee_about_text']);
+          if (settingsMap['ieee_mission']) setMission(settingsMap['ieee_mission']);
+          if (settingsMap['ieee_vision']) setVision(settingsMap['ieee_vision']);
+          if (settingsMap['ieee_hero_images']) setHeroImages(settingsMap['ieee_hero_images']);
+          if (settingsMap['ieee_keystones_video_url_v2']) setHeroVideoUrl(settingsMap['ieee_keystones_video_url_v2']);
+          if (settingsMap['ieee_about_image']) setAboutImage(settingsMap['ieee_about_image']);
+          if (settingsMap['ieee_events_stats_v1']) setEventsStats(settingsMap['ieee_events_stats_v1']);
+          if (settingsMap['ieee_events_philosophy_v1']) setEventsPhilosophy(settingsMap['ieee_events_philosophy_v1']);
+          if (settingsMap['ieee_impact_stats']) setImpactStats(settingsMap['ieee_impact_stats']);
+          if (settingsMap['ieee_testimonials']) setTestimonials(settingsMap['ieee_testimonials']);
+        } catch (e) { console.error("Error loading settings:", e); }
       };
-      
-      fetchSettingsData();
-    }
-
-    // Load Achievements
-    const storedAchievements = null /* migrated to API */;
-    if (storedAchievements) {
-      setAchievements(JSON.parse(storedAchievements));
-    } else {
-      settingsService.set('ieee_achievements', JSON.stringify(defaultAchievements));
-      setAchievements(defaultAchievements);
-    }
-
-    // Load Execomm Societies
-    const storedSocieties = null /* migrated to API */;
-    if (storedSocieties) {
-      setSocieties(JSON.parse(storedSocieties));
-    } else {
-      settingsService.set('ieee_execomm_societies_v3', JSON.stringify(defaultSocieties));
-      setSocieties(defaultSocieties);
-    }
-
-    // Load Execomm Students
-    const storedStudents = null /* migrated to API */;
-    if (storedStudents) {
-      setStudents(JSON.parse(storedStudents));
-    } else {
-      settingsService.set('ieee_execomm_students_v3', JSON.stringify(defaultStudents));
-      setStudents(defaultStudents);
-    }
-
-    // Load Committees
-    const storedCommittees = null /* migrated to API */;
-    if (storedCommittees) {
-      setCommittees(JSON.parse(storedCommittees));
-    } else {
-      settingsService.set('ieee_operational_committees', JSON.stringify(defaultCommittees));
-      setCommittees(defaultCommittees);
-    }
-
-    // Load Research Papers
-    const storedPapers = null /* migrated to API */;
-    if (storedPapers) {
-      setResearchPapers(JSON.parse(storedPapers));
-    } else {
-      settingsService.set('ieee_research_papers', JSON.stringify(defaultResearchPapers));
-      setResearchPapers(defaultResearchPapers);
-      // Set initial papers count
-      settingsService.set('ieee_papers_count', defaultResearchPapers.length.toString());
-      setPapersCount(defaultResearchPapers.length.toString());
-    }
-
-    // Load News Items
-    const storedNews = null /* migrated to API */;
-    let parsedNews = storedNews ? JSON.parse(storedNews) : null;
-    if (!parsedNews || parsedNews.length === 0 || !parsedNews[0].cat) {
-      settingsService.set('ieee_news_items', JSON.stringify(defaultNews));
-      parsedNews = defaultNews;
-    }
-    setNewsItems(parsedNews);
-
-    // Load dynamic media content
-    setAboutImage(null /* migrated to API */ || '/assets/kec_itpark.jpg');
-    setKeystonesVideoUrl(null /* migrated to API */ || 'https://youtu.be/_90Hd1qMDGM');
-
-    const storedHero = null /* migrated to API */;
-    if (storedHero) {
-      setHeroImages(JSON.parse(storedHero));
-    } else {
-      const defaultHeroImages = ['/assets/kec_gate.jpg', '/assets/kec_itpark.jpg', '/assets/kec_admin.jpg'];
-      settingsService.set('ieee_hero_images', JSON.stringify(defaultHeroImages));
-      setHeroImages(defaultHeroImages);
-    }
-
-    // Load impact stats
-    const storedImpact = null /* migrated to API */;
-    if (storedImpact) {
-      setImpactStats(JSON.parse(storedImpact));
-    } else {
-      const defaultImpactStats = [
-        { id: 1, value: "45+", label: "Active Members" },
-        { id: 2, value: "75+", label: "Technical Events Organized" },
-        { id: 3, value: "18+", label: "National Awards" },
-        { id: 4, value: "3+", label: "Research Publications" },
-        { id: 5, value: "20+", label: "Workshops Conducted" },
-        { id: 6, value: "10+", label: "Industry Collaborations" }
-      ];
-      settingsService.set('ieee_impact_stats', JSON.stringify(defaultImpactStats));
-      setImpactStats(defaultImpactStats);
-    }
-
-    // Load testimonials
-    const storedTestimonials = null /* migrated to API */;
-    if (storedTestimonials) {
-      setTestimonials(JSON.parse(storedTestimonials));
-    } else {
-      const defaultTestimonials = [
-        { id: 1, text: "IEEE helped me improve my leadership skills and technical confidence through hands-on event organization.", author: "Student Member", role: "KEC IEEE SB" },
-        { id: 2, text: "The networking opportunities and workshops provided valuable industry exposure and practical knowledge.", author: "IEEE Alumni", role: "KEC IEEE SB" },
-        { id: 3, text: "Being part of IEEE motivated me to explore research, innovation, and professional development beyond academics.", author: "IEEE Graduate", role: "KEC IEEE SB" }
-      ];
-      settingsService.set('ieee_testimonials', JSON.stringify(defaultTestimonials));
-      setTestimonials(defaultTestimonials);
-    }
-
-    // Load Drive folder and Documents settings
-    const storedDriveUrl = null /* migrated to API */;
-    if (storedDriveUrl) {
-      setDriveFolderUrl(storedDriveUrl);
-    } else {
-      const defaultUrl = 'https://drive.google.com/drive/folders/1mdrfLwOWprcKEB5PbK6BhWgv1MrrSE-m';
-      settingsService.set('ieee_drive_folder_url', defaultUrl);
-      setDriveFolderUrl(defaultUrl);
-    }
-
-    const storedDocs = null /* migrated to API */;
-    let parsedDocs = [];
-    if (storedDocs) {
-      parsedDocs = JSON.parse(storedDocs);
-    }
-    if (!storedDocs || parsedDocs.length === 0) {
-      settingsService.set('ieee_documents', JSON.stringify(defaultSyncFiles));
-      setDocuments(defaultSyncFiles);
-    } else {
-      setDocuments(parsedDocs);
-    }
-
-    // Load Request Forms
-    const storedRequestForms = null /* migrated to API */;
-    const defaultRequestForms = [
-      {
-        id: 1,
-        form_name: "Event Pre-Proposal",
-        route_slug: "event-pre-proposal",
-        google_form_url: "https://docs.google.com/forms/d/e/1FAIpQLSchXAD6IMgd7yYgQG4wLhIPiDScyktCw_h0NCeP5SiQrfFf7Q/viewform?embedded=true",
-        description: "Submit event details, dates, speakers, and budget estimates for verification and approval.",
-        category: "Event Management",
-        display_order: 1,
-        is_active: true,
-        updated_at: new Date().toLocaleDateString(),
-        updated_by: "Admin"
-      },
-      {
-        id: 2,
-        form_name: "Bill Settlement",
-        route_slug: "bill-settlement",
-        google_form_url: "https://docs.google.com/forms/d/e/1FAIpQLSe4rh67hrSDSVHx58-oBOGbOtNNiqi9R9dX_NyxHNOM1IEUgg/viewform?embedded=true",
-        description: "Submit final expense sheets, vouchers, invoice scans, and bank details for event accounts closure.",
-        category: "Finance",
-        display_order: 2,
-        is_active: true,
-        updated_at: new Date().toLocaleDateString(),
-        updated_by: "Admin"
-      },
-      {
-        id: 3,
-        form_name: "Membership",
-        route_slug: "membership",
-        google_form_url: "",
-        description: "Register for IEEE KEC SB membership. Fill in your personal details, department, year, and complete the payment via UPI.",
-        category: "Membership",
-        display_order: 3,
-        is_active: true,
-        updated_at: new Date().toLocaleDateString(),
-        updated_by: "Admin"
-      }
-    ];
-
-    if (storedRequestForms) {
-      try {
-        let parsed = JSON.parse(storedRequestForms);
-        let mutated = false;
-        parsed = parsed.map(form => {
-          let updated = { ...form };
-          if (!form.category) {
-            mutated = true;
-            if (form.route_slug === 'event-pre-proposal') updated.category = 'Event Management';
-            else if (form.route_slug === 'bill-settlement') updated.category = 'Finance';
-            else if (form.route_slug === 'membership') updated.category = 'Membership';
-            else updated.category = 'Administration';
-          }
-          if (form.display_order === undefined) {
-            mutated = true;
-            if (form.route_slug === 'event-pre-proposal') updated.display_order = 1;
-            else if (form.route_slug === 'bill-settlement') updated.display_order = 2;
-            else if (form.route_slug === 'membership') updated.display_order = 3;
-            else updated.display_order = 99;
-          }
-          return updated;
-        });
-        if (mutated) {
-          settingsService.set('ieee_request_forms', JSON.stringify(parsed));
-        }
-        setRequestForms(parsed);
-      } catch (e) {
-        console.error("Error loading stored request forms", e);
-        setRequestForms(defaultRequestForms);
-      }
-    } else {
-      settingsService.set('ieee_request_forms', JSON.stringify(defaultRequestForms));
-      setRequestForms(defaultRequestForms);
-    }
-
-    // Load Request Form Submissions
-    const storedSubmissions = null /* migrated to API */;
-    if (storedSubmissions) {
-      setSubmissions(JSON.parse(storedSubmissions));
-    } else {
-      settingsService.set('ieee_form_submissions', JSON.stringify([]));
-      setSubmissions([]);
-    }
-
-    // Load About KEC SB data
-    const storedAboutSb = null /* migrated to API */;
-    if (storedAboutSb) {
-      setAboutKecSb(JSON.parse(storedAboutSb));
-    } else {
-      const defaultAboutKecSb = {
-        whoWeAre: {
-          title: "Who We Are",
-          intro: "The IEEE Kongu Engineering College Student Branch (IEEE KEC SB) was established to inspire technical innovation among students and provide them with a platform for professional growth. We regularly organize workshops, hackathons, and guest lectures on cutting-edge technologies.",
-          introSecondary: "As part of the IEEE Madras Section, our branch acts as a gateway for students to interact with global researchers, participate in international contests, and access IEEE's vast digital libraries and resources.",
-          mission: "To build a world-class center of technical learning and professional excellence that empowers young minds to create engineering solutions for a sustainable and technologically advanced society.",
-          vision: "To cultivate a culture of innovation, foster teamwork, and enhance student capability in research and design through seminars, hands-on workshops, student-led projects, and professional networking."
-        },
-        stats: [
-          { label: "Student Members", count: "120+" },
-          { label: "Professional Chapters", count: "6" },
-          { label: "Events Conducted", count: "80+" },
-          { label: "Awards Received", count: "15+" },
-          { label: "Years of Impact", count: "10" }
-        ],
-        impact: [
-          { title: "Technical Growth", desc: "Hands-on experience with emerging technologies like AI, IoT, VLSI, and cloud computing through workshops.", icon: "Cpu" },
-          { title: "Leadership Development", desc: "Steering roles inside operational committees, planning conferences, and heading volunteer chapters.", icon: "Target" },
-          { title: "Community Service", desc: "Promoting digital literacy, energy auditing, and assistive technologies in nearby rural schools.", icon: "Heart" },
-          { title: "Professional Networking", desc: "Direct channels to connect with international researchers, industry stalwarts, and Anna University peers.", icon: "Users" },
-          { title: "Research Exposure", desc: "Direct funding and mentorship for publishing in indexed journals and presenting at IEEE conferences.", icon: "BookOpen" },
-          { title: "Industry Collaboration", desc: "Industrial visits, guest lectures by tech giants, and internships backed by IEEE member associations.", icon: "Globe" }
-        ],
-        whyJoin: [
-          { title: "Global Networking", desc: "Access a massive community of professionals, engineers, and scientists across 160+ countries." },
-          { title: "IEEE Resources", desc: "Free/discounted access to IEEE Spectrum, Xplore Digital Library, and academic publications." },
-          { title: "Leadership Opportunities", desc: "Build team management, event execution, and administrative leadership skills early in your career." },
-          { title: "International Exposure", desc: "Submit papers and participate in international competitions like IEEE Extreme, Congresses, etc." },
-          { title: "Technical Workshops", desc: "Free or highly subsidized tickets to advanced hands-on training sessions and hackathons." },
-          { title: "Career Development", desc: "Gain edge in placements, graduate school applications, and research fellowship selections." }
-        ],
-        timeline: [
-          { year: "2015", title: "Student Branch Inauguration", desc: "IEEE KEC Student Branch officially established under Madras Section with 35 charter student members." },
-          { year: "2018", title: "Society Additions", desc: "Established Computer Society and Women in Engineering affinity groups to cater to specialized domains." },
-          { year: "2021", title: "Regional Recognitions", desc: "Awarded the Outstanding Student Branch Award from the IEEE Madras Section for high volunteer activity." },
-          { year: "2024", title: "Decade of Impact & Expansion", desc: "Expanded to 6 active technical societies, cross-border hackathons, and over 120 registered active members." }
-        ],
-        cta: {
-          title: "Ready to Shape the Future of Technology?",
-          text: "Join the IEEE KEC Student Branch family today. Unlock global networking, resources, and career-defining opportunities.",
-          btn1Text: "Become a Member",
-          btn1Link: "https://www.ieee.org/membership/join/index.html",
-          btn2Text: "Explore Societies",
-          btn2Link: "/execomm"
-        }
-      };
-      setAboutKecSb(defaultAboutKecSb);
-      settingsService.set('ieee_about_kec_sb_v1', JSON.stringify(defaultAboutKecSb));
-    }
-
-    // Load Contact Page data
-    const storedContactPage = null /* migrated to API */;
-    if (storedContactPage) {
-      setContactPage(JSON.parse(storedContactPage));
-    } else {
-      const defaultContact = {
-        faqs: [
-          { q: "How do I become an IEEE KEC Student Member?", a: "You can register through the official IEEE Portal (ieee.org/membership/join) and select Kongu Engineering College as your Student Branch. Keep your IEEE member ID handy to update in our student branch records." },
-          { q: "What are the benefits of joining technical societies?", a: "Technical societies (like Computer Society, Power & Energy, or Signal Processing) provide domain-specific newsletters, global competition invites, and highly subsidized entries to specialized hands-on bootcamps." },
-          { q: "Can non-IEEE members attend KEC IEEE events?", a: "Yes, most of our general seminars and national hackathons are open to all branches and colleges. However, IEEE members receive discount perks and priority seats in high-demand workshops." },
-          { q: "How do I join an operational committee?", a: "Committee recruitments happen twice a year (at the beginning of each semester). Active student members can submit applications specifying their interest areas (Technical, Creative, PR, Editorial)." }
-        ],
-        officeHours: {
-          timings: "Monday - Friday: 04:30 PM - 06:00 PM",
-          venue: "IEEE Student Branch Office, EEE Dept (Ground Floor)",
-          coordinator: "Dr. A. Albert (Faculty Advisor) / Student Coordinators"
-        },
-        socials: {
-          linkedin: "https://linkedin.com/company/ieee-kec-sb",
-          instagram: "https://instagram.com/ieee_kec_sb",
-          facebook: "https://facebook.com/ieee.kec.sb",
-          twitter: "https://twitter.com/ieee_kec_sb",
-          youtube: "https://youtube.com/@ieee_kec_sb"
-        }
-      };
-      setContactPage(defaultContact);
-      settingsService.set('ieee_contact_page_v1', JSON.stringify(defaultContact));
-    }
-
-    // Load Events stats and philosophy
-    const storedEventsStats = null /* migrated to API */;
-    if (storedEventsStats) {
-      setEventsStats(JSON.parse(storedEventsStats));
-    } else {
-      const defaultEventsStats = [
-        { label: "Total Events Conducted", count: "80+" },
-        { label: "Technical Workshops", count: "45" },
-        { label: "Hackathons Conducted", count: "15" },
-        { label: "Total Participants", count: "3000+" }
-      ];
-      setEventsStats(defaultEventsStats);
-      settingsService.set('ieee_events_stats_v1', JSON.stringify(defaultEventsStats));
-    }
-
-    const storedEventsPhilosophy = null /* migrated to API */;
-    if (storedEventsPhilosophy) {
-      setEventPhilosophy(JSON.parse(storedEventsPhilosophy));
-    } else {
-      const defaultPhilosophy = {
-        title: "Learn, Create & Collaborate",
-        description: "At IEEE KEC SB, our events are designed around practical engineering experience. We bridge the gap between academic theory and active technology deployment through hands-on hackathons, research publications, and peer-to-peer programming."
-      };
-      setEventPhilosophy(defaultPhilosophy);
-      settingsService.set('ieee_events_philosophy_v1', JSON.stringify(defaultPhilosophy));
-    }
-
-    // Load Achievements stats and success stories
-    const storedAchievementsStats = null /* migrated to API */;
-    if (storedAchievementsStats) {
-      setAchievementsStats(JSON.parse(storedAchievementsStats));
-    } else {
-      const defaultAchievementsStats = [
-        { label: "Total Section Awards", count: "15+" },
-        { label: "Global Travel Grants", count: "3" },
-        { label: "Project Expo Prizes", count: "12+" },
-        { label: "Indexed Research Papers", count: "25+" }
-      ];
-      setAchievementsStats(defaultAchievementsStats);
-      settingsService.set('ieee_achievements_stats_v1', JSON.stringify(defaultAchievementsStats));
-    }
-
-    const storedSuccessStories = null /* migrated to API */;
-    if (storedSuccessStories) {
-      setSuccessStories(JSON.parse(storedSuccessStories));
-    } else {
-      const defaultSuccessStories = [
-        {
-          title: "From Perundurai to Seoul: A Research Journey",
-          category: "Research Highlight",
-          story: "Karthik Raja V., a final-year EEE student, developed an embedded edge AI voice filter for local speech waveforms under KEC SRC mentorship. His paper was accepted at the prestigious ICASSP 2025 conference in South Korea, earning him an IEEE travel grant. 'Volunteering at the student branch gave me exposure to global standards,' he shares.",
-          media: "Featured in Erode Local Press, March 2025"
-        },
-        {
-          title: "Smart Assistive Glove Wins First Place at Zonal Expo",
-          category: "Innovation Success",
-          story: "A team of 4 ECE student members designed a glove prototype with flex sensors and text-to-speech firmware to assist quadriplegic users. Backed by seed funding of ₹10,000 from KEC Student Research Cell, the prototype took 1st place among 80 competing colleges. The team is now filing an Indian utility patent.",
-          media: "Featured in Daily Express, April 2025"
-        }
-      ];
-      setSuccessStories(defaultSuccessStories);
-      settingsService.set('ieee_success_stories_v1', JSON.stringify(defaultSuccessStories));
-    }
-
-    // Load Committees philosophy and CTA
-    const storedCommitteesPhilosophy = null /* migrated to API */;
-    if (storedCommitteesPhilosophy) {
-      setCommitteesPhilosophy(JSON.parse(storedCommitteesPhilosophy));
-    } else {
-      const defaultPhilosophy = {
-        title: "The Spirit of Volunteering",
-        text: "Volunteering is at the core of IEEE's mission. At KEC, we believe that real engineering skills are forged by organizing, leading, and serving. Our committees offer students an experimental workspace to practice project management, professional communication, and group dynamics while working on real community initiatives."
-      };
-      setCommitteesPhilosophy(defaultPhilosophy);
-      settingsService.set('ieee_committees_philosophy_v1', JSON.stringify(defaultPhilosophy));
-    }
-
-    const storedCommitteesCta = null /* migrated to API */;
-    if (storedCommitteesCta) {
-      setCommitteesCta(JSON.parse(storedCommitteesCta));
-    } else {
-      const defaultCta = {
-        title: "Become an Active Volunteer",
-        text: "Want to lead technical events, design state-of-the-art posters, or publish our newsletters? Applications for operational roles are open to all active IEEE student members.",
-        btnText: "Apply for Committee Role",
-        btnLink: "https://forms.gle/mockvolunteer",
-        btnMailText: "Inquire via Email",
-        btnMailLink: "mailto:ieee@kongu.edu"
-      };
-      setCommitteesCta(defaultCta);
-      settingsService.set('ieee_committees_cta_v1', JSON.stringify(defaultCta));
+      loadSettings();
     }
   }, []);
 
@@ -1361,6 +438,7 @@ const Admin = () => {
       }
     } else {
       // Revert to import falls
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (key === 'ap-s') setBranchData(JSON.parse(JSON.stringify(apsData)));
       else if (key === 'computer-society') setBranchData(JSON.parse(JSON.stringify(computerSocietyData)));
       else if (key === 'wie') setBranchData(JSON.parse(JSON.stringify(wieData)));
@@ -1414,7 +492,7 @@ const Admin = () => {
     }
 
     // Fetch existing custom registered admins and check for duplicates
-    const storedAdmins = JSON.parse(null /* migrated to API */ || '[]');
+    const storedAdmins = JSON.parse('[]');
     const allAdmins = [...defaultAdmins, ...storedAdmins];
 
     const exists = allAdmins.some(
@@ -1764,55 +842,63 @@ const Admin = () => {
     if (!window.confirm(`Are you sure you want to delete this ${type} item?`)) return;
 
     if (type === 'gallery') {
-      const updated = galleryItems.filter(item => item.id !== id);
-      setGalleryItems(updated);
-      settingsService.set('ieee_gallery_items', JSON.stringify(updated));
+      try {
+        await galleryService.delete(id);
+        const updated = galleryItems.filter(item => item.id !== id);
+        setGalleryItems(updated);
+      } catch (err) {
+        console.error('Error deleting gallery item:', err);
+        alert('Error deleting gallery item: ' + err.message);
+      }
     } else if (type === 'event') {
       const deleteEvent = async () => {
         try {
-          const response = await authFetch(`${API}/events/${id}`, { method: 'DELETE' });
-          if (!response.ok) throw new Error('Failed to delete event');
+          await eventService.delete(id);
           
           const updatedUpcoming = upcomingEvents.filter(item => item.id !== id);
           const updatedPast = pastEvents.filter(item => item.id !== id);
           setUpcomingEvents(updatedUpcoming);
           setPastEvents(updatedPast);
         } catch (err) {
-          console.error(err);
+          console.error('Error deleting event:', err);
           alert('Error deleting event: ' + err.message);
         }
       };
       deleteEvent();
     } else if (type === 'achievement') {
-      const updated = achievements.filter(item => item.id !== id);
-      setAchievements(updated);
-      settingsService.set('ieee_achievements', JSON.stringify(updated));
+      try {
+        await achievementsService.delete(id);
+        setAchievements(achievements.filter(item => item.id !== id));
+      } catch (err) { console.error(err); }
     } else if (type === 'society') {
-      const updated = societies.filter(item => item.id !== id);
-      setSocieties(updated);
-      settingsService.set('ieee_execomm_societies_v3', JSON.stringify(updated));
+      try {
+        await societiesService.delete(id);
+        setSocieties(societies.filter(item => item.id !== id));
+      } catch (err) { console.error(err); }
     } else if (type === 'student') {
-      const updated = students.filter(item => item.id !== id);
-      setStudents(updated);
-      settingsService.set('ieee_execomm_students_v3', JSON.stringify(updated));
+      try {
+        await teamService.delete(id);
+        setStudents(students.filter(item => item.id !== id));
+      } catch (err) { console.error(err); }
     } else if (type === 'committee') {
-      const updated = committees.filter(item => item.id !== id);
-      setCommittees(updated);
-      settingsService.set('ieee_operational_committees', JSON.stringify(updated));
+      try {
+        await committeesService.delete(id);
+        setCommittees(committees.filter(item => item.id !== id));
+      } catch (err) { console.error(err); }
     } else if (type === 'researchpaper') {
-      const updated = researchPapers.filter(item => item.id !== id);
-      setResearchPapers(updated);
-      settingsService.set('ieee_research_papers', JSON.stringify(updated));
-      
-      // Decrement papers count when a paper is deleted
-      const currentCount = parseInt(papersCount) || 0;
-      const newCount = Math.max(currentCount - 1, 0);
-      setPapersCount(newCount.toString());
-      settingsService.set('ieee_papers_count', newCount.toString());
+      try {
+        await researchService.delete(id);
+        setResearchPapers(researchPapers.filter(item => item.id !== id));
+        const currentCount = parseInt(papersCount) || 0;
+        const newCount = Math.max(currentCount - 1, 0);
+        setPapersCount(newCount.toString());
+        settingsService.set('ieee_papers_count', newCount.toString());
+      } catch (err) { console.error(err); }
     } else if (type === 'news') {
-      const updated = newsItems.filter(item => item.id !== id);
-      setNewsItems(updated);
-      settingsService.set('ieee_news_items', JSON.stringify(updated));
+      try {
+        await newsService.delete(id);
+        setNewsItems(newsItems.filter(item => item.id !== id));
+      } catch (err) { console.error(err); }
     }
   };
 
@@ -1822,27 +908,48 @@ const Admin = () => {
 
     if (modalType === 'gallery') {
       if (!formTitle.trim() || !formText.trim()) return;
-      let updated = [];
-      if (modalMode === 'add') {
-        const newItem = {
-          id: galleryItems.length > 0 ? Math.max(...galleryItems.map(i => i.id)) + 1 : 1,
-          title: formTitle,
-          cat: formCat,
-          text: formText,
-          images: formImages
-        };
-        updated = [...galleryItems, newItem];
-      } else {
-        updated = galleryItems.map(item =>
-          item.id === currentItemId
-            ? { ...item, title: formTitle, cat: formCat, text: formText, images: formImages }
-            : item
-        );
-      }
-      setGalleryItems(updated);
-      settingsService.set('ieee_gallery_items', JSON.stringify(updated));
-
-    } else if (modalType === 'event') {
+      const saveGallery = async () => {
+        try {
+          const payload = {
+            title: formTitle,
+            category: formCat,
+            description: formText,
+            images: formImages
+          };
+          let savedGallery;
+          if (modalMode === 'add') {
+            savedGallery = await galleryService.create(payload);
+          } else {
+            savedGallery = await galleryService.update(currentItemId, payload);
+          }
+          // Transform backend response to frontend format
+          const formattedItem = {
+            id: savedGallery._id,
+            title: savedGallery.title,
+            cat: savedGallery.category,
+            text: savedGallery.description,
+            images: savedGallery.images || []
+          };
+          
+          if (modalMode === 'add') {
+            setGalleryItems(prev => [...prev, formattedItem]);
+          } else {
+            setGalleryItems(prev => prev.map(item => item.id === currentItemId ? formattedItem : item));
+          }
+          setIsModalOpen(false);
+        } catch (err) {
+          console.error('Error saving gallery item:', err);
+          alert('Error saving gallery item: ' + err.message);
+          throw err;
+        }
+      };
+      
+      try {
+        await saveGallery();
+      } catch (err) {
+        console.error(err);
+        return;
+      }    } else if (modalType === 'event') {
       if (!eventTitle.trim() || !eventDesc.trim() || !eventDate.trim() || !eventVenue.trim()) return;
 
       const newEventData = {
@@ -1903,201 +1010,108 @@ const Admin = () => {
 
     } else if (modalType === 'achievement') {
       if (!achTitle.trim() || !achCategory.trim() || !achDesc.trim()) return;
-      let updated = [];
-      if (modalMode === 'add') {
-        const newItem = {
-          id: achievements.length > 0 ? Math.max(...achievements.map(i => i.id)) + 1 : 1,
-          title: achTitle,
-          category: achCategory,
-          desc: achDesc,
-          iconType: achIconType
-        };
-        updated = [...achievements, newItem];
-      } else {
-        updated = achievements.map(item =>
-          item.id === currentItemId
-            ? { ...item, title: achTitle, category: achCategory, desc: achDesc, iconType: achIconType }
-            : item
-        );
-      }
-      setAchievements(updated);
-      settingsService.set('ieee_achievements', JSON.stringify(updated));
+      const payload = { title: achTitle, category: achCategory, desc: achDesc, iconType: achIconType };
+      try {
+        if (modalMode === 'add') {
+          payload.id = achievements.length > 0 ? Math.max(...achievements.map(i => i.id)) + 1 : 1;
+          const saved = await achievementsService.create(payload);
+          setAchievements([...achievements, saved]);
+        } else {
+          const saved = await achievementsService.update(currentItemId, payload);
+          setAchievements(achievements.map(item => item.id === currentItemId ? saved : item));
+        }
+      } catch (e) { console.error(e); }
 
     } else if (modalType === 'society') {
       if (!societyName.trim()) return;
-      let updated = [];
-      if (modalMode === 'add') {
-        const newItem = {
-          id: societies.length > 0 ? Math.max(...societies.map(i => i.id)) + 1 : 1,
-          name: societyName,
-          faculty1: { name: fac1Name, position: fac1Position, phone: fac1Phone, image: fac1Image },
-          faculty2: { name: fac2Name, position: fac2Position, phone: fac2Phone, image: fac2Image }
-        };
-        updated = [...societies, newItem];
-      } else {
-        updated = societies.map(item =>
-          item.id === currentItemId
-            ? {
-                ...item,
-                name: societyName,
-                faculty1: { name: fac1Name, position: fac1Position, phone: fac1Phone, image: fac1Image },
-                faculty2: { name: fac2Name, position: fac2Position, phone: fac2Phone, image: fac2Image }
-              }
-            : item
-        );
-      }
-      setSocieties(updated);
-      settingsService.set('ieee_execomm_societies_v3', JSON.stringify(updated));
+      const payload = {
+        name: societyName,
+        faculty1: { name: fac1Name, position: fac1Position, phone: fac1Phone, image: fac1Image },
+        faculty2: { name: fac2Name, position: fac2Position, phone: fac2Phone, image: fac2Image }
+      };
+      try {
+        if (modalMode === 'add') {
+          payload.id = societies.length > 0 ? Math.max(...societies.map(i => i.id)) + 1 : 1;
+          const saved = await societiesService.create(payload);
+          setSocieties([...societies, saved]);
+        } else {
+          const saved = await societiesService.update(currentItemId, payload);
+          setSocieties(societies.map(item => item.id === currentItemId ? saved : item));
+        }
+      } catch (e) { console.error(e); }
 
     } else if (modalType === 'student') {
       if (!studentName.trim() || !studentDept.trim() || !studentYear.trim() || !studentIeeeNumber.trim() || !studentPosition.trim()) return;
-      let updated = [];
-      if (modalMode === 'add') {
-        const newItem = {
-          id: students.length > 0 ? Math.max(...students.map(i => i.id)) + 1 : 1,
-          name: studentName,
-          department: studentDept,
-          yearOfStudy: studentYear,
-          ieeeNumber: studentIeeeNumber,
-          position: studentPosition,
-          society: studentSociety,
-          image: studentImage,
-          email: studentEmail,
-          phone: studentPhone,
-          linkedin: studentLinkedin
-        };
-        updated = [...students, newItem];
-      } else {
-        updated = students.map(item =>
-          item.id === currentItemId
-            ? {
-                ...item,
-                name: studentName,
-                department: studentDept,
-                yearOfStudy: studentYear,
-                ieeeNumber: studentIeeeNumber,
-                position: studentPosition,
-                society: studentSociety,
-                image: studentImage,
-                email: studentEmail,
-                phone: studentPhone,
-                linkedin: studentLinkedin
-              }
-            : item
-        );
-      }
-      setStudents(updated);
-      settingsService.set('ieee_execomm_students_v3', JSON.stringify(updated));
+      const payload = {
+        name: studentName, department: studentDept, yearOfStudy: studentYear,
+        ieeeNumber: studentIeeeNumber, position: studentPosition, society: studentSociety,
+        image: studentImage, email: studentEmail, phone: studentPhone, linkedin: studentLinkedin
+      };
+      try {
+        if (modalMode === 'add') {
+          payload.id = students.length > 0 ? Math.max(...students.map(i => i.id)) + 1 : 1;
+          const saved = await teamService.create(payload);
+          setStudents([...students, saved]);
+        } else {
+          const saved = await teamService.update(currentItemId, payload);
+          setStudents(students.map(item => item.id === currentItemId ? saved : item));
+        }
+      } catch (e) { console.error(e); }
 
     } else if (modalType === 'committee') {
       if (!commName.trim() || !commDesc.trim() || !commLead.trim() || !commCoLead.trim()) return;
-      let updated = [];
-      if (modalMode === 'add') {
-        const newItem = {
-          id: committees.length > 0 ? Math.max(...committees.map(i => i.id)) + 1 : 1,
-          name: commName,
-          desc: commDesc,
-          lead: commLead,
-          coLead: commCoLead,
-          teamCount: parseInt(commTeamCount) || 10
-        };
-        updated = [...committees, newItem];
-      } else {
-        updated = committees.map(item =>
-          item.id === currentItemId
-            ? { ...item, name: commName, desc: commDesc, lead: commLead, coLead: commCoLead, teamCount: parseInt(commTeamCount) || 10 }
-            : item
-        );
-      }
-      setCommittees(updated);
-      settingsService.set('ieee_operational_committees', JSON.stringify(updated));
+      const payload = {
+        name: commName, desc: commDesc, lead: commLead, coLead: commCoLead, teamCount: parseInt(commTeamCount) || 10
+      };
+      try {
+        if (modalMode === 'add') {
+          payload.id = committees.length > 0 ? Math.max(...committees.map(i => i.id)) + 1 : 1;
+          const saved = await committeesService.create(payload);
+          setCommittees([...committees, saved]);
+        } else {
+          const saved = await committeesService.update(currentItemId, payload);
+          setCommittees(committees.map(item => item.id === currentItemId ? saved : item));
+        }
+      } catch (e) { console.error(e); }
 
     } else if (modalType === 'researchpaper') {
       if (!paperTitle.trim() || !paperAuthors.trim() || !paperDesc.trim()) return;
-      let updated = [];
-      if (modalMode === 'add') {
-        const newItem = {
-          id: researchPapers.length > 0 ? Math.max(...researchPapers.map(i => i.id)) + 1 : 1,
-          title: paperTitle,
-          authors: paperAuthors,
-          category: paperCategory,
-          desc: paperDesc,
-          year: paperYear,
-          fileUrl: paperFile || `paper_${Date.now()}.pdf`
-        };
-        updated = [...researchPapers, newItem];
-        
-        // Increment papers count when a new paper is added
-        const currentCount = parseInt(papersCount) || 0;
-        const newCount = currentCount + 1;
-        setPapersCount(newCount.toString());
-        settingsService.set('ieee_papers_count', newCount.toString());
-      } else {
-        updated = researchPapers.map(item =>
-          item.id === currentItemId
-            ? { ...item, title: paperTitle, authors: paperAuthors, category: paperCategory, desc: paperDesc, year: paperYear, fileUrl: paperFile || item.fileUrl }
-            : item
-        );
-      }
-      setResearchPapers(updated);
-      settingsService.set('ieee_research_papers', JSON.stringify(updated));
+      const payload = {
+        title: paperTitle, authors: paperAuthors, category: paperCategory, desc: paperDesc, year: paperYear, fileUrl: paperFile || `paper_${Date.now()}.pdf`
+      };
+      try {
+        if (modalMode === 'add') {
+          payload.id = researchPapers.length > 0 ? Math.max(...researchPapers.map(i => i.id)) + 1 : 1;
+          const saved = await researchService.create(payload);
+          setResearchPapers([...researchPapers, saved]);
+          const newCount = (parseInt(papersCount) || 0) + 1;
+          setPapersCount(newCount.toString());
+          settingsService.set('ieee_papers_count', newCount.toString());
+        } else {
+          const saved = await researchService.update(currentItemId, payload);
+          setResearchPapers(researchPapers.map(item => item.id === currentItemId ? saved : item));
+        }
+      } catch (e) { console.error(e); }
     } else if (modalType === 'news') {
       if (!newsTitle.trim() || !newsSource.trim() || !newsDate.trim() || !newsSnippet.trim()) return;
-      let updated = [];
-      if (modalMode === 'add') {
-        const newItem = {
-          id: newsItems.length > 0 ? Math.max(...newsItems.map(i => i.id)) + 1 : 1,
-          title: newsTitle,
-          source: newsSource,
-          date: newsDate,
-          snippet: newsSnippet,
-          color: newsColor,
-          image: newsCoverType === 'image' ? newsImage : null
-        };
-        updated = [...newsItems, newItem];
-      } else {
-        updated = newsItems.map(item =>
-          item.id === currentItemId
-            ? { ...item, title: newsTitle, source: newsSource, date: newsDate, snippet: newsSnippet, color: newsColor, image: newsCoverType === 'image' ? newsImage : null }
-            : item
-        );
-      }
-      setNewsItems(updated);
-      settingsService.set('ieee_news_items', JSON.stringify(updated));
+      const payload = {
+        title: newsTitle, source: newsSource, date: newsDate, snippet: newsSnippet, color: newsColor, image: newsCoverType === 'image' ? newsImage : null
+      };
+      try {
+        if (modalMode === 'add') {
+          payload.id = newsItems.length > 0 ? Math.max(...newsItems.map(i => i.id)) + 1 : 1;
+          const saved = await newsService.create(payload);
+          setNewsItems([...newsItems, saved]);
+        } else {
+          const saved = await newsService.update(currentItemId, payload);
+          setNewsItems(newsItems.map(item => item.id === currentItemId ? saved : item));
+        }
+      } catch (e) { console.error(e); }
     }
 
     setIsModalOpen(false);
   };
 
-  const startInlineEditSociety = (item) => {
-    setSocietyName(item.name || '');
-    setFac1Name(item.faculty1?.name || '');
-    setFac1Position(item.faculty1?.position || '');
-    setFac1Phone(item.faculty1?.phone || '');
-    setFac1Image(item.faculty1?.image || '');
-    setFac2Name(item.faculty2?.name || '');
-    setFac2Position(item.faculty2?.position || '');
-    setFac2Phone(item.faculty2?.phone || '');
-    setFac2Image(item.faculty2?.image || '');
-    setEditingSocietyId(item.id);
-  };
-
-  const saveInlineSociety = (id) => {
-    if (!societyName.trim()) return;
-    const updated = societies.map(item =>
-      item.id === id
-        ? {
-            ...item,
-            name: societyName,
-            faculty1: { name: fac1Name, position: fac1Position, phone: fac1Phone, image: fac1Image },
-            faculty2: { name: fac2Name, position: fac2Position, phone: fac2Phone, image: fac2Image }
-          }
-        : item
-    );
-    setSocieties(updated);
-    settingsService.set('ieee_execomm_societies_v3', JSON.stringify(updated));
-    setEditingSocietyId(null);
-  };
 
   const startInlineEditFaculty = (fac) => {
     setFacultyName(fac.name || '');
@@ -2109,45 +1123,41 @@ const Admin = () => {
     setEditingFacultyId(fac.id);
   };
 
-  const saveInlineFaculty = (id) => {
+  const saveInlineFaculty = async (id) => {
     const [socId, facNum] = id.split('_').map(Number);
-    const updated = societies.map(item => {
-      if (item.id === socId) {
-        const updatedFaculty = {
-          name: facultyName,
-          position: facultyPosition,
-          phone: facultyPhone,
-          email: facultyEmail,
-          linkedin: facultyLinkedin,
-          image: facultyImage
-        };
-        return {
-          ...item,
-          [facNum === 1 ? 'faculty1' : 'faculty2']: updatedFaculty
-        };
-      }
-      return item;
-    });
-    setSocieties(updated);
-    settingsService.set('ieee_execomm_societies_v3', JSON.stringify(updated));
+    try {
+      const currentItem = societies.find(s => s.id === socId);
+      const updatedFaculty = {
+        name: facultyName,
+        position: facultyPosition,
+        phone: facultyPhone,
+        email: facultyEmail,
+        linkedin: facultyLinkedin,
+        image: facultyImage
+      };
+      const payload = {
+        ...currentItem,
+        [facNum === 1 ? 'faculty1' : 'faculty2']: updatedFaculty
+      };
+      const saved = await societiesService.update(socId, payload);
+      setSocieties(prev => prev.map(item => item.id === socId ? { ...item, ...saved } : item));
+    } catch (err) { console.error('Error updating faculty inline', err); }
     setEditingFacultyId(null);
   };
 
-  const deleteFaculty = (id) => {
+  const deleteFaculty = async (id) => {
     if (!window.confirm("Are you sure you want to clear/delete this faculty advisor's details?")) return;
     const [socId, facNum] = id.split('_').map(Number);
-    const updated = societies.map(item => {
-      if (item.id === socId) {
-        const emptyFaculty = { name: '', position: '', phone: '', email: '', linkedin: '', image: '' };
-        return {
-          ...item,
-          [facNum === 1 ? 'faculty1' : 'faculty2']: emptyFaculty
-        };
-      }
-      return item;
-    });
-    setSocieties(updated);
-    settingsService.set('ieee_execomm_societies_v3', JSON.stringify(updated));
+    try {
+      const currentItem = societies.find(s => s.id === socId);
+      const emptyFaculty = { name: '', position: '', phone: '', email: '', linkedin: '', image: '' };
+      const payload = {
+        ...currentItem,
+        [facNum === 1 ? 'faculty1' : 'faculty2']: emptyFaculty
+      };
+      const saved = await societiesService.update(socId, payload);
+      setSocieties(prev => prev.map(item => item.id === socId ? { ...item, ...saved } : item));
+    } catch (err) { console.error('Error deleting faculty', err); }
   };
 
   const startInlineEditStudent = (item) => {
@@ -2164,27 +1174,24 @@ const Admin = () => {
     setEditingStudentId(item.id);
   };
 
-  const saveInlineStudent = (id) => {
+  const saveInlineStudent = async (id) => {
     if (!studentName.trim() || !studentDept.trim() || !studentYear.trim() || !studentIeeeNumber.trim() || !studentPosition.trim()) return;
-    const updated = students.map(item =>
-      item.id === id
-        ? {
-            ...item,
-            name: studentName,
-            department: studentDept,
-            yearOfStudy: studentYear,
-            ieeeNumber: studentIeeeNumber,
-            position: studentPosition,
-            society: studentSociety,
-            image: studentImage,
-            email: studentEmail,
-            phone: studentPhone,
-            linkedin: studentLinkedin
-          }
-        : item
-    );
-    setStudents(updated);
-    settingsService.set('ieee_execomm_students_v3', JSON.stringify(updated));
+    try {
+      const payload = {
+        name: studentName,
+        department: studentDept,
+        yearOfStudy: studentYear,
+        ieeeNumber: studentIeeeNumber,
+        position: studentPosition,
+        society: studentSociety,
+        image: studentImage,
+        email: studentEmail,
+        phone: studentPhone,
+        linkedin: studentLinkedin
+      };
+      const saved = await teamService.update(id, payload);
+      setStudents(prev => prev.map(item => item.id === id ? { ...item, ...saved } : item));
+    } catch (err) { console.error('Error updating student inline', err); }
     setEditingStudentId(null);
   };
 
@@ -2196,16 +1203,19 @@ const Admin = () => {
     setEditingGalleryId(item.id);
   };
 
-  const saveInlineGallery = (id) => {
+  const saveInlineGallery = async (id) => {
     if (!formTitle.trim() || !formText.trim()) return;
-    const updated = galleryItems.map(item =>
-      item.id === id
-        ? { ...item, title: formTitle, cat: formCat, text: formText, images: formImages }
-        : item
-    );
-    setGalleryItems(updated);
-    settingsService.set('ieee_gallery_items', JSON.stringify(updated));
-    setEditingGalleryId(null);
+    const payload = { title: formTitle, category: formCat, description: formText, images: formImages };
+    try {
+      const saved = await galleryService.update(id, payload);
+      const updated = galleryItems.map(item =>
+        item.id === id
+          ? { ...item, title: saved.title, cat: saved.category, text: saved.description, images: saved.images || [] }
+          : item
+      );
+      setGalleryItems(updated);
+      setEditingGalleryId(null);
+    } catch (err) { console.error(err); }
   };
 
   const startInlineEditEvent = (item, isUpcoming) => {
@@ -2263,15 +1273,14 @@ const Admin = () => {
     setEditingAchievementId(item.id);
   };
 
-  const saveInlineAchievement = (id) => {
+  const saveInlineAchievement = async (id) => {
     if (!achTitle.trim() || !achDesc.trim()) return;
-    const updated = achievements.map(item =>
-      item.id === id
-        ? { ...item, title: achTitle, category: achCategory, desc: achDesc, iconType: achIconType }
-        : item
-    );
-    setAchievements(updated);
-    settingsService.set('ieee_achievements', JSON.stringify(updated));
+    try {
+      const payload = { title: achTitle, category: achCategory, description: achDesc, iconType: achIconType };
+      const saved = await achievementsService.update(id, payload);
+      const updated = achievements.map(item => item.id === id ? { ...item, ...saved, desc: saved.description } : item);
+      setAchievements(updated);
+    } catch (err) { console.error('Error updating achievement inline', err); }
     setEditingAchievementId(null);
   };
 
@@ -2284,72 +1293,16 @@ const Admin = () => {
     setEditingCommitteeId(item.id);
   };
 
-  const saveInlineCommittee = (id) => {
+  const saveInlineCommittee = async (id) => {
     if (!commName.trim() || !commDesc.trim() || !commLead.trim()) return;
-    const updated = committees.map(item =>
-      item.id === id
-        ? { ...item, name: commName, desc: commDesc, lead: commLead, coLead: commCoLead, teamCount: commTeamCount }
-        : item
-    );
-    setCommittees(updated);
-    settingsService.set('ieee_operational_committees', JSON.stringify(updated));
+    try {
+      const payload = { name: commName, description: commDesc, lead: commLead, coLead: commCoLead, teamCount: commTeamCount };
+      const saved = await committeesService.update(id, payload);
+      setCommittees(prev => prev.map(item => item.id === id ? { ...item, ...saved, desc: saved.description } : item));
+    } catch (err) { console.error('Error updating committee inline', err); }
     setEditingCommitteeId(null);
   };
 
-  const startInlineEditNews = (item) => {
-    setNewsTitle(item.title);
-    setNewsSource(item.source);
-    setNewsDate(item.date);
-    setNewsSnippet(item.snippet);
-    setNewsColor(item.color || '#f59e0b');
-    setNewsImage(item.image || null);
-    setNewsCoverType(item.image ? 'image' : 'color');
-    setNewsCat(item.cat || 'News');
-    setEditingNewsId(item.id);
-  };
-
-  const saveInlineNews = (id) => {
-    if (!newsTitle.trim() || !newsSnippet.trim() || !newsSource.trim()) return;
-    const updated = newsItems.map(item =>
-      item.id === id
-        ? {
-            ...item,
-            title: newsTitle,
-            source: newsSource,
-            date: newsDate,
-            snippet: newsSnippet,
-            color: newsColor,
-            image: newsCoverType === 'image' ? newsImage : null,
-            cat: newsCat
-          }
-        : item
-    );
-    setNewsItems(updated);
-    settingsService.set('ieee_news_items', JSON.stringify(updated));
-    setEditingNewsId(null);
-  };
-
-  const startInlineEditResearchPaper = (item) => {
-    setPaperTitle(item.title);
-    setPaperAuthors(item.authors);
-    setPaperDesc(item.desc);
-    setPaperCategory(item.category);
-    setPaperYear(item.year);
-    setPaperFile(item.fileUrl || '');
-    setEditingResearchPaperId(item.id);
-  };
-
-  const saveInlineResearchPaper = (id) => {
-    if (!paperTitle.trim() || !paperAuthors.trim() || !paperDesc.trim()) return;
-    const updated = researchPapers.map(item =>
-      item.id === id
-        ? { ...item, title: paperTitle, authors: paperAuthors, desc: paperDesc, category: paperCategory, year: paperYear, fileUrl: paperFile }
-        : item
-    );
-    setResearchPapers(updated);
-    settingsService.set('ieee_research_papers', JSON.stringify(updated));
-    setEditingResearchPaperId(null);
-  };
 
   // Helper functions for Impact Stats
   const startInlineEditImpact = (item) => {
@@ -2543,7 +1496,7 @@ const Admin = () => {
         return;
       }
       
-      let sourceFiles = [];
+      let sourceFiles;
       if (folderId === '1mdrfLwOWprcKEB5PbK6BhWgv1MrrSE-m') {
         sourceFiles = defaultSyncFiles;
       } else {
@@ -2551,7 +1504,7 @@ const Admin = () => {
       }
       
       // Load current documents from localStorage
-      const currentDocs = JSON.parse(null /* migrated to API */ || '[]');
+      const currentDocs = JSON.parse('[]');
       
       // Merge logic: preserve category, description, isVisible, isFeatured, featuredOrder if file exists
       const updatedDocs = sourceFiles.map(syncedFile => {
@@ -2657,20 +1610,23 @@ const Admin = () => {
   };
 
   // Helper functions for Media Videos
-  const handleAddVideo = (e) => {
+  const handleAddVideo = async (e) => {
     e.preventDefault();
     if (!newVideoTitle.trim() || !newVideoUrl.trim() || !newVideoDesc.trim()) return;
-    const newItem = {
+    const payload = {
+      id: mediaVideos.length > 0 ? Math.max(...mediaVideos.map(i => i.id || 0)) + 1 : 1,
       title: newVideoTitle.trim(),
       url: newVideoUrl.trim(),
-      desc: newVideoDesc.trim()
+      description: newVideoDesc.trim() // API uses 'description' while frontend uses 'desc'
     };
-    const updated = [...mediaVideos, newItem];
-    setMediaVideos(updated);
-    settingsService.set('ieee_media_videos_v2', JSON.stringify(updated));
-    setNewVideoTitle('');
-    setNewVideoUrl('');
-    setNewVideoDesc('');
+    try {
+      const saved = await videoService.create(payload);
+      // Map 'description' back to 'desc' for frontend consistency if needed
+      setMediaVideos([...mediaVideos, { ...saved, desc: saved.description }]);
+      setNewVideoTitle('');
+      setNewVideoUrl('');
+      setNewVideoDesc('');
+    } catch (err) { console.error(err); }
   };
 
   const startInlineEditVideo = (index, item) => {
@@ -2680,23 +1636,31 @@ const Admin = () => {
     setEditingVideoIndex(index);
   };
 
-  const saveInlineVideo = (index) => {
+  const saveInlineVideo = async (index) => {
     if (!videoTitleInput.trim() || !videoUrlInput.trim() || !videoDescInput.trim()) return;
-    const updated = mediaVideos.map((item, idx) =>
-      idx === index
-        ? { ...item, title: videoTitleInput.trim(), url: videoUrlInput.trim(), desc: videoDescInput.trim() }
-        : item
-    );
-    setMediaVideos(updated);
-    settingsService.set('ieee_media_videos_v2', JSON.stringify(updated));
-    setEditingVideoIndex(null);
+    const currentItem = mediaVideos[index];
+    const payload = {
+      title: videoTitleInput.trim(),
+      url: videoUrlInput.trim(),
+      description: videoDescInput.trim()
+    };
+    try {
+      const saved = await videoService.update(currentItem.id, payload);
+      const updated = mediaVideos.map((item, idx) =>
+        idx === index ? { ...saved, desc: saved.description } : item
+      );
+      setMediaVideos(updated);
+      setEditingVideoIndex(null);
+    } catch (err) { console.error(err); }
   };
 
-  const handleDeleteVideo = (index) => {
+  const handleDeleteVideo = async (index) => {
     if (!window.confirm("Are you sure you want to delete this video highlight?")) return;
-    const updated = mediaVideos.filter((_, idx) => idx !== index);
-    setMediaVideos(updated);
-    settingsService.set('ieee_media_videos_v2', JSON.stringify(updated));
+    const currentItem = mediaVideos[index];
+    try {
+      await videoService.delete(currentItem.id);
+      setMediaVideos(mediaVideos.filter((_, idx) => idx !== index));
+    } catch (err) { console.error(err); }
   };
 
 
@@ -3019,7 +1983,7 @@ const Admin = () => {
   }
 
   const toggleHighlightStatus = (item) => {
-    let updated = [];
+    let updated;
     if (item.isHighlighted) {
       // Remove from highlights
       updated = pastEvents.map(evt => {

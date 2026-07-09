@@ -152,19 +152,31 @@ const Achievements = () => {
   const [successStories, setSuccessStories] = useState(defaultSuccessStories);
 
   useEffect(() => {
-    const storedStats = localStorage.getItem('ieee_achievements_stats_v1');
-    if (storedStats) {
-      setAchStats(JSON.parse(storedStats));
-    } else {
-      localStorage.setItem('ieee_achievements_stats_v1', JSON.stringify(defaultAchievementsStats));
-    }
-
-    const storedStories = localStorage.getItem('ieee_success_stories_v1');
-    if (storedStories) {
-      setSuccessStories(JSON.parse(storedStories));
-    } else {
-      localStorage.setItem('ieee_success_stories_v1', JSON.stringify(defaultSuccessStories));
-    }
+    const fetchSettings = async () => {
+      try {
+        const response = await fetch(`${API}/settings`);
+        if (response.ok) {
+          const settings = await response.json();
+          const getVal = (key) => {
+            const s = settings.find(s => s.key === key);
+            return s ? s.value : null;
+          };
+          
+          const stats = getVal('ieee_achievements_stats_v1');
+          if (stats) {
+            try { setAchStats(typeof stats === 'string' ? JSON.parse(stats) : stats); } catch(e){}
+          }
+          
+          const stories = getVal('ieee_success_stories_v1');
+          if (stories) {
+            try { setSuccessStories(typeof stories === 'string' ? JSON.parse(stories) : stories); } catch(e){}
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load achievement settings', err);
+      }
+    };
+    fetchSettings();
   }, []);
 
   return (

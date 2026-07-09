@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Lock, Unlock, LogOut, Check, Trash2, Edit3, Plus, Image as ImageIcon, BarChart3, Database, X, Calendar, Award, Users, Target, Settings, Link as LinkIcon, AlertCircle, FileText, Compass, Layers, Save, RefreshCw, MessageSquare, ArrowUp, ArrowDown, Flame } from 'lucide-react';
-import { API, authFetch, settingsService, galleryService, achievementsService, societiesService, teamService, committeesService } from '../services/api';
+import { API, authFetch, settingsService, galleryService, videosService, achievementsService, societiesService, teamService, committeesService } from '../services/api';
 import { apsData } from '../data/aps';
 import { computerSocietyData } from '../data/computerSociety';
 import { wieData } from '../data/wie';
@@ -877,35 +877,7 @@ const Admin = () => {
       setTickerNoticesText(defaultTicker.join('\n'));
     }
 
-    // Load Gallery
-    const storedGallery = null /* migrated to API */;
-    let parsedGallery = storedGallery ? JSON.parse(storedGallery) : null;
-    if (!parsedGallery || parsedGallery.length === 0 || !parsedGallery[0].images || parsedGallery[0].title === 'Flutter Bootcamp 2026') {
-      settingsService.set('ieee_gallery_items', JSON.stringify(defaultGallery));
-      parsedGallery = defaultGallery;
-    }
-    setGalleryItems(parsedGallery);
-
-    // Load Media Videos
-    const storedVideos = null /* migrated to API */;
-    if (storedVideos) {
-      setMediaVideos(JSON.parse(storedVideos));
-    } else {
-      const defaultMediaVideos = [
-        {
-          title: "IEEE KEC SB Decade Celebration Promo",
-          url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-          desc: "An overview reel capturing 10 years of student leadership, technical symposiums, and outreach drives."
-        },
-        {
-          title: "GreenTech Hackathon Pitch Finalists",
-          url: "https://youtu.be/8qGIyNu5Qqo",
-          desc: "Recap video showcasing student project prototypes and presentation pitches at Perundurai."
-        }
-      ];
-      settingsService.set('ieee_media_videos_v2', JSON.stringify(defaultMediaVideos));
-      setMediaVideos(defaultMediaVideos);
-    }
+    // Gallery and Media Videos are now dynamically fetched via API inside fetchMediaItems
 
     // Load Events from API
     const fetchEvents = async () => {
@@ -925,18 +897,48 @@ const Admin = () => {
         console.error("Events fetch error:", err);
       }
     };
-    if (isLoggedIn) {
+    if (adminSession === 'active' || isLoggedIn) {
       fetchEvents();
+      
+      const fetchMediaItems = async () => {
+        try {
+          const galleryRes = await galleryService.getAll();
+          const mappedGallery = galleryRes.map(g => ({
+            id: g._id,
+            title: g.title,
+            cat: g.category || 'General',
+            text: g.description,
+            images: g.images && g.images.length > 0 ? g.images : []
+          }));
+          setGalleryItems(mappedGallery);
+        } catch (err) {
+          console.error("Gallery fetch error:", err);
+          setGalleryItems(defaultGallery);
+        }
+
+        try {
+          const videosRes = await videosService.getAll();
+          const mappedVideos = videosRes.map(v => ({
+            id: v._id,
+            title: v.title,
+            url: v.url,
+            desc: v.description || v.desc || ''
+          }));
+          setMediaVideos(mappedVideos);
+        } catch (err) {
+          console.error("Videos fetch error:", err);
+          setMediaVideos([]);
+        }
+      };
+      fetchMediaItems();
       
       const fetchSettingsData = async () => {
         try {
           const keysAndSetters = [
-            { key: 'ieee_gallery_items', setter: setGalleryItems, def: [] },
             { key: 'ieee_achievements', setter: setAchievements, def: [] },
             { key: 'ieee_operational_committees', setter: setCommittees, def: [] },
             { key: 'ieee_research_papers', setter: setResearchPapers, def: [] },
             { key: 'ieee_news_items', setter: setNewsItems, def: [] },
-            { key: 'ieee_media_videos_v2', setter: setMediaVideos, def: [] },
             { key: 'ieee_execomm_societies_v3', setter: setSocieties, def: [] },
             { key: 'ieee_execomm_students_v3', setter: setStudents, def: [] },
             { key: 'ieee_request_forms', setter: setRequestForms, def: [] },
@@ -968,7 +970,6 @@ const Admin = () => {
     if (storedAchievements) {
       setAchievements(JSON.parse(storedAchievements));
     } else {
-      settingsService.set('ieee_achievements', JSON.stringify(defaultAchievements));
       setAchievements(defaultAchievements);
     }
 
@@ -977,7 +978,6 @@ const Admin = () => {
     if (storedSocieties) {
       setSocieties(JSON.parse(storedSocieties));
     } else {
-      settingsService.set('ieee_execomm_societies_v3', JSON.stringify(defaultSocieties));
       setSocieties(defaultSocieties);
     }
 
@@ -986,7 +986,6 @@ const Admin = () => {
     if (storedStudents) {
       setStudents(JSON.parse(storedStudents));
     } else {
-      settingsService.set('ieee_execomm_students_v3', JSON.stringify(defaultStudents));
       setStudents(defaultStudents);
     }
 
@@ -995,7 +994,6 @@ const Admin = () => {
     if (storedCommittees) {
       setCommittees(JSON.parse(storedCommittees));
     } else {
-      settingsService.set('ieee_operational_committees', JSON.stringify(defaultCommittees));
       setCommittees(defaultCommittees);
     }
 
@@ -1004,10 +1002,8 @@ const Admin = () => {
     if (storedPapers) {
       setResearchPapers(JSON.parse(storedPapers));
     } else {
-      settingsService.set('ieee_research_papers', JSON.stringify(defaultResearchPapers));
       setResearchPapers(defaultResearchPapers);
       // Set initial papers count
-      settingsService.set('ieee_papers_count', defaultResearchPapers.length.toString());
       setPapersCount(defaultResearchPapers.length.toString());
     }
 
@@ -1015,7 +1011,6 @@ const Admin = () => {
     const storedNews = null /* migrated to API */;
     let parsedNews = storedNews ? JSON.parse(storedNews) : null;
     if (!parsedNews || parsedNews.length === 0 || !parsedNews[0].cat) {
-      settingsService.set('ieee_news_items', JSON.stringify(defaultNews));
       parsedNews = defaultNews;
     }
     setNewsItems(parsedNews);
@@ -1029,7 +1024,6 @@ const Admin = () => {
       setHeroImages(JSON.parse(storedHero));
     } else {
       const defaultHeroImages = ['/assets/kec_gate.jpg', '/assets/kec_itpark.jpg', '/assets/kec_admin.jpg'];
-      settingsService.set('ieee_hero_images', JSON.stringify(defaultHeroImages));
       setHeroImages(defaultHeroImages);
     }
 
@@ -1046,7 +1040,6 @@ const Admin = () => {
         { id: 5, value: "20+", label: "Workshops Conducted" },
         { id: 6, value: "10+", label: "Industry Collaborations" }
       ];
-      settingsService.set('ieee_impact_stats', JSON.stringify(defaultImpactStats));
       setImpactStats(defaultImpactStats);
     }
 
@@ -1060,7 +1053,6 @@ const Admin = () => {
         { id: 2, text: "The networking opportunities and workshops provided valuable industry exposure and practical knowledge.", author: "IEEE Alumni", role: "KEC IEEE SB" },
         { id: 3, text: "Being part of IEEE motivated me to explore research, innovation, and professional development beyond academics.", author: "IEEE Graduate", role: "KEC IEEE SB" }
       ];
-      settingsService.set('ieee_testimonials', JSON.stringify(defaultTestimonials));
       setTestimonials(defaultTestimonials);
     }
 
@@ -1070,7 +1062,6 @@ const Admin = () => {
       setDriveFolderUrl(storedDriveUrl);
     } else {
       const defaultUrl = 'https://drive.google.com/drive/folders/1mdrfLwOWprcKEB5PbK6BhWgv1MrrSE-m';
-      settingsService.set('ieee_drive_folder_url', defaultUrl);
       setDriveFolderUrl(defaultUrl);
     }
 
@@ -1080,7 +1071,6 @@ const Admin = () => {
       parsedDocs = JSON.parse(storedDocs);
     }
     if (!storedDocs || parsedDocs.length === 0) {
-      settingsService.set('ieee_documents', JSON.stringify(defaultSyncFiles));
       setDocuments(defaultSyncFiles);
     } else {
       setDocuments(parsedDocs);
@@ -1150,7 +1140,6 @@ const Admin = () => {
           return updated;
         });
         if (mutated) {
-          settingsService.set('ieee_request_forms', JSON.stringify(parsed));
         }
         setRequestForms(parsed);
       } catch (e) {
@@ -1158,7 +1147,6 @@ const Admin = () => {
         setRequestForms(defaultRequestForms);
       }
     } else {
-      settingsService.set('ieee_request_forms', JSON.stringify(defaultRequestForms));
       setRequestForms(defaultRequestForms);
     }
 
@@ -1167,7 +1155,6 @@ const Admin = () => {
     if (storedSubmissions) {
       setSubmissions(JSON.parse(storedSubmissions));
     } else {
-      settingsService.set('ieee_form_submissions', JSON.stringify([]));
       setSubmissions([]);
     }
 
@@ -1223,7 +1210,6 @@ const Admin = () => {
         }
       };
       setAboutKecSb(defaultAboutKecSb);
-      settingsService.set('ieee_about_kec_sb_v1', JSON.stringify(defaultAboutKecSb));
     }
 
     // Load Contact Page data
@@ -1252,7 +1238,6 @@ const Admin = () => {
         }
       };
       setContactPage(defaultContact);
-      settingsService.set('ieee_contact_page_v1', JSON.stringify(defaultContact));
     }
 
     // Load Events stats and philosophy
@@ -1267,7 +1252,6 @@ const Admin = () => {
         { label: "Total Participants", count: "3000+" }
       ];
       setEventsStats(defaultEventsStats);
-      settingsService.set('ieee_events_stats_v1', JSON.stringify(defaultEventsStats));
     }
 
     const storedEventsPhilosophy = null /* migrated to API */;
@@ -1279,7 +1263,6 @@ const Admin = () => {
         description: "At IEEE KEC SB, our events are designed around practical engineering experience. We bridge the gap between academic theory and active technology deployment through hands-on hackathons, research publications, and peer-to-peer programming."
       };
       setEventPhilosophy(defaultPhilosophy);
-      settingsService.set('ieee_events_philosophy_v1', JSON.stringify(defaultPhilosophy));
     }
 
     // Load Achievements stats and success stories
@@ -1294,7 +1277,6 @@ const Admin = () => {
         { label: "Indexed Research Papers", count: "25+" }
       ];
       setAchievementsStats(defaultAchievementsStats);
-      settingsService.set('ieee_achievements_stats_v1', JSON.stringify(defaultAchievementsStats));
     }
 
     const storedSuccessStories = null /* migrated to API */;
@@ -1316,7 +1298,6 @@ const Admin = () => {
         }
       ];
       setSuccessStories(defaultSuccessStories);
-      settingsService.set('ieee_success_stories_v1', JSON.stringify(defaultSuccessStories));
     }
 
     // Load Committees philosophy and CTA
@@ -1329,7 +1310,6 @@ const Admin = () => {
         text: "Volunteering is at the core of IEEE's mission. At KEC, we believe that real engineering skills are forged by organizing, leading, and serving. Our committees offer students an experimental workspace to practice project management, professional communication, and group dynamics while working on real community initiatives."
       };
       setCommitteesPhilosophy(defaultPhilosophy);
-      settingsService.set('ieee_committees_philosophy_v1', JSON.stringify(defaultPhilosophy));
     }
 
     const storedCommitteesCta = null /* migrated to API */;
@@ -1345,7 +1325,6 @@ const Admin = () => {
         btnMailLink: "mailto:ieee@kongu.edu"
       };
       setCommitteesCta(defaultCta);
-      settingsService.set('ieee_committees_cta_v1', JSON.stringify(defaultCta));
     }
   }, []);
 
@@ -1764,9 +1743,17 @@ const Admin = () => {
     if (!window.confirm(`Are you sure you want to delete this ${type} item?`)) return;
 
     if (type === 'gallery') {
-      const updated = galleryItems.filter(item => item.id !== id);
-      setGalleryItems(updated);
-      settingsService.set('ieee_gallery_items', JSON.stringify(updated));
+      const deleteGalleryItem = async () => {
+        try {
+          await galleryService.delete(id);
+          const updated = galleryItems.filter(item => item.id !== id);
+          setGalleryItems(updated);
+        } catch (err) {
+          console.error(err);
+          alert('Error deleting gallery item: ' + err.message);
+        }
+      };
+      deleteGalleryItem();
     } else if (type === 'event') {
       const deleteEvent = async () => {
         try {
@@ -1824,23 +1811,46 @@ const Admin = () => {
       if (!formTitle.trim() || !formText.trim()) return;
       let updated = [];
       if (modalMode === 'add') {
-        const newItem = {
-          id: galleryItems.length > 0 ? Math.max(...galleryItems.map(i => i.id)) + 1 : 1,
-          title: formTitle,
-          cat: formCat,
-          text: formText,
-          images: formImages
+        const createGalleryItem = async () => {
+          try {
+            const newItem = await galleryService.create({
+              title: formTitle,
+              category: formCat,
+              description: formText,
+              images: formImages
+            });
+            setGalleryItems([...galleryItems, {
+              id: newItem._id,
+              title: newItem.title,
+              cat: newItem.category || 'General',
+              text: newItem.description,
+              images: newItem.images || []
+            }]);
+          } catch (err) {
+            alert('Error: ' + err.message);
+          }
         };
-        updated = [...galleryItems, newItem];
+        createGalleryItem();
       } else {
-        updated = galleryItems.map(item =>
-          item.id === currentItemId
-            ? { ...item, title: formTitle, cat: formCat, text: formText, images: formImages }
-            : item
-        );
+        const updateGalleryItem = async () => {
+          try {
+            const updatedItem = await galleryService.update(currentItemId, {
+              title: formTitle,
+              category: formCat,
+              description: formText,
+              images: formImages
+            });
+            setGalleryItems(galleryItems.map(item =>
+              item.id === currentItemId
+                ? { ...item, title: updatedItem.title, cat: updatedItem.category || 'General', text: updatedItem.description, images: updatedItem.images || [] }
+                : item
+            ));
+          } catch (err) {
+            alert('Error: ' + err.message);
+          }
+        };
+        updateGalleryItem();
       }
-      setGalleryItems(updated);
-      settingsService.set('ieee_gallery_items', JSON.stringify(updated));
 
     } else if (modalType === 'event') {
       if (!eventTitle.trim() || !eventDesc.trim() || !eventDate.trim() || !eventVenue.trim()) return;
@@ -2196,16 +2206,25 @@ const Admin = () => {
     setEditingGalleryId(item.id);
   };
 
-  const saveInlineGallery = (id) => {
+  const saveInlineGallery = async (id) => {
     if (!formTitle.trim() || !formText.trim()) return;
-    const updated = galleryItems.map(item =>
-      item.id === id
-        ? { ...item, title: formTitle, cat: formCat, text: formText, images: formImages }
-        : item
-    );
-    setGalleryItems(updated);
-    settingsService.set('ieee_gallery_items', JSON.stringify(updated));
-    setEditingGalleryId(null);
+    try {
+      const updatedItem = await galleryService.update(id, {
+        title: formTitle,
+        category: formCat,
+        description: formText,
+        images: formImages
+      });
+      const updated = galleryItems.map(item =>
+        item.id === id
+          ? { ...item, title: updatedItem.title, cat: updatedItem.category || 'General', text: updatedItem.description, images: updatedItem.images || [] }
+          : item
+      );
+      setGalleryItems(updated);
+      setEditingGalleryId(null);
+    } catch (err) {
+      alert('Error updating gallery inline: ' + err.message);
+    }
   };
 
   const startInlineEditEvent = (item, isUpcoming) => {
@@ -2657,20 +2676,27 @@ const Admin = () => {
   };
 
   // Helper functions for Media Videos
-  const handleAddVideo = (e) => {
+  const handleAddVideo = async (e) => {
     e.preventDefault();
     if (!newVideoTitle.trim() || !newVideoUrl.trim() || !newVideoDesc.trim()) return;
-    const newItem = {
-      title: newVideoTitle.trim(),
-      url: newVideoUrl.trim(),
-      desc: newVideoDesc.trim()
-    };
-    const updated = [...mediaVideos, newItem];
-    setMediaVideos(updated);
-    settingsService.set('ieee_media_videos_v2', JSON.stringify(updated));
-    setNewVideoTitle('');
-    setNewVideoUrl('');
-    setNewVideoDesc('');
+    try {
+      const newItem = await videosService.create({
+        title: newVideoTitle.trim(),
+        url: newVideoUrl.trim(),
+        description: newVideoDesc.trim()
+      });
+      setMediaVideos([...mediaVideos, {
+        id: newItem._id,
+        title: newItem.title,
+        url: newItem.url,
+        desc: newItem.description || newItem.desc || ''
+      }]);
+      setNewVideoTitle('');
+      setNewVideoUrl('');
+      setNewVideoDesc('');
+    } catch (err) {
+      alert('Error adding video: ' + err.message);
+    }
   };
 
   const startInlineEditVideo = (index, item) => {
@@ -2680,23 +2706,43 @@ const Admin = () => {
     setEditingVideoIndex(index);
   };
 
-  const saveInlineVideo = (index) => {
+  const saveInlineVideo = async (index) => {
     if (!videoTitleInput.trim() || !videoUrlInput.trim() || !videoDescInput.trim()) return;
-    const updated = mediaVideos.map((item, idx) =>
-      idx === index
-        ? { ...item, title: videoTitleInput.trim(), url: videoUrlInput.trim(), desc: videoDescInput.trim() }
-        : item
-    );
-    setMediaVideos(updated);
-    settingsService.set('ieee_media_videos_v2', JSON.stringify(updated));
-    setEditingVideoIndex(null);
+    const itemToUpdate = mediaVideos[index];
+    if (!itemToUpdate) return;
+    
+    try {
+      const updatedItem = await videosService.update(itemToUpdate.id, {
+        title: videoTitleInput.trim(),
+        url: videoUrlInput.trim(),
+        description: videoDescInput.trim()
+      });
+      const updated = mediaVideos.map((item, idx) =>
+        idx === index
+          ? { ...item, title: updatedItem.title, url: updatedItem.url, desc: updatedItem.description || updatedItem.desc || '' }
+          : item
+      );
+      setMediaVideos(updated);
+      setEditingVideoIndex(null);
+    } catch (err) {
+      alert('Error saving video inline: ' + err.message);
+    }
   };
 
-  const handleDeleteVideo = (index) => {
+  const handleDeleteVideo = async (index) => {
     if (!window.confirm("Are you sure you want to delete this video highlight?")) return;
-    const updated = mediaVideos.filter((_, idx) => idx !== index);
-    setMediaVideos(updated);
-    settingsService.set('ieee_media_videos_v2', JSON.stringify(updated));
+    const itemToDelete = mediaVideos[index];
+    if (!itemToDelete) return;
+    
+    try {
+      if (itemToDelete.id) {
+        await videosService.delete(itemToDelete.id);
+      }
+      const updated = mediaVideos.filter((_, idx) => idx !== index);
+      setMediaVideos(updated);
+    } catch (err) {
+      alert('Error deleting video: ' + err.message);
+    }
   };
 
 

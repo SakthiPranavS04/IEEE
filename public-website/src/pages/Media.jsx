@@ -111,12 +111,26 @@ const Media = () => {
   };
 
   useEffect(() => {
-    const storedVideos = localStorage.getItem('ieee_media_videos_v2');
-    if (storedVideos) {
-      setMediaVideos(JSON.parse(storedVideos));
-    } else {
-      localStorage.setItem('ieee_media_videos_v2', JSON.stringify(defaultMediaVideos));
-    }
+    const fetchVideos = async () => {
+      try {
+        const res = await fetch(`${API}/videos`);
+        if (res.ok) {
+          const data = await res.json();
+          const mappedVideos = data.map(v => ({
+            id: v._id,
+            title: v.title,
+            url: v.url,
+            desc: v.description || v.desc || ''
+          }));
+          setMediaVideos(mappedVideos.length > 0 ? mappedVideos : defaultMediaVideos);
+        } else {
+          setMediaVideos(defaultMediaVideos);
+        }
+      } catch (err) {
+        setMediaVideos(defaultMediaVideos);
+      }
+    };
+    fetchVideos();
   }, []);
 
   // Predefined default gallery fallback

@@ -51,7 +51,7 @@ app.use(xss());
 // Rate Limiter
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  max: process.env.NODE_ENV === 'development' ? 5000 : 1000, // Increased limit to prevent 429s during normal use
 });
 app.use('/api', limiter);
 

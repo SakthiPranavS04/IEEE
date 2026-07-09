@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import API from '../services/api';
 import { Target, PenTool, Cpu, Share2, Compass } from 'lucide-react';
 
 const PageHeader = ({ title, subtitle }) => (

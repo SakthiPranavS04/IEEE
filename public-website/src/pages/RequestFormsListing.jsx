@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import API from '../services/api';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, Filter, ArrowRight, FileText, Sparkles, X, Lock, Unlock } from 'lucide-react';
 
@@ -101,7 +102,7 @@ const RequestFormsListing = () => {
     const isMatchedActive = form.is_active;
     const query = searchQuery.toLowerCase().trim();
     
-    const isPinEnabled = localStorage.getItem('ieee_pin_enabled') !== 'false';
+    const isPinEnabled = globalPinEnabled;
     const isLocked = isPinEnabled && form.is_confidential && sessionStorage.getItem(`ieee_unlocked_form_${form.route_slug}`) !== 'true';
 
     let matchesSearch = false;
@@ -133,7 +134,7 @@ const RequestFormsListing = () => {
 
   const handleFormClick = (e, form) => {
     e.preventDefault();
-    const isPinEnabled = localStorage.getItem('ieee_pin_enabled') !== 'false';
+    const isPinEnabled = globalPinEnabled;
     const isUnlocked = sessionStorage.getItem(`ieee_unlocked_form_${form.route_slug}`) === 'true';
     if (isPinEnabled && form.is_confidential && !isUnlocked) {
       setTargetForm(form);
@@ -147,7 +148,7 @@ const RequestFormsListing = () => {
   };
 
   const handlePinSubmit = () => {
-    const correctPin = localStorage.getItem('ieee_access_pin') || '1234';
+    const correctPin = globalAccessPin;
     if (pinInput === correctPin) {
       sessionStorage.setItem(`ieee_unlocked_form_${targetForm.route_slug}`, 'true');
       setShowPinModal(false);
@@ -287,7 +288,7 @@ const RequestFormsListing = () => {
           }}>
             {sortedForms.map((form) => {
               const catStyle = getCategoryStyle(form.category || 'Membership');
-              const isPinEnabled = localStorage.getItem('ieee_pin_enabled') !== 'false';
+              const isPinEnabled = globalPinEnabled;
               const isLocked = isPinEnabled && form.is_confidential && sessionStorage.getItem(`ieee_unlocked_form_${form.route_slug}`) !== 'true';
               return (
                 <div
@@ -341,7 +342,7 @@ const RequestFormsListing = () => {
                       }}>
                         {isLocked ? 'Confidential Request Form' : form.form_name}
                       </h3>
-                      {form.is_confidential && localStorage.getItem('ieee_pin_enabled') !== 'false' && (
+                      {form.is_confidential && globalPinEnabled && (
                         isLocked ? (
                           <div style={{ padding: '2px', backgroundColor: '#fee2e2', borderRadius: '4px', color: '#ef4444', display: 'flex' }} title="Confidential - Requires PIN">
                             <Lock size={14} />

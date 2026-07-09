@@ -192,22 +192,31 @@ const Events = () => {
   }, [isUpcoming]);
 
   useEffect(() => {
-    const storedStats = localStorage.getItem('ieee_events_stats_v1');
-    if (storedStats) {
-      setEventsStats(JSON.parse(storedStats));
-    } else {
-      localStorage.setItem('ieee_events_stats_v1', JSON.stringify(defaultEventsStats));
-    }
-
-    const storedPhilosophy = localStorage.getItem('ieee_events_philosophy_v1');
-    if (storedPhilosophy) {
-      setEventPhilosophy(JSON.parse(storedPhilosophy));
-    } else {
-      localStorage.setItem('ieee_events_philosophy_v1', JSON.stringify({
-        title: "Learn, Create & Collaborate",
-        description: "At IEEE KEC SB, our events are designed around practical engineering experience. We bridge the gap between academic theory and active technology deployment through hands-on hackathons, research publications, and peer-to-peer programming."
-      }));
-    }
+    const fetchSettings = async () => {
+      try {
+        const response = await fetch(`${API}/settings`);
+        if (response.ok) {
+          const settings = await response.json();
+          const getVal = (key) => {
+            const s = settings.find(s => s.key === key);
+            return s ? s.value : null;
+          };
+          
+          const stats = getVal('ieee_events_stats_v1');
+          if (stats) {
+            try { setEventsStats(typeof stats === 'string' ? JSON.parse(stats) : stats); } catch(e){}
+          }
+          
+          const philosophy = getVal('ieee_events_philosophy_v1');
+          if (philosophy) {
+            try { setEventPhilosophy(typeof philosophy === 'string' ? JSON.parse(philosophy) : philosophy); } catch(e){}
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load event settings', err);
+      }
+    };
+    fetchSettings();
   }, []);
 
   const currentEvents = isUpcoming ? upcomingEvents : pastEvents;

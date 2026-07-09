@@ -1,10 +1,8 @@
 import express from 'express';
-import { getDocuments, createDocument, updateDocument, deleteDocument } from '../controllers/documentController.js';
-import { protect } from '../middlewares/authMiddleware.js';
+import { getDocuments } from '../controllers/documentController.js';
 
 const router = express.Router();
 
-router.route('/').get(getDocuments).post(protect, createDocument);
-router.route('/:id').put(protect, updateDocument).delete(protect, deleteDocument);
+router.route('/').get(getDocuments);
 
 export default router;

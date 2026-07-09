@@ -76,20 +76,36 @@ const Documents = () => {
   const [pinError, setPinError] = useState('');
   const [targetDoc, setTargetDoc] = useState(null);
   const [targetAction, setTargetAction] = useState('');
+  const [globalPinEnabled, setGlobalPinEnabled] = useState(true);
+  const [globalAccessPin, setGlobalAccessPin] = useState('1234');
 
   useEffect(() => {
-    // Fetch documents from API
     const fetchDocuments = async () => {
       try {
-        const response = await fetch(`${API}/documents`);
+        const response = await fetch(`${API}/settings`);
         if (response.ok) {
-          const data = await response.json();
-          // Filter out hidden/invisible documents
-          // Backend has `isPublic` field for visibility, map it to frontend expected format
-          const mappedDocs = data
+          const settings = await response.json();
+          const getVal = (key) => {
+            const s = settings.find(s => s.key === key);
+            return s ? s.value : null;
+          };
+
+          const isPinEnabled = getVal('ieee_pin_enabled');
+          if (isPinEnabled !== null) setGlobalPinEnabled(isPinEnabled !== 'false');
+
+          const accessPin = getVal('ieee_access_pin');
+          if (accessPin) setGlobalAccessPin(accessPin);
+
+          const docsData = getVal('ieee_documents');
+          let parsedDocs = [];
+          if (docsData) {
+            try { parsedDocs = typeof docsData === 'string' ? JSON.parse(docsData) : docsData; } catch(e) {}
+          }
+
+          const mappedDocs = parsedDocs
             .filter(d => d.isVisible !== false)
             .map(d => ({
-              id: d._id,
+              id: d.id || d._id,
               name: d.name || d.title,
               title: d.title,
               category: d.category,
@@ -103,7 +119,7 @@ const Documents = () => {
               isVisible: d.isVisible !== false,
               isFeatured: d.isFeatured,
               featuredOrder: d.featuredOrder,
-              date: d.uploadDate || d.createdAt
+              date: d.uploadDate || d.createdAt || d.date
             }));
           setDocuments(mappedDocs);
         } else {
@@ -180,8 +196,7 @@ const Documents = () => {
   };
 
   const handleAction = (doc, action) => {
-    const isPinEnabled = localStorage.getItem('ieee_pin_enabled') !== 'false';
-    if (isPinEnabled && doc.is_confidential && sessionStorage.getItem(`ieee_unlocked_doc_${doc.id}`) !== 'true') {
+    if (globalPinEnabled && doc.is_confidential && sessionStorage.getItem(`ieee_unlocked_doc_${doc.id}`) !== 'true') {
       setTargetDoc(doc);
       setTargetAction(action);
       setPinInput('');
@@ -201,8 +216,7 @@ const Documents = () => {
   };
 
   const handlePinSubmit = () => {
-    const correctPin = localStorage.getItem('ieee_access_pin') || '1234';
-    if (pinInput === correctPin) {
+    if (pinInput === globalAccessPin) {
       sessionStorage.setItem(`ieee_unlocked_doc_${targetDoc.id}`, 'true');
       setShowPinModal(false);
       executeAction(targetDoc, targetAction);
@@ -214,8 +228,7 @@ const Documents = () => {
   // Filtering Logic
   const filteredDocuments = documents.filter(doc => {
     const isMatchedActive = doc.isVisible !== false;
-    const isPinEnabled = localStorage.getItem('ieee_pin_enabled') !== 'false';
-    const isDocLocked = doc.is_confidential && isPinEnabled && sessionStorage.getItem(`ieee_unlocked_doc_${doc.id}`) !== 'true';
+    const isDocLocked = doc.is_confidential && globalPinEnabled && sessionStorage.getItem(`ieee_unlocked_doc_${doc.id}`) !== 'true';
     
     const query = searchQuery.toLowerCase().trim();
     

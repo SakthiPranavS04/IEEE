@@ -77,7 +77,7 @@ const Committees = () => {
     title: "Become an Active Volunteer",
     text: "Want to lead technical events, design state-of-the-art posters, or publish our newsletters? Applications for operational roles are open to all active IEEE student members.",
     btnText: "Apply for Committee Role",
-    btnLink: "https://forms.gle/mockvolunteer",
+    btnLink: "/request/forms",
     btnMailText: "Inquire via Email",
     btnMailLink: "mailto:ieee@kongu.edu"
   };
@@ -146,7 +146,12 @@ const Committees = () => {
 
     const storedCta = localStorage.getItem('ieee_committees_cta_v1');
     if (storedCta) {
-      setCta(JSON.parse(storedCta));
+      const parsed = JSON.parse(storedCta);
+      if (parsed && parsed.btnLink === "https://forms.gle/mockvolunteer") {
+        parsed.btnLink = "/request/forms";
+        localStorage.setItem('ieee_committees_cta_v1', JSON.stringify(parsed));
+      }
+      setCta(parsed);
     } else {
       localStorage.setItem('ieee_committees_cta_v1', JSON.stringify(defaultCta));
     }

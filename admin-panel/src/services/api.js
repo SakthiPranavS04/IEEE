@@ -114,7 +114,7 @@ export const settingsService = {
   }
 };
 
-export const videoService = {
+export const videosService = {
   getAll: () => authFetch(`${API}/videos`),
   create: (data) => authFetch(`${API}/videos`, { method: 'POST', body: JSON.stringify(data) }),
   update: (id, data) => authFetch(`${API}/videos/${id}`, { method: 'PUT', body: JSON.stringify(data) }),

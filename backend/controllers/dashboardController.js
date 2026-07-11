@@ -35,6 +35,8 @@ export const getDashboardStats = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+};
+
 // @desc    Get complete dashboard data
 // @route   GET /api/dashboard
 // @access  Private/Admin

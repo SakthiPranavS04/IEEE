@@ -150,7 +150,7 @@ const RequestFormPage = () => {
           setFormConfig(matched);
           
           // Check if confidential and locked
-          const isPinEnabled = globalPinEnabled;
+          const isPinEnabled = false; // Temporarily disabled
           const isUnlocked = sessionStorage.getItem(`ieee_unlocked_form_${slug}`) === 'true';
           if (isPinEnabled && matched.is_confidential && !isUnlocked) {
             setIsLocked(true);
@@ -171,7 +171,7 @@ const RequestFormPage = () => {
   }, [slug]);
 
   const handlePinSubmit = () => {
-    const correctPin = globalAccessPin;
+    const correctPin = "123456"; // Default PIN
     if (pinInput === correctPin) {
       sessionStorage.setItem(`ieee_unlocked_form_${slug}`, 'true');
       setIsLocked(false);

@@ -628,7 +628,7 @@ const Media = () => {
                               width="100%"
                               height="200"
                               style={{ border: 0, display: 'block' }}
-                              allowFullScreen=""
+                              allowFullScreen
                               title={video.title}
                             />
                           </div>
@@ -727,9 +727,9 @@ const Media = () => {
                           </div>
 
                           {isCenter && (
-                            <div className="news-slide-link">
+                            <a href={news.link || "#"} target="_blank" rel="noopener noreferrer" className="news-slide-link" style={{ textDecoration: 'none' }}>
                               Learn more →
-                            </div>
+                            </a>
                           )}
                         </div>
                       </div>

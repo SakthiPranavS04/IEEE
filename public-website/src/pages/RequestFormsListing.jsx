@@ -102,7 +102,7 @@ const RequestFormsListing = () => {
     const isMatchedActive = form.is_active;
     const query = searchQuery.toLowerCase().trim();
     
-    const isPinEnabled = globalPinEnabled;
+    const isPinEnabled = false; // Temporarily disabled or get from env
     const isLocked = isPinEnabled && form.is_confidential && sessionStorage.getItem(`ieee_unlocked_form_${form.route_slug}`) !== 'true';
 
     let matchesSearch = false;
@@ -134,7 +134,7 @@ const RequestFormsListing = () => {
 
   const handleFormClick = (e, form) => {
     e.preventDefault();
-    const isPinEnabled = globalPinEnabled;
+    const isPinEnabled = false;
     const isUnlocked = sessionStorage.getItem(`ieee_unlocked_form_${form.route_slug}`) === 'true';
     if (isPinEnabled && form.is_confidential && !isUnlocked) {
       setTargetForm(form);
@@ -148,7 +148,7 @@ const RequestFormsListing = () => {
   };
 
   const handlePinSubmit = () => {
-    const correctPin = globalAccessPin;
+    const correctPin = "123456"; // Default PIN or get from env
     if (pinInput === correctPin) {
       sessionStorage.setItem(`ieee_unlocked_form_${targetForm.route_slug}`, 'true');
       setShowPinModal(false);
@@ -288,7 +288,7 @@ const RequestFormsListing = () => {
           }}>
             {sortedForms.map((form) => {
               const catStyle = getCategoryStyle(form.category || 'Membership');
-              const isPinEnabled = globalPinEnabled;
+              const isPinEnabled = false;
               const isLocked = isPinEnabled && form.is_confidential && sessionStorage.getItem(`ieee_unlocked_form_${form.route_slug}`) !== 'true';
               return (
                 <div
@@ -342,7 +342,7 @@ const RequestFormsListing = () => {
                       }}>
                         {isLocked ? 'Confidential Request Form' : form.form_name}
                       </h3>
-                      {form.is_confidential && globalPinEnabled && (
+                      {form.is_confidential && false && (
                         isLocked ? (
                           <div style={{ padding: '2px', backgroundColor: '#fee2e2', borderRadius: '4px', color: '#ef4444', display: 'flex' }} title="Confidential - Requires PIN">
                             <Lock size={14} />

@@ -185,7 +185,8 @@ const SocietyPage = () => {
       const payload = {
         name: formName,
         email: formEmail,
-        message: formMsg,
+        feedback: formMsg,
+        rating: 5
       };
 
       const response = await fetch(`${API}/feedback`, {

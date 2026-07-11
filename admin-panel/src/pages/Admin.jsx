@@ -293,6 +293,21 @@ const Admin = () => {
     { email: 'ieee@kongu.edu', password: 'admin123' }
   ];
 
+  const defaultMediaVideos = [
+    {
+      id: 1,
+      title: "IEEE KEC SB Decade Celebration Promo",
+      url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      desc: "An overview reel capturing 10 years of student leadership, technical symposiums, and outreach drives."
+    },
+    {
+      id: 2,
+      title: "GreenTech Hackathon Pitch Finalists",
+      url: "https://youtu.be/8qGIyNu5Qqo",
+      desc: "Recap video showcasing student project prototypes and presentation pitches at Perundurai."
+    }
+  ];
+
   const defaultGallery = [
     {
       id: 1,
@@ -910,7 +925,7 @@ const Admin = () => {
             text: g.description,
             images: g.images && g.images.length > 0 ? g.images : []
           }));
-          setGalleryItems(mappedGallery);
+          setGalleryItems(mappedGallery.length > 0 ? mappedGallery : defaultGallery);
         } catch (err) {
           console.error("Gallery fetch error:", err);
           setGalleryItems(defaultGallery);
@@ -924,7 +939,7 @@ const Admin = () => {
             url: v.url,
             desc: v.description || v.desc || ''
           }));
-          setMediaVideos(mappedVideos);
+          setMediaVideos(mappedVideos.length > 0 ? mappedVideos : defaultMediaVideos);
         } catch (err) {
           console.error("Videos fetch error:", err);
           setMediaVideos([]);
@@ -954,7 +969,12 @@ const Admin = () => {
           
           keysAndSetters.forEach(({ key, setter, def }) => {
             if (settingsMap[key]) {
-              setter(settingsMap[key]);
+              try {
+                const parsed = JSON.parse(settingsMap[key]);
+                setter(Array.isArray(parsed) ? parsed : def);
+              } catch(e) {
+                setter(def);
+              }
             } else {
               setter(def);
             }
@@ -1326,7 +1346,7 @@ const Admin = () => {
       };
       setCommitteesCta(defaultCta);
     }
-  }, []);
+  }, [isLoggedIn]);
 
   // Load current branch details on selected branch key changes
   useEffect(() => {

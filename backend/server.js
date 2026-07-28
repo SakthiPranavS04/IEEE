@@ -22,6 +22,7 @@ import dashboardRoutes from './routes/dashboardRoutes.js';
 import researchRoutes from './routes/researchRoutes.js';
 import requestRoutes from './routes/requestRoutes.js';
 import videoRoutes from './routes/videoRoutes.js';
+import societyRoutes from './routes/societyRoutes.js';
 import { errorHandler, notFound } from './middlewares/errorMiddleware.js';
 
 dotenv.config();
@@ -65,6 +66,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/research', researchRoutes);
 app.use('/api/requests', requestRoutes);
 app.use('/api/videos', videoRoutes);
+app.use('/api/societies', societyRoutes);
 
 app.get('/', (req, res) => {
   res.send('API is running...');

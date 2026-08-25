@@ -1,4 +1,4 @@
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:5000/api');
 
 const fetchWrapper = async (url, options = {}) => {
   const response = await fetch(url, options);
@@ -65,6 +65,7 @@ export const formTemplateService = {
 export const formSubmissionService = {
   create: (data) => fetchWrapper(`${API}/formsubmissions`, {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
   }),
 };

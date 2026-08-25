@@ -41,9 +41,7 @@ connectDB();
 
 const app = express();
 
-// ===============================
-// Security Middlewares
-// ===============================
+
 
 app.use(helmet({ hsts: false }));
 
@@ -62,9 +60,7 @@ app.use(mongoSanitize());
 
 app.use(xss());
 
-// ===============================
-// Rate Limiter
-// ===============================
+
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -73,9 +69,7 @@ const limiter = rateLimit({
 
 app.use('/api', limiter);
 
-// ===============================
-// API Routes
-// ===============================
+
 
 app.use('/api/auth', authRoutes);
 
@@ -111,25 +105,19 @@ app.use('/api/videos', videoRoutes);
 
 app.use('/api/societies', societyRoutes);
 
-// ===============================
-// Health Check
-// ===============================
+
 
 app.get('/', (req, res) => {
   res.send('API is running!.....');
 });
 
-// ===============================
-// Error Handling
-// ===============================
+
 
 app.use(notFound);
 
 app.use(errorHandler);
 
-// ===============================
-// Local Development Server
-// ===============================
+
 
 const PORT = process.env.PORT || 5000;
 
@@ -141,8 +129,6 @@ if (!process.env.VERCEL) {
   });
 }
 
-// ===============================
-// Vercel Export
-// ===============================
+
 
 export default app;

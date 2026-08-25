@@ -27,7 +27,11 @@ import { errorHandler, notFound } from './middlewares/errorMiddleware.js';
 
 dotenv.config();
 
-console.log("MONGO_URI =", process.env.MONGO_URI);
+console.log(
+  "MongoDB environment variable loaded:",
+  !!process.env.MONGO_URI
+);
+
 console.log("Current directory =", process.cwd());
 
 connectDB();

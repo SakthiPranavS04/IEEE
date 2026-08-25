@@ -15,13 +15,13 @@
   },
   "rewrites": [
     {
-      "source": "/api/:path*",
+      "source": "/api/(.*)",
       "destination": {
         "service": "backend"
       }
     },
     {
-      "source": "/admin/:path*",
+      "source": "/admin/(.*)",
       "destination": {
         "service": "admin"
       }
@@ -33,7 +33,7 @@
       }
     },
     {
-      "source": "/:path*",
+      "source": "/(.*)",
       "destination": {
         "service": "frontend"
       }

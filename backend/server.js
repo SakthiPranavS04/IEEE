@@ -5,7 +5,9 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
+
 import connectDB from './config/db.js';
+
 import documentRoutes from './routes/documentRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
@@ -23,71 +25,124 @@ import researchRoutes from './routes/researchRoutes.js';
 import requestRoutes from './routes/requestRoutes.js';
 import videoRoutes from './routes/videoRoutes.js';
 import societyRoutes from './routes/societyRoutes.js';
+
 import { errorHandler, notFound } from './middlewares/errorMiddleware.js';
 
 dotenv.config();
 
 console.log(
-  "MongoDB environment variable loaded:",
+  'MongoDB environment variable loaded:',
   !!process.env.MONGO_URI
 );
 
-console.log("Current directory =", process.cwd());
+console.log('Current directory =', process.cwd());
 
 connectDB();
 
 const app = express();
 
+// ===============================
 // Security Middlewares
+// ===============================
+
 app.use(helmet({ hsts: false }));
+
 app.use(cors());
+
 app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+app.use(
+  express.urlencoded({
+    limit: '50mb',
+    extended: true
+  })
+);
+
 app.use(mongoSanitize());
+
 app.use(xss());
 
+// ===============================
 // Rate Limiter
+// ===============================
+
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === 'development' ? 5000 : 1000, // Increased limit to prevent 429s during normal use
+  windowMs: 15 * 60 * 1000,
+  max: process.env.NODE_ENV === 'development' ? 5000 : 1000
 });
+
 app.use('/api', limiter);
 
-// Routes
+// ===============================
+// API Routes
+// ===============================
+
 app.use('/api/auth', authRoutes);
+
 app.use('/api/documents', documentRoutes);
+
 app.use('/api/contact', contactRoutes);
+
 app.use('/api/events', eventRoutes);
+
 app.use('/api/team', teamRoutes);
+
 app.use('/api/announcements', announcementRoutes);
+
 app.use('/api/feedback', feedbackRoutes);
+
 app.use('/api/newsletter', newsletterRoutes);
+
 app.use('/api/join', joinRoutes);
+
 app.use('/api/sponsors', sponsorRoutes);
+
 app.use('/api/gallery', galleryRoutes);
+
 app.use('/api/settings', settingsRoutes);
+
 app.use('/api/dashboard', dashboardRoutes);
+
 app.use('/api/research', researchRoutes);
+
 app.use('/api/requests', requestRoutes);
+
 app.use('/api/videos', videoRoutes);
+
 app.use('/api/societies', societyRoutes);
 
+// ===============================
+// Health Check
+// ===============================
+
 app.get('/', (req, res) => {
-  res.send('API is running...');
+  res.send('API is running!.....');
 });
 
-// Error Handling Middlewares
+// ===============================
+// Error Handling
+// ===============================
+
 app.use(notFound);
+
 app.use(errorHandler);
+
+// ===============================
+// Local Development Server
+// ===============================
 
 const PORT = process.env.PORT || 5000;
 
 if (!process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(
-      `Server running in ${process.env.NODE_ENV} mode on port ${PORT}`
+      `Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`
     );
   });
 }
+
+// ===============================
+// Vercel Export
+// ===============================
 
 export default app;

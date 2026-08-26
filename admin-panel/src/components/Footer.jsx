@@ -29,16 +29,19 @@ const Footer = () => {
                 width: '40px',
                 height: '40px',
                 borderRadius: '12px',
-                background: 'var(--gradient-cyber)',
+                background: '#ffffff',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#fff',
-                fontSize: '16px',
-                fontWeight: '800',
-                boxShadow: '0 4px 10px rgba(6, 182, 212, 0.3)'
+                boxShadow: '0 4px 10px rgba(0, 0, 0, 0.25)',
+                padding: '4px',
+                overflow: 'hidden'
               }}>
-                🌿
+                <img 
+                  src="/assets/ieee-logo.png" 
+                  alt="IEEE Logo" 
+                  style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
+                />
               </div>
               <div>
                 <h3 style={{ color: '#fff', fontSize: '18px', fontWeight: '800', lineHeight: '1.2' }}>IEEE KEC SB</h3>

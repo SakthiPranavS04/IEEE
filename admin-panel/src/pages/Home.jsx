@@ -58,7 +58,7 @@ const Home = () => {
   });
 
   const [aboutImage, setAboutImage] = useState(() => {
-    return localStorage.getItem('ieee_about_image') || '/assets/kec_itpark.jpg';
+    return localStorage.getItem('ieee_about_image') || '/assets/kec_gate.jpg';
   });
 
   const [keystonesVideoUrl, setKeystonesVideoUrl] = useState(() => {

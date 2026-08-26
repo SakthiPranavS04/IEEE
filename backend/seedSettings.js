@@ -12,7 +12,12 @@ const defaultSettings = [
   },
   {
     key: 'aboutImage',
-    value: '/assets/kec_itpark.jpg',
+    value: '/assets/kec_gate.jpg',
+    description: 'Image for the About Us section'
+  },
+  {
+    key: 'ieee_about_image',
+    value: '/assets/kec_gate.jpg',
     description: 'Image for the About Us section'
   },
   {

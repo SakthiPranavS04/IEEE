@@ -49,7 +49,7 @@ const Home = () => {
 
   // Dynamic state hooks for admin-editable components
   const [heroImages, setHeroImages] = useState(['/assets/kec_gate.jpg', '/assets/kec_itpark.jpg', '/assets/kec_admin.jpg']);
-  const [aboutImage, setAboutImage] = useState('/assets/kec_itpark.jpg');
+  const [aboutImage, setAboutImage] = useState('/assets/kec_gate.jpg');
   const [keystonesVideoUrl, setKeystonesVideoUrl] = useState('https://youtu.be/_90Hd1qMDGM');
   const [impactStats, setImpactStats] = useState([
     { id: 1, value: "45+", label: "Active Members" },

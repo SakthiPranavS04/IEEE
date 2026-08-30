@@ -3,7 +3,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import API from '../services/api';
 import { Award, BookOpen, Calendar, Users, ArrowRight, ShieldCheck, Flame, Zap, ChevronLeft, ChevronRight, Quote, MessageSquare, Globe } from 'lucide-react';
 import { societiesData } from '../data/societiesData';
-import { IEEEGlobalContent } from './AboutPages';
+import { IEEEGlobalContent, IEEEKECSBDetails } from './AboutPages';
 
 const hexToRgb = (hex) => {
   if (!hex) return "15, 76, 92";
@@ -595,6 +595,13 @@ const Home = () => {
               />
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* About IEEE KEC Student Branch Details (Stats, Timeline, Impact) */}
+      <section className="section-padding scroll-reveal" style={{ backgroundColor: '#ffffff', borderBottom: '1px solid var(--border-subtle)' }}>
+        <div className="container">
+          <IEEEKECSBDetails />
         </div>
       </section>
 

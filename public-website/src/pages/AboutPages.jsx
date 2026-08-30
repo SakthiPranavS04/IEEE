@@ -399,6 +399,129 @@ const getAboutSbIcon = (name, style = {}) => {
   }
 };
 
+export const IEEEKECSBDetails = () => {
+  const [data, setData] = useState(defaultAboutKecSbData);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('ieee_about_kec_sb_v1');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (parsed && parsed.cta && parsed.cta.btn1Link === "https://www.ieee.org/membership/join/index.html") {
+          parsed.cta.btn1Link = "/request/membership";
+          localStorage.setItem('ieee_about_kec_sb_v1', JSON.stringify(parsed));
+        }
+        setData(parsed);
+      } catch (e) {
+        console.error("Error parsing about kec sb data:", e);
+      }
+    }
+  }, []);
+
+  return (
+    <>
+      {/* B. Glance Statistics Section */}
+      <div style={{ marginBottom: '56px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <SectionLabel text="Branch Numbers" />
+          <h2 className="font-serif" style={{ fontSize: '26px', color: 'var(--primary)', fontWeight: '800', marginTop: '6px' }}>
+            IEEE at a Glance
+          </h2>
+        </div>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '20px' }}>
+          {data.stats.map((stat, idx) => (
+            <div key={idx} className="card scroll-reveal zoom-in" style={{
+              padding: '24px 16px',
+              textAlign: 'center',
+              backgroundColor: 'rgba(255, 255, 255, 0.55)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              border: '1px solid rgba(var(--secondary-rgb), 0.08)',
+              boxShadow: 'var(--shadow-sm)',
+              transition: 'all 0.3s ease'
+            }}>
+              <h3 style={{ fontSize: '36px', fontWeight: '850', color: 'var(--secondary)', marginBottom: '6px', background: 'var(--gradient-primary)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                <AnimatedCounter value={stat.count} />
+              </h3>
+              <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                {stat.label}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* C. Journey Timeline Section */}
+      <div style={{ marginBottom: '56px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <SectionLabel text="Our Legacy" />
+          <h2 className="font-serif" style={{ fontSize: '26px', color: 'var(--primary)', fontWeight: '800', marginTop: '6px' }}>
+            Journey Timeline
+          </h2>
+        </div>
+
+        <div className="timeline-container" style={{ position: 'relative', margin: '40px auto 0', padding: '10px 0' }}>
+          {data.timeline.map((item, idx) => {
+            const isLeft = idx % 2 === 0;
+            return (
+              <div key={idx} className={`timeline-item ${isLeft ? 'left' : 'right'} scroll-reveal fade-up`}>
+                <div className="timeline-dot" />
+                <div className="card" style={{
+                  padding: '28px',
+                  width: '100%',
+                  borderTop: '3px solid var(--secondary)',
+                  transition: 'all 0.3s ease',
+                  boxShadow: 'var(--shadow-sm)',
+                  backgroundColor: '#ffffff'
+                }}>
+                  <span style={{ fontSize: '18px', fontWeight: '850', color: 'var(--secondary)', display: 'block', marginBottom: '6px' }}>
+                    {item.year}
+                  </span>
+                  <h4 style={{ fontSize: '15.5px', fontWeight: '800', color: 'var(--primary)', marginBottom: '8px', lineHeight: '1.4' }}>
+                    {item.title}
+                  </h4>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', lineHeight: '1.65', margin: 0 }}>
+                    {item.desc}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* D. Branch Impact Section */}
+      <div style={{ marginBottom: '56px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <SectionLabel text="Empowering Students" />
+          <h2 className="font-serif" style={{ fontSize: '26px', color: 'var(--primary)', fontWeight: '800', marginTop: '6px' }}>
+            Branch Impact Areas
+          </h2>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+          {data.impact.map((imp, idx) => (
+            <div key={idx} className="card about-feature-card scroll-reveal fade-up" style={{ padding: '28px', transition: 'all 0.3s ease', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: 'rgba(var(--secondary-rgb), 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                {getAboutSbIcon(imp.icon, { color: 'var(--secondary)' })}
+              </div>
+              <div>
+                <h3 style={{ fontSize: '16px', color: 'var(--primary)', fontWeight: '800', marginBottom: '8px', margin: 0 }}>
+                  {imp.title}
+                </h3>
+                <p style={{ color: 'var(--text-muted)', fontSize: '13px', lineHeight: '1.6', margin: '6px 0 0' }}>
+                  {imp.desc}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+};
+
 const AnimatedCounter = ({ value, duration = 1500 }) => {
   const [count, setCount] = useState(0);
   const target = parseInt(value, 10) || 0;
@@ -494,105 +617,7 @@ export const IEEEKECSB = () => {
             </div>
           </div>
         </div>
-
-        {/* B. Glance Statistics Section */}
-        <div style={{ marginBottom: '56px' }}>
-          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-            <SectionLabel text="Branch Numbers" />
-            <h2 className="font-serif" style={{ fontSize: '26px', color: 'var(--primary)', fontWeight: '800', marginTop: '6px' }}>
-              IEEE at a Glance
-            </h2>
-          </div>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '20px' }}>
-            {data.stats.map((stat, idx) => (
-              <div key={idx} className="card scroll-reveal zoom-in" style={{
-                padding: '24px 16px',
-                textAlign: 'center',
-                backgroundColor: 'rgba(255, 255, 255, 0.55)',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
-                border: '1px solid rgba(var(--secondary-rgb), 0.08)',
-                boxShadow: 'var(--shadow-sm)',
-                transition: 'all 0.3s ease'
-              }}>
-                <h3 style={{ fontSize: '36px', fontWeight: '850', color: 'var(--secondary)', marginBottom: '6px', background: 'var(--gradient-primary)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                  <AnimatedCounter value={stat.count} />
-                </h3>
-                <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  {stat.label}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* C. Journey Timeline Section */}
-        <div style={{ marginBottom: '56px' }}>
-          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-            <SectionLabel text="Our Legacy" />
-            <h2 className="font-serif" style={{ fontSize: '26px', color: 'var(--primary)', fontWeight: '800', marginTop: '6px' }}>
-              Journey Timeline
-            </h2>
-          </div>
-
-          <div className="timeline-container" style={{ position: 'relative', margin: '40px auto 0', padding: '10px 0' }}>
-            {data.timeline.map((item, idx) => {
-              const isLeft = idx % 2 === 0;
-              return (
-                <div key={idx} className={`timeline-item ${isLeft ? 'left' : 'right'} scroll-reveal fade-up`}>
-                  <div className="timeline-dot" />
-                  <div className="card" style={{
-                    padding: '28px',
-                    width: '100%',
-                    borderTop: '3px solid var(--secondary)',
-                    transition: 'all 0.3s ease',
-                    boxShadow: 'var(--shadow-sm)',
-                    backgroundColor: '#ffffff'
-                  }}>
-                    <span style={{ fontSize: '18px', fontWeight: '850', color: 'var(--secondary)', display: 'block', marginBottom: '6px' }}>
-                      {item.year}
-                    </span>
-                    <h4 style={{ fontSize: '15.5px', fontWeight: '800', color: 'var(--primary)', marginBottom: '8px', lineHeight: '1.4' }}>
-                      {item.title}
-                    </h4>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', lineHeight: '1.65', margin: 0 }}>
-                      {item.desc}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* D. Branch Impact Section */}
-        <div style={{ marginBottom: '56px' }}>
-          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-            <SectionLabel text="Empowering Students" />
-            <h2 className="font-serif" style={{ fontSize: '26px', color: 'var(--primary)', fontWeight: '800', marginTop: '6px' }}>
-              Branch Impact Areas
-            </h2>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
-            {data.impact.map((imp, idx) => (
-              <div key={idx} className="card about-feature-card scroll-reveal fade-up" style={{ padding: '28px', transition: 'all 0.3s ease', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-                <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: 'rgba(var(--secondary-rgb), 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  {getAboutSbIcon(imp.icon, { color: 'var(--secondary)' })}
-                </div>
-                <div>
-                  <h3 style={{ fontSize: '16px', color: 'var(--primary)', fontWeight: '800', marginBottom: '8px', margin: 0 }}>
-                    {imp.title}
-                  </h3>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '13px', lineHeight: '1.6', margin: '6px 0 0' }}>
-                    {imp.desc}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <IEEEKECSBDetails />
 
         {/* E. Why Join IEEE? Section */}
         <div style={{ marginBottom: '56px' }}>

@@ -97,51 +97,49 @@ const FeatureCard = ({ icon: Icon, title, desc, accent = false }) => (
 );
 
 // ─── 1. IEEE Global ───────────────────────────────────────────────────────────
-export const IEEEGlobalContent = () => (
-  <div className="container">
-    {/* About block */}
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px', alignItems: 'start', marginBottom: '48px' }}>
-      <div className="card" style={{ padding: '36px', borderTop: '4px solid var(--secondary)', backgroundColor: '#ffffff', borderRadius: '12px', boxShadow: 'var(--shadow-sm)' }}>
-        <SectionLabel text="Overview" />
-        <h2 style={{ fontSize: '22px', marginBottom: '16px', color: 'var(--primary)', fontWeight: '800' }}>What is IEEE?</h2>
-        <p style={{ marginBottom: '14px', color: 'var(--text-muted)', fontSize: '14.5px', lineHeight: '1.7' }}>
-          IEEE is the world's largest technical professional organization dedicated to advancing technology for the benefit of humanity.
-        </p>
-        <p style={{ marginBottom: '14px', color: 'var(--text-muted)', fontSize: '14.5px', lineHeight: '1.7' }}>
-          Through its highly cited publications, conferences, technology standards, and professional and educational activities, IEEE is the trusted voice across aerospace systems, computers, telecommunications, biomedical engineering, electric power, and consumer electronics.
-        </p>
-        <p style={{ color: 'var(--text-muted)', fontSize: '14.5px', lineHeight: '1.7' }}>
-          IEEE has over 420,000 members in more than 160 countries and sponsors more than 1,800 annual conferences and meetings worldwide.
-        </p>
-      </div>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        <FeatureCard
-          icon={Target}
-          title="Core Vision"
-          desc="IEEE will be essential to the global technical community and be universally recognized for the contributions of technology and of technical professionals in improving global conditions."
-          accent
-        />
-        <FeatureCard
-          icon={Compass}
-          title="IEEE Mission"
-          desc="IEEE's core purpose is to foster technological innovation and excellence for the benefit of humanity."
-        />
-        <FeatureCard
-          icon={Award}
-          title="Global Reach"
-          desc="With 160+ country presence and 1,800+ conferences annually, IEEE is the definitive home for technical professionals worldwide."
-        />
-      </div>
-    </div>
-    <style>{`.about-feature-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(var(--secondary-rgb),0.08) !important; }`}</style>
-  </div>
-);
-
 export const IEEEGlobal = () => (
   <div className="animate-fade-in" style={{ backgroundColor: 'var(--bg-light)', paddingBottom: '80px' }}>
     <PageHeader title="About IEEE" subtitle="Institute of Electrical and Electronics Engineers — The World's Largest Technical Professional Organization" />
-    <IEEEGlobalContent />
+    <div className="container">
+
+      {/* About block */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px', alignItems: 'start', marginBottom: '48px' }}>
+        <div className="card" style={{ padding: '36px', borderTop: '4px solid var(--secondary)' }}>
+          <SectionLabel text="Overview" />
+          <h2 style={{ fontSize: '22px', marginBottom: '16px', color: 'var(--primary)', fontWeight: '800' }}>What is IEEE?</h2>
+          <p style={{ marginBottom: '14px', color: 'var(--text-muted)', fontSize: '14.5px', lineHeight: '1.7' }}>
+            IEEE is the world's largest technical professional organization dedicated to advancing technology for the benefit of humanity.
+          </p>
+          <p style={{ marginBottom: '14px', color: 'var(--text-muted)', fontSize: '14.5px', lineHeight: '1.7' }}>
+            Through its highly cited publications, conferences, technology standards, and professional and educational activities, IEEE is the trusted voice across aerospace systems, computers, telecommunications, biomedical engineering, electric power, and consumer electronics.
+          </p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '14.5px', lineHeight: '1.7' }}>
+            IEEE has over 420,000 members in more than 160 countries and sponsors more than 1,800 annual conferences and meetings worldwide.
+          </p>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <FeatureCard
+            icon={Target}
+            title="Core Vision"
+            desc="IEEE will be essential to the global technical community and be universally recognized for the contributions of technology and of technical professionals in improving global conditions."
+            accent
+          />
+          <FeatureCard
+            icon={Compass}
+            title="IEEE Mission"
+            desc="IEEE's core purpose is to foster technological innovation and excellence for the benefit of humanity."
+          />
+          <FeatureCard
+            icon={Award}
+            title="Global Reach"
+            desc="With 160+ country presence and 1,800+ conferences annually, IEEE is the definitive home for technical professionals worldwide."
+          />
+        </div>
+      </div>
+
+    </div>
+    <style>{`.about-feature-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(var(--secondary-rgb),0.08) !important; }`}</style>
   </div>
 );
 
@@ -454,7 +452,7 @@ export const IEEEKECSB = () => {
       
       <div className="container">
         {/* A. Who We Are Section */}
-        <div className="scroll-reveal fade-up who-we-are-grid">
+        <div className="scroll-reveal fade-up" style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '32px', alignItems: 'start', marginBottom: '56px' }}>
           <div className="card" style={{ padding: '36px', height: '100%', borderTop: '4px solid var(--secondary)' }}>
             <SectionLabel text="Who We Are" />
             <h2 style={{ fontSize: '24px', marginBottom: '16px', color: 'var(--primary)', fontWeight: '800' }}>
@@ -710,18 +708,6 @@ export const IEEEKECSB = () => {
         .about-feature-card:hover {
           transform: translateY(-4px) !important;
           box-shadow: 0 12px 24px rgba(var(--secondary-rgb), 0.08) !important;
-        }
-        .who-we-are-grid {
-          display: grid;
-          grid-template-columns: 1.2fr 0.8fr;
-          gap: 32px;
-          align-items: start;
-          margin-bottom: 56px;
-        }
-        @media (max-width: 960px) {
-          .who-we-are-grid {
-            grid-template-columns: 1fr !important;
-          }
         }
 
         @media (max-width: 768px) {

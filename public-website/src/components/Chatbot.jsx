@@ -158,7 +158,7 @@ const Chatbot = () => {
                 }} />
               </div>
               <div>
-                <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '700', lineHeight: '1.2' }}>IEEE KEC Assistant</h4>
+                <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '700', lineHeight: '1.2', color: '#ffffff' }}>IEEE KEC Assistant</h4>
                 <span style={{ fontSize: '10px', color: '#c9ebff', display: 'flex', alignItems: 'center', gap: '4px' }}>
                   <Sparkles size={8} /> Online & Ready
                 </span>
@@ -226,7 +226,9 @@ const Chatbot = () => {
                     lineHeight: '1.5',
                     boxShadow: '0 2px 6px rgba(10, 56, 91, 0.05)',
                     border: msg.sender === 'user' ? 'none' : '1px solid #eef6fc',
-                    whiteSpace: 'pre-line'
+                    whiteSpace: 'pre-line',
+                    overflowWrap: 'anywhere',
+                    wordBreak: 'break-word'
                   }}>
                     {msg.text}
                   </div>
@@ -299,8 +301,8 @@ const Chatbot = () => {
             padding: '10px 16px',
             backgroundColor: '#ffffff',
             borderTop: '1px solid #eef6fc',
-            overflowX: 'auto',
-            maxHeight: '80px'
+            overflowY: 'auto',
+            maxHeight: '110px'
           }} className="chat-chips-container">
             {quickReplies.map((reply, idx) => (
               <button
@@ -449,11 +451,12 @@ const Chatbot = () => {
         /* Responsive Chatbot */
         @media (max-width: 768px) {
           .chatbot-window {
-            width: calc(100vw - 80px) !important;
-            height: 60vh !important;
-            bottom: 90px !important;
+            width: calc(100vw - 32px) !important;
+            height: 60dvh !important;
+            bottom: 96px !important;
             right: 16px !important;
-            left: 16px !important;
+            left: auto !important;
+            maxWidth: 360px !important;
           }
         }
 
@@ -462,15 +465,16 @@ const Chatbot = () => {
             width: 48px !important;
             height: 48px !important;
             bottom: 20px !important;
-            right: 12px !important;
+            right: 16px !important;
           }
           .chatbot-window {
             width: calc(100vw - 32px) !important;
-            height: 70vh !important;
+            height: 65dvh !important;
             bottom: 80px !important;
-            right: 8px !important;
-            left: 8px !important;
+            right: 16px !important;
+            left: 16px !important;
             borderRadius: 12px !important;
+            maxWidth: none !important;
           }
         }
       `}</style>

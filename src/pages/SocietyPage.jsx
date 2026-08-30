@@ -656,7 +656,7 @@ const SocietyPage = () => {
                     </div>
                     <div className="contact-info-text">
                       <h3>Email Address</h3>
-                      <a href={`mailto:${society.contact.email}`}>{society.contact.email}</a>
+                      <a href={`mailto:${society.contact.email}`} style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}>{society.contact.email}</a>
                     </div>
                   </div>
 
@@ -666,7 +666,7 @@ const SocietyPage = () => {
                     </div>
                     <div className="contact-info-text">
                       <h3>Telephone</h3>
-                      <a href={`tel:${society.contact.phone}`}>{society.contact.phone}</a>
+                      <a href={`tel:${society.contact.phone}`} style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}>{society.contact.phone}</a>
                     </div>
                   </div>
 
@@ -676,7 +676,7 @@ const SocietyPage = () => {
                     </div>
                     <div className="contact-info-text">
                       <h3>Office Location</h3>
-                      <p>{society.contact.location}</p>
+                      <p style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}>{society.contact.location}</p>
                     </div>
                   </div>
                 </div>

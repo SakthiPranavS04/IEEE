@@ -95,9 +95,9 @@ const Navbar = () => {
         return pathname.startsWith('/events');
       case 'Achievements':
         return pathname.startsWith('/achievements');
-      case 'About':
+      case 'Societies':
         return (
-          pathname.startsWith('/about') ||
+          pathname.startsWith('/societies') ||
           pathname === '/faculties' ||
           pathname === '/committee'
         );
@@ -154,17 +154,22 @@ const Navbar = () => {
       ],
     },
     {
-      name: 'About',
+      name: 'Societies',
       items: [
         { 
-          name: 'About IEEE KEC SB', 
-          link: '/about/ieee-kec-sb',
+          name: 'Societies Overview', 
+          link: '/societies',
           icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
         },
         { 
-          name: 'About IEEE (Global)', 
-          link: '/about/ieee',
-          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+          name: 'Signal Processing (SPS)', 
+          link: '/societies/kec-sps',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        },
+        { 
+          name: 'Women in Engineering (WIE)', 
+          link: '/societies/kec-wie',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22a7 7 0 0 0 5-12h-1.65a4 4 0 1 0-6.7 0H7a7 7 0 0 0 5 12z"/><path d="M12 2v2"/><path d="M12 8v2"/></svg>
         },
         { 
           name: 'Operational Committees', 
@@ -372,7 +377,7 @@ const Navbar = () => {
                     borderRadius: '12px', 
                     boxShadow: 'var(--shadow-lg)', 
                     overflow: 'visible',
-                    minWidth: isExecomm ? '260px' : (item.name === 'About' ? '250px' : '220px')
+                    minWidth: isExecomm ? '260px' : (item.name === 'Societies' ? '250px' : '220px')
                   }}>
                     {item.items.map((subItem, sIdx) => {
                       if (subItem.subItems) {

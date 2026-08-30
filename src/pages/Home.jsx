@@ -1,160 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { Award, BookOpen, Calendar, Users, ArrowRight, ShieldCheck, Flame, Zap, ChevronLeft, ChevronRight, Quote, MessageSquare, Globe, Compass, Target, Cpu, Heart, Sparkles, Shield } from 'lucide-react';
+import { Award, BookOpen, Calendar, Users, ArrowRight, ShieldCheck, Flame, Zap, ChevronLeft, ChevronRight, Quote, MessageSquare, Globe } from 'lucide-react';
 import { societiesData } from '../data/societiesData';
-
-// ─── Section Label ────────────────────────────────────────────────────────────
-const SectionLabel = ({ text }) => (
-  <span style={{
-    padding: '6px 14px',
-    backgroundColor: 'rgba(var(--secondary-rgb), 0.08)',
-    color: 'var(--secondary)',
-    border: '1px solid rgba(var(--secondary-rgb), 0.15)',
-    borderRadius: '20px',
-    fontSize: '11px',
-    fontWeight: '750',
-    textTransform: 'uppercase',
-    letterSpacing: '1px',
-    display: 'inline-block',
-    marginBottom: '12px'
-  }}>
-    {text}
-  </span>
-);
-
-// ─── Feature Card ─────────────────────────────────────────────────────────────
-const FeatureCard = ({ icon: Icon, title, desc, accent = false }) => (
-  <div className="card about-feature-card" style={{
-    padding: '28px',
-    display: 'flex',
-    gap: '18px',
-    alignItems: 'flex-start',
-    borderTop: accent ? '3px solid var(--secondary)' : '3px solid transparent',
-    transition: 'all 0.3s ease'
-  }}>
-    <div style={{
-      width: '48px', height: '48px', borderRadius: '12px',
-      backgroundColor: 'rgba(var(--secondary-rgb), 0.08)', display: 'flex',
-      alignItems: 'center', justifyContent: 'center', flexShrink: 0
-    }}>
-      <Icon size={22} style={{ color: 'var(--secondary)' }} />
-    </div>
-    <div>
-      <h3 style={{ fontSize: '16px', marginBottom: '8px', fontWeight: '750', color: 'var(--primary)' }}>{title}</h3>
-      <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', lineHeight: '1.65', margin: 0 }}>{desc}</p>
-    </div>
-  </div>
-);
-
-const getAboutSbIcon = (name, style = {}) => {
-  switch (name) {
-    case 'Cpu': return <Cpu size={22} style={style} />;
-    case 'Target': return <Target size={22} style={style} />;
-    case 'Heart': return <Heart size={22} style={style} />;
-    case 'Users': return <Users size={22} style={style} />;
-    case 'BookOpen': return <BookOpen size={22} style={style} />;
-    case 'Globe': return <Globe size={22} style={style} />;
-    case 'Award': return <Award size={22} style={style} />;
-    default: return <Sparkles size={22} style={style} />;
-  }
-};
-
-const defaultAboutKecSbData = {
-  whoWeAre: {
-    title: "Who We Are",
-    intro: "The IEEE Kongu Engineering College Student Branch (IEEE KEC SB) was established to inspire technical innovation among students and provide them with a platform for professional growth. We regularly organize workshops, hackathons, and guest lectures on cutting-edge technologies.",
-    introSecondary: "As part of the IEEE Madras Section, our branch acts as a gateway for students to interact with global researchers, participate in international contests, and access IEEE's vast digital libraries and resources.",
-    mission: "To build a world-class center of technical learning and professional excellence that empowers young minds to create engineering solutions for a sustainable and technologically advanced society.",
-    vision: "To cultivate a culture of innovation, foster teamwork, and enhance student capability in research and design through seminars, hands-on workshops, student-led projects, and professional networking."
-  },
-  stats: [
-    { label: "Student Members", count: "120+" },
-    { label: "Professional Chapters", count: "6" },
-    { label: "Events Conducted", count: "80+" },
-    { label: "Awards Received", count: "15+" },
-    { label: "Years of Impact", count: "10" }
-  ],
-  impact: [
-    {
-      title: "Technical Growth",
-      desc: "Hands-on experience with emerging technologies like AI, IoT, VLSI, and cloud computing through workshops.",
-      icon: "Cpu"
-    },
-    {
-      title: "Leadership Development",
-      desc: "Steering roles inside operational committees, planning conferences, and heading volunteer chapters.",
-      icon: "Target"
-    },
-    {
-      title: "Community Service",
-      desc: "Promoting digital literacy, energy auditing, and assistive technologies in nearby rural schools.",
-      icon: "Heart"
-    },
-    {
-      title: "Professional Networking",
-      desc: "Direct channels to connect with international researchers, industry stalwarts, and Anna University peers.",
-      icon: "Users"
-    },
-    {
-      title: "Research Exposure",
-      desc: "Direct funding and mentorship for publishing in indexed journals and presenting at IEEE conferences.",
-      icon: "BookOpen"
-    },
-    {
-      title: "Industry Collaboration",
-      desc: "Industrial visits, guest lectures by tech giants, and internships backed by IEEE member associations.",
-      icon: "Globe"
-    }
-  ],
-  whyJoin: [
-    {
-      title: "Global Networking",
-      desc: "Access a massive community of professionals, engineers, and scientists across 160+ countries."
-    },
-    {
-      title: "IEEE Resources",
-      desc: "Free/discounted access to IEEE Spectrum, Xplore Digital Library, and academic publications."
-    },
-    {
-      title: "Leadership Opportunities",
-      desc: "Build team management, event execution, and administrative leadership skills early in your career."
-    },
-    {
-      title: "International Exposure",
-      desc: "Submit papers and participate in international competitions like IEEE Extreme, Congresses, etc."
-    },
-    {
-      title: "Technical Workshops",
-      desc: "Free or highly subsidized tickets to advanced hands-on training sessions and hackathons."
-    },
-    {
-      title: "Career Development",
-      desc: "Gain edge in placements, graduate school applications, and research fellowship selections."
-    }
-  ],
-  timeline: [
-    {
-      year: "2015",
-      title: "Student Branch Inauguration",
-      desc: "IEEE KEC Student Branch officially established under Madras Section with 35 charter student members."
-    },
-    {
-      year: "2018",
-      title: "Society Additions",
-      desc: "Established Computer Society and Women in Engineering affinity groups to cater to specialized domains."
-    },
-    {
-      year: "2021",
-      title: "Regional Recognitions",
-      desc: "Awarded the Outstanding Student Branch Award from the IEEE Madras Section for high volunteer activity."
-    },
-    {
-      year: "2024",
-      title: "Decade of Impact & Expansion",
-      desc: "Expanded to 6 active technical societies, cross-border hackathons, and over 120 registered active members."
-    }
-  ]
-};
 
 const hexToRgb = (hex) => {
   if (!hex) return "15, 76, 92";
@@ -686,12 +533,12 @@ const Home = () => {
             textShadow: '0 2px 12px rgba(0, 0, 0, 0.95), 0 4px 30px rgba(0, 0, 0, 0.95)',
             fontFamily: 'var(--font-sans)'
           }}>
-            KEC IEEE Student Branch
+            IEEE Student Branch
             <br />
             Kongu Engineering College
           </h1>
 
-          {/* Join button */}
+          {/* Two centered pill-styled buttons */}
           <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '16px' }}>
             <RouterLink
               to="/contact"
@@ -712,6 +559,27 @@ const Home = () => {
             >
               Join IEEE - KEC SB
             </RouterLink>
+            <a
+              href="https://www.ieee.org/membership/join/index.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                backgroundColor: 'rgba(var(--secondary-rgb), 0.25)',
+                backdropFilter: 'blur(12px)',
+                border: '1.5px solid rgba(255, 255, 255, 0.3)',
+                color: '#ffffff',
+                fontWeight: '700',
+                padding: '14px 36px',
+                borderRadius: '30px',
+                fontSize: '15px',
+                textDecoration: 'none',
+                transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)'
+              }}
+              className="hero-btn-hover"
+            >
+              How to Join IEEE?
+            </a>
           </div>
 
           {/* Slide indicator dots */}
@@ -756,285 +624,75 @@ const Home = () => {
         `}</style>
       </section>
 
-      {/* A. Detailed About IEEE KEC Student Branch Section */}
+      {/* About IEEE KEC Student Branch Section */}
       <section className="section-padding scroll-reveal" style={{ backgroundColor: '#ffffff', borderBottom: '1px solid var(--border-subtle)' }}>
         <div className="container">
-          {/* Who We Are */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '32px', alignItems: 'start', marginBottom: '56px' }}>
-            <div className="card" style={{ padding: '36px', height: '100%', borderTop: '4px solid var(--secondary)' }}>
-              <SectionLabel text="Who We Are" />
-              <h2 style={{ fontSize: '24px', marginBottom: '16px', color: 'var(--primary)', fontWeight: '800' }}>
-                {defaultAboutKecSbData.whoWeAre.title}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: '40px',
+            alignItems: 'center'
+          }}>
+            {/* Left Column: Text */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <h2 style={{ fontSize: '32px', color: 'var(--primary)', fontWeight: '800', borderLeft: '4px solid var(--secondary)', paddingLeft: '12px' }}>
+                About IEEE KEC Student Branch
               </h2>
-              <p style={{ marginBottom: '18px', color: 'var(--text-muted)', fontSize: '14.5px', lineHeight: '1.75' }}>
-                {defaultAboutKecSbData.whoWeAre.intro}
+              <p style={{ fontSize: '15px', lineHeight: '1.7', color: 'var(--text-muted)' }}>
+                IEEE Student Branch at Kongu Engineering College is a vibrant community of innovators, researchers, developers, and technology enthusiasts committed to advancing technical knowledge and professional growth. Through workshops, seminars, hackathons, competitions, industry interactions, and research initiatives, the branch empowers students to develop technical expertise, leadership skills, and global perspectives.
               </p>
-              <p style={{ color: 'var(--text-muted)', fontSize: '14.5px', lineHeight: '1.75', margin: 0 }}>
-                {defaultAboutKecSbData.whoWeAre.introSecondary}
+              <p style={{ fontSize: '15px', lineHeight: '1.7', color: 'var(--text-muted)' }}>
+                The student branch serves as a platform for collaboration, innovation, and continuous learning while connecting students with the vast global IEEE network.
               </p>
             </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', height: '100%' }}>
-              <div className="card" style={{ padding: '24px', borderTop: '3px solid var(--secondary)' }}>
-                <div style={{ display: 'flex', gap: '14px', alignItems: 'center', marginBottom: '10px' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '8px', backgroundColor: 'rgba(var(--secondary-rgb), 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Compass size={20} style={{ color: 'var(--secondary)' }} />
-                  </div>
-                  <h3 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--primary)', margin: 0 }}>Our Mission</h3>
-                </div>
-                <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', lineHeight: '1.6', margin: 0 }}>
-                  {defaultAboutKecSbData.whoWeAre.mission}
-                </p>
-              </div>
-
-              <div className="card" style={{ padding: '24px', borderTop: '3px solid var(--accent-cyan)' }}>
-                <div style={{ display: 'flex', gap: '14px', alignItems: 'center', marginBottom: '10px' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '8px', backgroundColor: 'rgba(6, 182, 212, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Target size={20} style={{ color: 'var(--accent-cyan)' }} />
-                  </div>
-                  <h3 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--primary)', margin: 0 }}>Our Vision</h3>
-                </div>
-                <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', lineHeight: '1.6', margin: 0 }}>
-                  {defaultAboutKecSbData.whoWeAre.vision}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Glance Statistics */}
-          <div style={{ marginBottom: '56px' }}>
-            <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-              <SectionLabel text="Branch Numbers" />
-              <h2 className="font-serif" style={{ fontSize: '26px', color: 'var(--primary)', fontWeight: '800', marginTop: '6px' }}>
-                IEEE at a Glance
-              </h2>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '20px' }}>
-              {defaultAboutKecSbData.stats.map((stat, idx) => (
-                <div key={idx} className="card scroll-reveal zoom-in" style={{
-                  padding: '24px 16px',
-                  textAlign: 'center',
-                  backgroundColor: 'rgba(255, 255, 255, 0.55)',
-                  backdropFilter: 'blur(8px)',
-                  WebkitBackdropFilter: 'blur(8px)',
-                  border: '1px solid rgba(var(--secondary-rgb), 0.08)',
-                  boxShadow: 'var(--shadow-sm)',
+            {/* Right Column: Illustration/Image */}
+            <div style={{ textAlign: 'center' }}>
+              <img 
+                src={aboutImage} 
+                alt="About IEEE KEC Student Branch" 
+                style={{ 
+                  width: '100%', 
+                  maxHeight: '360px', 
+                  objectFit: 'cover', 
+                  borderRadius: '16px',
+                  boxShadow: 'var(--shadow-md)',
+                  border: '1.5px solid var(--border-subtle)',
                   transition: 'all 0.3s ease'
-                }}>
-                  <h3 style={{ fontSize: '36px', fontWeight: '850', color: 'var(--secondary)', marginBottom: '6px', background: 'var(--gradient-primary)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                    <AnimatedCounter value={stat.count} />
-                  </h3>
-                  <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    {stat.label}
-                  </p>
-                </div>
-              ))}
+                }} 
+              />
             </div>
           </div>
-
-          {/* Timeline */}
-          <div style={{ marginBottom: '56px' }}>
-            <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-              <SectionLabel text="Our Legacy" />
-              <h2 className="font-serif" style={{ fontSize: '26px', color: 'var(--primary)', fontWeight: '800', marginTop: '6px' }}>
-                Journey Timeline
-              </h2>
-            </div>
-            <div className="timeline-container" style={{ position: 'relative', margin: '40px auto 0', padding: '10px 0' }}>
-              {defaultAboutKecSbData.timeline.map((item, idx) => {
-                const isLeft = idx % 2 === 0;
-                return (
-                  <div key={idx} className={`timeline-item ${isLeft ? 'left' : 'right'} scroll-reveal fade-up`}>
-                    <div className="timeline-dot" />
-                    <div className="card" style={{
-                      padding: '28px',
-                      width: '100%',
-                      borderTop: '3px solid var(--secondary)',
-                      transition: 'all 0.3s ease',
-                      boxShadow: 'var(--shadow-sm)',
-                      backgroundColor: '#ffffff'
-                    }}>
-                      <span style={{ fontSize: '18px', fontWeight: '850', color: 'var(--secondary)', display: 'block', marginBottom: '6px' }}>
-                        {item.year}
-                      </span>
-                      <h4 style={{ fontSize: '15.5px', fontWeight: '800', color: 'var(--primary)', marginBottom: '8px', lineHeight: '1.4' }}>
-                        {item.title}
-                      </h4>
-                      <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', lineHeight: '1.65', margin: 0 }}>
-                        {item.desc}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Impact Areas */}
-          <div style={{ marginBottom: '56px' }}>
-            <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-              <SectionLabel text="Empowering Students" />
-              <h2 className="font-serif" style={{ fontSize: '26px', color: 'var(--primary)', fontWeight: '800', marginTop: '6px' }}>
-                Branch Impact Areas
-              </h2>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
-              {defaultAboutKecSbData.impact.map((imp, idx) => (
-                <div key={idx} className="card about-feature-card scroll-reveal fade-up" style={{ padding: '28px', transition: 'all 0.3s ease', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-                  <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: 'rgba(var(--secondary-rgb), 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    {getAboutSbIcon(imp.icon, { color: 'var(--secondary)' })}
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: '16px', color: 'var(--primary)', fontWeight: '800', marginBottom: '8px', margin: 0 }}>
-                      {imp.title}
-                    </h3>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '13px', lineHeight: '1.6', margin: '6px 0 0' }}>
-                      {imp.desc}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
         </div>
       </section>
 
-      {/* B. Detailed About IEEE Student Branch (Global) Section */}
+      {/* Why Join IEEE Section (Replaced duplicate grid with navigation link) */}
       <section className="section-padding scroll-reveal" style={{ backgroundColor: 'var(--bg-light)', borderBottom: '1px solid var(--border-subtle)' }}>
-        <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '32px', alignItems: 'start' }}>
-            <div className="card" style={{ padding: '36px', borderTop: '4px solid var(--secondary)' }}>
-              <SectionLabel text="Overview" />
-              <h2 style={{ fontSize: '22px', marginBottom: '16px', color: 'var(--primary)', fontWeight: '800' }}>What is IEEE?</h2>
-              <p style={{ marginBottom: '14px', color: 'var(--text-muted)', fontSize: '14.5px', lineHeight: '1.7' }}>
-                IEEE is the world's largest technical professional organization dedicated to advancing technology for the benefit of humanity.
-              </p>
-              <p style={{ marginBottom: '14px', color: 'var(--text-muted)', fontSize: '14.5px', lineHeight: '1.7' }}>
-                Through its highly cited publications, conferences, technology standards, and professional and educational activities, IEEE is the trusted voice across aerospace systems, computers, telecommunications, biomedical engineering, electric power, and consumer electronics.
-              </p>
-              <p style={{ color: 'var(--text-muted)', fontSize: '14.5px', lineHeight: '1.7' }}>
-                IEEE has over 420,000 members in more than 160 countries and sponsors more than 1,800 annual conferences and meetings worldwide.
-              </p>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <FeatureCard
-                icon={Target}
-                title="Core Vision"
-                desc="IEEE will be essential to the global technical community and be universally recognized for the contributions of technology and of technical professionals in improving global conditions."
-                accent
-              />
-              <FeatureCard
-                icon={Compass}
-                title="IEEE Mission"
-                desc="IEEE's core purpose is to foster technological innovation and excellence for the benefit of humanity."
-              />
-              <FeatureCard
-                icon={Award}
-                title="Global Reach"
-                desc="With 160+ country presence and 1,800+ conferences annually, IEEE is the definitive home for technical professionals worldwide."
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* C. Detailed Why Join IEEE Section */}
-      <section className="section-padding scroll-reveal" style={{ backgroundColor: '#ffffff', borderBottom: '1px solid var(--border-subtle)' }}>
-        <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-            <SectionLabel text="Benefits" />
-            <h2 className="font-serif" style={{ fontSize: '26px', color: 'var(--primary)', fontWeight: '800', marginTop: '6px' }}>
-              Why Join IEEE?
-            </h2>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
-            {defaultAboutKecSbData.whyJoin.map((benefit, idx) => (
-              <div key={idx} className="card scroll-reveal fade-up" style={{ padding: '28px', borderLeft: '4px solid var(--secondary)', transition: 'all 0.3s ease', backgroundColor: '#ffffff', borderTop: '1px solid rgba(var(--secondary-rgb), 0.08)', borderRight: '1px solid rgba(var(--secondary-rgb), 0.08)', borderBottom: '1px solid rgba(var(--secondary-rgb), 0.08)' }}>
-                <h3 style={{ fontSize: '16px', color: 'var(--primary)', fontWeight: '800', marginBottom: '8px' }}>
-                  {benefit.title}
-                </h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', lineHeight: '1.65', margin: 0 }}>
-                  {benefit.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <style>{`
-            .timeline-container::before {
-              content: '';
-              position: absolute;
-              left: 50%;
-              top: 0;
-              bottom: 0;
-              width: 4px;
-              background-color: rgba(var(--secondary-rgb), 0.12);
-              transform: translateX(-50%);
-            }
-            .timeline-item {
-              display: flex;
-              width: 50%;
-              position: relative;
-              margin-bottom: 36px;
-              box-sizing: border-box;
-            }
-            .timeline-item.left {
-              justify-content: flex-end;
-              padding-right: 32px;
-              margin-left: 0;
-            }
-            .timeline-item.right {
-              justify-content: flex-start;
-              padding-left: 32px;
-              margin-left: 50%;
-            }
-            .timeline-dot {
-              position: absolute;
-              top: 24px;
-              width: 16px;
-              height: 16px;
-              border-radius: 50%;
-              background-color: var(--secondary);
-              border: 4px solid #ffffff;
-              box-shadow: 0 0 0 3px rgba(var(--secondary-rgb), 0.15);
-              z-index: 2;
-            }
-            .timeline-item.left .timeline-dot {
-              right: -8px;
-            }
-            .timeline-item.right .timeline-dot {
-              left: -8px;
-            }
-            .about-feature-card {
-              transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-              background-color: #ffffff;
-            }
-            .about-feature-card:hover {
-              transform: translateY(-4px) !important;
-              box-shadow: 0 12px 24px rgba(var(--secondary-rgb), 0.08) !important;
-            }
-
-            @media (max-width: 768px) {
-              .timeline-container::before {
-                left: 16px !important;
-                transform: none;
-              }
-              .timeline-item {
-                width: 100% !important;
-                margin-left: 0 !important;
-                padding-left: 36px !important;
-                padding-right: 0 !important;
-                justify-content: flex-start !important;
-              }
-              .timeline-dot {
-                left: 8px !important;
-                right: auto !important;
-              }
-            }
-          `}</style>
+        <div className="container" style={{ textAlign: 'center' }}>
+          <h2 style={{ fontSize: '32px', marginBottom: '12px', fontWeight: '800', color: 'var(--primary)' }}>Why Join IEEE?</h2>
+          <div style={{ width: '60px', height: '3px', backgroundColor: 'var(--secondary)', margin: '0 auto 20px' }}></div>
+          <p style={{ color: 'var(--text-muted)', maxWidth: '600px', marginInline: 'auto', marginBottom: '32px', fontSize: '15px', lineHeight: '1.75' }}>
+            Being part of the world's largest technical professional organization offers unparalleled benefits including global networking, technical resources, leadership roles, and exclusive learning programs.
+          </p>
+          <RouterLink
+            to="/about/ieee-kec-sb"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              backgroundColor: 'var(--secondary)',
+              color: '#ffffff',
+              fontWeight: '700',
+              padding: '12px 30px',
+              borderRadius: '30px',
+              fontSize: '15px',
+              textDecoration: 'none',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 4px 15px rgba(var(--secondary-rgb), 0.25)'
+            }}
+            className="tab-hover"
+          >
+            Explore Benefits & Membership Details <ArrowRight size={16} />
+          </RouterLink>
         </div>
       </section>
 

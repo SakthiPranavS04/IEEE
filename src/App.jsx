@@ -34,8 +34,6 @@ import {
   KECWIE
 } from './pages/AboutPages';
 
-import SocietiesPage from './pages/SocietiesPage';
-
 import RequestFormPage from './pages/RequestFormPage';
 import RequestFormsListing from './pages/RequestFormsListing';
 
@@ -112,16 +110,15 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           
-          {/* About / Societies Routes */}
-          <Route path="/societies" element={<SocietiesPage />} />
+          {/* About Routes */}
           <Route path="/about/ieee" element={<IEEEGlobal />} />
           <Route path="/about/kvitt" element={<KVITTTrust />} />
           <Route path="/about/kec" element={<KonguEngineering />} />
           <Route path="/about/kec-src" element={<KECSRC />} />
-          <Route path="/about/ieee-kec-sb" element={<SocietiesPage />} />
+          <Route path="/about/ieee-kec-sb" element={<IEEEKECSB />} />
           <Route path="/about/kec-sps" element={<KECSPS />} />
           <Route path="/about/kec-wie" element={<KECWIE />} />
-          <Route path="/about" element={<SocietiesPage />} />
+          <Route path="/about" element={<IEEEKECSB />} />
           
           {/* Request Form Routes */}
           <Route path="/request/forms" element={<RequestFormsListing />} />

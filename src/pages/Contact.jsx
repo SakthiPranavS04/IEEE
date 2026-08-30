@@ -70,13 +70,13 @@ const Contact = () => {
       <div className="container">
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
           gap: '40px',
           alignItems: 'start'
         }}>
           {/* Contact Details Column */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-            <div className="card" style={{ padding: '32px' }}>
+            <div className="card contact-details-card">
               <h2 style={{ fontSize: '20px', color: 'var(--primary)', marginBottom: '24px' }}>Inquiries</h2>
               <ul style={{ listStyleType: 'none', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <li style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
@@ -131,7 +131,7 @@ const Contact = () => {
           </div>
 
           {/* Form Column */}
-          <div className="card" style={{ padding: '40px' }}>
+          <div className="card contact-form-card">
             <h2 style={{ fontSize: '20px', color: 'var(--primary)', marginBottom: '24px' }}>Send us a message</h2>
             {isSubmitted ? (
               <div style={{
@@ -251,9 +251,23 @@ const Contact = () => {
       </div>
 
       <style>{`
+        .contact-details-card {
+          padding: 32px !important;
+        }
+        .contact-form-card {
+          padding: 40px !important;
+        }
         .input-focus:focus {
           border-color: var(--secondary) !important;
           box-shadow: 0 0 0 3px rgba(var(--secondary-rgb), 0.15) !important;
+        }
+        @media (max-width: 480px) {
+          .contact-details-card {
+            padding: 20px !important;
+          }
+          .contact-form-card {
+            padding: 20px !important;
+          }
         }
       `}</style>
     </div>

@@ -110,10 +110,9 @@ const Chatbot = () => {
           position: 'fixed',
           bottom: '100px',
           right: '30px',
-          width: '360px',
+          width: 'min(360px, calc(100vw - 32px))',
           height: '500px',
-          maxHeight: 'calc(100vh - 150px)',
-          maxWidth: 'calc(100vw - 60px)',
+          maxHeight: 'min(500px, 80dvh)',
           backgroundColor: '#ffffff',
           borderRadius: '16px',
           boxShadow: '0 12px 32px rgba(10, 56, 91, 0.2)',
@@ -158,7 +157,7 @@ const Chatbot = () => {
                 }} />
               </div>
               <div>
-                <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '700', lineHeight: '1.2' }}>IEEE KEC Assistant</h4>
+                <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '700', lineHeight: '1.2', color: '#ffffff' }}>IEEE KEC Assistant</h4>
                 <span style={{ fontSize: '10px', color: '#c9ebff', display: 'flex', alignItems: 'center', gap: '4px' }}>
                   <Sparkles size={8} /> Online & Ready
                 </span>
@@ -226,7 +225,9 @@ const Chatbot = () => {
                     lineHeight: '1.5',
                     boxShadow: '0 2px 6px rgba(10, 56, 91, 0.05)',
                     border: msg.sender === 'user' ? 'none' : '1px solid #eef6fc',
-                    whiteSpace: 'pre-line'
+                    whiteSpace: 'pre-line',
+                    overflowWrap: 'anywhere',
+                    wordBreak: 'break-word'
                   }}>
                     {msg.text}
                   </div>
@@ -294,13 +295,13 @@ const Chatbot = () => {
           {/* Quick Suggestion Chips */}
           <div style={{
             display: 'flex',
-            flexWrap: 'wrap',
+            flexWrap: 'nowrap',
             gap: '6px',
             padding: '10px 16px',
             backgroundColor: '#ffffff',
             borderTop: '1px solid #eef6fc',
             overflowX: 'auto',
-            maxHeight: '80px'
+            WebkitOverflowScrolling: 'touch'
           }} className="chat-chips-container">
             {quickReplies.map((reply, idx) => (
               <button
@@ -449,11 +450,11 @@ const Chatbot = () => {
         /* Responsive Chatbot */
         @media (max-width: 768px) {
           .chatbot-window {
-            width: calc(100vw - 80px) !important;
-            height: 60vh !important;
+            width: min(360px, calc(100vw - 32px)) !important;
+            height: min(500px, 75dvh) !important;
             bottom: 90px !important;
             right: 16px !important;
-            left: 16px !important;
+            left: auto !important;
           }
         }
 
@@ -465,11 +466,11 @@ const Chatbot = () => {
             right: 12px !important;
           }
           .chatbot-window {
-            width: calc(100vw - 32px) !important;
-            height: 70vh !important;
+            width: min(360px, calc(100vw - 24px)) !important;
+            height: min(480px, 75dvh) !important;
             bottom: 80px !important;
-            right: 8px !important;
-            left: 8px !important;
+            right: 12px !important;
+            left: auto !important;
             borderRadius: 12px !important;
           }
         }

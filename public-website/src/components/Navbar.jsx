@@ -95,9 +95,9 @@ const Navbar = () => {
         return pathname.startsWith('/events');
       case 'Achievements':
         return pathname.startsWith('/achievements');
-      case 'About':
+      case 'Societies':
         return (
-          pathname.startsWith('/about') ||
+          pathname.startsWith('/societies') ||
           pathname === '/faculties' ||
           pathname === '/committee'
         );
@@ -154,17 +154,42 @@ const Navbar = () => {
       ],
     },
     {
-      name: 'About',
+      name: 'Societies',
       items: [
         { 
-          name: 'About IEEE KEC SB', 
-          link: '/about/ieee-kec-sb',
-          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          name: 'All Societies Overview', 
+          link: '/societies',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.9 19.1 14.2-14.2"/><path d="M12 2v20"/><path d="M20.2 6.8a10 10 0 0 0-16.4 0"/><path d="M3.8 17.2a10 10 0 0 0 16.4 0"/></svg>
         },
         { 
-          name: 'About IEEE (Global)', 
-          link: '/about/ieee',
-          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+          name: 'IEEE Antennas & Propagation Society (APS)', 
+          link: '/execomm/ap-s',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="2"/><path d="M12 12v10"/><path d="M12 2a10 10 0 0 1 10 10"/><path d="M12 6a6 6 0 0 1 6 6"/><path d="M12 2a10 10 0 0 0-10 10"/><path d="M12 6a6 6 0 0 0-6 6"/></svg>
+        },
+        { 
+          name: 'IEEE Computer Society', 
+          link: '/execomm/computer-society',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="12" x2="12" y1="2" y2="22"/></svg>
+        },
+        { 
+          name: 'IEEE Women in Engineering (WIE)', 
+          link: '/execomm/wie',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22a7 7 0 0 0 5-12h-1.65a4 4 0 1 0-6.7 0H7a7 7 0 0 0 5 12z"/><path d="M12 2v2"/><path d="M12 8v2"/></svg>
+        },
+        { 
+          name: 'IEEE Robotics & Automation Society (RAS)', 
+          link: '/execomm/ras',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="12" x="3" y="8" rx="2" ry="2"/><path d="M12 2v6"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/><circle cx="8" cy="14" r="1"/><circle cx="16" cy="14" r="1"/></svg>
+        },
+        { 
+          name: 'IEEE Power & Energy Society (PES)', 
+          link: '/execomm/pes',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        },
+        { 
+          name: 'IEEE Communications Society (ComSoc)', 
+          link: '/execomm/comsoc',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a10 10 0 0 1 10 10c0 2.4-1 4.7-2.6 6.4L18 16a6 6 0 0 0 0-8L16.4 6.4c2-2 4.6-3 6.6-3z"/><path d="M12 6a6 6 0 0 1 6 6c0 1.5-.6 3-1.6 4L15 14a3 3 0 0 0 0-4l-1.6-1.6c1.2-1.2 2.8-1.8 3.8-1.8z"/><circle cx="12" cy="12" r="2"/></svg>
         },
         { 
           name: 'Operational Committees', 
@@ -372,7 +397,7 @@ const Navbar = () => {
                     borderRadius: '12px', 
                     boxShadow: 'var(--shadow-lg)', 
                     overflow: 'visible',
-                    minWidth: isExecomm ? '260px' : (item.name === 'About' ? '250px' : '220px')
+                    minWidth: isExecomm ? '260px' : (item.name === 'Societies' ? '290px' : '220px')
                   }}>
                     {item.items.map((subItem, sIdx) => {
                       if (subItem.subItems) {

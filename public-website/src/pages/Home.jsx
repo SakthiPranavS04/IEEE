@@ -3,6 +3,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import API from '../services/api';
 import { Award, BookOpen, Calendar, Users, ArrowRight, ShieldCheck, Flame, Zap, ChevronLeft, ChevronRight, Quote, MessageSquare, Globe } from 'lucide-react';
 import { societiesData } from '../data/societiesData';
+import { IEEEGlobalContent } from './AboutPages';
 
 const hexToRgb = (hex) => {
   if (!hex) return "15, 76, 92";
@@ -486,12 +487,12 @@ const Home = () => {
             textShadow: '0 2px 12px rgba(0, 0, 0, 0.95), 0 4px 30px rgba(0, 0, 0, 0.95)',
             fontFamily: 'var(--font-sans)'
           }}>
-            IEEE Student Branch
+            KEC IEEE Student Branch
             <br />
             Kongu Engineering College
           </h1>
 
-          {/* Two centered pill-styled buttons */}
+          {/* Centered pill-styled button */}
           <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '16px' }}>
             <RouterLink
               to="/contact"
@@ -512,27 +513,6 @@ const Home = () => {
             >
               Join IEEE - KEC SB
             </RouterLink>
-            <a
-              href="https://www.ieee.org/membership/join/index.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                backgroundColor: 'rgba(var(--secondary-rgb), 0.25)',
-                backdropFilter: 'blur(12px)',
-                border: '1.5px solid rgba(255, 255, 255, 0.3)',
-                color: '#ffffff',
-                fontWeight: '700',
-                padding: '14px 36px',
-                borderRadius: '30px',
-                fontSize: '15px',
-                textDecoration: 'none',
-                transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)'
-              }}
-              className="hero-btn-hover"
-            >
-              How to Join IEEE?
-            </a>
           </div>
 
           {/* Slide indicator dots */}
@@ -618,8 +598,19 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Why Join IEEE Section (Replaced duplicate grid with navigation link) */}
+      {/* About IEEE (Global) Section */}
       <section className="section-padding scroll-reveal" style={{ backgroundColor: 'var(--bg-light)', borderBottom: '1px solid var(--border-subtle)' }}>
+        <div className="container">
+          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+            <h2 style={{ fontSize: '32px', fontWeight: '800', color: 'var(--primary)' }}>About IEEE (Global)</h2>
+            <div style={{ width: '60px', height: '3px', backgroundColor: 'var(--secondary)', margin: '12px auto' }}></div>
+          </div>
+          <IEEEGlobalContent />
+        </div>
+      </section>
+
+      {/* Why Join IEEE Section */}
+      <section className="section-padding scroll-reveal" style={{ backgroundColor: '#ffffff', borderBottom: '1px solid var(--border-subtle)' }}>
         <div className="container" style={{ textAlign: 'center' }}>
           <h2 style={{ fontSize: '32px', marginBottom: '12px', fontWeight: '800', color: 'var(--primary)' }}>Why Join IEEE?</h2>
           <div style={{ width: '60px', height: '3px', backgroundColor: 'var(--secondary)', margin: '0 auto 20px' }}></div>
@@ -627,7 +618,7 @@ const Home = () => {
             Being part of the world's largest technical professional organization offers unparalleled benefits including global networking, technical resources, leadership roles, and exclusive learning programs.
           </p>
           <RouterLink
-            to="/about/ieee-kec-sb"
+            to="/societies"
             style={{
               display: 'inline-flex',
               alignItems: 'center',

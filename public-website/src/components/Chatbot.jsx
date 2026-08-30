@@ -158,7 +158,7 @@ const Chatbot = () => {
                 }} />
               </div>
               <div>
-                <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '700', lineHeight: '1.2' }}>IEEE KEC Assistant</h4>
+                <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '700', lineHeight: '1.2', color: '#ffffff' }}>IEEE KEC Assistant</h4>
                 <span style={{ fontSize: '10px', color: '#c9ebff', display: 'flex', alignItems: 'center', gap: '4px' }}>
                   <Sparkles size={8} /> Online & Ready
                 </span>
@@ -169,15 +169,18 @@ const Chatbot = () => {
               style={{
                 background: 'transparent',
                 border: 'none',
-                color: 'rgba(255, 255, 255, 0.8)',
+                color: '#ffffff',
                 cursor: 'pointer',
-                padding: '4px',
+                padding: '8px',
                 display: 'flex',
-                alignItems: 'center'
+                alignItems: 'center',
+                opacity: 0.9,
+                transition: 'opacity 0.2s ease'
               }}
               className="chat-header-close"
+              aria-label="Close Assistant"
             >
-              <X size={18} />
+              <X size={20} />
             </button>
           </div>
 
@@ -226,7 +229,9 @@ const Chatbot = () => {
                     lineHeight: '1.5',
                     boxShadow: '0 2px 6px rgba(10, 56, 91, 0.05)',
                     border: msg.sender === 'user' ? 'none' : '1px solid #eef6fc',
-                    whiteSpace: 'pre-line'
+                    whiteSpace: 'pre-line',
+                    wordBreak: 'break-word',
+                    overflowWrap: 'anywhere'
                   }}>
                     {msg.text}
                   </div>
@@ -449,11 +454,12 @@ const Chatbot = () => {
         /* Responsive Chatbot */
         @media (max-width: 768px) {
           .chatbot-window {
-            width: calc(100vw - 80px) !important;
-            height: 60vh !important;
+            width: min(400px, calc(100vw - 32px)) !important;
+            height: 60dvh !important;
+            max-height: calc(100dvh - 120px) !important;
             bottom: 90px !important;
             right: 16px !important;
-            left: 16px !important;
+            left: auto !important;
           }
         }
 
@@ -465,12 +471,13 @@ const Chatbot = () => {
             right: 12px !important;
           }
           .chatbot-window {
-            width: calc(100vw - 32px) !important;
-            height: 70vh !important;
+            width: calc(100vw - 24px) !important;
+            height: 65dvh !important;
+            max-height: calc(100dvh - 100px) !important;
             bottom: 80px !important;
-            right: 8px !important;
-            left: 8px !important;
-            borderRadius: 12px !important;
+            right: 12px !important;
+            left: 12px !important;
+            border-radius: 12px !important;
           }
         }
       `}</style>

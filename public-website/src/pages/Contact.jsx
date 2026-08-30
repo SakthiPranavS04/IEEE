@@ -114,7 +114,7 @@ const Contact = () => {
                   <MapPin size={22} style={{ color: 'var(--secondary)', flexShrink: 0, marginTop: '2px' }} />
                   <div>
                     <h4 style={{ fontSize: '14px', color: 'var(--primary)', marginBottom: '4px' }}>Office Address</h4>
-                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: '1.5', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
+                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: '1.5' }}>
                       IEEE Student Branch Office,<br />
                       Department of Electrical & Electronics Engineering,<br />
                       Kongu Engineering College Campus,<br />
@@ -126,7 +126,7 @@ const Contact = () => {
                   <Phone size={22} style={{ color: 'var(--secondary)', flexShrink: 0 }} />
                   <div>
                     <h4 style={{ fontSize: '14px', color: 'var(--primary)', marginBottom: '4px' }}>Call Us</h4>
-                    <p style={{ fontSize: '14px', color: 'var(--text-muted)', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
+                    <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
                       +91 4294 226555 / 226666
                     </p>
                   </div>
@@ -135,7 +135,7 @@ const Contact = () => {
                   <Mail size={22} style={{ color: 'var(--secondary)', flexShrink: 0 }} />
                   <div>
                     <h4 style={{ fontSize: '14px', color: 'var(--primary)', marginBottom: '4px' }}>Email Inquiries</h4>
-                    <a href="mailto:ieee@kongu.edu" style={{ fontSize: '14px', color: 'var(--text-muted)', textDecoration: 'none', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
+                    <a href="mailto:ieee@kongu.edu" style={{ fontSize: '14px', color: 'var(--text-muted)', textDecoration: 'none' }}>
                       ieee@kongu.edu
                     </a>
                   </div>
@@ -194,8 +194,6 @@ const Contact = () => {
                     onChange={handleChange}
                     required
                     style={{
-                      width: '100%',
-                      boxSizing: 'border-box',
                       padding: '12px',
                       borderRadius: '6px',
                       border: '1px solid var(--border-subtle)',
@@ -217,8 +215,6 @@ const Contact = () => {
                     onChange={handleChange}
                     required
                     style={{
-                      width: '100%',
-                      boxSizing: 'border-box',
                       padding: '12px',
                       borderRadius: '6px',
                       border: '1px solid var(--border-subtle)',
@@ -239,8 +235,6 @@ const Contact = () => {
                     value={formData.subject}
                     onChange={handleChange}
                     style={{
-                      width: '100%',
-                      boxSizing: 'border-box',
                       padding: '12px',
                       borderRadius: '6px',
                       border: '1px solid var(--border-subtle)',
@@ -262,8 +256,6 @@ const Contact = () => {
                     required
                     rows={5}
                     style={{
-                      width: '100%',
-                      boxSizing: 'border-box',
                       padding: '12px',
                       borderRadius: '6px',
                       border: '1px solid var(--border-subtle)',
@@ -280,7 +272,7 @@ const Contact = () => {
                   type="submit"
                   disabled={isSubmitting}
                   className="btn btn-primary"
-                  style={{ width: '100%', boxSizing: 'border-box', padding: '12px', fontSize: '14px', display: 'flex', gap: '8px', justifyContent: 'center', opacity: isSubmitting ? 0.7 : 1 }}
+                  style={{ width: '100%', padding: '12px', fontSize: '14px', display: 'flex', gap: '8px', justifyContent: 'center', opacity: isSubmitting ? 0.7 : 1 }}
                 >
                   {isSubmitting ? 'Sending...' : 'Send Message'} {!isSubmitting && <Send size={14} />}
                 </button>

@@ -31,8 +31,7 @@ import {
   KECSRC,
   IEEEKECSB,
   KECSPS,
-  KECWIE,
-  SocietiesPage
+  KECWIE
 } from './pages/AboutPages';
 
 import RequestFormPage from './pages/RequestFormPage';
@@ -111,25 +110,15 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           
-          {/* Societies Routes */}
-          <Route path="/societies/ieee" element={<IEEEGlobal />} />
-          <Route path="/societies/kvitt" element={<KVITTTrust />} />
-          <Route path="/societies/kec" element={<KonguEngineering />} />
-          <Route path="/societies/kec-src" element={<KECSRC />} />
-          <Route path="/societies/ieee-kec-sb" element={<IEEEKECSB />} />
-          <Route path="/societies/kec-sps" element={<KECSPS />} />
-          <Route path="/societies/kec-wie" element={<KECWIE />} />
-          <Route path="/societies" element={<SocietiesPage />} />
-
-          {/* Legacy About Redirects */}
-          <Route path="/about" element={<Navigate to="/societies" replace />} />
-          <Route path="/about/ieee-kec-sb" element={<Navigate to="/" replace />} />
-          <Route path="/about/ieee" element={<Navigate to="/" replace />} />
-          <Route path="/about/kvitt" element={<Navigate to="/societies/kvitt" replace />} />
-          <Route path="/about/kec" element={<Navigate to="/societies/kec" replace />} />
-          <Route path="/about/kec-src" element={<Navigate to="/societies/kec-src" replace />} />
-          <Route path="/about/kec-sps" element={<Navigate to="/societies/kec-sps" replace />} />
-          <Route path="/about/kec-wie" element={<Navigate to="/societies/kec-wie" replace />} />
+          {/* About Routes */}
+          <Route path="/about/ieee" element={<IEEEGlobal />} />
+          <Route path="/about/kvitt" element={<KVITTTrust />} />
+          <Route path="/about/kec" element={<KonguEngineering />} />
+          <Route path="/about/kec-src" element={<KECSRC />} />
+          <Route path="/about/ieee-kec-sb" element={<IEEEKECSB />} />
+          <Route path="/about/kec-sps" element={<KECSPS />} />
+          <Route path="/about/kec-wie" element={<KECWIE />} />
+          <Route path="/about" element={<IEEEKECSB />} />
           
           {/* Request Form Routes */}
           <Route path="/request/forms" element={<RequestFormsListing />} />

@@ -97,21 +97,10 @@ const FeatureCard = ({ icon: Icon, title, desc, accent = false }) => (
 );
 
 // ─── 1. IEEE Global ───────────────────────────────────────────────────────────
-export const IEEEGlobal = ({ isHomePage = false }) => (
-  <div className={isHomePage ? "" : "animate-fade-in"} style={{ backgroundColor: 'var(--bg-light)', paddingBottom: isHomePage ? '40px' : '80px', paddingTop: isHomePage ? '40px' : '0' }}>
-    {!isHomePage && (
-      <PageHeader title="About IEEE" subtitle="Institute of Electrical and Electronics Engineers — The World's Largest Technical Professional Organization" />
-    )}
+export const IEEEGlobal = () => (
+  <div className="animate-fade-in" style={{ backgroundColor: 'var(--bg-light)', paddingBottom: '80px' }}>
+    <PageHeader title="About IEEE" subtitle="Institute of Electrical and Electronics Engineers — The World's Largest Technical Professional Organization" />
     <div className="container">
-      {isHomePage && (
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <SectionLabel text="About IEEE (Global)" />
-          <h2 className="font-serif" style={{ fontSize: '32px', color: 'var(--primary)', fontWeight: '800', marginTop: '6px' }}>
-            About IEEE (Global)
-          </h2>
-          <div style={{ width: '60px', height: '3px', backgroundColor: 'var(--secondary)', margin: '12px auto 0' }}></div>
-        </div>
-      )}
 
       {/* About block */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px', alignItems: 'start', marginBottom: '48px' }}>
@@ -435,7 +424,7 @@ const AnimatedCounter = ({ value, duration = 1500 }) => {
   return <span>{count}{isPlus ? '+' : ''}</span>;
 };
 
-export const IEEEKECSB = ({ isHomePage = false }) => {
+export const IEEEKECSB = () => {
   const [data, setData] = useState(defaultAboutKecSbData);
 
   useEffect(() => {
@@ -455,26 +444,15 @@ export const IEEEKECSB = ({ isHomePage = false }) => {
   }, []);
 
   return (
-    <div className={isHomePage ? "" : "animate-fade-in"} style={{ backgroundColor: 'var(--bg-light)', paddingBottom: isHomePage ? '40px' : '90px', paddingTop: isHomePage ? '40px' : '0' }}>
-      {!isHomePage && (
-        <PageHeader 
-          title="IEEE KEC Student Branch" 
-          subtitle="Empowering Student Engineering Leadership and Global Professional Collaboration" 
-        />
-      )}
+    <div className="animate-fade-in" style={{ backgroundColor: 'var(--bg-light)', paddingBottom: '90px' }}>
+      <PageHeader 
+        title="IEEE KEC Student Branch" 
+        subtitle="Empowering Student Engineering Leadership and Global Professional Collaboration" 
+      />
       
       <div className="container">
-        {isHomePage && (
-          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-            <SectionLabel text="IEEE KEC SB" />
-            <h2 className="font-serif" style={{ fontSize: '32px', color: 'var(--primary)', fontWeight: '800', marginTop: '6px' }}>
-              About IEEE KEC Student Branch
-            </h2>
-            <div style={{ width: '60px', height: '3px', backgroundColor: 'var(--secondary)', margin: '12px auto 0' }}></div>
-          </div>
-        )}
         {/* A. Who We Are Section */}
-        <div className="scroll-reveal fade-up about-grid-responsive">
+        <div className="scroll-reveal fade-up" style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '32px', alignItems: 'start', marginBottom: '56px' }}>
           <div className="card" style={{ padding: '36px', height: '100%', borderTop: '4px solid var(--secondary)' }}>
             <SectionLabel text="Who We Are" />
             <h2 style={{ fontSize: '24px', marginBottom: '16px', color: 'var(--primary)', fontWeight: '800' }}>
@@ -679,19 +657,6 @@ export const IEEEKECSB = ({ isHomePage = false }) => {
       </div>
 
       <style>{`
-        .about-grid-responsive {
-          display: grid;
-          grid-template-columns: 1.2fr 0.8fr;
-          gap: 32px;
-          align-items: start;
-          margin-bottom: 56px;
-        }
-        @media (max-width: 960px) {
-          .about-grid-responsive {
-            grid-template-columns: 1fr !important;
-            gap: 24px !important;
-          }
-        }
         .timeline-container::before {
           content: '';
           position: absolute;
@@ -852,122 +817,4 @@ export const KECWIE = () => (
     <style>{`.about-feature-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(var(--secondary-rgb),0.08) !important; }`}</style>
   </div>
 );
-
-const societiesList = [
-  {
-    name: "IEEE Antennas & Propagation Society (APS)",
-    tagline: "Advancing Electromagnetics, Antennas, and Propagation Technologies",
-    desc: "Focuses on design, simulation, fabrication, and testing of high-frequency microwave antennas and propagation theories.",
-    link: "/execomm/ap-s",
-    category: "Technical Society",
-    icon: Compass,
-    accent: "var(--secondary)"
-  },
-  {
-    name: "IEEE Computer Society",
-    tagline: "Inspiring the Computing Community of Erode & Beyond",
-    desc: "Drives coding bootcamps, hackathons, and projects in AI, cybersecurity, software engineering, and IoT ecosystems.",
-    link: "/execomm/computer-society",
-    category: "Technical Society",
-    icon: Cpu,
-    accent: "var(--accent-cyan)"
-  },
-  {
-    name: "IEEE Women in Engineering (WIE)",
-    tagline: "Promoting and Inspiring Female Engineering Excellence",
-    desc: "Affinity group dedicated to empowering women engineers, hosting welfare initiatives, coding bootcamps, and alumni networking.",
-    link: "/execomm/wie",
-    category: "Affinity Group",
-    icon: Heart,
-    accent: "var(--accent)"
-  },
-  {
-    name: "IEEE Robotics & Automation Society (RAS)",
-    tagline: "Engineering the Future of Autonomy and Robotics",
-    desc: "Facilitates practical training in microcontroller architectures, motor drivers, sensor integrations, and robotic navigation.",
-    link: "/execomm/ras",
-    category: "Technical Society",
-    icon: Cpu,
-    accent: "#f59e0b"
-  },
-  {
-    name: "IEEE Power & Energy Society (PES)",
-    tagline: "Powering a Sustainable, Green Future",
-    desc: "Focuses on renewable energy systems, microgrid technologies, smart grids, electric vehicles, and power electronics designs.",
-    link: "/execomm/pes",
-    category: "Technical Society",
-    icon: Target,
-    accent: "#e11d48"
-  },
-  {
-    name: "IEEE Communications Society (ComSoc)",
-    tagline: "Connecting the World Through Communication Technology",
-    desc: "Emphasizes telecommunications, wireless signal systems, network security protocols, and cellular technology updates.",
-    link: "/execomm/comsoc",
-    category: "Technical Society",
-    icon: Globe,
-    accent: "var(--secondary)"
-  },
-  {
-    name: "IEEE Signal Processing Society (SPS)",
-    tagline: "Processing waveforms and bio-signals for real-world deployments",
-    desc: "Dedicated to signal analytics, bio-signals (ECG/EMG), speech analysis, computer vision models, and DSP processors.",
-    link: "/societies/kec-sps",
-    category: "Technical Society",
-    icon: Sparkles,
-    accent: "var(--accent-cyan)"
-  }
-];
-
-export const SocietiesPage = () => {
-  return (
-    <div className="animate-fade-in" style={{ backgroundColor: 'var(--bg-light)', paddingBottom: '90px' }}>
-      <PageHeader 
-        title="Technical Societies & Affinity Groups" 
-        subtitle="Specialized domain chapters of IEEE KEC SB fostering focused engineering skills and projects" 
-      />
-      
-      <div className="container">
-        {/* Intro */}
-        <div className="card" style={{ padding: '36px', marginBottom: '40px', borderTop: '4px solid var(--secondary)', backgroundColor: '#ffffff' }}>
-          <SectionLabel text="Introduction" />
-          <h2 style={{ fontSize: '24px', marginBottom: '16px', color: 'var(--primary)', fontWeight: '800' }}>Domain Specialization</h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '14.5px', lineHeight: '1.75', margin: 0 }}>
-            The IEEE Kongu Engineering College Student Branch operates multiple technical societies and affinity groups. Each group focuses on a specific subfield of technology and engineering, offering domain-specific workshops, guest lectures, project funding, and volunteer roles. Learn more about each division below and explore their rosters, accomplishments, and focus areas.
-          </p>
-        </div>
-
-        {/* Grid of Societies */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '30px' }}>
-          {societiesList.map((soc) => {
-            const Icon = soc.icon;
-            return (
-              <div key={soc.name} className="card about-feature-card" style={{ padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderTop: `4px solid ${soc.accent}`, backgroundColor: '#ffffff', minHeight: '300px' }}>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                    <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: 'rgba(var(--secondary-rgb), 0.08)', display: 'flex', alignItems: 'center', justify: 'center' }}>
-                      <Icon size={22} style={{ color: 'var(--secondary)' }} />
-                    </div>
-                    <span style={{ fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.8px', color: soc.accent, padding: '4px 10px', backgroundColor: 'rgba(var(--secondary-rgb), 0.04)', borderRadius: '20px' }}>
-                      {soc.category}
-                    </span>
-                  </div>
-                  <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--primary)', marginBottom: '8px', lineHeight: '1.4' }}>{soc.name}</h3>
-                  <h4 style={{ fontSize: '13px', color: 'var(--text-muted)', fontStyle: 'italic', fontWeight: '500', marginBottom: '12px', lineHeight: '1.4' }}>{soc.tagline}</h4>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', lineHeight: '1.65', margin: 0 }}>{soc.desc}</p>
-                </div>
-
-                <div style={{ marginTop: '24px', borderTop: '1px solid var(--border-subtle)', paddingTop: '16px' }}>
-                  <Link to={soc.link} className="btn" style={{ padding: '8px 20px', fontSize: '13px', fontWeight: '700', borderRadius: '20px', backgroundColor: 'transparent', color: soc.accent, border: `1.5px solid ${soc.accent}`, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px', transition: 'all 0.2s ease' }}>
-                    Explore Chapter <ArrowRight size={14} />
-                  </Link>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-};
 

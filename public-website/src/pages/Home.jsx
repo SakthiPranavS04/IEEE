@@ -3,7 +3,6 @@ import { Link as RouterLink } from 'react-router-dom';
 import API from '../services/api';
 import { Award, BookOpen, Calendar, Users, ArrowRight, ShieldCheck, Flame, Zap, ChevronLeft, ChevronRight, Quote, MessageSquare, Globe } from 'lucide-react';
 import { societiesData } from '../data/societiesData';
-import { IEEEKECSB, IEEEGlobal } from './AboutPages';
 
 const hexToRgb = (hex) => {
   if (!hex) return "15, 76, 92";
@@ -578,9 +577,77 @@ const Home = () => {
         `}</style>
       </section>
 
-      {/* Reorganized About Sections */}
-      <IEEEKECSB isHomePage={true} />
-      <IEEEGlobal isHomePage={true} />
+      {/* About IEEE KEC Student Branch Section */}
+      <section className="section-padding scroll-reveal" style={{ backgroundColor: '#ffffff', borderBottom: '1px solid var(--border-subtle)' }}>
+        <div className="container">
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: '40px',
+            alignItems: 'center'
+          }}>
+            {/* Left Column: Text */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <h2 style={{ fontSize: '32px', color: 'var(--primary)', fontWeight: '800', borderLeft: '4px solid var(--secondary)', paddingLeft: '12px' }}>
+                About IEEE KEC Student Branch
+              </h2>
+              <p style={{ fontSize: '15px', lineHeight: '1.7', color: 'var(--text-muted)' }}>
+                IEEE Student Branch at Kongu Engineering College is a vibrant community of innovators, researchers, developers, and technology enthusiasts committed to advancing technical knowledge and professional growth. Through workshops, seminars, hackathons, competitions, industry interactions, and research initiatives, the branch empowers students to develop technical expertise, leadership skills, and global perspectives.
+              </p>
+              <p style={{ fontSize: '15px', lineHeight: '1.7', color: 'var(--text-muted)' }}>
+                The student branch serves as a platform for collaboration, innovation, and continuous learning while connecting students with the vast global IEEE network.
+              </p>
+            </div>
+            {/* Right Column: Illustration/Image */}
+            <div style={{ textAlign: 'center' }}>
+              <img 
+                src={aboutImage} 
+                alt="About IEEE KEC Student Branch" 
+                style={{ 
+                  width: '100%', 
+                  maxHeight: '360px', 
+                  objectFit: 'cover', 
+                  borderRadius: '16px',
+                  boxShadow: 'var(--shadow-md)',
+                  border: '1.5px solid var(--border-subtle)',
+                  transition: 'all 0.3s ease'
+                }} 
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Why Join IEEE Section (Replaced duplicate grid with navigation link) */}
+      <section className="section-padding scroll-reveal" style={{ backgroundColor: 'var(--bg-light)', borderBottom: '1px solid var(--border-subtle)' }}>
+        <div className="container" style={{ textAlign: 'center' }}>
+          <h2 style={{ fontSize: '32px', marginBottom: '12px', fontWeight: '800', color: 'var(--primary)' }}>Why Join IEEE?</h2>
+          <div style={{ width: '60px', height: '3px', backgroundColor: 'var(--secondary)', margin: '0 auto 20px' }}></div>
+          <p style={{ color: 'var(--text-muted)', maxWidth: '600px', marginInline: 'auto', marginBottom: '32px', fontSize: '15px', lineHeight: '1.75' }}>
+            Being part of the world's largest technical professional organization offers unparalleled benefits including global networking, technical resources, leadership roles, and exclusive learning programs.
+          </p>
+          <RouterLink
+            to="/about/ieee-kec-sb"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              backgroundColor: 'var(--secondary)',
+              color: '#ffffff',
+              fontWeight: '700',
+              padding: '12px 30px',
+              borderRadius: '30px',
+              fontSize: '15px',
+              textDecoration: 'none',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 4px 15px rgba(var(--secondary-rgb), 0.25)'
+            }}
+            className="tab-hover"
+          >
+            Explore Benefits & Membership Details <ArrowRight size={16} />
+          </RouterLink>
+        </div>
+      </section>
 
       {/* Society Quick Access Section */}
       <section className="section-padding scroll-reveal" style={{ backgroundColor: 'var(--bg-light)', borderBottom: '1px solid var(--border-subtle)' }}>

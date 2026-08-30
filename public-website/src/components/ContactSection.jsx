@@ -60,7 +60,7 @@ const ContactSection = ({ contact }) => {
                   </div>
                   <div className="contact-info-text">
                     <h3>Email Address</h3>
-                    <a href={`mailto:${contact.email}`} style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}>{contact.email}</a>
+                    <a href={`mailto:${contact.email}`}>{contact.email}</a>
                   </div>
                 </div>
 
@@ -70,7 +70,7 @@ const ContactSection = ({ contact }) => {
                   </div>
                   <div className="contact-info-text">
                     <h3>Telephone</h3>
-                    <a href={`tel:${contact.phone}`} style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}>{contact.phone}</a>
+                    <a href={`tel:${contact.phone}`}>{contact.phone}</a>
                   </div>
                 </div>
 
@@ -80,7 +80,7 @@ const ContactSection = ({ contact }) => {
                   </div>
                   <div className="contact-info-text">
                     <h3>Office Location</h3>
-                    <p style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}>{contact.location}</p>
+                    <p>{contact.location}</p>
                   </div>
                 </div>
               </div>

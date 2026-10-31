@@ -95,24 +95,14 @@ const Navbar = () => {
         return pathname.startsWith('/events');
       case 'Achievements':
         return pathname.startsWith('/achievements');
-      case 'About':
-        return (
-          pathname.startsWith('/about') ||
-          pathname === '/faculties' ||
-          pathname === '/committee'
-        );
+      case 'Societies':
+        return pathname.startsWith('/execomm/') || pathname === '/committee';
       case 'Execomm':
-        return (
-          pathname.startsWith('/execomm') ||
-          pathname.startsWith('/execcomm') ||
-          pathname.startsWith('/excomm')
-        );
+        return pathname === '/execomm';
       case 'Media':
         return pathname.startsWith('/media');
-      case 'Request':
-        return pathname.startsWith('/request');
-      case 'Documents':
-        return pathname.startsWith('/documents');
+      case 'Membership':
+        return pathname.includes('membership');
       case 'Contact':
         return pathname.startsWith('/contact');
       default:
@@ -145,26 +135,40 @@ const Navbar = () => {
     },
     {
       name: 'Achievements',
-      items: [
-        { 
-          name: 'Student Achievements', 
-          link: '/achievements',
-          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"/><path d="M12 2a5 5 0 0 0-5 5v3.34c0 .87.35 1.7 1 2.33l1.3 1.3a1 1 0 0 0 1.4 0l1.3-1.3c.65-.63 1-1.46 1-2.33V7a5 5 0 0 0-5-5z"/></svg>
-        },
-      ],
+      link: '/achievements'
     },
     {
-      name: 'About',
+      name: 'Societies',
       items: [
         { 
-          name: 'About IEEE KEC SB', 
-          link: '/about/ieee-kec-sb',
-          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          name: 'IEEE Antennas & Propagation Society (APS)', 
+          link: '/execomm/ap-s',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="2"/><path d="M12 12v10"/><path d="M12 2a10 10 0 0 1 10 10"/><path d="M12 6a6 6 0 0 1 6 6"/><path d="M12 2a10 10 0 0 0-10 10"/><path d="M12 6a6 6 0 0 0-6 6"/></svg>
         },
         { 
-          name: 'About IEEE (Global)', 
-          link: '/about/ieee',
-          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+          name: 'IEEE Computer Society', 
+          link: '/execomm/computer-society',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="12" x2="12" y1="2" y2="22"/></svg>
+        },
+        { 
+          name: 'IEEE Women in Engineering (WIE)', 
+          link: '/execomm/wie',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22a7 7 0 0 0 5-12h-1.65a4 4 0 1 0-6.7 0H7a7 7 0 0 0 5 12z"/><path d="M12 2v2"/><path d="M12 8v2"/></svg>
+        },
+        { 
+          name: 'IEEE Robotics & Automation Society (RAS)', 
+          link: '/execomm/ras',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="12" x="3" y="8" rx="2" ry="2"/><path d="M12 2v6"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/><circle cx="8" cy="14" r="1"/><circle cx="16" cy="14" r="1"/></svg>
+        },
+        { 
+          name: 'IEEE Power & Energy Society (PES)', 
+          link: '/execomm/pes',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        },
+        { 
+          name: 'IEEE Communications Society (ComSoc)', 
+          link: '/execomm/comsoc',
+          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a10 10 0 0 1 10 10c0 2.4-1 4.7-2.6 6.4L18 16a6 6 0 0 0 0-8L16.4 6.4c2-2 4.6-3 6.6-3z"/><circle cx="12" cy="12" r="2"/></svg>
         },
         { 
           name: 'Operational Committees', 
@@ -173,87 +177,9 @@ const Navbar = () => {
         },
       ],
     },
-    {
-      name: 'Execomm',
-      items: [
-        {
-          name: 'Members & Coordinators',
-          subItems: [
-            { 
-              name: 'Faculty Members', 
-              link: '/execomm/faculties',
-              icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            },
-            { 
-              name: 'Student Members', 
-              link: '/execomm/students',
-              icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            }
-          ]
-        },
-        {
-          name: 'Societies',
-          subItems: [
-            { 
-              name: 'IEEE Antennas & Propagation Society (APS)', 
-              link: '/execomm/ap-s',
-              icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="2"/><path d="M12 12v10"/><path d="M12 2a10 10 0 0 1 10 10"/><path d="M12 6a6 6 0 0 1 6 6"/><path d="M12 2a10 10 0 0 0-10 10"/><path d="M12 6a6 6 0 0 0-6 6"/></svg>
-            },
-            { 
-              name: 'IEEE Computer Society', 
-              link: '/execomm/computer-society',
-              icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="12" x2="12" y1="2" y2="22"/></svg>
-            },
-            { 
-              name: 'IEEE Women in Engineering (WIE)', 
-              link: '/execomm/wie',
-              icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22a7 7 0 0 0 5-12h-1.65a4 4 0 1 0-6.7 0H7a7 7 0 0 0 5 12z"/><path d="M12 2v2"/><path d="M12 8v2"/></svg>
-            },
-            { 
-              name: 'IEEE Robotics & Automation Society (RAS)', 
-              link: '/execomm/ras',
-              icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="12" x="3" y="8" rx="2" ry="2"/><path d="M12 2v6"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/><circle cx="8" cy="14" r="1"/><circle cx="16" cy="14" r="1"/></svg>
-            },
-            { 
-              name: 'IEEE Power & Energy Society (PES)', 
-              link: '/execomm/pes',
-              icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-            },
-            { 
-              name: 'IEEE Communications Society (ComSoc)', 
-              link: '/execomm/comsoc',
-              icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a10 10 0 0 1 10 10c0 2.4-1 4.7-2.6 6.4L18 16a6 6 0 0 0 0-8L16.4 6.4c2-2 4.6-3 6.6-3z"/><path d="M12 6a6 6 0 0 1 6 6c0 1.5-.6 3-1.6 4L15 14a3 3 0 0 0 0-4l-1.6-1.6c1.2-1.2 2.8-1.8 3.8-1.8z"/><circle cx="12" cy="12" r="2"/></svg>
-            }
-          ]
-        }
-      ],
-    },
-    {
-      name: 'Media',
-      items: [
-        { 
-          name: 'Gallery', 
-          link: '/media/gallery',
-          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-        },
-        { 
-          name: 'News', 
-          link: '/media/news',
-          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
-        },
-      ],
-    },
-    {
-      name: 'Request',
-      items: [
-        {
-          name: 'Request Forms',
-          link: '/request/forms',
-          icon: <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
-        }
-      ],
-    },
-    { name: 'Documents', link: '/documents' },
+    { name: 'Execomm', link: '/execomm' },
+    { name: 'Media', link: '/media' },
+    { name: 'Membership', link: '/request/membership' },
     { name: 'Contact', link: '/contact' },
   ];
 
@@ -326,11 +252,12 @@ const Navbar = () => {
       <div className="container" style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '0 16px' }}>
         
         {/* Left Side: Transparent Logo Banner */}
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', flexShrink: 0 }}>
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', flexShrink: 0, gap: '8px' }}>
           <img 
-            src="/assets/ieee_logo_white.png" 
-            alt="IEEE Logo" 
-            style={{ height: '52px', display: 'block', maxWidth: '100%' }} 
+            src="/assets/ieee_kec_logo.png" 
+            alt="IEEE KEC SB Logo" 
+            onError={(e) => { e.target.onerror = null; e.target.src = '/assets/ieee_logo_white.png'; }}
+            style={{ height: '48px', display: 'block', maxWidth: '100%', objectFit: 'contain' }} 
           />
         </Link>
 
@@ -372,7 +299,7 @@ const Navbar = () => {
                     borderRadius: '12px', 
                     boxShadow: 'var(--shadow-lg)', 
                     overflow: 'visible',
-                    minWidth: isExecomm ? '260px' : (item.name === 'About' ? '250px' : '220px')
+                    minWidth: isExecomm ? '260px' : (item.name === 'Societies' ? '300px' : '220px')
                   }}>
                     {item.items.map((subItem, sIdx) => {
                       if (subItem.subItems) {
@@ -504,8 +431,35 @@ const Navbar = () => {
           })}
         </nav>
 
-        {/* Right Side: Logos & Admin */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }} className="header-right">
+        {/* Right Side: Portal & KEC College Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexShrink: 0 }} className="header-right">
+          {/* Portal Button */}
+          <a 
+            href="http://localhost:5174" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="portal-nav-btn"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '7px 16px',
+              borderRadius: '20px',
+              background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+              color: '#ffffff',
+              fontSize: '12.5px',
+              fontWeight: '700',
+              textDecoration: 'none',
+              boxShadow: '0 2px 10px rgba(2, 132, 199, 0.4)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              transition: 'all 0.25s ease',
+              letterSpacing: '0.3px',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            Portal ↗
+          </a>
+
           {/* KEC logo */}
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <a 
@@ -518,14 +472,13 @@ const Navbar = () => {
                 src="/assets/kec_logo.png" 
                 alt="Kongu Engineering College Logo" 
                 style={{ 
-                  height: '32px', 
+                  height: '34px', 
                   display: 'block',
                   cursor: 'pointer'
                 }} 
               />
             </a>
           </div>
-
         </div>
 
         {/* Mobile Hamburger menu */}
@@ -721,6 +674,27 @@ const Navbar = () => {
               );
             })}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #0f4875' }}>
+              <a
+                href="http://localhost:5174"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setIsOpen(false)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  padding: '12px',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                  color: '#ffffff',
+                  fontSize: '14px',
+                  fontWeight: '700',
+                  textDecoration: 'none'
+                }}
+              >
+                Access Admin Portal ↗
+              </a>
             </div>
           </div>
         </div>

@@ -651,33 +651,9 @@ const MemberModal = ({ member, onClose }) => {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 const Execomm = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  const getTabFromPath = (path) => {
-    if (path.includes('/students')) {
-      return 'students';
-    }
-    return 'faculties';
-  };
-
-  const [activeTab, setActiveTab] = useState(() => getTabFromPath(location.pathname));
-
-  useEffect(() => {
-    setActiveTab(getTabFromPath(location.pathname));
-  }, [location.pathname]);
-
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-    if (tab === 'students') {
-      navigate('/execomm/students');
-    } else {
-      navigate('/execomm/faculties');
-    }
-  };
-
   const [societies, setSocieties] = useState([]);
   const [students, setStudents] = useState([]);
+  const [faculties, setFaculties] = useState([]);
   const [selectedMember, setSelectedMember] = useState(null);
 
   useEffect(() => {
@@ -703,27 +679,31 @@ const Execomm = () => {
           }));
           setStudents(studentsData);
 
-          // Process Faculties into Societies
-          const facultiesData = data.filter(m => m.type === 'Faculty');
+          // Process Faculties
+          const facultiesData = data.filter(m => m.type === 'Faculty').map(m => ({
+            id: m._id,
+            name: m.name,
+            position: m.role,
+            society: m.category,
+            phone: m.phone,
+            email: m.email,
+            linkedin: m.linkedin,
+            image: m.image,
+            order: m.order || 0
+          }));
+          setFaculties(facultiesData);
+
+          // Group Faculties by Society
           const societiesMap = {};
-          
           facultiesData.forEach(fac => {
-            if (!societiesMap[fac.category]) {
-              societiesMap[fac.category] = {
-                id: fac.category,
-                name: fac.category,
+            if (!societiesMap[fac.society]) {
+              societiesMap[fac.society] = {
+                id: fac.society,
+                name: fac.society,
                 faculties: []
               };
             }
-            societiesMap[fac.category].faculties.push({
-              name: fac.name,
-              position: fac.role,
-              phone: fac.phone,
-              email: fac.email,
-              linkedin: fac.linkedin,
-              image: fac.image,
-              order: fac.order || 0
-            });
+            societiesMap[fac.society].faculties.push(fac);
           });
           
           const loadedSocieties = Object.values(societiesMap).map((soc, idx) => {
@@ -731,8 +711,7 @@ const Execomm = () => {
             return {
               id: idx + 1,
               name: soc.name,
-              faculty1: soc.faculties[0] || null,
-              faculty2: soc.faculties[1] || null
+              faculties: soc.faculties
             };
           });
           
@@ -746,275 +725,270 @@ const Execomm = () => {
     fetchTeam();
   }, []);
 
-  // Sort societies according to requested order
-  const societyOrderMap = {
-    "computer society (cs society)": 1,
-    "robotics and automation society (ras)": 2,
-    "women in engineering (wie)": 3,
-    "power & energy society (pes)": 4,
-    "communications society (comsoc)": 5,
-    "antennas and propagation society (ap-s)": 6,
-    "ap-s (antennas and propagation society)": 6
-  };
-
-  const getSocietySortOrder = (name) => {
-    const norm = (name || '').toLowerCase().trim();
-    return societyOrderMap[norm] || 99; // append unknown to the end
-  };
-
-  const sortedSocieties = [...societies].sort((a, b) => {
-    return getSocietySortOrder(a.name) - getSocietySortOrder(b.name);
-  });
-
   // Sort students according to KEC SB hierarchy
   const sortedStudents = [...students].sort((a, b) => {
     const diff = getHierarchyLevel(a.position) - getHierarchyLevel(b.position);
     if (diff !== 0) return diff;
-    // Alphabetical secondary sort
     return (a.name || '').localeCompare(b.name || '');
+  });
+
+  // Categorize students
+  // 1. SB Leadership (Chairman, Vice Chair, Secretaries)
+  const sbStudents = sortedStudents.filter(stud => {
+    const pos = (stud.position || '').toLowerCase();
+    const isOp = pos.includes('team') || pos.includes('committee') || pos.includes('media') || pos.includes('event') || pos.includes('web');
+    return (stud.society === 'IEEE KEC SB' || stud.society === 'KEC IEEE SB') && !isOp;
+  });
+
+  // 2. Societies Leadership (APS, CS, WIE, RAS, PES, ComSoc)
+  const societiesStudents = sortedStudents.filter(stud => {
+    const soc = (stud.society || '').toLowerCase();
+    const isGeneralSb = soc === 'ieee kec sb' || soc === 'kec ieee sb';
+    return !isGeneralSb;
+  });
+
+  // 3. Operational Communities (Web, Event, Media/PR, Design)
+  const operationalStudents = sortedStudents.filter(stud => {
+    const pos = (stud.position || '').toLowerCase();
+    return pos.includes('team') || pos.includes('committee') || pos.includes('media') || pos.includes('event') || pos.includes('web');
   });
 
   return (
     <div className="animate-fade-in" style={{ backgroundColor: 'var(--bg-light)', paddingBottom: '90px' }}>
       <PageHeader
         title="Executive Committee"
-        subtitle="Meet the professional advisors and student leaders steering the IEEE KEC Student Branch"
+        subtitle="Meet the advisory board, student branch office bearers, and technical society leaders of KEC IEEE SB"
       />
 
-      {/* ExeComm Tabs Navigation */}
+      {/* Quick Jump Navigation Bar */}
       <div className="container" style={{ marginBottom: '40px' }}>
         <div style={{
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '10px'
         }}>
-          <div style={{
-            display: 'inline-flex',
-            backgroundColor: 'rgba(var(--secondary-rgb), 0.05)',
-            border: '1px solid rgba(var(--secondary-rgb), 0.15)',
-            borderRadius: '30px',
-            padding: '6px',
-            boxShadow: 'var(--shadow-sm)',
-            backdropFilter: 'blur(10px)',
-          }}>
-            <button
-              onClick={() => handleTabChange('faculties')}
-              className={`execomm-tab-button ${activeTab === 'faculties' ? 'active' : ''}`}
+          {[
+            { label: '🎓 Faculty Advisory Board', href: '#faculty-section' },
+            { label: '👑 SB Core Leadership', href: '#sb-section' },
+            { label: '🏛️ Societies Leadership', href: '#societies-section' },
+            { label: '⚙️ Operational Communities', href: '#operational-section' },
+          ].map(({ label, href }) => (
+            <a
+              key={href}
+              href={href}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '8px',
-                padding: '10px 24px',
+                padding: '9px 20px',
                 borderRadius: '24px',
-                border: 'none',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '700',
-                outline: 'none',
-                backgroundColor: 'transparent',
-                color: 'var(--text-muted)',
+                fontSize: '13px',
+                fontWeight: '750',
+                textDecoration: 'none',
+                backgroundColor: '#ffffff',
+                color: 'var(--primary)',
+                border: '1px solid var(--border-subtle)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                transition: 'all 0.25s ease'
               }}
+              className="execomm-tab-button"
             >
-              <Award size={16} /> Faculty Coordinators
-            </button>
-            <button
-              onClick={() => handleTabChange('students')}
-              className={`execomm-tab-button ${activeTab === 'students' ? 'active' : ''}`}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '10px 24px',
-                borderRadius: '24px',
-                border: 'none',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '700',
-                outline: 'none',
-                backgroundColor: 'transparent',
-                color: 'var(--text-muted)',
-              }}
-            >
-              <Shield size={16} /> Student Office Bearers
-            </button>
-          </div>
+              {label}
+            </a>
+          ))}
         </div>
       </div>
 
       {/* ExeComm Content Container */}
-      <div className="container">
-        <div key={activeTab} className="animate-fade-in">
-          {activeTab === 'faculties' && (
-            <div>
-              <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-                <SectionLabel text="Advisory Board" />
-                <h2 className="font-serif" style={{ fontSize: '28px', color: 'var(--primary)', fontWeight: '800', marginTop: '8px' }}>
-                  Faculty Coordinators
-                </h2>
-                <p style={{ color: 'var(--text-muted)', fontSize: '14px', maxWidth: '600px', margin: '0 auto' }}>
-                  Experienced advisors providing leadership, technical guidance, and administrative support across core IEEE societies.
-                </p>
-              </div>
+      <div className="container" style={{ display: 'flex', flexDirection: 'column', gap: '60px' }}>
+        
+        {/* =========================================================================
+            SECTION 1: FACULTY ADVISORY BOARD
+        ========================================================================= */}
+        <section id="faculty-section" style={{
+          border: '1px solid #e2e8f0',
+          borderRadius: '20px',
+          padding: '36px',
+          backgroundColor: '#ffffff',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.04)'
+        }}>
+          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+            <SectionLabel text="Advisory Board" />
+            <h2 className="font-serif" style={{ fontSize: '28px', color: 'var(--primary)', fontWeight: '800', marginTop: '8px' }}>
+              Faculty Coordinators & Chapter Advisors
+            </h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '14px', maxWidth: '650px', margin: '6px auto 0' }}>
+              Experienced faculty advisors providing research direction, technical guidance, and administrative oversight across all societies.
+            </p>
+          </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
-                {sortedSocieties.map((soc) => {
-                  const fac1Level = getHierarchyLevel(soc.faculty1?.position);
-                  const fac2Level = getHierarchyLevel(soc.faculty2?.position);
-                  
-                  const showFac1First = fac1Level <= fac2Level;
-                  const coordList = showFac1First
-                    ? [soc.faculty1, soc.faculty2]
-                    : [soc.faculty2, soc.faculty1];
-
-                  return (
-                    <div key={soc.id} style={{
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '16px',
-                      padding: '32px',
-                      backgroundColor: '#ffffff',
-                      boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
-                    }}>
-                      <h3 style={{
-                        fontSize: '20px',
-                        color: 'var(--primary)',
-                        fontWeight: '800',
-                        marginBottom: '24px',
-                        textAlign: 'left',
-                        borderBottom: '2px solid var(--border-subtle)',
-                        paddingBottom: '12px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '10px'
-                      }}>
-                        <span style={{ fontSize: '24px' }}>🏫</span> {soc.name}
-                      </h3>
-                      
-                      <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                        gap: '24px'
-                      }}>
-                        {coordList.map((fac, fIdx) => {
-                          if (!fac || !fac.name) return null;
-                          const contact = getContactInfo(fac.name, fac.phone, fac.email, fac.linkedin);
-                          return (
-                            <FacultyCard
-                              key={fIdx}
-                              name={fac.name}
-                              position={fac.position}
-                              phone={fac.phone}
-                              email={contact.email}
-                              linkedin={contact.linkedin}
-                              image={fac.image}
-                              societyName={soc.name}
-                              onClick={() => setSelectedMember({
-                                name: fac.name,
-                                position: fac.position,
-                                phone: contact.phone,
-                                email: contact.email,
-                                linkedin: contact.linkedin,
-                                image: fac.image,
-                                branch: soc.name,
-                                type: 'Faculty'
-                              })}
-                            />
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'students' && (() => {
-            const HIERARCHY_LEVEL_LABELS = {
-              1: "Student Branch Chairpersons",
-              2: "Society Chairpersons",
-              3: "Additional Secretaries",
-              4: "Joint Secretaries",
-              5: "Committee Heads",
-              6: "Executive Members",
-              7: "Student Members"
-            };
-            const levels = [1, 2, 3, 4, 5, 6, 7];
-            
-            return (
-              <div>
-                <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-                  <SectionLabel text="Student Leadership" />
-                  <h2 className="font-serif" style={{ fontSize: '28px', color: 'var(--primary)', fontWeight: '800', marginTop: '8px' }}>
-                    Student Office Bearers
-                  </h2>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '14px', maxWidth: '600px', margin: '0 auto' }}>
-                    Active student coordinators managing chapter operations, workshops, project expos, and community outreach.
-                  </p>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
-                  {levels.map(level => {
-                    const levelStudents = sortedStudents.filter(stud => getHierarchyLevel(stud.position) === level);
-                    if (levelStudents.length === 0) return null;
-
-                    return (
-                      <div key={level} style={{
-                        border: '1px solid #e2e8f0',
-                        borderRadius: '16px',
-                        padding: '32px',
-                        backgroundColor: '#ffffff',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
-                      }}>
-                        <h3 style={{
-                          fontSize: '20px',
-                          color: 'var(--primary)',
-                          fontWeight: '800',
-                          marginBottom: '24px',
-                          textAlign: 'left',
-                          borderBottom: '2px solid var(--border-subtle)',
-                          paddingBottom: '12px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '10px'
-                        }}>
-                          <span style={{ fontSize: '24px' }}>🛡️</span> {HIERARCHY_LEVEL_LABELS[level]}
-                        </h3>
-                        
-                        <div className="execomm-students-grid" style={{
-                          display: 'grid',
-                          gap: '24px'
-                        }}>
-                           {levelStudents.map((stud) => {
-                            const contact = getContactInfo(stud.name, stud.phone, stud.email, stud.linkedin);
-                            return (
-                              <StudentCard 
-                                key={stud.id} 
-                                student={stud} 
-                                onClick={() => setSelectedMember({
-                                  name: stud.name,
-                                  position: stud.position,
-                                  branch: stud.society || 'IEEE KEC SB',
-                                  department: stud.department,
-                                  ieeeNumber: stud.ieeeNumber,
-                                  year: stud.yearOfStudy,
-                                  image: stud.image,
-                                  phone: contact.phone,
-                                  email: contact.email,
-                                  linkedin: contact.linkedin,
-                                  type: 'Student'
-                                })}
-                              />
-                            );
-                          })}
-                        </div>
-                      </div>
-                    );
+          <div className="execomm-students-grid" style={{ display: 'grid', gap: '24px' }}>
+            {faculties.map((fac) => {
+              const contact = getContactInfo(fac.name, fac.phone, fac.email, fac.linkedin);
+              return (
+                <FacultyCard
+                  key={fac.id}
+                  name={fac.name}
+                  position={fac.position}
+                  phone={fac.phone}
+                  email={contact.email}
+                  linkedin={contact.linkedin}
+                  image={fac.image}
+                  societyName={fac.society}
+                  onClick={() => setSelectedMember({
+                    name: fac.name,
+                    position: fac.position,
+                    phone: contact.phone,
+                    email: contact.email,
+                    linkedin: contact.linkedin,
+                    image: fac.image,
+                    branch: fac.society,
+                    type: 'Faculty'
                   })}
-                </div>
-              </div>
-            );
-          })()}
-        </div>
+                />
+              );
+            })}
+          </div>
+        </section>
+
+        {/* =========================================================================
+            SECTION 2: STUDENT BRANCH (SB) EXECUTIVE LEADERSHIP
+        ========================================================================= */}
+        <section id="sb-section" style={{
+          border: '1px solid #e2e8f0',
+          borderRadius: '20px',
+          padding: '36px',
+          backgroundColor: '#ffffff',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.04)'
+        }}>
+          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+            <SectionLabel text="Branch Leadership" />
+            <h2 className="font-serif" style={{ fontSize: '28px', color: 'var(--primary)', fontWeight: '800', marginTop: '8px' }}>
+              KEC IEEE Student Branch (SB) Core Leadership
+            </h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '14px', maxWidth: '650px', margin: '6px auto 0' }}>
+              Chairman, Vice-Chairman, and Executive Secretaries leading branch operations, university events, and regional section activities.
+            </p>
+          </div>
+
+          <div className="execomm-students-grid" style={{ display: 'grid', gap: '24px' }}>
+            {sbStudents.map((stud) => {
+              const contact = getContactInfo(stud.name, stud.phone, stud.email, stud.linkedin);
+              return (
+                <StudentCard 
+                  key={stud.id} 
+                  student={stud} 
+                  onClick={() => setSelectedMember({
+                    name: stud.name,
+                    position: stud.position,
+                    branch: stud.society || 'IEEE KEC SB',
+                    department: stud.department,
+                    ieeeNumber: stud.ieeeNumber,
+                    year: stud.yearOfStudy,
+                    image: stud.image,
+                    phone: contact.phone,
+                    email: contact.email,
+                    linkedin: contact.linkedin,
+                    type: 'Student'
+                  })}
+                />
+              );
+            })}
+          </div>
+        </section>
+
+        {/* =========================================================================
+            SECTION 3: TECHNICAL SOCIETIES LEADERSHIP
+        ========================================================================= */}
+        <section id="societies-section" style={{
+          border: '1px solid #e2e8f0',
+          borderRadius: '20px',
+          padding: '36px',
+          backgroundColor: '#ffffff',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.04)'
+        }}>
+          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+            <SectionLabel text="Domain Chapters" />
+            <h2 className="font-serif" style={{ fontSize: '28px', color: 'var(--primary)', fontWeight: '800', marginTop: '8px' }}>
+              Societies Leadership & Office Bearers
+            </h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '14px', maxWidth: '650px', margin: '6px auto 0' }}>
+              Society Chairpersons and student coordinators driving specialized workshops across APS, CS, WIE, RAS, PES, and ComSoc.
+            </p>
+          </div>
+
+          <div className="execomm-students-grid" style={{ display: 'grid', gap: '24px' }}>
+            {societiesStudents.map((stud) => {
+              const contact = getContactInfo(stud.name, stud.phone, stud.email, stud.linkedin);
+              return (
+                <StudentCard 
+                  key={stud.id} 
+                  student={stud} 
+                  onClick={() => setSelectedMember({
+                    name: stud.name,
+                    position: stud.position,
+                    branch: stud.society || 'IEEE Society Chapter',
+                    department: stud.department,
+                    ieeeNumber: stud.ieeeNumber,
+                    year: stud.yearOfStudy,
+                    image: stud.image,
+                    phone: contact.phone,
+                    email: contact.email,
+                    linkedin: contact.linkedin,
+                    type: 'Student'
+                  })}
+                />
+              );
+            })}
+          </div>
+        </section>
+
+        {/* =========================================================================
+            SECTION 4: OPERATIONAL COMMUNITIES
+        ========================================================================= */}
+        <section id="operational-section" style={{
+          border: '1px solid #e2e8f0',
+          borderRadius: '20px',
+          padding: '36px',
+          backgroundColor: '#ffffff',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.04)'
+        }}>
+          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+            <SectionLabel text="Committees & Wings" />
+            <h2 className="font-serif" style={{ fontSize: '28px', color: 'var(--primary)', fontWeight: '800', marginTop: '8px' }}>
+              Operational Communities & Teams
+            </h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '14px', maxWidth: '650px', margin: '6px auto 0' }}>
+              Student leaders managing Web Development, Event Management, Media & Public Relations, and Creative Design.
+            </p>
+          </div>
+
+          <div className="execomm-students-grid" style={{ display: 'grid', gap: '24px' }}>
+            {operationalStudents.map((stud) => {
+              const contact = getContactInfo(stud.name, stud.phone, stud.email, stud.linkedin);
+              return (
+                <StudentCard 
+                  key={stud.id} 
+                  student={stud} 
+                  onClick={() => setSelectedMember({
+                    name: stud.name,
+                    position: stud.position,
+                    branch: stud.society || 'Operational Community',
+                    department: stud.department,
+                    ieeeNumber: stud.ieeeNumber,
+                    year: stud.yearOfStudy,
+                    image: stud.image,
+                    phone: contact.phone,
+                    email: contact.email,
+                    linkedin: contact.linkedin,
+                    type: 'Student'
+                  })}
+                />
+              );
+            })}
+          </div>
+        </section>
 
         {/* Modal Portal/Conditional rendering */}
         {selectedMember && (

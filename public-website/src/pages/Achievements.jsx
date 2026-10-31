@@ -215,6 +215,15 @@ const Achievements = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '40px', position: 'relative', zIndex: 2 }}>
             {achievements.map((ach, idx) => {
               const isLeft = idx % 2 === 0;
+              const MILESTONE_COLORS = [
+                { primary: '#4f46e5', light: 'rgba(79, 70, 229, 0.12)', border: '#c7d2fe', glow: 'rgba(79, 70, 229, 0.2)' },
+                { primary: '#059669', light: 'rgba(5, 150, 105, 0.12)', border: '#a7f3d0', glow: 'rgba(5, 150, 105, 0.2)' },
+                { primary: '#d97706', light: 'rgba(217, 119, 6, 0.12)', border: '#fde68a', glow: 'rgba(217, 119, 6, 0.2)' },
+                { primary: '#e11d48', light: 'rgba(225, 29, 72, 0.12)', border: '#fecdd3', glow: 'rgba(225, 29, 72, 0.2)' },
+                { primary: '#0284c7', light: 'rgba(2, 132, 199, 0.12)', border: '#bae6fd', glow: 'rgba(2, 132, 199, 0.2)' },
+                { primary: '#9333ea', light: 'rgba(147, 51, 234, 0.12)', border: '#e9d5ff', glow: 'rgba(147, 51, 234, 0.2)' }
+              ];
+              const itemColor = MILESTONE_COLORS[idx % MILESTONE_COLORS.length];
               return (
                 <div
                   key={ach.id}
@@ -242,8 +251,8 @@ const Achievements = () => {
                       height: '20px',
                       borderRadius: '50%',
                       backgroundColor: '#ffffff',
-                      border: '4px solid var(--secondary)',
-                      boxShadow: '0 0 0 4px rgba(6, 182, 212, 0.15)',
+                      border: `4px solid ${itemColor.primary}`,
+                      boxShadow: `0 0 0 4px ${itemColor.glow}`,
                       zIndex: 3,
                       transition: 'all 0.3s ease'
                     }}
@@ -266,9 +275,10 @@ const Achievements = () => {
                       style={{
                         backgroundColor: '#ffffff',
                         border: '1px solid var(--border-subtle)',
+                        borderTop: `4px solid ${itemColor.primary}`,
                         borderRadius: '16px',
                         padding: '24px',
-                        boxShadow: 'var(--shadow-sm)',
+                        boxShadow: `0 4px 18px ${itemColor.glow}`,
                         transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
                         position: 'relative',
                         display: 'flex',
@@ -296,28 +306,31 @@ const Achievements = () => {
                       />
 
                       <div style={{
-                        width: '40px',
-                        height: '40px',
-                        borderRadius: '50%',
-                        backgroundColor: 'rgba(var(--secondary-rgb), 0.08)',
+                        width: '42px',
+                        height: '42px',
+                        borderRadius: '12px',
+                        backgroundColor: itemColor.light,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: 'var(--secondary)',
+                        color: itemColor.primary,
                         flexShrink: 0
                       }}>
-                        {renderIcon(ach.iconType, 20, 'var(--secondary)')}
+                        {renderIcon(ach.iconType, 20, itemColor.primary)}
                       </div>
 
                       <div style={{ minWidth: 0, flex: 1 }}>
                         <span style={{
                           fontSize: '11px',
                           fontWeight: '800',
-                          color: 'var(--secondary)',
+                          color: itemColor.primary,
+                          backgroundColor: itemColor.light,
+                          padding: '3px 8px',
+                          borderRadius: '10px',
                           textTransform: 'uppercase',
-                          letterSpacing: '1px',
-                          display: 'block',
-                          marginBottom: '6px'
+                          letterSpacing: '0.8px',
+                          display: 'inline-block',
+                          marginBottom: '8px'
                         }}>
                           {ach.category}
                         </span>
@@ -349,7 +362,7 @@ const Achievements = () => {
                           alignItems: 'center',
                           gap: '4px',
                           fontSize: '12px',
-                          color: 'var(--primary)',
+                          color: itemColor.primary,
                           fontWeight: '700'
                         }}>
                           Read Details <ArrowRight size={12} />

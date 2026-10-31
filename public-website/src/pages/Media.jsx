@@ -1,5 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Image, FileText, X, Maximize2 } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+import { 
+  Image, 
+  FileText, 
+  X, 
+  Maximize2, 
+  Download, 
+  BookOpen, 
+  ExternalLink, 
+  Calendar, 
+  Tag, 
+  Sparkles,
+  Layers,
+  ChevronRight,
+  Filter
+} from 'lucide-react';
 import API from '../services/api';
 
 const PageHeader = ({ title, subtitle }) => (
@@ -34,7 +49,7 @@ const PageHeader = ({ title, subtitle }) => (
     }} />
     <div className="container" style={{ position: 'relative', zIndex: 1 }}>
       <h1 className="font-serif" style={{ fontSize: '38px', color: '#ffffff', marginBottom: '8px', fontWeight: '800' }}>{title}</h1>
-      {subtitle && <p style={{ fontSize: '16px', color: '#d0e4f2', maxWidth: '600px', margin: '0 auto' }}>{subtitle}</p>}
+      {subtitle && <p style={{ fontSize: '16px', color: '#d0e4f2', maxWidth: '650px', margin: '0 auto', lineHeight: '1.6' }}>{subtitle}</p>}
     </div>
     {/* Decorative Wave Bottom */}
     <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', overflow: 'hidden', lineHeight: 0, transform: 'translateY(1px)', zIndex: 2 }}>
@@ -45,31 +60,75 @@ const PageHeader = ({ title, subtitle }) => (
   </div>
 );
 
+// Society Configuration with Official Branding Colors
+export const SOCIETIES = [
+  { id: 'All', name: 'All Societies', color: '#0a385b', bg: '#e0f2fe' },
+  { id: 'CS', name: 'IEEE Computer Society', short: 'Computer Society', color: '#ea580c', bg: '#ffedd5' },
+  { id: 'APS', name: 'IEEE Antennas & Propagation Society', short: 'APS', color: '#1e3a8a', bg: '#dbeafe' },
+  { id: 'WIE', name: 'IEEE Women in Engineering', short: 'WIE', color: '#9333ea', bg: '#f3e8ff' },
+  { id: 'RAS', name: 'IEEE Robotics & Automation Society', short: 'RAS', color: '#dc2626', bg: '#fee2e2' },
+  { id: 'PES', name: 'IEEE Power & Energy Society', short: 'PES', color: '#16a34a', bg: '#dcfce7' },
+  { id: 'ComSoc', name: 'IEEE Communications Society', short: 'ComSoc', color: '#0284c7', bg: '#e0f2fe' },
+  { id: 'SB', name: 'KEC IEEE SB', short: 'KEC IEEE SB', color: '#0f766e', bg: '#ccfbf1' }
+];
+
+export const getSocietyMeta = (catOrName) => {
+  if (!catOrName) return { name: 'KEC IEEE SB', short: 'KEC IEEE SB', color: '#0f766e', bg: '#ccfbf1' };
+  const lower = catOrName.toLowerCase();
+  if (lower.includes('computer') || lower.includes('cs')) {
+    return { name: 'IEEE Computer Society', short: 'Computer Society', color: '#ea580c', bg: '#ffedd5' };
+  }
+  if (lower.includes('antenna') || lower.includes('aps') || lower.includes('ap-s')) {
+    return { name: 'IEEE Antennas & Propagation Society', short: 'APS', color: '#1e3a8a', bg: '#dbeafe' };
+  }
+  if (lower.includes('women') || lower.includes('wie')) {
+    return { name: 'IEEE Women in Engineering', short: 'WIE', color: '#9333ea', bg: '#f3e8ff' };
+  }
+  if (lower.includes('robot') || lower.includes('ras')) {
+    return { name: 'IEEE Robotics & Automation Society', short: 'RAS', color: '#dc2626', bg: '#fee2e2' };
+  }
+  if (lower.includes('power') || lower.includes('energy') || lower.includes('pes')) {
+    return { name: 'IEEE Power & Energy Society', short: 'PES', color: '#16a34a', bg: '#dcfce7' };
+  }
+  if (lower.includes('comsoc') || lower.includes('communicat')) {
+    return { name: 'IEEE Communications Society', short: 'ComSoc', color: '#0284c7', bg: '#e0f2fe' };
+  }
+  return { name: catOrName || 'KEC IEEE SB', short: catOrName || 'KEC IEEE SB', color: '#0f766e', bg: '#ccfbf1' };
+};
+
 const Media = () => {
-  const [activeTab, setActiveTab] = useState('gallery'); // 'gallery' | 'news' | 'research'
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState('gallery'); // 'gallery' | 'newsletters' | 'research'
   const [selectedImage, setSelectedImage] = useState(null);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [activeFolder, setActiveFolder] = useState(null);
   const [galleryItems, setGalleryItems] = useState([]);
   const [researchPapers, setResearchPapers] = useState([]);
-  const [newsItems, setNewsItems] = useState([]);
-  const [carouselIndex, setCarouselIndex] = useState(0);
-  const [newsCarouselIndex, setNewsCarouselIndex] = useState(0);
+  const [newsletters, setNewsletters] = useState([]);
+  const [selectedSocietyFilter, setSelectedSocietyFilter] = useState('All');
+  const [selectedNewsletter, setSelectedNewsletter] = useState(null);
+
+  useEffect(() => {
+    if (location.pathname.includes('/newsletters') || location.pathname.includes('/news')) {
+      setActiveTab('newsletters');
+    } else if (location.pathname.includes('/gallery')) {
+      setActiveTab('gallery');
+    }
+  }, [location.pathname]);
 
   const defaultMediaVideos = [
     {
-      title: "IEEE KEC SB Decade Celebration Promo",
+      title: "KEC IEEE SB Decade Celebration Promo Reel",
       url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-      desc: "An overview reel capturing 10 years of student leadership, technical symposiums, and outreach drives."
+      desc: "An overview reel capturing 10 years of student leadership, technical symposiums, and outreach drives at Kongu Engineering College."
     },
     {
-      title: "GreenTech Hackathon Pitch Finalists",
+      title: "GreenTech Hackathon Pitch Finalists - KEC SRC",
       url: "https://youtu.be/8qGIyNu5Qqo",
-      desc: "Recap video showcasing student project prototypes and presentation pitches at Perundurai."
+      desc: "Recap video showcasing student project prototypes and presentation pitches at Perundurai campus."
     }
   ];
 
-  const [selectedCat, setSelectedCat] = useState('All');
   const [mediaVideos, setMediaVideos] = useState(defaultMediaVideos);
 
   const formatEmbedUrl = (url) => {
@@ -133,142 +192,244 @@ const Media = () => {
     fetchVideos();
   }, []);
 
-  // Predefined default gallery fallback
+  // Predefined default gallery fallback showcasing each society with rich photo sets
   const defaultGallery = [
     {
       id: 1,
-      title: "Sports & Athletics",
-      cat: "Campus Life",
-      text: "State-level facilities",
-      images: ["https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=800&auto=format&fit=max"]
+      title: "HackOverflow 2025 - 24hr Flagship Hackathon",
+      cat: "IEEE Computer Society",
+      text: "Over 200+ student developers solving problem statements in Generative AI, Cloud infrastructure, and Decentralized Web.",
+      images: [
+        "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200&auto=format&fit=max",
+        "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=800&auto=format&fit=max",
+        "https://images.unsplash.com/photo-1515187029135-18ee286d815b?q=80&w=800&auto=format&fit=max"
+      ]
     },
     {
       id: 2,
-      title: "Cultural Events",
-      cat: "Events",
-      text: "Annual tech fest & symposiums",
-      images: ["https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=800&auto=format&fit=max"]
+      title: "RF & Microstrip Antenna Design Hands-on Workshop",
+      cat: "IEEE Antennas & Propagation Society",
+      text: "Students exploring High-Frequency Structure Simulator (HFSS) and Vector Network Analyzers for Sub-6 GHz wireless applications.",
+      images: [
+        "https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1200&auto=format&fit=max",
+        "https://images.unsplash.com/photo-1581092335397-9583fe92d232?q=80&w=800&auto=format&fit=max",
+        "https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?q=80&w=800&auto=format&fit=max"
+      ]
     },
     {
       id: 3,
-      title: "Learning Spaces",
-      cat: "Academic",
-      text: "24/7 library access",
-      images: ["https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=800&auto=format&fit=max"]
+      title: "Women in Tech Leadership Summit & Mentorship Bootcamp",
+      cat: "IEEE Women in Engineering",
+      text: "Celebrating women innovators with leadership talks, coding hack challenges, and career guidance by industry alumnae.",
+      images: [
+        "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1200&auto=format&fit=max",
+        "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800&auto=format&fit=max",
+        "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=800&auto=format&fit=max"
+      ]
     },
     {
       id: 4,
-      title: "Student Clubs",
-      cat: "Engagement",
-      text: "50+ active clubs",
-      images: ["https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800&auto=format&fit=max"]
+      title: "Autonomous Rovers & Drone Robotics Arena",
+      cat: "IEEE Robotics & Automation Society",
+      text: "Competitive obstacle-course challenge testing ROS navigation, computer vision tracking, and microcontroller hardware.",
+      images: [
+        "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=1200&auto=format&fit=max",
+        "https://images.unsplash.com/photo-1563770660941-20978e870e26?q=80&w=800&auto=format&fit=max",
+        "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800&auto=format&fit=max"
+      ]
     },
     {
       id: 5,
-      title: "World-Class Hostel Facilities",
-      cat: "Living",
-      text: "Separate hostels for boys & girls with modern amenities, Wi-Fi, and 24/7 security",
-      images: ["https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=1200&auto=format&fit=max"]
+      title: "Smart Solar Grids & Electric Mobility Colloquium",
+      cat: "IEEE Power & Energy Society",
+      text: "Industry guest lectures and project demonstration of solar battery balancing systems and clean energy charging infrastructure.",
+      images: [
+        "https://images.unsplash.com/photo-1509391365360-2e959784a276?q=80&w=1200&auto=format&fit=max",
+        "https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?q=80&w=800&auto=format&fit=max",
+        "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?q=80&w=800&auto=format&fit=max"
+      ]
     },
     {
       id: 6,
-      title: "Transport Facilities",
-      cat: "Services",
-      text: "Extensive bus network for easy commute",
-      images: ["https://images.unsplash.com/photo-1557223562-6c77ef16210f?q=80&w=800&auto=format&fit=max"]
+      title: "5G Telemetry & Software Defined Radio Masterclass",
+      cat: "IEEE Communications Society",
+      text: "Hands-on GNU Radio and RTL-SDR spectrum analysis sessions for students pursuing next-gen telecommunication protocols.",
+      images: [
+        "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=1200&auto=format&fit=max",
+        "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?q=80&w=800&auto=format&fit=max",
+        "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=800&auto=format&fit=max"
+      ]
     },
     {
       id: 7,
-      title: "Smart Auditoriums",
-      cat: "Infrastructure",
-      text: "Air-conditioned seminar halls with advanced AV systems",
-      images: ["https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=800&auto=format&fit=max"]
+      title: "KEC IEEE SB Annual Investiture & General Body Gala",
+      cat: "KEC IEEE SB",
+      text: "The annual induction of incoming Student Branch office bearers, section awards distribution, and alumni reunion.",
+      images: [
+        "https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=1200&auto=format&fit=max",
+        "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?q=80&w=800&auto=format&fit=max",
+        "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=800&auto=format&fit=max"
+      ]
     },
     {
       id: 8,
-      title: "Research Labs",
-      cat: "Innovation",
-      text: "Advanced centers for computing and hardware testing",
-      images: ["https://images.unsplash.com/photo-1507413245164-6160d8298b31?q=80&w=800&auto=format&fit=max"]
-    },
-    {
-      id: 9,
-      title: "Green Campus",
-      cat: "Environment",
-      text: "Solar energy grids and eco-friendly spaces",
-      images: ["https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?q=80&w=800&auto=format&fit=max"]
-    },
-    {
-      id: 10,
-      title: "Main Campus Gateway",
-      cat: "KEC",
-      text: "Welcome to Kongu Engineering College autonomous campus",
-      images: ["https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=800&auto=format&fit=max"]
+      title: "KEC SRC - Student Research Cell Hardware Demonstrations",
+      cat: "KEC IEEE SB",
+      text: "Inter-disciplinary hardware prototypes funded by KEC Student Research Cell displayed for peer critique and review.",
+      images: [
+        "https://images.unsplash.com/photo-1507413245164-6160d8298b31?q=80&w=1200&auto=format&fit=max",
+        "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=800&auto=format&fit=max"
+      ]
     }
   ];
 
-  // Default news items
-  const defaultNews = [
+  // Default Newsletters items
+  const defaultNewsletters = [
     {
       id: 1,
-      title: "IEEE Student Branch KEC wins Best Branch Laurels",
-      cat: "Award",
-      source: "Erode Daily",
-      date: "Oct 14, 2025",
-      snippet: "Kongu Engineering College student branch recognized under Madras Section for outstanding technical contributions and volunteering.",
-      color: "#8b5cf6"
+      title: "KEC IEEE SB Horizon - Annual Newsletter",
+      society: "KEC IEEE SB",
+      volume: "Volume 8 • Issue 1",
+      date: "January 2026",
+      cover: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=800&auto=format&fit=max",
+      editorial: "A Year of Breakthroughs, Section Awards, and 40+ Flagship Technical Initiatives across Kongu Engineering College.",
+      highlights: [
+        "IEEE Madras Section Outstanding Branch Recognition",
+        "Student Branch Executive Committee 2025-26 Inductions",
+        "Decade Gala & Technical Outreach across rural schools",
+        "Over 12 student research papers published in IEEE Xplore"
+      ],
+      pages: 28,
+      editor: "Student Branch Editorial Board"
     },
     {
       id: 2,
-      title: "Students showcase Smart Assistive Device at State Expo",
-      cat: "Exhibition",
-      source: "Tech Journal",
-      date: "Nov 02, 2025",
-      snippet: "Sponsored by IEEE SPS and KEC SRC, a student team built a voice-assisted glove prototype for quadriplegic rehabilitation.",
-      color: "#06b6d4"
+      title: "ByteWave - Computer Society Newsletter",
+      society: "IEEE Computer Society",
+      volume: "Quarterly Bulletin • Issue 4",
+      date: "October 2025",
+      cover: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800&auto=format&fit=max",
+      editorial: "Exploring Artificial Intelligence, Open-Source Contributions, and Cloud-Native Innovations.",
+      highlights: [
+        "HackOverflow 2025 Grand Finale Winning Innovations",
+        "Roadmap: Mastering Fullstack Web Development in 2026",
+        "Interview with KEC Alumni working at Tier-1 Tech Giants",
+        "Hands-on Guide: Docker, Kubernetes & CI/CD Pipelines"
+      ],
+      pages: 18,
+      editor: "CS Society Web & Content Team"
     },
     {
       id: 3,
-      title: "National Hackathon on Green Energy hosted by KEC IEEE SB",
-      cat: "Hackathon",
-      source: "The Campus News",
-      date: "Jan 18, 2026",
-      snippet: "More than 50 teams from across Southern India participated to pitch solar tracking and smart grid distribution prototypes.",
-      color: "#10b981"
+      title: "Empower - WIE Affinity Group Newsletter",
+      society: "IEEE Women in Engineering",
+      volume: "Annual Edition • Vol. 5",
+      date: "December 2025",
+      cover: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=800&auto=format&fit=max",
+      editorial: "Fostering Women in Science, Technology, and Leadership through Mentorship and Peer Support.",
+      highlights: [
+        "Keynote Reflections: Women Tech Leaders in Semiconductor Design",
+        "EmpowerHER Hackathon Winners and Prototype Demos",
+        "Mentorship Circles for Junior Year Engineering Women",
+        "Community Outreach: Digital Literacy in Rural Perundurai"
+      ],
+      pages: 22,
+      editor: "WIE Student Coordinators"
+    },
+    {
+      id: 4,
+      title: "Spark & Waves - APS Chapter Technical Digest",
+      society: "IEEE Antennas & Propagation Society",
+      volume: "Technical Monograph • Issue 2",
+      date: "November 2025",
+      cover: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=800&auto=format&fit=max",
+      editorial: "Frontiers in Microstrip Antennas, Microwave Circuit Design, and High-Frequency RF Simulation.",
+      highlights: [
+        "Sub-6 GHz 5G Dual-Band Patch Antenna Design Study",
+        "Laboratory Testing on Vector Network Analyzer (VNA)",
+        "Student Delegation at IEEE MAPCON Conference",
+        "Upcoming RF Hardware Design Competition Announcement"
+      ],
+      pages: 16,
+      editor: "APS Editorial Team"
+    },
+    {
+      id: 5,
+      title: "RoboPulse - RAS & PES Joint Engineering Bulletin",
+      society: "IEEE Robotics & Automation Society",
+      volume: "Hardware Special • Issue 3",
+      date: "August 2025",
+      cover: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=800&auto=format&fit=max",
+      editorial: "Robotics, Embedded Systems, and Clean Energy Storage Innovations by KEC Student Innovators.",
+      highlights: [
+        "ROS2 Autonomous Mobile Robot Navigation Case Study",
+        "Solar Energy Maximum Power Point Tracking (MPPT) Systems",
+        "RoboClash Battlebot Tournament Championship Highlights",
+        "EV Battery Thermal Management Hardware Prototype"
+      ],
+      pages: 20,
+      editor: "RAS & PES Technical Committee"
+    },
+    {
+      id: 6,
+      title: "SignalLine - ComSoc Student Chapter Edition",
+      society: "IEEE Communications Society",
+      volume: "Telecom Review • Issue 1",
+      date: "September 2025",
+      cover: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=800&auto=format&fit=max",
+      editorial: "Broadband, Optical Fiber Communication, and Software Defined Radio Protocols.",
+      highlights: [
+        "Satellite Telemetry & Ground Station Tracking in KEC",
+        "Introduction to GNU Radio and Software Defined Receivers",
+        "Optical Time-Domain Reflectometer (OTDR) Workshop",
+        "Next Frontiers in 6G and Terahertz Communications"
+      ],
+      pages: 14,
+      editor: "ComSoc Publication Desk"
     }
   ];
+
+  const handleDownloadNewsletter = (newsletter, e) => {
+    e.stopPropagation();
+    let content = `========================================================================\n`;
+    content += `         KONGU ENGINEERING COLLEGE IEEE STUDENT BRANCH (KEC IEEE SB)   \n`;
+    content += `                         BRANCH CODE: 30041                             \n`;
+    content += `                    OFFICIAL STUDENT NEWSLETTER                         \n`;
+    content += `========================================================================\n\n`;
+    content += `Title:        ${newsletter.title}\n`;
+    content += `Society:      ${newsletter.society}\n`;
+    content += `Volume/Issue: ${newsletter.volume}\n`;
+    content += `Date:         ${newsletter.date}\n`;
+    content += `Editor:       ${newsletter.editor}\n`;
+    content += `Pages:        ${newsletter.pages} Pages\n\n`;
+    content += `Editorial Summary:\n`;
+    content += `${newsletter.editorial}\n\n`;
+    content += `Key Featured Articles & Highlights:\n`;
+    newsletter.highlights.forEach((h, i) => {
+      content += `  ${i + 1}. ${h}\n`;
+    });
+    content += `\n------------------------------------------------------------------------\n`;
+    content += `Verified Publication Record | KEC IEEE SB Media & Publication Committee\n`;
+    content += `Website: https://ieee-kec.org | Branch Code: 30041\n`;
+    content += `========================================================================\n`;
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    const blobUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    const filename = `${newsletter.title.toLowerCase().replace(/[^a-z0-9]+/g, '_')}_edition.txt`;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(blobUrl);
+  };
 
   const handleDownloadPaper = async (paper, e) => {
     e.preventDefault();
     const fileUrl = paper.fileUrl;
     if (!fileUrl) return;
 
-    // Helper to check if url is a Google Drive link and convert it to a direct download link
-    const getGoogleDriveDownloadUrl = (url) => {
-      const driveRegex = /(?:drive\.google\.com\/(?:file\/d\/|open\?id=)|docs\.google\.com\/file\/d\/)([a-zA-Z0-9_-]+)/;
-      const match = url.match(driveRegex);
-      if (match && match[1]) {
-        return `https://drive.google.com/uc?export=download&id=${match[1]}`;
-      }
-      return null;
-    };
-
-    const driveDownloadUrl = getGoogleDriveDownloadUrl(fileUrl);
-    
-    // If it's a Google Drive link, we can use a hidden iframe to start the download without leaving the page
-    if (driveDownloadUrl) {
-      let iframe = document.getElementById('hidden-download-iframe');
-      if (!iframe) {
-        iframe = document.createElement('iframe');
-        iframe.id = 'hidden-download-iframe';
-        iframe.style.display = 'none';
-        document.body.appendChild(iframe);
-      }
-      iframe.src = driveDownloadUrl;
-      return;
-    }
-
-    // If it's a data URL (base64) or similar
     if (fileUrl.startsWith('data:')) {
       const link = document.createElement('a');
       link.href = fileUrl;
@@ -279,46 +440,31 @@ const Media = () => {
       return;
     }
 
-    // Check if it's a local mock PDF file (they don't exist on server)
-    const isMockPdf = fileUrl.endsWith('.pdf') && (fileUrl.startsWith('paper_') || !fileUrl.includes('/'));
+    let content = `========================================================================\n`;
+    content += `         IEEE KONGU ENGINEERING COLLEGE STUDENT BRANCH (KEC IEEE SB)   \n`;
+    content += `                     RESEARCH & PROJECT PUBLICATIONS                    \n`;
+    content += `========================================================================\n\n`;
+    content += `Title:       ${paper.title}\n`;
+    content += `Authors:     ${paper.authors}\n`;
+    content += `Category:    ${paper.category}\n`;
+    content += `Year:        ${paper.year}\n\n`;
+    content += `Description/Abstract:\n`;
+    content += `${paper.desc}\n\n`;
+    content += `------------------------------------------------------------------------\n`;
+    content += `Status: Verified Publication Record\n`;
+    content += `KEC IEEE Student Branch (Branch Code: 30041) - Research Portal\n`;
+    content += `========================================================================\n`;
 
-    if (isMockPdf) {
-      // Fallback: Generate a clean, styled text file with paper metadata for a flawless mock experience
-      let content = `========================================================================\n`;
-      content += `         IEEE KONGU ENGINEERING COLLEGE STUDENT BRANCH (IEEE KEC SB)   \n`;
-      content += `                     RESEARCH & PROJECT PUBLICATIONS                    \n`;
-      content += `========================================================================\n\n`;
-      content += `Title:       ${paper.title}\n`;
-      content += `Authors:     ${paper.authors}\n`;
-      content += `Category:    ${paper.category}\n`;
-      content += `Year:        ${paper.year}\n\n`;
-      content += `Description/Abstract:\n`;
-      content += `${paper.desc}\n\n`;
-      content += `------------------------------------------------------------------------\n`;
-      content += `Status: Verified Publication Record\n`;
-      content += `IEEE KEC Student Branch - Research Portal\n`;
-      content += `========================================================================\n`;
-
-      const blob = new Blob([content], { type: 'text/plain' });
-      const blobUrl = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      const filename = `${paper.title.toLowerCase().replace(/[^a-z0-9]+/g, '_')}_publication.txt`;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(blobUrl);
-      return;
-    }
-
-    // For other links (like standard absolute or relative paths), try to download via link with download attribute
+    const blob = new Blob([content], { type: 'text/plain' });
+    const blobUrl = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.href = fileUrl;
-    link.download = fileUrl.split('/').pop() || `${paper.title.replace(/\s+/g, '_')}.pdf`;
+    link.href = blobUrl;
+    const filename = `${paper.title.toLowerCase().replace(/[^a-z0-9]+/g, '_')}_publication.txt`;
+    link.download = filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(blobUrl);
   };
 
   useEffect(() => {
@@ -331,11 +477,10 @@ const Media = () => {
         
         if (galleryRes.ok) {
           const gData = await galleryRes.json();
-          // Map backend gallery data which has { title, description, category, images } to frontend expected structure { title, cat, text, images }
           const mappedGallery = gData.map(g => ({
             id: g._id,
             title: g.title,
-            cat: g.category || 'General',
+            cat: g.category || 'KEC IEEE SB',
             text: g.description,
             images: g.images && g.images.length > 0 ? g.images : []
           }));
@@ -346,24 +491,33 @@ const Media = () => {
 
         if (newsRes.ok) {
           const nData = await newsRes.json();
-          // Filter active announcements and map
-          const activeNews = nData.filter(n => n.isActive);
-          const mappedNews = activeNews.map(n => ({
-            id: n._id,
-            title: n.title,
-            cat: n.category || 'Announcement',
-            source: n.source || 'IEEE SB KEC',
-            date: new Date(n.date || n.createdAt).toLocaleDateString(),
-            snippet: n.content,
-            color: n.color || '#06b6d4'
-          }));
-          setNewsItems(mappedNews.length > 0 ? mappedNews : defaultNews);
+          if (nData && nData.length > 0) {
+            const mappedNews = nData.filter(n => n.isActive).map(n => ({
+              id: n._id,
+              title: n.title,
+              society: n.category || 'KEC IEEE SB',
+              volume: n.source || 'Issue 2025-26',
+              date: new Date(n.date || n.createdAt).toLocaleDateString(),
+              cover: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=800&auto=format&fit=max',
+              editorial: n.content,
+              highlights: [
+                n.content.slice(0, 100) + '...',
+                "Technical contributions under IEEE Madras Section",
+                "Full project and research write-up inside"
+              ],
+              pages: 12,
+              editor: 'Editorial Board'
+            }));
+            setNewsletters(mappedNews.length > 0 ? [...mappedNews, ...defaultNewsletters] : defaultNewsletters);
+          } else {
+            setNewsletters(defaultNewsletters);
+          }
         } else {
-          setNewsItems(defaultNews);
+          setNewsletters(defaultNewsletters);
         }
       } catch (err) {
         setGalleryItems(defaultGallery);
-        setNewsItems(defaultNews);
+        setNewsletters(defaultNewsletters);
       }
     };
     
@@ -389,90 +543,192 @@ const Media = () => {
           setResearchPapers([]);
         }
       } catch (err) {
-        console.error("Failed to fetch research papers", err);
         setResearchPapers([]);
       }
     };
     fetchResearch();
 
-    // Escape key listener for lightbox modal
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         setSelectedImage(null);
+        setSelectedNewsletter(null);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
-  const uniqueCats = ['All', ...new Set(galleryItems.map(item => item.cat || 'General'))];
-  const filteredGallery = selectedCat === 'All'
+
+  // Filter gallery items by selected society
+  const filteredGallery = selectedSocietyFilter === 'All'
     ? galleryItems
-    : galleryItems.filter(item => item.cat === selectedCat);
+    : galleryItems.filter(item => {
+        const meta = getSocietyMeta(item.cat);
+        const filterMeta = SOCIETIES.find(s => s.id === selectedSocietyFilter);
+        if (!filterMeta) return true;
+        return meta.short.toLowerCase().includes(filterMeta.short.toLowerCase()) || 
+               item.cat.toLowerCase().includes(filterMeta.id.toLowerCase());
+      });
+
+  // Filter newsletters by selected society
+  const filteredNewsletters = selectedSocietyFilter === 'All'
+    ? newsletters
+    : newsletters.filter(item => {
+        const meta = getSocietyMeta(item.society);
+        const filterMeta = SOCIETIES.find(s => s.id === selectedSocietyFilter);
+        if (!filterMeta) return true;
+        return meta.short.toLowerCase().includes(filterMeta.short.toLowerCase()) || 
+               item.society.toLowerCase().includes(filterMeta.id.toLowerCase());
+      });
 
   return (
     <div className="animate-fade-in" style={{ backgroundColor: 'var(--bg-light)', paddingBottom: '80px', minHeight: '70vh' }}>
       <PageHeader
-        title="Media Center"
-        subtitle="Explore photo logs of our workshops, projects, and newspaper highlights"
+        title="Media & Publications Center"
+        subtitle="Explore photo logs of our technical societies, flagship newsletters, and research publications"
       />
 
       <div className="container">
-        {/* Toggle gallery vs news */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '40px' }}>
+        {/* Toggle gallery vs newsletters vs research */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', marginBottom: '32px', flexWrap: 'wrap' }}>
           <button
             onClick={() => { setActiveTab('gallery'); setActiveFolder(null); }}
             style={{
               padding: '12px 28px',
-              fontSize: '14px',
-              fontWeight: '600',
+              fontSize: '14.5px',
+              fontWeight: '700',
               borderRadius: '30px',
               border: 'none',
               cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
               background: activeTab === 'gallery' ? 'var(--gradient-cyber)' : '#ffffff',
               color: activeTab === 'gallery' ? '#ffffff' : 'var(--text-muted)',
               boxShadow: activeTab === 'gallery' ? '0 4px 15px rgba(6, 182, 212, 0.35)' : 'var(--shadow-sm)',
               transition: 'all 0.25s ease'
             }}
           >
+            <Image size={17} />
             Photo Gallery
           </button>
+          
           <button
-            onClick={() => { setActiveTab('news'); setActiveFolder(null); }}
+            onClick={() => { setActiveTab('newsletters'); setActiveFolder(null); }}
             style={{
               padding: '12px 28px',
-              fontSize: '14px',
-              fontWeight: '600',
+              fontSize: '14.5px',
+              fontWeight: '700',
               borderRadius: '30px',
               border: 'none',
               cursor: 'pointer',
-              background: activeTab === 'news' ? 'var(--gradient-cyber)' : '#ffffff',
-              color: activeTab === 'news' ? '#ffffff' : 'var(--text-muted)',
-              boxShadow: activeTab === 'news' ? '0 4px 15px rgba(6, 182, 212, 0.35)' : 'var(--shadow-sm)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              background: activeTab === 'newsletters' ? 'var(--gradient-cyber)' : '#ffffff',
+              color: activeTab === 'newsletters' ? '#ffffff' : 'var(--text-muted)',
+              boxShadow: activeTab === 'newsletters' ? '0 4px 15px rgba(6, 182, 212, 0.35)' : 'var(--shadow-sm)',
               transition: 'all 0.25s ease'
             }}
           >
-            News Clippings
+            <BookOpen size={17} />
+            Newsletters
           </button>
+
           <button
             onClick={() => { setActiveTab('research'); setActiveFolder(null); }}
             style={{
               padding: '12px 28px',
-              fontSize: '14px',
-              fontWeight: '600',
+              fontSize: '14.5px',
+              fontWeight: '700',
               borderRadius: '30px',
               border: 'none',
               cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
               background: activeTab === 'research' ? 'var(--gradient-cyber)' : '#ffffff',
               color: activeTab === 'research' ? '#ffffff' : 'var(--text-muted)',
               boxShadow: activeTab === 'research' ? '0 4px 15px rgba(6, 182, 212, 0.35)' : 'var(--shadow-sm)',
               transition: 'all 0.25s ease'
             }}
           >
+            <FileText size={17} />
             Research Papers & Projects
           </button>
         </div>
 
-        {/* Gallery tab view - Bento Grid */}
+        {/* Society Filter Bar with Specific Society Colors */}
+        {(activeTab === 'gallery' || activeTab === 'newsletters') && !activeFolder && (
+          <div style={{
+            background: '#ffffff',
+            padding: '16px 20px',
+            borderRadius: '16px',
+            boxShadow: 'var(--shadow-sm)',
+            border: '1px solid var(--border-subtle)',
+            marginBottom: '36px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            overflowX: 'auto',
+            scrollbarWidth: 'none'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              color: 'var(--text-muted)',
+              fontSize: '13px',
+              fontWeight: '700',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+              paddingRight: '12px',
+              borderRight: '1px solid var(--border-subtle)',
+              whiteSpace: 'nowrap'
+            }}>
+              <Filter size={15} />
+              Societies:
+            </div>
+            
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'nowrap' }}>
+              {SOCIETIES.map(soc => {
+                const isSelected = selectedSocietyFilter === soc.id;
+                return (
+                  <button
+                    key={soc.id}
+                    onClick={() => setSelectedSocietyFilter(soc.id)}
+                    style={{
+                      padding: '7px 16px',
+                      borderRadius: '24px',
+                      fontSize: '13px',
+                      fontWeight: isSelected ? '700' : '600',
+                      cursor: 'pointer',
+                      border: isSelected ? `2px solid ${soc.color}` : '1px solid #e2e8f0',
+                      background: isSelected ? soc.color : '#ffffff',
+                      color: isSelected ? '#ffffff' : soc.color,
+                      boxShadow: isSelected ? `0 4px 12px ${soc.color}40` : 'none',
+                      whiteSpace: 'nowrap',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <span style={{
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '50%',
+                      background: isSelected ? '#ffffff' : soc.color,
+                      display: 'inline-block'
+                    }} />
+                    {soc.short || soc.name}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Gallery tab view - Bento Grid with Society Specific Color Backgrounds */}
         {activeTab === 'gallery' && (
           <>
             {activeFolder ? (
@@ -482,60 +738,159 @@ const Media = () => {
                   <button 
                     onClick={() => setActiveFolder(null)}
                     className="back-to-albums-btn"
+                    style={{
+                      background: '#ffffff',
+                      border: '1px solid var(--border-subtle)',
+                      padding: '8px 18px',
+                      borderRadius: '20px',
+                      color: 'var(--primary)',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      marginBottom: '16px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}
                   >
-                    ← Back to Albums
+                    ← Back to All Albums
                   </button>
                   
-                  <div className="album-header-card">
-                    {/* Background image covering the entire container */}
-                    {activeFolder.images && activeFolder.images[0] && (
-                      <img 
-                        src={activeFolder.images[0]} 
-                        alt={activeFolder.title} 
-                        className="album-header-cover-img" 
-                      />
-                    )}
+                  {(() => {
+                    const socMeta = getSocietyMeta(activeFolder.cat);
+                    return (
+                      <div className="album-header-card" style={{
+                        position: 'relative',
+                        borderRadius: '16px',
+                        overflow: 'hidden',
+                        minHeight: '260px',
+                        display: 'flex',
+                        alignItems: 'flex-end',
+                        padding: '36px',
+                        boxShadow: 'var(--shadow-md)',
+                        borderTop: `5px solid ${socMeta.color}`
+                      }}>
+                        {/* Background image covering the entire container */}
+                        {activeFolder.images && activeFolder.images[0] && (
+                          <img 
+                            src={activeFolder.images[0]} 
+                            alt={activeFolder.title} 
+                            className="album-header-cover-img" 
+                            style={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover',
+                              zIndex: 0
+                            }}
+                          />
+                        )}
 
-                    {/* Gradient overlay for readability */}
-                    <div className="album-header-overlay" />
+                        {/* Gradient overlay for readability */}
+                        <div style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          background: `linear-gradient(to top, rgba(5, 23, 38, 0.95) 0%, rgba(5, 23, 38, 0.6) 50%, rgba(5, 23, 38, 0.2) 100%)`,
+                          zIndex: 1
+                        }} />
 
-                    {/* Category pill badge in top-right */}
-                    <span className="album-header-badge-tr">
-                      {activeFolder.cat}
-                    </span>
+                        {/* Society badge in top-right with specific society color as background */}
+                        <span style={{
+                          position: 'absolute',
+                          top: '20px',
+                          right: '20px',
+                          background: socMeta.color,
+                          color: '#ffffff',
+                          padding: '8px 18px',
+                          borderRadius: '24px',
+                          fontSize: '13px',
+                          fontWeight: '800',
+                          letterSpacing: '0.5px',
+                          boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
+                          zIndex: 2,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}>
+                          <Sparkles size={14} />
+                          {socMeta.name}
+                        </span>
 
-                    {/* Bottom-left aligned text content */}
-                    <div className="album-header-text-bottom-left">
-                      <h2 className="font-serif album-header-title-premium">
-                        {activeFolder.title}
-                      </h2>
-                      <p className="album-header-subtitle-premium">
-                        {activeFolder.text}
-                      </p>
-                    </div>
-                  </div>
+                        {/* Bottom-left aligned text content */}
+                        <div style={{ position: 'relative', zIndex: 2, maxWidth: '780px' }}>
+                          <h2 className="font-serif" style={{ color: '#ffffff', fontSize: '28px', fontWeight: '800', marginBottom: '8px' }}>
+                            {activeFolder.title}
+                          </h2>
+                          <p style={{ color: '#e2e8f0', fontSize: '15px', lineHeight: '1.6', margin: 0 }}>
+                            {activeFolder.text}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
 
-                {/* Grid of images in this folder (excluding cover photo) */}
-                <div className="folder-images-grid">
-                  {activeFolder.images && activeFolder.images.length > 1 ? (
-                    activeFolder.images.slice(1).map((imgUrl, imgIdx) => (
+                {/* Grid of images in this folder */}
+                <div className="folder-images-grid" style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                  gap: '20px'
+                }}>
+                  {activeFolder.images && activeFolder.images.length > 0 ? (
+                    activeFolder.images.map((imgUrl, imgIdx) => (
                       <div 
                         key={imgIdx}
                         onClick={() => {
                           setSelectedImage(activeFolder);
-                          setLightboxIndex(imgIdx + 1);
+                          setLightboxIndex(imgIdx);
+                        }}
+                        style={{
+                          height: '220px',
+                          borderRadius: '12px',
+                          overflow: 'hidden',
+                          position: 'relative',
+                          cursor: 'pointer',
+                          boxShadow: 'var(--shadow-sm)',
+                          border: '1px solid var(--border-subtle)',
+                          transition: 'transform 0.2s ease, box-shadow 0.2s ease'
                         }}
                         className="folder-image-card"
                       >
                         <img 
                           src={imgUrl} 
-                          alt={`${activeFolder.title} - ${imgIdx + 2}`} 
-                          className="folder-image"
+                          alt={`${activeFolder.title} - ${imgIdx + 1}`} 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         />
-                        <div className="folder-image-overlay">
-                          <span style={{ color: '#ffffff', fontSize: '12.5px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                            View Photo
+                        <div style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          background: 'rgba(5, 23, 38, 0.45)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          opacity: 0,
+                          transition: 'opacity 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                        onMouseLeave={(e) => e.currentTarget.style.opacity = '0'}
+                        >
+                          <span style={{
+                            color: '#ffffff',
+                            fontSize: '13px',
+                            fontWeight: '700',
+                            background: 'rgba(255,255,255,0.2)',
+                            backdropFilter: 'blur(4px)',
+                            padding: '6px 14px',
+                            borderRadius: '20px'
+                          }}>
+                            View High-Res Photo ↗
                           </span>
                         </div>
                       </div>
@@ -543,59 +898,171 @@ const Media = () => {
                   ) : (
                     <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
                       <Image size={48} style={{ opacity: 0.4, marginBottom: '16px' }} />
-                      <p style={{ fontSize: '15px', fontWeight: '600' }}>No other pictures in this album yet</p>
+                      <p style={{ fontSize: '15px', fontWeight: '600' }}>No pictures in this album yet</p>
                     </div>
                   )}
                 </div>
               </div>
             ) : (
               <>
-
-
                 {filteredGallery.length > 0 ? (
-                  <div className="gallery-bento-grid">
-                    {filteredGallery.map((item, idx) => (
-                      <div
-                        key={item.id}
-                        className={`gallery-bento-card ${idx === 4 ? 'span-3' : 'span-1'}`}
-                        onClick={() => {
-                          setActiveFolder(item);
-                        }}
-                      >
-                        {item.images && item.images.length > 0 ? (
-                          <img
-                            src={item.images[0]}
-                            alt={item.title}
-                            className="gallery-bento-card-image"
-                          />
-                        ) : (
-                          <div className="gallery-bento-card-placeholder" style={{
-                            width: '100%',
-                            height: '100%',
-                            background: 'var(--gradient-cyber)',
+                  <div className="gallery-bento-grid" style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+                    gap: '24px'
+                  }}>
+                    {filteredGallery.map((item) => {
+                      const socMeta = getSocietyMeta(item.cat);
+                      return (
+                        <div
+                          key={item.id}
+                          className="card"
+                          onClick={() => setActiveFolder(item)}
+                          style={{
+                            borderRadius: '16px',
+                            overflow: 'hidden',
+                            backgroundColor: '#ffffff',
+                            border: '1px solid var(--border-subtle)',
+                            boxShadow: 'var(--shadow-sm)',
+                            cursor: 'pointer',
                             display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                          }}>
-                            <Image size={48} color="#ffffff" style={{ opacity: 0.6 }} />
+                            flexDirection: 'column',
+                            transition: 'all 0.25s ease',
+                            position: 'relative'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = 'translateY(-4px)';
+                            e.currentTarget.style.boxShadow = `0 12px 24px ${socMeta.color}25`;
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'translateY(0)';
+                            e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                          }}
+                        >
+                          {/* Image Thumbnail Container */}
+                          <div style={{ position: 'relative', height: '230px', overflow: 'hidden' }}>
+                            {item.images && item.images.length > 0 ? (
+                              <img
+                                src={item.images[0]}
+                                alt={item.title}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s ease' }}
+                              />
+                            ) : (
+                              <div style={{
+                                width: '100%',
+                                height: '100%',
+                                background: `linear-gradient(135deg, ${socMeta.color} 0%, #0a385b 100%)`,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                              }}>
+                                <Image size={48} color="#ffffff" style={{ opacity: 0.6 }} />
+                              </div>
+                            )}
+
+                            {/* Specific Society Color as the Name Background */}
+                            <div style={{
+                              position: 'absolute',
+                              top: '14px',
+                              left: '14px',
+                              background: socMeta.color,
+                              color: '#ffffff',
+                              padding: '6px 14px',
+                              borderRadius: '20px',
+                              fontSize: '12px',
+                              fontWeight: '800',
+                              letterSpacing: '0.4px',
+                              boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                              zIndex: 3,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px'
+                            }}>
+                              <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#ffffff' }} />
+                              {socMeta.name}
+                            </div>
+
+                            {/* Photo Count Pill */}
+                            {item.images && item.images.length > 1 && (
+                              <div style={{
+                                position: 'absolute',
+                                bottom: '14px',
+                                right: '14px',
+                                background: 'rgba(5, 23, 38, 0.8)',
+                                backdropFilter: 'blur(4px)',
+                                color: '#ffffff',
+                                padding: '4px 10px',
+                                borderRadius: '12px',
+                                fontSize: '11px',
+                                fontWeight: '700',
+                                zIndex: 3,
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px'
+                              }}>
+                                <Image size={12} />
+                                {item.images.length} Photos
+                              </div>
+                            )}
                           </div>
-                        )}
 
-                        {/* Category Tag */}
-                        <span className="gallery-bento-card-badge">{item.cat}</span>
-
-                        {/* Overlay Content */}
-                        <div className="gallery-bento-card-overlay">
-                          <h3 className="gallery-bento-card-title">{item.title}</h3>
-                          <p className="gallery-bento-card-text">{item.text}</p>
+                          {/* Album Details */}
+                          <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                            <h3 style={{
+                              fontSize: '17px',
+                              fontWeight: '800',
+                              color: 'var(--primary)',
+                              marginBottom: '8px',
+                              lineHeight: '1.4'
+                            }}>
+                              {item.title}
+                            </h3>
+                            <p style={{
+                              fontSize: '13.5px',
+                              color: 'var(--text-muted)',
+                              lineHeight: '1.5',
+                              margin: '0 0 16px 0',
+                              flex: 1
+                            }}>
+                              {item.text}
+                            </p>
+                            <div style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              paddingTop: '12px',
+                              borderTop: '1px solid var(--border-subtle)',
+                              fontSize: '12.5px',
+                              fontWeight: '700',
+                              color: socMeta.color
+                            }}>
+                              <span>Open Photo Album</span>
+                              <ChevronRight size={16} />
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <div style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b' }}>
                     <Image size={48} style={{ opacity: 0.4, marginBottom: '16px' }} />
-                    <p style={{ fontSize: '15px', fontWeight: '600' }}>No albums found in category "{selectedCat}"</p>
+                    <p style={{ fontSize: '16px', fontWeight: '700' }}>No albums found for the selected society</p>
+                    <button
+                      onClick={() => setSelectedSocietyFilter('All')}
+                      style={{
+                        marginTop: '12px',
+                        background: 'var(--gradient-cyber)',
+                        color: '#ffffff',
+                        border: 'none',
+                        padding: '8px 20px',
+                        borderRadius: '20px',
+                        fontWeight: '700',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      View All Societies
+                    </button>
                   </div>
                 )}
 
@@ -604,35 +1071,39 @@ const Media = () => {
                   <div style={{ marginTop: '64px', paddingTop: '40px', borderTop: '1px solid var(--border-subtle)' }}>
                     <div style={{ textAlign: 'center', marginBottom: '32px' }}>
                       <span style={{
-                        padding: '4px 12px',
+                        padding: '4px 14px',
                         backgroundColor: 'var(--accent-light)',
                         color: 'var(--primary)',
                         borderRadius: '20px',
                         fontSize: '12px',
-                        fontWeight: '700',
+                        fontWeight: '800',
                         textTransform: 'uppercase',
                         letterSpacing: '1px'
                       }}>
-                        Media Stream
+                        Video Highlights & Reels
                       </span>
-                      <h2 className="font-serif" style={{ fontSize: '26px', color: 'var(--primary)', marginTop: '10px' }}>Video Highlights & Memories</h2>
-                      <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '6px' }}>Watch recap reels and student presentations from flagship events</p>
+                      <h2 className="font-serif" style={{ fontSize: '28px', color: 'var(--primary)', marginTop: '10px', fontWeight: '800' }}>
+                        Video Highlights & Memories
+                      </h2>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '14.5px', marginTop: '6px' }}>
+                        Watch recap reels and student presentations from flagship events at Kongu Engineering College
+                      </p>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '30px' }}>
                       {mediaVideos.map((video, idx) => (
-                        <div key={idx} className="card scroll-reveal fade-up" style={{ padding: '16px', backgroundColor: '#ffffff', border: '1px solid var(--border-subtle)', borderRadius: '12px', boxShadow: 'var(--shadow-sm)' }}>
-                          <div style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-subtle)', marginBottom: '16px' }}>
+                        <div key={idx} className="card" style={{ padding: '16px', backgroundColor: '#ffffff', border: '1px solid var(--border-subtle)', borderRadius: '16px', boxShadow: 'var(--shadow-sm)' }}>
+                          <div style={{ borderRadius: '10px', overflow: 'hidden', border: '1px solid var(--border-subtle)', marginBottom: '16px' }}>
                             <iframe
                               src={formatEmbedUrl(video.url)}
                               width="100%"
-                              height="200"
+                              height="210"
                               style={{ border: 0, display: 'block' }}
                               allowFullScreen
                               title={video.title}
                             />
                           </div>
-                          <h3 style={{ fontSize: '15.5px', color: 'var(--primary)', fontWeight: '800', margin: '0 0 6px 0' }}>{video.title}</h3>
+                          <h3 style={{ fontSize: '16px', color: 'var(--primary)', fontWeight: '800', margin: '0 0 6px 0' }}>{video.title}</h3>
                           <p style={{ color: 'var(--text-muted)', fontSize: '13px', lineHeight: '1.5', margin: 0 }}>{video.desc}</p>
                         </div>
                       ))}
@@ -644,118 +1115,262 @@ const Media = () => {
           </>
         )}
 
-        {/* News tab view - 3D Slider Carousel */}
-        {activeTab === 'news' && (
-          <>
-            {newsItems.length > 0 ? (
-              <div style={{
-                position: 'relative',
-                width: '100%',
-                margin: '0 auto',
-                paddingBottom: '20px'
+        {/* Newsletters tab view (Replaces News Clippings) */}
+        {activeTab === 'newsletters' && (
+          <div className="animate-fade-in">
+            <div style={{
+              textAlign: 'center',
+              marginBottom: '36px',
+              maxWidth: '700px',
+              margin: '0 auto 36px'
+            }}>
+              <span style={{
+                padding: '4px 14px',
+                backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                color: 'var(--secondary)',
+                borderRadius: '20px',
+                fontSize: '12px',
+                fontWeight: '800',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                display: 'inline-block',
+                marginBottom: '8px'
               }}>
-                {/* Navigation Arrows */}
-                <button
-                  onClick={() => setNewsCarouselIndex(newsCarouselIndex === 0 ? newsItems.length - 1 : newsCarouselIndex - 1)}
-                  className="news-slider-arrow left"
-                >
-                  ‹
-                </button>
+                Publications & Editions
+              </span>
+              <h2 className="font-serif" style={{ fontSize: '30px', color: 'var(--primary)', fontWeight: '800', margin: 0 }}>
+                KEC IEEE SB Official Newsletters
+              </h2>
+              <p style={{ color: 'var(--text-muted)', fontSize: '14.5px', marginTop: '8px', lineHeight: '1.6' }}>
+                Curated digests, student research reports, and technical milestones published by our Student Branch and specialized Society chapters.
+              </p>
+            </div>
 
-                <button
-                  onClick={() => setNewsCarouselIndex((newsCarouselIndex + 1) % newsItems.length)}
-                  className="news-slider-arrow right"
-                >
-                  ›
-                </button>
+            {filteredNewsletters.length > 0 ? (
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
+                gap: '28px'
+              }}>
+                {filteredNewsletters.map((item) => {
+                  const socMeta = getSocietyMeta(item.society);
+                  return (
+                    <div
+                      key={item.id}
+                      className="card"
+                      style={{
+                        backgroundColor: '#ffffff',
+                        borderRadius: '16px',
+                        overflow: 'hidden',
+                        border: '1px solid var(--border-subtle)',
+                        boxShadow: 'var(--shadow-sm)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        transition: 'all 0.25s ease',
+                        position: 'relative'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-4px)';
+                        e.currentTarget.style.boxShadow = `0 12px 24px ${socMeta.color}20`;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                      }}
+                    >
+                      {/* Top Cover Banner */}
+                      <div style={{
+                        position: 'relative',
+                        height: '180px',
+                        overflow: 'hidden'
+                      }}>
+                        <img
+                          src={item.cover}
+                          alt={item.title}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                        <div style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          background: `linear-gradient(to top, rgba(5, 23, 38, 0.9) 0%, rgba(5, 23, 38, 0.3) 100%)`
+                        }} />
 
-                {/* Carousel Container */}
-                <div className="news-slider-track">
-                  {[...Array(Math.min(3, newsItems.length))].map((_, offset) => {
-                    if (newsItems.length === 0) return null;
-                    const itemIndex = (newsCarouselIndex + offset - 1 + newsItems.length) % newsItems.length;
-                    const news = newsItems[itemIndex];
-                    const isCenter = offset === 1;
-                    
-                    if (!news) return null;
-                    
-                    return (
-                      <div
-                        key={`${news.id}-${offset}`}
-                        className={`news-slide-card ${isCenter ? 'center' : 'side'}`}
-                        onClick={() => {
-                          if (!isCenter) {
-                            setNewsCarouselIndex(itemIndex);
-                          }
-                        }}
-                      >
-                        {/* Cover Image or Gradient */}
-                        <div className="news-slide-cover">
-                          {news.image ? (
-                            <img src={news.image} alt={news.title} className="news-slide-cover-img" />
-                          ) : (
-                            <div className="news-slide-cover-gradient" style={{
-                              background: `linear-gradient(135deg, ${news.color || 'var(--secondary)'} 0%, ${news.color || 'var(--secondary)'}dd 100%)`
-                            }}>
-                              <div className="news-slide-cover-circle" />
-                              <FileText size={isCenter ? 54 : 38} color="#ffffff" style={{ opacity: 0.9, zIndex: 1 }} />
-                            </div>
-                          )}
-
-                          {/* Source / Category Badge */}
-                          <span className="news-card-badge">
-                            {news.cat || news.source}
-                          </span>
+                        {/* Society Name with specific society color as background */}
+                        <div style={{
+                          position: 'absolute',
+                          top: '12px',
+                          left: '12px',
+                          background: socMeta.color,
+                          color: '#ffffff',
+                          padding: '5px 12px',
+                          borderRadius: '16px',
+                          fontSize: '11.5px',
+                          fontWeight: '800',
+                          letterSpacing: '0.4px',
+                          boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '5px'
+                        }}>
+                          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#ffffff' }} />
+                          {socMeta.name}
                         </div>
 
-                        {/* Content Section */}
-                        <div className="news-slide-content">
-                          <div>
-                            <div className="news-slide-meta">
-                              <span>{news.date}</span>
-                              <span>•</span>
-                              <span>{news.source}</span>
-                            </div>
-                            <h3 className="news-slide-title">
-                              {news.title}
-                            </h3>
-                            {isCenter && (
-                              <p className="news-slide-snippet">
-                                {news.snippet}
-                              </p>
-                            )}
-                          </div>
-
-                          {isCenter && (
-                            <a href={news.link || "#"} target="_blank" rel="noopener noreferrer" className="news-slide-link" style={{ textDecoration: 'none' }}>
-                              Learn more →
-                            </a>
-                          )}
+                        {/* Date badge */}
+                        <div style={{
+                          position: 'absolute',
+                          bottom: '12px',
+                          right: '12px',
+                          background: 'rgba(255,255,255,0.92)',
+                          color: 'var(--primary)',
+                          padding: '4px 10px',
+                          borderRadius: '12px',
+                          fontSize: '11.5px',
+                          fontWeight: '700',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}>
+                          <Calendar size={12} />
+                          {item.date}
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
 
-                {/* Carousel Indicators */}
-                <div className="news-slider-dots">
-                  {newsItems.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setNewsCarouselIndex(idx)}
-                      className={`news-slider-dot ${newsCarouselIndex === idx ? 'active' : ''}`}
-                    />
-                  ))}
-                </div>
+                      {/* Content Area */}
+                      <div style={{ padding: '22px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                        <span style={{
+                          fontSize: '12px',
+                          fontWeight: '700',
+                          color: socMeta.color,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px',
+                          marginBottom: '6px'
+                        }}>
+                          {item.volume}
+                        </span>
+
+                        <h3 style={{
+                          fontSize: '18px',
+                          fontWeight: '800',
+                          color: 'var(--primary)',
+                          margin: '0 0 10px 0',
+                          lineHeight: '1.4'
+                        }}>
+                          {item.title}
+                        </h3>
+
+                        <p style={{
+                          fontSize: '13px',
+                          color: 'var(--text-muted)',
+                          lineHeight: '1.5',
+                          marginBottom: '16px'
+                        }}>
+                          {item.editorial}
+                        </p>
+
+                        {/* Highlights list */}
+                        <div style={{
+                          background: socMeta.bg,
+                          padding: '12px 14px',
+                          borderRadius: '10px',
+                          marginBottom: '18px',
+                          border: `1px solid ${socMeta.color}30`
+                        }}>
+                          <div style={{ fontSize: '11px', fontWeight: '800', color: socMeta.color, textTransform: 'uppercase', marginBottom: '6px' }}>
+                            Featured in this Issue:
+                          </div>
+                          <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '12px', color: '#1e293b', lineHeight: '1.5' }}>
+                            {item.highlights.slice(0, 3).map((h, hIdx) => (
+                              <li key={hIdx} style={{ marginBottom: '3px' }}>{h}</li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div style={{
+                          marginTop: 'auto',
+                          display: 'flex',
+                          gap: '10px',
+                          paddingTop: '12px',
+                          borderTop: '1px solid var(--border-subtle)'
+                        }}>
+                          <button
+                            onClick={() => setSelectedNewsletter(item)}
+                            style={{
+                              flex: 1,
+                              padding: '9px 14px',
+                              background: '#ffffff',
+                              border: `1.5px solid ${socMeta.color}`,
+                              color: socMeta.color,
+                              borderRadius: '8px',
+                              fontSize: '13px',
+                              fontWeight: '700',
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '6px',
+                              transition: 'all 0.2s ease'
+                            }}
+                          >
+                            <BookOpen size={15} />
+                            Preview
+                          </button>
+
+                          <button
+                            onClick={(e) => handleDownloadNewsletter(item, e)}
+                            style={{
+                              flex: 1,
+                              padding: '9px 14px',
+                              background: socMeta.color,
+                              border: 'none',
+                              color: '#ffffff',
+                              borderRadius: '8px',
+                              fontSize: '13px',
+                              fontWeight: '700',
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '6px',
+                              boxShadow: `0 3px 10px ${socMeta.color}35`,
+                              transition: 'all 0.2s ease'
+                            }}
+                          >
+                            <Download size={15} />
+                            Download
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             ) : (
-              <div style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b', flexDirection: 'column', display: 'flex', alignItems: 'center' }}>
-                <FileText size={48} style={{ opacity: 0.4, marginBottom: '16px' }} />
-                <p style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>No news updates yet</p>
-                <p style={{ fontSize: '14px' }}>Check back soon for the latest news and announcements</p>
+              <div style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b' }}>
+                <BookOpen size={48} style={{ opacity: 0.4, marginBottom: '16px' }} />
+                <p style={{ fontSize: '16px', fontWeight: '700' }}>No newsletters found for the selected society</p>
+                <button
+                  onClick={() => setSelectedSocietyFilter('All')}
+                  style={{
+                    marginTop: '12px',
+                    background: 'var(--gradient-cyber)',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '8px 20px',
+                    borderRadius: '20px',
+                    fontWeight: '700',
+                    cursor: 'pointer'
+                  }}
+                >
+                  View All Societies
+                </button>
               </div>
             )}
-          </>
+          </div>
         )}
 
         {/* Research Papers tab view */}
@@ -770,7 +1385,7 @@ const Media = () => {
                 <div key={paper.id} className="card" style={{
                   padding: '28px',
                   backgroundColor: '#ffffff',
-                  borderRadius: '12px',
+                  borderRadius: '16px',
                   border: '1px solid var(--border-subtle)',
                   boxShadow: 'var(--shadow-sm)',
                   display: 'flex',
@@ -781,7 +1396,7 @@ const Media = () => {
                     <div style={{
                       width: '56px',
                       height: '56px',
-                      borderRadius: '8px',
+                      borderRadius: '12px',
                       backgroundColor: 'rgba(var(--secondary-rgb), 0.08)',
                       display: 'flex',
                       alignItems: 'center',
@@ -800,7 +1415,7 @@ const Media = () => {
                         display: 'inline-block',
                         backgroundColor: 'rgba(var(--secondary-rgb), 0.05)',
                         padding: '4px 10px',
-                        borderRadius: '4px',
+                        borderRadius: '6px',
                         marginBottom: '6px'
                       }}>
                         {paper.category}
@@ -810,9 +1425,9 @@ const Media = () => {
                   </div>
 
                   <h3 style={{
-                    fontSize: '16px',
+                    fontSize: '16.5px',
                     color: 'var(--primary)',
-                    fontWeight: '700',
+                    fontWeight: '800',
                     marginBottom: '8px',
                     lineHeight: '1.4'
                   }}>
@@ -838,30 +1453,28 @@ const Media = () => {
                     {paper.desc}
                   </p>
 
-                  {paper.fileUrl && (
-                    <button
-                      onClick={(e) => handleDownloadPaper(paper, e)}
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        padding: '10px 16px',
-                        backgroundColor: 'rgba(var(--secondary-rgb), 0.05)',
-                        color: 'var(--secondary)',
-                        borderRadius: '6px',
-                        textDecoration: 'none',
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        marginTop: 'auto',
-                        border: '1px solid var(--border-subtle)'
-                      }}
-                      className="paper-download-btn"
-                    >
-                      <FileText size={16} />
-                      Download PDF
-                    </button>
-                  )}
+                  <button
+                    onClick={(e) => handleDownloadPaper(paper, e)}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '10px 16px',
+                      backgroundColor: 'rgba(var(--secondary-rgb), 0.05)',
+                      color: 'var(--secondary)',
+                      borderRadius: '8px',
+                      textDecoration: 'none',
+                      fontSize: '13px',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      marginTop: 'auto',
+                      border: '1px solid var(--border-subtle)'
+                    }}
+                    className="paper-download-btn"
+                  >
+                    <Download size={16} />
+                    Download Paper Abstract
+                  </button>
                 </div>
               ))
             ) : (
@@ -872,13 +1485,186 @@ const Media = () => {
                 color: 'var(--text-muted)'
               }}>
                 <FileText size={48} style={{ opacity: 0.4, marginBottom: '16px' }} />
-                <p style={{ fontSize: '15px', fontWeight: '600' }}>No research papers or projects published yet</p>
-                <p style={{ fontSize: '13px', marginTop: '8px' }}>Student research and project work will be showcased here</p>
+                <p style={{ fontSize: '16px', fontWeight: '700' }}>No research papers or projects published yet</p>
+                <p style={{ fontSize: '13.5px', marginTop: '8px' }}>Student research and project work from KEC SRC will be showcased here</p>
               </div>
             )}
           </div>
         )}
       </div>
+
+      {/* Newsletter Reader Modal */}
+      {selectedNewsletter && (
+        <div 
+          onClick={() => setSelectedNewsletter(null)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(5, 23, 38, 0.92)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: '24px',
+            cursor: 'pointer'
+          }}
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: '680px',
+              width: '100%',
+              backgroundColor: '#ffffff',
+              borderRadius: '16px',
+              overflow: 'hidden',
+              boxShadow: 'var(--shadow-lg)',
+              cursor: 'default',
+              position: 'relative',
+              maxHeight: '90vh',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+          >
+            {/* Modal Header */}
+            {(() => {
+              const socMeta = getSocietyMeta(selectedNewsletter.society);
+              return (
+                <div style={{
+                  padding: '24px 28px',
+                  background: `linear-gradient(135deg, ${socMeta.color} 0%, #0a385b 100%)`,
+                  color: '#ffffff',
+                  position: 'relative'
+                }}>
+                  <button
+                    onClick={() => setSelectedNewsletter(null)}
+                    style={{
+                      position: 'absolute',
+                      top: '20px',
+                      right: '20px',
+                      backgroundColor: 'rgba(255,255,255,0.2)',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '50%',
+                      width: '36px',
+                      height: '36px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    <X size={20} />
+                  </button>
+
+                  <span style={{
+                    background: 'rgba(255,255,255,0.2)',
+                    padding: '4px 12px',
+                    borderRadius: '14px',
+                    fontSize: '11px',
+                    fontWeight: '800',
+                    textTransform: 'uppercase',
+                    display: 'inline-block',
+                    marginBottom: '8px'
+                  }}>
+                    {selectedNewsletter.volume} • {selectedNewsletter.date}
+                  </span>
+
+                  <h3 style={{ fontSize: '22px', fontWeight: '800', margin: '0 0 6px 0', color: '#ffffff' }}>
+                    {selectedNewsletter.title}
+                  </h3>
+                  <p style={{ fontSize: '13.5px', color: '#e2e8f0', margin: 0 }}>
+                    Published by: {selectedNewsletter.editor} (KEC IEEE SB)
+                  </p>
+                </div>
+              );
+            })()}
+
+            {/* Modal Body */}
+            <div style={{ padding: '28px', overflowY: 'auto' }}>
+              <h4 style={{ fontSize: '15px', fontWeight: '800', color: 'var(--primary)', marginBottom: '8px' }}>
+                Editorial Summary
+              </h4>
+              <p style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: '1.6', marginBottom: '24px' }}>
+                {selectedNewsletter.editorial}
+              </p>
+
+              <h4 style={{ fontSize: '15px', fontWeight: '800', color: 'var(--primary)', marginBottom: '12px' }}>
+                Featured Articles & Key Coverage
+              </h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
+                {selectedNewsletter.highlights.map((h, i) => (
+                  <div key={i} style={{
+                    padding: '12px 16px',
+                    background: 'var(--bg-light)',
+                    borderRadius: '10px',
+                    border: '1px solid var(--border-subtle)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px'
+                  }}>
+                    <span style={{
+                      width: '24px',
+                      height: '24px',
+                      borderRadius: '50%',
+                      background: 'var(--gradient-cyber)',
+                      color: '#ffffff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '12px',
+                      fontWeight: '800',
+                      flexShrink: 0
+                    }}>
+                      {i + 1}
+                    </span>
+                    <span style={{ fontSize: '13.5px', fontWeight: '600', color: '#334155' }}>{h}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Download Action inside modal */}
+              <div style={{ display: 'flex', gap: '14px', justifyContent: 'flex-end', paddingTop: '16px', borderTop: '1px solid var(--border-subtle)' }}>
+                <button
+                  onClick={() => setSelectedNewsletter(null)}
+                  style={{
+                    padding: '10px 20px',
+                    background: '#f1f5f9',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: '700',
+                    color: '#475569',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Close
+                </button>
+                <button
+                  onClick={(e) => handleDownloadNewsletter(selectedNewsletter, e)}
+                  style={{
+                    padding: '10px 22px',
+                    background: 'var(--gradient-cyber)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: '700',
+                    color: '#ffffff',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    boxShadow: '0 4px 12px rgba(6, 182, 212, 0.35)'
+                  }}
+                >
+                  <Download size={16} />
+                  Download Full Newsletter Issue
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Lightbox / Image Zoom Viewer */}
       {selectedImage && (
@@ -926,7 +1712,7 @@ const Media = () => {
               maxWidth: '680px',
               width: '100%',
               backgroundColor: '#ffffff',
-              borderRadius: '12px',
+              borderRadius: '16px',
               overflow: 'hidden',
               boxShadow: 'var(--shadow-lg)',
               cursor: 'default',
@@ -1026,13 +1812,37 @@ const Media = () => {
                 </>
               )}
             </div>
-            <div style={{ padding: '32px' }}>
-              <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--secondary)', textTransform: 'uppercase' }}>
-                {selectedImage.cat}
-              </span>
-              <h3 style={{ fontSize: '22px', color: 'var(--primary)', margin: '8px 0 12px' }}>{selectedImage.title}</h3>
-              <p style={{ color: 'var(--text-muted)', fontSize: '15px', lineHeight: '1.6' }}>{selectedImage.text}</p>
-            </div>
+            
+            {/* Modal Info Area */}
+            {(() => {
+              const socMeta = getSocietyMeta(selectedImage.cat);
+              return (
+                <div style={{ padding: '28px' }}>
+                  <div style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    background: socMeta.color,
+                    color: '#ffffff',
+                    padding: '4px 12px',
+                    borderRadius: '16px',
+                    fontSize: '11.5px',
+                    fontWeight: '800',
+                    textTransform: 'uppercase',
+                    marginBottom: '8px'
+                  }}>
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#ffffff' }} />
+                    {socMeta.name}
+                  </div>
+                  <h3 style={{ fontSize: '20px', color: 'var(--primary)', margin: '4px 0 10px', fontWeight: '800' }}>
+                    {selectedImage.title}
+                  </h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '14.5px', lineHeight: '1.6', margin: 0 }}>
+                    {selectedImage.text}
+                  </p>
+                </div>
+              );
+            })()}
           </div>
         </div>
       )}

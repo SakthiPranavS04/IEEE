@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import API from '../services/api';
-import { Award, BookOpen, Calendar, Users, ArrowRight, ShieldCheck, Flame, Zap, ChevronLeft, ChevronRight, Quote, MessageSquare, Globe } from 'lucide-react';
+import { Award, BookOpen, Calendar, Users, ArrowRight, ShieldCheck, Flame, Zap, ChevronLeft, ChevronRight, Quote, MessageSquare, Globe, Target, Compass, Landmark, Cpu, Heart, CheckCircle2, Sparkles, Shield } from 'lucide-react';
 import { societiesData } from '../data/societiesData';
 
 const hexToRgb = (hex) => {
@@ -494,11 +494,11 @@ const Home = () => {
           {/* Two centered pill-styled buttons */}
           <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '16px' }}>
             <RouterLink
-              to="/contact"
+              to="/request/membership"
               style={{
-                backgroundColor: 'rgba(var(--secondary-rgb), 0.25)',
+                backgroundColor: 'rgba(var(--secondary-rgb), 0.3)',
                 backdropFilter: 'blur(12px)',
-                border: '1.5px solid rgba(255, 255, 255, 0.3)',
+                border: '1.5px solid rgba(255, 255, 255, 0.4)',
                 color: '#ffffff',
                 fontWeight: '700',
                 padding: '14px 36px',
@@ -506,18 +506,16 @@ const Home = () => {
                 fontSize: '15px',
                 textDecoration: 'none',
                 transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)'
+                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.25)'
               }}
               className="hero-btn-hover"
             >
-              Join IEEE - KEC SB
+              Join KEC IEEE SB
             </RouterLink>
             <a
-              href="https://www.ieee.org/membership/join/index.html"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="#societies-section"
               style={{
-                backgroundColor: 'rgba(var(--secondary-rgb), 0.25)',
+                backgroundColor: 'rgba(255, 255, 255, 0.15)',
                 backdropFilter: 'blur(12px)',
                 border: '1.5px solid rgba(255, 255, 255, 0.3)',
                 color: '#ffffff',
@@ -531,7 +529,7 @@ const Home = () => {
               }}
               className="hero-btn-hover"
             >
-              How to Join IEEE?
+              Explore Societies ↓
             </a>
           </div>
 
@@ -577,80 +575,322 @@ const Home = () => {
         `}</style>
       </section>
 
-      {/* About IEEE KEC Student Branch Section */}
+      {/* =========================================================================
+          ABOUT IEEE GLOBAL SECTION
+      ========================================================================= */}
       <section className="section-padding scroll-reveal" style={{ backgroundColor: '#ffffff', borderBottom: '1px solid var(--border-subtle)' }}>
         <div className="container">
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: '40px',
-            alignItems: 'center'
-          }}>
-            {/* Left Column: Text */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <h2 style={{ fontSize: '32px', color: 'var(--primary)', fontWeight: '800', borderLeft: '4px solid var(--secondary)', paddingLeft: '12px' }}>
-                About IEEE KEC Student Branch
-              </h2>
-              <p style={{ fontSize: '15px', lineHeight: '1.7', color: 'var(--text-muted)' }}>
-                IEEE Student Branch at Kongu Engineering College is a vibrant community of innovators, researchers, developers, and technology enthusiasts committed to advancing technical knowledge and professional growth. Through workshops, seminars, hackathons, competitions, industry interactions, and research initiatives, the branch empowers students to develop technical expertise, leadership skills, and global perspectives.
+          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+            <span style={{
+              padding: '6px 16px',
+              backgroundColor: 'rgba(var(--secondary-rgb), 0.08)',
+              color: 'var(--secondary)',
+              border: '1px solid rgba(var(--secondary-rgb), 0.2)',
+              borderRadius: '20px',
+              fontSize: '12px',
+              fontWeight: '700',
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              display: 'inline-block',
+              marginBottom: '10px'
+            }}>
+              Global Organization
+            </span>
+            <h2 className="font-serif" style={{ fontSize: '32px', color: 'var(--primary)', fontWeight: '800', marginBottom: '8px' }}>
+              About IEEE (Global)
+            </h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '15px', maxWidth: '650px', margin: '0 auto' }}>
+              Institute of Electrical and Electronics Engineers — Advancing Technology for Humanity across 160+ Countries.
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px', alignItems: 'stretch' }}>
+            {/* Overview Card */}
+            <div className="card" style={{ padding: '36px', borderTop: '4px solid var(--secondary)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <h3 style={{ fontSize: '22px', marginBottom: '16px', color: 'var(--primary)', fontWeight: '800' }}>
+                What is IEEE?
+              </h3>
+              <p style={{ marginBottom: '14px', color: 'var(--text-muted)', fontSize: '14.5px', lineHeight: '1.7' }}>
+                IEEE is the world's largest technical professional organization dedicated to advancing technology for the benefit of humanity.
               </p>
-              <p style={{ fontSize: '15px', lineHeight: '1.7', color: 'var(--text-muted)' }}>
-                The student branch serves as a platform for collaboration, innovation, and continuous learning while connecting students with the vast global IEEE network.
+              <p style={{ marginBottom: '14px', color: 'var(--text-muted)', fontSize: '14.5px', lineHeight: '1.7' }}>
+                Through its highly cited publications, global conferences, technology standards, and professional & educational activities, IEEE is the trusted voice across aerospace, computer science, telecommunications, biomedical engineering, and electric power.
               </p>
+              <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginTop: '12px' }}>
+                <div style={{ padding: '10px 16px', background: 'var(--bg-light)', borderRadius: '10px', borderLeft: '3px solid var(--secondary)' }}>
+                  <span style={{ fontSize: '18px', fontWeight: '800', color: 'var(--primary)', display: 'block' }}>420,000+</span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Global Members</span>
+                </div>
+                <div style={{ padding: '10px 16px', background: 'var(--bg-light)', borderRadius: '10px', borderLeft: '3px solid #06b6d4' }}>
+                  <span style={{ fontSize: '18px', fontWeight: '800', color: 'var(--primary)', display: 'block' }}>160+</span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Countries</span>
+                </div>
+                <div style={{ padding: '10px 16px', background: 'var(--bg-light)', borderRadius: '10px', borderLeft: '3px solid #10b981' }}>
+                  <span style={{ fontSize: '18px', fontWeight: '800', color: 'var(--primary)', display: 'block' }}>1,800+</span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Conferences Annually</span>
+                </div>
+              </div>
             </div>
-            {/* Right Column: Illustration/Image */}
-            <div style={{ textAlign: 'center' }}>
-              <img 
-                src={aboutImage} 
-                alt="About IEEE KEC Student Branch" 
-                style={{ 
-                  width: '100%', 
-                  maxHeight: '360px', 
-                  objectFit: 'cover', 
-                  borderRadius: '16px',
-                  boxShadow: 'var(--shadow-md)',
-                  border: '1.5px solid var(--border-subtle)',
-                  transition: 'all 0.3s ease'
-                }} 
-              />
+
+            {/* Vision & Mission Cards */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div className="card" style={{ padding: '24px', display: 'flex', gap: '16px', alignItems: 'flex-start', borderLeft: '4px solid var(--secondary)' }}>
+                <div style={{ width: '44px', height: '44px', borderRadius: '10px', backgroundColor: 'rgba(var(--secondary-rgb), 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Target size={22} style={{ color: 'var(--secondary)' }} />
+                </div>
+                <div>
+                  <h4 style={{ fontSize: '16px', fontWeight: '750', color: 'var(--primary)', marginBottom: '6px' }}>Core Vision</h4>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', lineHeight: '1.6', margin: 0 }}>
+                    IEEE will be essential to the global technical community and universally recognized for the contributions of technology in improving global human conditions.
+                  </p>
+                </div>
+              </div>
+
+              <div className="card" style={{ padding: '24px', display: 'flex', gap: '16px', alignItems: 'flex-start', borderLeft: '4px solid #06b6d4' }}>
+                <div style={{ width: '44px', height: '44px', borderRadius: '10px', backgroundColor: 'rgba(6, 182, 212, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Compass size={22} style={{ color: '#06b6d4' }} />
+                </div>
+                <div>
+                  <h4 style={{ fontSize: '16px', fontWeight: '750', color: 'var(--primary)', marginBottom: '6px' }}>Core Mission</h4>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', lineHeight: '1.6', margin: 0 }}>
+                    To foster technological innovation and excellence for the benefit of humanity through educational initiatives, standards, and community engagement.
+                  </p>
+                </div>
+              </div>
+
+              <div className="card" style={{ padding: '24px', display: 'flex', gap: '16px', alignItems: 'flex-start', borderLeft: '4px solid #10b981' }}>
+                <div style={{ width: '44px', height: '44px', borderRadius: '10px', backgroundColor: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Globe size={22} style={{ color: '#10b981' }} />
+                </div>
+                <div>
+                  <h4 style={{ fontSize: '16px', fontWeight: '750', color: 'var(--primary)', marginBottom: '6px' }}>Global Influence</h4>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', lineHeight: '1.6', margin: 0 }}>
+                    Home to more than 4.5 million research documents in IEEE Xplore, driving wireless standards like Wi-Fi (802.11) and foundational tech worldwide.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Why Join IEEE Section (Replaced duplicate grid with navigation link) */}
+      {/* =========================================================================
+          ABOUT KEC IEEE STUDENT BRANCH SECTION
+      ========================================================================= */}
       <section className="section-padding scroll-reveal" style={{ backgroundColor: 'var(--bg-light)', borderBottom: '1px solid var(--border-subtle)' }}>
-        <div className="container" style={{ textAlign: 'center' }}>
-          <h2 style={{ fontSize: '32px', marginBottom: '12px', fontWeight: '800', color: 'var(--primary)' }}>Why Join IEEE?</h2>
-          <div style={{ width: '60px', height: '3px', backgroundColor: 'var(--secondary)', margin: '0 auto 20px' }}></div>
-          <p style={{ color: 'var(--text-muted)', maxWidth: '600px', marginInline: 'auto', marginBottom: '32px', fontSize: '15px', lineHeight: '1.75' }}>
-            Being part of the world's largest technical professional organization offers unparalleled benefits including global networking, technical resources, leadership roles, and exclusive learning programs.
-          </p>
-          <RouterLink
-            to="/about/ieee-kec-sb"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              backgroundColor: 'var(--secondary)',
-              color: '#ffffff',
+        <div className="container">
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: '40px',
+            alignItems: 'center',
+            marginBottom: '48px'
+          }}>
+            {/* Left Column: Text */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <span style={{
+                padding: '6px 16px',
+                backgroundColor: 'rgba(var(--secondary-rgb), 0.08)',
+                color: 'var(--secondary)',
+                border: '1px solid rgba(var(--secondary-rgb), 0.2)',
+                borderRadius: '20px',
+                fontSize: '12px',
+                fontWeight: '700',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                display: 'inline-block',
+                alignSelf: 'flex-start'
+              }}>
+                Student Branch Code: 30041
+              </span>
+              <h2 className="font-serif" style={{ fontSize: '32px', color: 'var(--primary)', fontWeight: '800' }}>
+                About KEC IEEE Student Branch
+              </h2>
+              <p style={{ fontSize: '15px', lineHeight: '1.7', color: 'var(--text-muted)' }}>
+                The <strong>KEC IEEE Student Branch</strong> (IEEE KEC SB) at Kongu Engineering College was chartered under the IEEE Madras Section to build a world-class center of technical learning and professional excellence.
+              </p>
+              <p style={{ fontSize: '15px', lineHeight: '1.7', color: 'var(--text-muted)' }}>
+                We host 6 active society chapters (APS, Computer Society, WIE, RAS, PES, ComSoc) along with specialized student committees. Our members organize international conferences, hackathons, robotics bootcamps, and philanthropic community outreach programs.
+              </p>
+              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginTop: '8px' }}>
+                <RouterLink
+                  to="/request/membership"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    backgroundColor: 'var(--secondary)',
+                    color: '#ffffff',
+                    fontWeight: '700',
+                    padding: '12px 28px',
+                    borderRadius: '25px',
+                    fontSize: '14px',
+                    textDecoration: 'none',
+                    boxShadow: '0 4px 15px rgba(var(--secondary-rgb), 0.25)'
+                  }}
+                >
+                  Join KEC IEEE SB Today <ArrowRight size={14} />
+                </RouterLink>
+                <RouterLink
+                  to="/execomm"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    backgroundColor: '#ffffff',
+                    color: 'var(--primary)',
+                    fontWeight: '700',
+                    padding: '12px 28px',
+                    borderRadius: '25px',
+                    fontSize: '14px',
+                    textDecoration: 'none',
+                    border: '1px solid var(--border-subtle)'
+                  }}
+                >
+                  View Executive Committee
+                </RouterLink>
+              </div>
+            </div>
+
+            {/* Right Column: Campus Image */}
+            <div style={{ textAlign: 'center', position: 'relative' }}>
+              <img 
+                src={aboutImage} 
+                alt="KEC IEEE Student Branch Campus" 
+                style={{ 
+                  width: '100%', 
+                  maxHeight: '380px', 
+                  objectFit: 'cover', 
+                  borderRadius: '20px',
+                  boxShadow: 'var(--shadow-lg)',
+                  border: '2px solid rgba(255, 255, 255, 0.8)'
+                }} 
+              />
+              <div style={{
+                position: 'absolute',
+                bottom: '16px',
+                left: '16px',
+                right: '16px',
+                background: 'rgba(15, 23, 42, 0.85)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: '12px',
+                padding: '12px 20px',
+                color: '#ffffff',
+                textAlign: 'left',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <div>
+                  <span style={{ fontSize: '13px', fontWeight: '700', display: 'block' }}>Autonomous Green Campus</span>
+                  <span style={{ fontSize: '11px', color: '#94a3b8' }}>Perundurai, Erode, Tamil Nadu</span>
+                </div>
+                <span style={{ fontSize: '12px', fontWeight: '800', color: '#38bdf8', background: 'rgba(56, 189, 248, 0.15)', padding: '4px 10px', borderRadius: '8px' }}>NAAC A++</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Core Impact Pillars */}
+          <div style={{ marginTop: '30px' }}>
+            <h3 style={{ fontSize: '20px', fontWeight: '800', color: 'var(--primary)', textAlign: 'center', marginBottom: '24px' }}>
+              Our Core Impact Pillars
+            </h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px' }}>
+              {[
+                { icon: Cpu, title: "Technical Growth", desc: "Hands-on experience with cutting edge AI, IoT, RF Antennas, and VLSI systems via practical bootcamps.", color: "var(--secondary)" },
+                { icon: Target, title: "Leadership Excellence", desc: "Lead real project teams, head operational committees, and manage university-wide technical symposiums.", color: "#06b6d4" },
+                { icon: BookOpen, title: "Research & Publishing", desc: "Direct seed funding and faculty mentorship to present papers at IEEE indexed conferences and journals.", color: "#10b981" },
+                { icon: Users, title: "Global Peer Network", desc: "Direct channels to connect with international researchers, industry stalwarts, and IEEE Madras Section peers.", color: "#8b5cf6" },
+              ].map(({ icon: Icon, title, desc, color }, idx) => (
+                <div key={idx} className="card" style={{ padding: '24px', borderTop: `3px solid ${color}`, borderRadius: '14px', backgroundColor: '#ffffff' }}>
+                  <div style={{ width: '44px', height: '44px', borderRadius: '10px', backgroundColor: `${color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px' }}>
+                    <Icon size={22} style={{ color }} />
+                  </div>
+                  <h4 style={{ fontSize: '16px', fontWeight: '750', color: 'var(--primary)', marginBottom: '8px' }}>{title}</h4>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '13px', lineHeight: '1.6', margin: 0 }}>{desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================================
+          WHY JOIN IEEE PERKS SECTION
+      ========================================================================= */}
+      <section className="section-padding scroll-reveal" style={{ backgroundColor: '#ffffff', borderBottom: '1px solid var(--border-subtle)' }}>
+        <div className="container">
+          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+            <span style={{
+              padding: '6px 16px',
+              backgroundColor: 'rgba(var(--secondary-rgb), 0.08)',
+              color: 'var(--secondary)',
+              border: '1px solid rgba(var(--secondary-rgb), 0.2)',
+              borderRadius: '20px',
+              fontSize: '12px',
               fontWeight: '700',
-              padding: '12px 30px',
-              borderRadius: '30px',
-              fontSize: '15px',
-              textDecoration: 'none',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 4px 15px rgba(var(--secondary-rgb), 0.25)'
-            }}
-            className="tab-hover"
-          >
-            Explore Benefits & Membership Details <ArrowRight size={16} />
-          </RouterLink>
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              display: 'inline-block',
+              marginBottom: '10px'
+            }}>
+              Member Advantages
+            </span>
+            <h2 className="font-serif" style={{ fontSize: '32px', color: 'var(--primary)', fontWeight: '800', marginBottom: '8px' }}>
+              Why Join KEC IEEE SB?
+            </h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '15px', maxWidth: '600px', margin: '0 auto' }}>
+              Being part of IEEE KEC SB unlocks resources, international exposure, and professional recognition.
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+            {[
+              { title: "Global Technical Network", desc: "Access a worldwide community of professionals, engineers, and scientists across 160+ countries.", icon: Globe, color: "var(--secondary)" },
+              { title: "IEEE Xplore Digital Access", desc: "Access millions of peer-reviewed research papers, journals, and tech publications with deep student subsidies.", icon: BookOpen, color: "#06b6d4" },
+              { title: "Leadership & Steering Roles", desc: "Build team management, event execution, and administrative leadership skills early in your college career.", icon: Shield, color: "#f59e0b" },
+              { title: "International Hackathons", desc: "Participate in global competitions like IEEEXtreme, regional congresses, and international design summits.", icon: Sparkles, color: "#10b981" },
+              { title: "Hands-on Bootcamps", desc: "Enjoy free or discounted entries to advanced bootcamps in AI, Antenna Simulation, Cloud, and Embedded systems.", icon: Cpu, color: "#ec4899" },
+              { title: "Career & Placement Edge", desc: "Distinguish your profile for core placements, higher studies, and prestigious research fellowship applications.", icon: Award, color: "#8b5cf6" }
+            ].map(({ title, desc, icon: Icon, color }, idx) => (
+              <div key={idx} className="card" style={{ padding: '24px', borderRadius: '16px', borderTop: `3px solid ${color}`, display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: `${color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Icon size={20} style={{ color }} />
+                </div>
+                <div>
+                  <h4 style={{ fontSize: '15.5px', fontWeight: '750', color: 'var(--primary)', marginBottom: '6px' }}>{title}</h4>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '13px', lineHeight: '1.6', margin: 0 }}>{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Direct CTA */}
+          <div style={{ textAlign: 'center', marginTop: '36px' }}>
+            <RouterLink
+              to="/request/membership"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                backgroundColor: 'var(--secondary)',
+                color: '#ffffff',
+                fontWeight: '700',
+                padding: '14px 36px',
+                borderRadius: '30px',
+                fontSize: '15px',
+                textDecoration: 'none',
+                boxShadow: '0 4px 15px rgba(var(--secondary-rgb), 0.3)'
+              }}
+            >
+              Register for Membership Online <ArrowRight size={16} />
+            </RouterLink>
+          </div>
         </div>
       </section>
 
       {/* Society Quick Access Section */}
-      <section className="section-padding scroll-reveal" style={{ backgroundColor: 'var(--bg-light)', borderBottom: '1px solid var(--border-subtle)' }}>
+      <section id="societies-section" className="section-padding scroll-reveal" style={{ backgroundColor: 'var(--bg-light)', borderBottom: '1px solid var(--border-subtle)' }}>
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: '48px' }}>
             <h2 style={{ fontSize: '32px', marginBottom: '12px', fontWeight: '800', color: 'var(--primary)' }}>Society Quick Access</h2>

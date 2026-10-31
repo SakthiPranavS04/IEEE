@@ -183,9 +183,14 @@ function App() {
           {/* Achievements Route */}
           <Route path="/achievements" element={<Achievements />} />
 
+          {/* Membership Route */}
+          <Route path="/membership" element={<RequestFormPage />} />
+
           {/* Media Routes */}
+          <Route path="/media" element={<Media />} />
           <Route path="/media/gallery" element={<Media />} />
           <Route path="/media/news" element={<Media />} />
+          <Route path="/media/newsletters" element={<Media />} />
 
           {/* Contact Route */}
           <Route path="/contact" element={<Contact />} />

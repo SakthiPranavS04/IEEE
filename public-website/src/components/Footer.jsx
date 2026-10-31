@@ -24,28 +24,27 @@ const Footer = () => {
         }} className="footer-grid">
           {/* Brand/About Column */}
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px' }}>
               <div style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '12px',
-                background: '#ffffff',
+                height: '48px',
+                padding: '4px',
+                borderRadius: '10px',
+                background: 'rgba(255, 255, 255, 0.05)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 4px 10px rgba(0, 0, 0, 0.25)',
-                padding: '4px',
                 overflow: 'hidden'
               }}>
                 <img 
-                  src="/assets/ieee-logo.png" 
-                  alt="IEEE Logo" 
-                  style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
+                  src="/assets/ieee_kec_logo.png" 
+                  alt="KEC IEEE SB Logo" 
+                  onError={(e) => { e.target.onerror = null; e.target.src = '/assets/ieee-logo.png'; }}
+                  style={{ height: '100%', objectFit: 'contain' }} 
                 />
               </div>
               <div>
-                <h3 style={{ color: '#fff', fontSize: '18px', fontWeight: '800', lineHeight: '1.2' }}>IEEE KEC SB</h3>
-                <span style={{ fontSize: '11px', color: '#8ca6b9', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                <h3 style={{ color: '#fff', fontSize: '19px', fontWeight: '800', lineHeight: '1.2' }}>KEC IEEE SB</h3>
+                <span style={{ fontSize: '11px', color: '#38bdf8', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>
                   Student Branch Code: 30041
                 </span>
               </div>
@@ -54,13 +53,13 @@ const Footer = () => {
               Fostering innovation, developing technical skillsets, and establishing professional leadership amongst the students of Kongu Engineering College.
             </p>
             <div style={{ display: 'flex', gap: '12px' }}>
-              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="social-icon-btn">
+              <a href="https://www.linkedin.com/company/ieee-kec-sb/" target="_blank" rel="noopener noreferrer" className="social-icon-btn" title="LinkedIn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
               </a>
-              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="social-icon-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+              <a href="https://www.instagram.com/ieee_kec_sb/" target="_blank" rel="noopener noreferrer" className="social-icon-btn" title="Instagram">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
               </a>
-              <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="social-icon-btn">
+              <a href="https://youtube.com/@ieeekecsb" target="_blank" rel="noopener noreferrer" className="social-icon-btn" title="YouTube">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17z"/><path d="m10 15 5-3-5-3z"/></svg>
               </a>
             </div>
@@ -77,8 +76,10 @@ const Footer = () => {
                 { name: 'Upcoming Events', link: '/events/upcoming' },
                 { name: 'Past Events', link: '/events/past' },
                 { name: 'Achievements', link: '/achievements' },
-                { name: 'IEEE operational Committee', link: '/committee' },
+                { name: 'Societies', link: '/execomm/ap-s' },
                 { name: 'Executive Committee', link: '/execomm' },
+                { name: 'Media Center', link: '/media' },
+                { name: 'Membership Registration', link: '/request/membership' },
               ].map((item, idx) => (
                 <li key={idx}>
                   <Link to={item.link} className="footer-link-hover" style={{
@@ -139,7 +140,7 @@ const Footer = () => {
           color: '#829ab9'
         }} className="footer-copyright">
           <div>
-            © {currentYear} IEEE KEC Student Branch. All rights reserved.
+            © {currentYear} KEC IEEE Student Branch (Branch Code: 30041). All rights reserved.
           </div>
           <div style={{ display: 'flex', gap: '20px' }}>
             <a href="https://www.ieee.org" target="_blank" rel="noopener noreferrer" style={{ color: '#829ab9', textDecoration: 'none' }} className="bottom-link-hover">IEEE.org</a>

@@ -5,9 +5,9 @@ import { Calendar, MapPin, Clock, ExternalLink, CheckCircle2, Sparkles, Quote, C
 
 const PageHeader = ({ title, subtitle }) => (
   <div style={{
-    background: 'var(--gradient-primary)',
+    background: 'linear-gradient(135deg, #0a385b 0%, #0369a1 50%, #0f172a 100%)',
     color: '#ffffff',
-    padding: '70px 0',
+    padding: '75px 0',
     textAlign: 'center',
     marginBottom: '40px',
     position: 'relative',
@@ -23,16 +23,39 @@ const PageHeader = ({ title, subtitle }) => (
       background: 'var(--gradient-colorful)',
       zIndex: 2
     }} />
+
+    {/* Floating Animated Geometric Objects */}
     <div style={{
-      position: 'absolute', top: '-10%', right: '-8%',
-      width: '320px', height: '320px', borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(var(--secondary-rgb), 0.12) 0%, transparent 70%)', pointerEvents: 'none'
+      position: 'absolute', top: '15%', left: '8%',
+      width: '45px', height: '45px', borderRadius: '12px',
+      border: '2px solid rgba(56, 189, 248, 0.3)',
+      animation: 'float-slow-1 7s infinite ease-in-out',
+      pointerEvents: 'none'
     }} />
     <div style={{
-      position: 'absolute', bottom: '-20%', left: '-5%',
-      width: '260px', height: '260px', borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(6, 182, 212, 0.12) 0%, transparent 70%)', pointerEvents: 'none'
+      position: 'absolute', top: '25%', right: '12%',
+      width: '60px', height: '60px', borderRadius: '50%',
+      border: '2px dashed rgba(244, 63, 94, 0.25)',
+      animation: 'float-slow-2 9s infinite ease-in-out',
+      pointerEvents: 'none'
     }} />
+    <div style={{
+      position: 'absolute', bottom: '20%', left: '20%',
+      width: '30px', height: '30px', borderRadius: '6px',
+      backgroundColor: 'rgba(139, 92, 246, 0.15)',
+      transform: 'rotate(45deg)',
+      animation: 'float-slow-3 8s infinite ease-in-out',
+      pointerEvents: 'none'
+    }} />
+    <div style={{
+      position: 'absolute', bottom: '30%', right: '25%',
+      width: '16px', height: '16px', borderRadius: '50%',
+      backgroundColor: 'rgba(6, 182, 212, 0.4)',
+      boxShadow: '0 0 12px rgba(6, 182, 212, 0.6)',
+      animation: 'float-slow-1 6s infinite ease-in-out',
+      pointerEvents: 'none'
+    }} />
+
     <div className="container" style={{ position: 'relative', zIndex: 1 }}>
       <h1 className="font-serif" style={{ fontSize: '38px', color: '#ffffff', marginBottom: '12px', fontWeight: '800' }}>
         {title}
@@ -43,14 +66,53 @@ const PageHeader = ({ title, subtitle }) => (
         </p>
       )}
     </div>
+
     {/* Decorative Wave Bottom */}
     <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', overflow: 'hidden', lineHeight: 0, transform: 'translateY(1px)', zIndex: 2 }}>
       <svg viewBox="0 0 1200 120" preserveAspectRatio="none" style={{ position: 'relative', display: 'block', width: 'calc(100% + 1.3px)', height: '40px' }}>
         <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118,152.47,101.4,227.14,83.56,258.14,76.22,290.41,68.22,321.39,56.44Z" fill="var(--bg-light)"></path>
       </svg>
     </div>
+
+    <style>{`
+      @keyframes float-slow-1 {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-14px) rotate(25deg); }
+      }
+      @keyframes float-slow-2 {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(16px) rotate(-35deg); }
+      }
+      @keyframes float-slow-3 {
+        0%, 100% { transform: translateY(0px) rotate(45deg); }
+        50% { transform: translateY(-10px) rotate(90deg); }
+      }
+    `}</style>
   </div>
 );
+
+const getSocietyHashtag = (evt) => {
+  const text = `${evt.society || ''} ${evt.title || ''} ${evt.description || ''} ${evt.desc || ''} ${evt.tag || ''}`.toLowerCase();
+  if (text.includes('antenna') || text.includes('ap-s') || text.includes('aps') || text.includes('rf') || text.includes('propagation')) {
+    return { name: '#APS', label: 'Antennas & Propagation', bg: '#eff6ff', color: '#1e3a8a', border: '#bfdbfe' };
+  }
+  if (text.includes('computer') || text.includes('cs') || text.includes('code') || text.includes('software') || text.includes('ai') || text.includes('hackathon') || text.includes('flutter')) {
+    return { name: '#ComputerSociety', label: 'Computer Society', bg: '#fff7ed', color: '#c2410c', border: '#fed7aa' };
+  }
+  if (text.includes('wie') || text.includes('women') || text.includes('girl')) {
+    return { name: '#WIE', label: 'Women in Engineering', bg: '#fdf2f8', color: '#9d174d', border: '#fbcfe8' };
+  }
+  if (text.includes('robot') || text.includes('ras') || text.includes('automation') || text.includes('arduino') || text.includes('iot')) {
+    return { name: '#RAS', label: 'Robotics & Automation', bg: '#fef2f2', color: '#b91c1c', border: '#fecaca' };
+  }
+  if (text.includes('power') || text.includes('pes') || text.includes('energy') || text.includes('solar') || text.includes('grid')) {
+    return { name: '#PES', label: 'Power & Energy', bg: '#f0fdf4', color: '#15803d', border: '#bbf7d0' };
+  }
+  if (text.includes('comsoc') || text.includes('communication') || text.includes('5g') || text.includes('network')) {
+    return { name: '#ComSoc', label: 'Communications Society', bg: '#f0f9ff', color: '#0369a1', border: '#bae6fd' };
+  }
+  return { name: '#KECIEEESB', label: 'KEC IEEE SB', bg: '#f8fafc', color: '#0284c7', border: '#cbd5e1' };
+};
 
 const TAG_COLORS = {
   'Workshop':      { bg: '#eff6ff', color: '#1d4ed8', border: '#bfdbfe' },
@@ -236,8 +298,8 @@ const Events = () => {
 
       <div className="container">
 
-        {/* Toggle Tabs */}
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '28px', justifyContent: 'center' }}>
+        {/* Toggle Tabs & Explore Societies Button */}
+        <div style={{ display: 'flex', gap: '12px', marginBottom: '28px', justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center' }}>
           {[
             { to: '/events/upcoming', label: 'Upcoming Events', active: isUpcoming },
             { to: '/events/past',     label: 'Past Events',     active: !isUpcoming },
@@ -265,6 +327,28 @@ const Events = () => {
               {label}
             </Link>
           ))}
+          <Link
+            to="/execomm/ap-s"
+            style={{
+              padding: '10px 24px',
+              fontSize: '14px',
+              fontWeight: '700',
+              borderRadius: '30px',
+              textDecoration: 'none',
+              cursor: 'pointer',
+              letterSpacing: '0.3px',
+              transition: 'all 0.25s ease',
+              background: '#ffffff',
+              color: '#0284c7',
+              border: '1.5px solid #0284c7',
+              boxShadow: '0 2px 8px rgba(2, 132, 199, 0.15)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            Explore Societies ↗
+          </Link>
         </div>
 
 
@@ -346,6 +430,7 @@ const Events = () => {
               const isNear = isEventNear(evt.date);
               const shouldShowNewBadge = !isPast && (evt.showNewBadge || isNear);
               const tagStyle = getTagStyle(evt.tag);
+              const hashtag = getSocietyHashtag(evt);
               return (
                 <div
                   key={idx}
@@ -388,21 +473,39 @@ const Events = () => {
                   }} />
 
                   <div style={{ padding: '28px', display: 'flex', flexDirection: 'column', flex: 1, gap: '0' }}>
-                    {/* Tag + Status Row */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                      <span style={{
-                        backgroundColor: tagStyle.bg,
-                        color: tagStyle.color,
-                        border: `1px solid ${tagStyle.border}`,
-                        padding: '4px 12px',
-                        borderRadius: '20px',
-                        fontSize: '11px',
-                        fontWeight: '700',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                      }}>
-                        {evt.tag}
-                      </span>
+                    {/* Tag + Hashtag + Status Row */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <span style={{
+                          backgroundColor: tagStyle.bg,
+                          color: tagStyle.color,
+                          border: `1px solid ${tagStyle.border}`,
+                          padding: '4px 12px',
+                          borderRadius: '20px',
+                          fontSize: '11px',
+                          fontWeight: '700',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px'
+                        }}>
+                          {evt.tag}
+                        </span>
+
+                        {/* Society Hashtag Badge */}
+                        <span style={{
+                          backgroundColor: hashtag.bg,
+                          color: hashtag.color,
+                          border: `1px solid ${hashtag.border}`,
+                          padding: '4px 10px',
+                          borderRadius: '20px',
+                          fontSize: '11px',
+                          fontWeight: '800',
+                          letterSpacing: '0.3px',
+                          display: 'inline-flex',
+                          alignItems: 'center'
+                        }} title={`Organized by ${hashtag.label}`}>
+                          {hashtag.name}
+                        </span>
+                      </div>
                       {isPast && (
                         <span style={{
                           display: 'flex', alignItems: 'center', gap: '4px',

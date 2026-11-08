@@ -63,7 +63,7 @@ const PageHeader = ({ title, subtitle }) => (
 // Society Configuration with Official Branding Colors
 export const SOCIETIES = [
   { id: 'All', name: 'All Societies', color: '#0a385b', bg: '#e0f2fe' },
-  { id: 'CS', name: 'IEEE Computer Society', short: 'Computer Society', color: '#ea580c', bg: '#ffedd5' },
+  { id: 'CS', name: 'IEEE Computer Society(CS)', short: 'Computer Society', color: '#ea580c', bg: '#ffedd5' },
   { id: 'APS', name: 'IEEE Antennas & Propagation Society', short: 'APS', color: '#1e3a8a', bg: '#dbeafe' },
   { id: 'WIE', name: 'IEEE Women in Engineering', short: 'WIE', color: '#9333ea', bg: '#f3e8ff' },
   { id: 'RAS', name: 'IEEE Robotics & Automation Society', short: 'RAS', color: '#dc2626', bg: '#fee2e2' },
@@ -76,7 +76,7 @@ export const getSocietyMeta = (catOrName) => {
   if (!catOrName) return { name: 'KEC IEEE SB', short: 'KEC IEEE SB', color: '#0f766e', bg: '#ccfbf1' };
   const lower = catOrName.toLowerCase();
   if (lower.includes('computer') || lower.includes('cs')) {
-    return { name: 'IEEE Computer Society', short: 'Computer Society', color: '#ea580c', bg: '#ffedd5' };
+    return { name: 'IEEE Computer Society(CS)', short: 'Computer Society', color: '#ea580c', bg: '#ffedd5' };
   }
   if (lower.includes('antenna') || lower.includes('aps') || lower.includes('ap-s')) {
     return { name: 'IEEE Antennas & Propagation Society', short: 'APS', color: '#1e3a8a', bg: '#dbeafe' };
@@ -305,7 +305,7 @@ const Media = () => {
     {
       id: 2,
       title: "ByteWave - Computer Society Newsletter",
-      society: "IEEE Computer Society",
+      society: "IEEE Computer Society(CS)",
       volume: "Quarterly Bulletin • Issue 4",
       date: "October 2025",
       cover: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800&auto=format&fit=max",
@@ -470,9 +470,9 @@ const Media = () => {
   useEffect(() => {
     const fetchMediaData = async () => {
       try {
-        const [galleryRes, newsRes] = await Promise.all([
+        const [galleryRes, newslettersRes] = await Promise.all([
           fetch(`${API}/gallery`),
-          fetch(`${API}/announcements`)
+          fetch(`${API}/newsletters`)
         ]);
         
         if (galleryRes.ok) {
@@ -489,26 +489,26 @@ const Media = () => {
           setGalleryItems(defaultGallery);
         }
 
-        if (newsRes.ok) {
-          const nData = await newsRes.json();
+        if (newslettersRes.ok) {
+          const nData = await newslettersRes.json();
           if (nData && nData.length > 0) {
-            const mappedNews = nData.filter(n => n.isActive).map(n => ({
-              id: n._id,
+            const mappedNews = nData.filter(n => n.isActive !== false).map(n => ({
+              id: n._id || n.id,
               title: n.title,
-              society: n.category || 'KEC IEEE SB',
-              volume: n.source || 'Issue 2025-26',
-              date: new Date(n.date || n.createdAt).toLocaleDateString(),
-              cover: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=800&auto=format&fit=max',
-              editorial: n.content,
-              highlights: [
-                n.content.slice(0, 100) + '...',
+              society: n.society || 'KEC IEEE SB',
+              volume: n.volume || 'Volume 1 • Issue 1',
+              date: n.date || '2026',
+              cover: n.cover || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=800&auto=format&fit=max',
+              editorial: n.editorial || '',
+              highlights: n.highlights && n.highlights.length > 0 ? n.highlights : [
                 "Technical contributions under IEEE Madras Section",
                 "Full project and research write-up inside"
               ],
-              pages: 12,
-              editor: 'Editorial Board'
+              pages: n.pages || 20,
+              editor: n.editor || 'Student Branch Editorial Board',
+              fileUrl: n.fileUrl || ''
             }));
-            setNewsletters(mappedNews.length > 0 ? [...mappedNews, ...defaultNewsletters] : defaultNewsletters);
+            setNewsletters(mappedNews);
           } else {
             setNewsletters(defaultNewsletters);
           }
@@ -657,8 +657,8 @@ const Media = () => {
           </button>
         </div>
 
-        {/* Society Filter Bar with Specific Society Colors */}
-        {(activeTab === 'gallery' || activeTab === 'newsletters') && !activeFolder && (
+        {/* Society Filter Bar for Newsletters */}
+        {activeTab === 'newsletters' && (
           <div style={{
             background: '#ffffff',
             padding: '16px 20px',
@@ -728,7 +728,7 @@ const Media = () => {
           </div>
         )}
 
-        {/* Gallery tab view - Bento Grid with Society Specific Color Backgrounds */}
+        {/* Gallery tab view - Bento Grid */}
         {activeTab === 'gallery' && (
           <>
             {activeFolder ? (
@@ -738,159 +738,60 @@ const Media = () => {
                   <button 
                     onClick={() => setActiveFolder(null)}
                     className="back-to-albums-btn"
-                    style={{
-                      background: '#ffffff',
-                      border: '1px solid var(--border-subtle)',
-                      padding: '8px 18px',
-                      borderRadius: '20px',
-                      color: 'var(--primary)',
-                      fontWeight: '700',
-                      cursor: 'pointer',
-                      marginBottom: '16px',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '6px'
-                    }}
                   >
-                    ← Back to All Albums
+                    ← Back to Albums
                   </button>
                   
-                  {(() => {
-                    const socMeta = getSocietyMeta(activeFolder.cat);
-                    return (
-                      <div className="album-header-card" style={{
-                        position: 'relative',
-                        borderRadius: '16px',
-                        overflow: 'hidden',
-                        minHeight: '260px',
-                        display: 'flex',
-                        alignItems: 'flex-end',
-                        padding: '36px',
-                        boxShadow: 'var(--shadow-md)',
-                        borderTop: `5px solid ${socMeta.color}`
-                      }}>
-                        {/* Background image covering the entire container */}
-                        {activeFolder.images && activeFolder.images[0] && (
-                          <img 
-                            src={activeFolder.images[0]} 
-                            alt={activeFolder.title} 
-                            className="album-header-cover-img" 
-                            style={{
-                              position: 'absolute',
-                              top: 0,
-                              left: 0,
-                              width: '100%',
-                              height: '100%',
-                              objectFit: 'cover',
-                              zIndex: 0
-                            }}
-                          />
-                        )}
+                  <div className="album-header-card">
+                    {/* Background image covering the entire container */}
+                    {activeFolder.images && activeFolder.images[0] && (
+                      <img 
+                        src={activeFolder.images[0]} 
+                        alt={activeFolder.title} 
+                        className="album-header-cover-img" 
+                      />
+                    )}
 
-                        {/* Gradient overlay for readability */}
-                        <div style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          background: `linear-gradient(to top, rgba(5, 23, 38, 0.95) 0%, rgba(5, 23, 38, 0.6) 50%, rgba(5, 23, 38, 0.2) 100%)`,
-                          zIndex: 1
-                        }} />
+                    {/* Gradient overlay for readability */}
+                    <div className="album-header-overlay" />
 
-                        {/* Society badge in top-right with specific society color as background */}
-                        <span style={{
-                          position: 'absolute',
-                          top: '20px',
-                          right: '20px',
-                          background: socMeta.color,
-                          color: '#ffffff',
-                          padding: '8px 18px',
-                          borderRadius: '24px',
-                          fontSize: '13px',
-                          fontWeight: '800',
-                          letterSpacing: '0.5px',
-                          boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
-                          zIndex: 2,
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '6px'
-                        }}>
-                          <Sparkles size={14} />
-                          {socMeta.name}
-                        </span>
+                    {/* Category pill badge in top-right */}
+                    <span className="album-header-badge-tr">
+                      {activeFolder.cat}
+                    </span>
 
-                        {/* Bottom-left aligned text content */}
-                        <div style={{ position: 'relative', zIndex: 2, maxWidth: '780px' }}>
-                          <h2 className="font-serif" style={{ color: '#ffffff', fontSize: '28px', fontWeight: '800', marginBottom: '8px' }}>
-                            {activeFolder.title}
-                          </h2>
-                          <p style={{ color: '#e2e8f0', fontSize: '15px', lineHeight: '1.6', margin: 0 }}>
-                            {activeFolder.text}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })()}
+                    {/* Bottom-left aligned text content */}
+                    <div className="album-header-text-bottom-left">
+                      <h2 className="font-serif album-header-title-premium">
+                        {activeFolder.title}
+                      </h2>
+                      <p className="album-header-subtitle-premium">
+                        {activeFolder.text}
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Grid of images in this folder */}
-                <div className="folder-images-grid" style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                  gap: '20px'
-                }}>
-                  {activeFolder.images && activeFolder.images.length > 0 ? (
-                    activeFolder.images.map((imgUrl, imgIdx) => (
+                {/* Grid of images in this folder (excluding cover photo) */}
+                <div className="folder-images-grid">
+                  {activeFolder.images && activeFolder.images.length > 1 ? (
+                    activeFolder.images.slice(1).map((imgUrl, imgIdx) => (
                       <div 
                         key={imgIdx}
                         onClick={() => {
                           setSelectedImage(activeFolder);
-                          setLightboxIndex(imgIdx);
-                        }}
-                        style={{
-                          height: '220px',
-                          borderRadius: '12px',
-                          overflow: 'hidden',
-                          position: 'relative',
-                          cursor: 'pointer',
-                          boxShadow: 'var(--shadow-sm)',
-                          border: '1px solid var(--border-subtle)',
-                          transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+                          setLightboxIndex(imgIdx + 1);
                         }}
                         className="folder-image-card"
                       >
                         <img 
                           src={imgUrl} 
-                          alt={`${activeFolder.title} - ${imgIdx + 1}`} 
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          alt={`${activeFolder.title} - ${imgIdx + 2}`} 
+                          className="folder-image"
                         />
-                        <div style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          background: 'rgba(5, 23, 38, 0.45)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          opacity: 0,
-                          transition: 'opacity 0.2s ease'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-                        onMouseLeave={(e) => e.currentTarget.style.opacity = '0'}
-                        >
-                          <span style={{
-                            color: '#ffffff',
-                            fontSize: '13px',
-                            fontWeight: '700',
-                            background: 'rgba(255,255,255,0.2)',
-                            backdropFilter: 'blur(4px)',
-                            padding: '6px 14px',
-                            borderRadius: '20px'
-                          }}>
-                            View High-Res Photo ↗
+                        <div className="folder-image-overlay">
+                          <span style={{ color: '#ffffff', fontSize: '12.5px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                            View Photo
                           </span>
                         </div>
                       </div>
@@ -898,171 +799,57 @@ const Media = () => {
                   ) : (
                     <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
                       <Image size={48} style={{ opacity: 0.4, marginBottom: '16px' }} />
-                      <p style={{ fontSize: '15px', fontWeight: '600' }}>No pictures in this album yet</p>
+                      <p style={{ fontSize: '15px', fontWeight: '600' }}>No other pictures in this album yet</p>
                     </div>
                   )}
                 </div>
               </div>
             ) : (
               <>
-                {filteredGallery.length > 0 ? (
-                  <div className="gallery-bento-grid" style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-                    gap: '24px'
-                  }}>
-                    {filteredGallery.map((item) => {
-                      const socMeta = getSocietyMeta(item.cat);
-                      return (
-                        <div
-                          key={item.id}
-                          className="card"
-                          onClick={() => setActiveFolder(item)}
-                          style={{
-                            borderRadius: '16px',
-                            overflow: 'hidden',
-                            backgroundColor: '#ffffff',
-                            border: '1px solid var(--border-subtle)',
-                            boxShadow: 'var(--shadow-sm)',
-                            cursor: 'pointer',
+                {galleryItems.length > 0 ? (
+                  <div className="gallery-bento-grid">
+                    {galleryItems.map((item, idx) => (
+                      <div
+                        key={item.id}
+                        className={`gallery-bento-card ${idx === 4 ? 'span-3' : 'span-1'}`}
+                        onClick={() => {
+                          setActiveFolder(item);
+                        }}
+                      >
+                        {item.images && item.images.length > 0 ? (
+                          <img
+                            src={item.images[0]}
+                            alt={item.title}
+                            className="gallery-bento-card-image"
+                          />
+                        ) : (
+                          <div className="gallery-bento-card-placeholder" style={{
+                            width: '100%',
+                            height: '100%',
+                            background: 'var(--gradient-cyber)',
                             display: 'flex',
-                            flexDirection: 'column',
-                            transition: 'all 0.25s ease',
-                            position: 'relative'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = 'translateY(-4px)';
-                            e.currentTarget.style.boxShadow = `0 12px 24px ${socMeta.color}25`;
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = 'translateY(0)';
-                            e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-                          }}
-                        >
-                          {/* Image Thumbnail Container */}
-                          <div style={{ position: 'relative', height: '230px', overflow: 'hidden' }}>
-                            {item.images && item.images.length > 0 ? (
-                              <img
-                                src={item.images[0]}
-                                alt={item.title}
-                                style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s ease' }}
-                              />
-                            ) : (
-                              <div style={{
-                                width: '100%',
-                                height: '100%',
-                                background: `linear-gradient(135deg, ${socMeta.color} 0%, #0a385b 100%)`,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
-                              }}>
-                                <Image size={48} color="#ffffff" style={{ opacity: 0.6 }} />
-                              </div>
-                            )}
-
-                            {/* Specific Society Color as the Name Background */}
-                            <div style={{
-                              position: 'absolute',
-                              top: '14px',
-                              left: '14px',
-                              background: socMeta.color,
-                              color: '#ffffff',
-                              padding: '6px 14px',
-                              borderRadius: '20px',
-                              fontSize: '12px',
-                              fontWeight: '800',
-                              letterSpacing: '0.4px',
-                              boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                              zIndex: 3,
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '6px'
-                            }}>
-                              <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#ffffff' }} />
-                              {socMeta.name}
-                            </div>
-
-                            {/* Photo Count Pill */}
-                            {item.images && item.images.length > 1 && (
-                              <div style={{
-                                position: 'absolute',
-                                bottom: '14px',
-                                right: '14px',
-                                background: 'rgba(5, 23, 38, 0.8)',
-                                backdropFilter: 'blur(4px)',
-                                color: '#ffffff',
-                                padding: '4px 10px',
-                                borderRadius: '12px',
-                                fontSize: '11px',
-                                fontWeight: '700',
-                                zIndex: 3,
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '4px'
-                              }}>
-                                <Image size={12} />
-                                {item.images.length} Photos
-                              </div>
-                            )}
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}>
+                            <Image size={48} color="#ffffff" style={{ opacity: 0.6 }} />
                           </div>
+                        )}
 
-                          {/* Album Details */}
-                          <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                            <h3 style={{
-                              fontSize: '17px',
-                              fontWeight: '800',
-                              color: 'var(--primary)',
-                              marginBottom: '8px',
-                              lineHeight: '1.4'
-                            }}>
-                              {item.title}
-                            </h3>
-                            <p style={{
-                              fontSize: '13.5px',
-                              color: 'var(--text-muted)',
-                              lineHeight: '1.5',
-                              margin: '0 0 16px 0',
-                              flex: 1
-                            }}>
-                              {item.text}
-                            </p>
-                            <div style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                              paddingTop: '12px',
-                              borderTop: '1px solid var(--border-subtle)',
-                              fontSize: '12.5px',
-                              fontWeight: '700',
-                              color: socMeta.color
-                            }}>
-                              <span>Open Photo Album</span>
-                              <ChevronRight size={16} />
-                            </div>
-                          </div>
+                        {/* Category Tag */}
+                        <span className="gallery-bento-card-badge">{item.cat}</span>
+
+                        {/* Overlay Content */}
+                        <div className="gallery-bento-card-overlay">
+                          <h3 className="gallery-bento-card-title">{item.title}</h3>
+                          <p className="gallery-bento-card-text">{item.text}</p>
                         </div>
-                      );
-                    })}
+                      </div>
+                    ))}
                   </div>
                 ) : (
                   <div style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b' }}>
                     <Image size={48} style={{ opacity: 0.4, marginBottom: '16px' }} />
-                    <p style={{ fontSize: '16px', fontWeight: '700' }}>No albums found for the selected society</p>
-                    <button
-                      onClick={() => setSelectedSocietyFilter('All')}
-                      style={{
-                        marginTop: '12px',
-                        background: 'var(--gradient-cyber)',
-                        color: '#ffffff',
-                        border: 'none',
-                        padding: '8px 20px',
-                        borderRadius: '20px',
-                        fontWeight: '700',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      View All Societies
-                    </button>
+                    <p style={{ fontSize: '15px', fontWeight: '600' }}>No albums found</p>
                   </div>
                 )}
 
@@ -1071,39 +858,35 @@ const Media = () => {
                   <div style={{ marginTop: '64px', paddingTop: '40px', borderTop: '1px solid var(--border-subtle)' }}>
                     <div style={{ textAlign: 'center', marginBottom: '32px' }}>
                       <span style={{
-                        padding: '4px 14px',
+                        padding: '4px 12px',
                         backgroundColor: 'var(--accent-light)',
                         color: 'var(--primary)',
                         borderRadius: '20px',
                         fontSize: '12px',
-                        fontWeight: '800',
+                        fontWeight: '700',
                         textTransform: 'uppercase',
                         letterSpacing: '1px'
                       }}>
-                        Video Highlights & Reels
+                        Media Stream
                       </span>
-                      <h2 className="font-serif" style={{ fontSize: '28px', color: 'var(--primary)', marginTop: '10px', fontWeight: '800' }}>
-                        Video Highlights & Memories
-                      </h2>
-                      <p style={{ color: 'var(--text-muted)', fontSize: '14.5px', marginTop: '6px' }}>
-                        Watch recap reels and student presentations from flagship events at Kongu Engineering College
-                      </p>
+                      <h2 className="font-serif" style={{ fontSize: '26px', color: 'var(--primary)', marginTop: '10px' }}>Video Highlights & Memories</h2>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '6px' }}>Watch recap reels and student presentations from flagship events</p>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '30px' }}>
                       {mediaVideos.map((video, idx) => (
-                        <div key={idx} className="card" style={{ padding: '16px', backgroundColor: '#ffffff', border: '1px solid var(--border-subtle)', borderRadius: '16px', boxShadow: 'var(--shadow-sm)' }}>
-                          <div style={{ borderRadius: '10px', overflow: 'hidden', border: '1px solid var(--border-subtle)', marginBottom: '16px' }}>
+                        <div key={idx} className="card scroll-reveal fade-up" style={{ padding: '16px', backgroundColor: '#ffffff', border: '1px solid var(--border-subtle)', borderRadius: '12px', boxShadow: 'var(--shadow-sm)' }}>
+                          <div style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-subtle)', marginBottom: '16px' }}>
                             <iframe
                               src={formatEmbedUrl(video.url)}
                               width="100%"
-                              height="210"
+                              height="200"
                               style={{ border: 0, display: 'block' }}
                               allowFullScreen
                               title={video.title}
                             />
                           </div>
-                          <h3 style={{ fontSize: '16px', color: 'var(--primary)', fontWeight: '800', margin: '0 0 6px 0' }}>{video.title}</h3>
+                          <h3 style={{ fontSize: '15.5px', color: 'var(--primary)', fontWeight: '800', margin: '0 0 6px 0' }}>{video.title}</h3>
                           <p style={{ color: 'var(--text-muted)', fontSize: '13px', lineHeight: '1.5', margin: 0 }}>{video.desc}</p>
                         </div>
                       ))}

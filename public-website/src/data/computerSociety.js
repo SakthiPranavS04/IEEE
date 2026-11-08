@@ -1,6 +1,6 @@
 // IEEE Computer Society Data Configuration
 export const computerSocietyData = {
-  name: "IEEE Computer Society",
+  name: "IEEE Computer Society(CS)",
   motto: "Advancing Computing Technologies",
   description: "Advancing computing technologies to empower innovation and create impact.",
   about: {

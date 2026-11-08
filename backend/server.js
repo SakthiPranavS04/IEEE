@@ -33,6 +33,7 @@ import researchRoutes from './routes/researchRoutes.js';
 import requestRoutes from './routes/requestRoutes.js';
 import videoRoutes from './routes/videoRoutes.js';
 import societyRoutes from './routes/societyRoutes.js';
+import newsletterPublicationRoutes from './routes/newsletterPublicationRoutes.js';
 
 import { errorHandler, notFound } from './middlewares/errorMiddleware.js';
 
@@ -110,6 +111,8 @@ app.use('/api/requests', requestRoutes);
 app.use('/api/videos', videoRoutes);
 
 app.use('/api/societies', societyRoutes);
+
+app.use('/api/newsletters', newsletterPublicationRoutes);
 
 
 

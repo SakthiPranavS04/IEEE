@@ -491,7 +491,7 @@ const Home = () => {
             Kongu Engineering College
           </h1>
 
-          {/* Two centered pill-styled buttons */}
+          {/* Centered Join button */}
           <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '16px' }}>
             <RouterLink
               to="/request/membership"
@@ -512,25 +512,6 @@ const Home = () => {
             >
               Join KEC IEEE SB
             </RouterLink>
-            <a
-              href="#societies-section"
-              style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                backdropFilter: 'blur(12px)',
-                border: '1.5px solid rgba(255, 255, 255, 0.3)',
-                color: '#ffffff',
-                fontWeight: '700',
-                padding: '14px 36px',
-                borderRadius: '30px',
-                fontSize: '15px',
-                textDecoration: 'none',
-                transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)'
-              }}
-              className="hero-btn-hover"
-            >
-              Explore Societies ↓
-            </a>
           </div>
 
           {/* Slide indicator dots */}

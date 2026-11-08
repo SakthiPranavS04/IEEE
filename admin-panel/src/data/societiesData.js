@@ -136,7 +136,7 @@ export const societiesData = {
     ]
   },
   "computer-society": {
-    name: "IEEE Computer Society",
+    name: "IEEE Computer Society(CS)",
     tagline: "Advancing computing technologies to empower innovation and create impact.",
     theme: {
       primary: "#eab308", // YELLOW

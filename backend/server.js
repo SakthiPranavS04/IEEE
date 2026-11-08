@@ -5,8 +5,16 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import connectDB from './config/db.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Ensure .env is always loaded from backend directory regardless of cwd
+dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 import documentRoutes from './routes/documentRoutes.js';
 import authRoutes from './routes/authRoutes.js';
@@ -27,8 +35,6 @@ import videoRoutes from './routes/videoRoutes.js';
 import societyRoutes from './routes/societyRoutes.js';
 
 import { errorHandler, notFound } from './middlewares/errorMiddleware.js';
-
-dotenv.config();
 
 console.log(
   'MongoDB environment variable loaded:',

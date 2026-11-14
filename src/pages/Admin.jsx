@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, Unlock, LogOut, Check, Trash2, Edit3, Plus, Image as ImageIcon, BarChart3, Database, X, Calendar, Award, Users, Target, Settings, Link as LinkIcon, AlertCircle, FileText, Compass, Layers, Save, RefreshCw, MessageSquare, ArrowUp, ArrowDown, Flame } from 'lucide-react';
+import { Lock, Unlock, LogOut, Check, Trash2, Edit3, Plus, Image as ImageIcon, BarChart3, Database, X, Calendar, Award, Users, Target, Settings, Link as LinkIcon, AlertCircle, FileText, Compass, Layers, Save, RefreshCw, MessageSquare, ArrowUp, ArrowDown, Flame, Menu, Bell, ChevronDown, ChevronUp, ChevronRight, ChevronLeft, Upload, Eye, LayoutDashboard, Sliders, Trophy, Folder } from 'lucide-react';
+import './AdminDashboard.css';
 import { apsData } from '../data/aps';
 import { computerSocietyData } from '../data/computerSociety';
 import { wieData } from '../data/wie';
@@ -55,6 +56,13 @@ const Admin = () => {
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [activeTab, setActiveTab] = useState('stats'); // 'stats' | 'events' | 'achievements' | 'execomm' | 'committees' | 'gallery' | 'researchpapers' | 'news' | 'branches' | 'highlighted_events'
+  
+  // Dashboard UI state
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [openNavCategory, setOpenNavCategory] = useState('config');
+  const [carouselPreviewIndex, setCarouselPreviewIndex] = useState(0);
   
   // Highlighted Events State Hooks
   const [highlightDescription, setHighlightDescription] = useState('');

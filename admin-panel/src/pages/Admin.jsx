@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, Unlock, LogOut, Check, Trash2, Edit3, Plus, Image as ImageIcon, BarChart3, Database, X, Calendar, Award, Users, Target, Settings, Link as LinkIcon, AlertCircle, FileText, Compass, Layers, Save, RefreshCw, MessageSquare, ArrowUp, ArrowDown, Flame } from 'lucide-react';
-import { API, authFetch, settingsService, galleryService, videosService, achievementsService, societiesService, teamService, committeesService } from '../services/api';
+import { Lock, Unlock, LogOut, Check, Trash2, Edit3, Plus, Image as ImageIcon, BarChart3, Database, X, Calendar, Award, Users, Target, Settings, Link as LinkIcon, AlertCircle, FileText, Compass, Layers, Save, RefreshCw, MessageSquare, ArrowUp, ArrowDown, Flame, Bell, ChevronDown, ChevronUp, ChevronRight, Menu, Home as HomeIcon, Folder, Eye, CheckCircle2, RotateCcw, UploadCloud } from 'lucide-react';
+import './Admin.css';
 import { apsData } from '../data/aps';
 import { computerSocietyData } from '../data/computerSociety';
 import { wieData } from '../data/wie';
@@ -56,6 +56,25 @@ const Admin = () => {
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [activeTab, setActiveTab] = useState('stats'); // 'stats' | 'events' | 'achievements' | 'execomm' | 'committees' | 'gallery' | 'researchpapers' | 'news' | 'branches' | 'highlighted_events'
+  
+  // Dashboard Navigation & Layout States
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [expandedGroups, setExpandedGroups] = useState({
+    config: true,
+    roster: false,
+    events_media: false,
+    pages: false,
+    resources: false
+  });
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [activeHeroIndex, setActiveHeroIndex] = useState(0);
+
+  const toggleGroup = (groupId) => {
+    setExpandedGroups(prev => ({
+      ...prev,
+      [groupId]: !prev[groupId]
+    }));
+  };
   
   // Highlighted Events State Hooks
   const [highlightDescription, setHighlightDescription] = useState('');
@@ -291,21 +310,6 @@ const Admin = () => {
   const defaultAdmins = [
     { email: 'sakthipranavs.24cse@kongu.edu', password: '123456' },
     { email: 'ieee@kongu.edu', password: 'admin123' }
-  ];
-
-  const defaultMediaVideos = [
-    {
-      id: 1,
-      title: "IEEE KEC SB Decade Celebration Promo",
-      url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-      desc: "An overview reel capturing 10 years of student leadership, technical symposiums, and outreach drives."
-    },
-    {
-      id: 2,
-      title: "GreenTech Hackathon Pitch Finalists",
-      url: "https://youtu.be/8qGIyNu5Qqo",
-      desc: "Recap video showcasing student project prototypes and presentation pitches at Perundurai."
-    }
   ];
 
   const defaultGallery = [
@@ -876,179 +880,141 @@ const Admin = () => {
     }
 
     // Load Overview/Stats & Site Content Values
-    setMemberCount(null /* migrated to API */ || '45');
-    setEventsCount(null /* migrated to API */ || '75+');
-    setAwardsCount(null /* migrated to API */ || '18+');
-    setPapersCount(null /* migrated to API */ || '15');
-    setMission(null /* migrated to API */ || defaultMission);
-    setVision(null /* migrated to API */ || defaultVision);
-    setAccessPin(null /* migrated to API */ || '1234');
-    setIsPinEnabled(null /* migrated to API */ !== 'false');
+    setMemberCount(localStorage.getItem('ieee_member_count') || '45');
+    setEventsCount(localStorage.getItem('ieee_events_count') || '75+');
+    setAwardsCount(localStorage.getItem('ieee_awards_count') || '18+');
+    setPapersCount(localStorage.getItem('ieee_papers_count') || '15');
+    setMission(localStorage.getItem('ieee_mission') || defaultMission);
+    setVision(localStorage.getItem('ieee_vision') || defaultVision);
+    setAccessPin(localStorage.getItem('ieee_access_pin') || '1234');
+    setIsPinEnabled(localStorage.getItem('ieee_pin_enabled') !== 'false');
 
-    const storedTicker = null /* migrated to API */;
+    const storedTicker = localStorage.getItem('ieee_ticker_notices');
     if (storedTicker) {
       setTickerNoticesText(JSON.parse(storedTicker).join('\n'));
     } else {
       setTickerNoticesText(defaultTicker.join('\n'));
     }
 
-    // Gallery and Media Videos are now dynamically fetched via API inside fetchMediaItems
+    // Load Gallery
+    const storedGallery = localStorage.getItem('ieee_gallery_items');
+    let parsedGallery = storedGallery ? JSON.parse(storedGallery) : null;
+    if (!parsedGallery || parsedGallery.length === 0 || !parsedGallery[0].images || parsedGallery[0].title === 'Flutter Bootcamp 2026') {
+      localStorage.setItem('ieee_gallery_items', JSON.stringify(defaultGallery));
+      parsedGallery = defaultGallery;
+    }
+    setGalleryItems(parsedGallery);
 
-    // Load Events from API
-    const fetchEvents = async () => {
-      try {
-        const response = await authFetch(`${API}/events`);
-        if (!response.ok) throw new Error(`Failed to load events (${response.status})`);
-        
-        const data = await response.json();
-        const formattedData = data.map(evt => ({ ...evt, id: evt._id }));
-        
-        const upcoming = formattedData.filter(evt => evt.isUpcoming);
-        const past = formattedData.filter(evt => !evt.isUpcoming);
-        
-        setUpcomingEvents(upcoming);
-        setPastEvents(past);
-      } catch (err) {
-        console.error("Events fetch error:", err);
-      }
-    };
-    if (adminSession === 'active' || isLoggedIn) {
-      fetchEvents();
-      
-      const fetchMediaItems = async () => {
-        try {
-          const galleryRes = await galleryService.getAll();
-          const mappedGallery = galleryRes.map(g => ({
-            id: g._id,
-            title: g.title,
-            cat: g.category || 'General',
-            text: g.description,
-            images: g.images && g.images.length > 0 ? g.images : []
-          }));
-          setGalleryItems(mappedGallery.length > 0 ? mappedGallery : defaultGallery);
-        } catch (err) {
-          console.error("Gallery fetch error:", err);
-          setGalleryItems(defaultGallery);
+    // Load Media Videos
+    const storedVideos = localStorage.getItem('ieee_media_videos_v2');
+    if (storedVideos) {
+      setMediaVideos(JSON.parse(storedVideos));
+    } else {
+      const defaultMediaVideos = [
+        {
+          title: "IEEE KEC SB Decade Celebration Promo",
+          url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          desc: "An overview reel capturing 10 years of student leadership, technical symposiums, and outreach drives."
+        },
+        {
+          title: "GreenTech Hackathon Pitch Finalists",
+          url: "https://youtu.be/8qGIyNu5Qqo",
+          desc: "Recap video showcasing student project prototypes and presentation pitches at Perundurai."
         }
+      ];
+      localStorage.setItem('ieee_media_videos_v2', JSON.stringify(defaultMediaVideos));
+      setMediaVideos(defaultMediaVideos);
+    }
 
-        try {
-          const videosRes = await videosService.getAll();
-          const mappedVideos = videosRes.map(v => ({
-            id: v._id,
-            title: v.title,
-            url: v.url,
-            desc: v.description || v.desc || ''
-          }));
-          setMediaVideos(mappedVideos.length > 0 ? mappedVideos : defaultMediaVideos);
-        } catch (err) {
-          console.error("Videos fetch error:", err);
-          setMediaVideos([]);
-        }
-      };
-      fetchMediaItems();
-      
-      const fetchSettingsData = async () => {
-        try {
-          const keysAndSetters = [
-            { key: 'ieee_achievements', setter: setAchievements, def: [] },
-            { key: 'ieee_operational_committees', setter: setCommittees, def: [] },
-            { key: 'ieee_research_papers', setter: setResearchPapers, def: [] },
-            { key: 'ieee_news_items', setter: setNewsItems, def: [] },
-            { key: 'ieee_execomm_societies_v3', setter: setSocieties, def: [] },
-            { key: 'ieee_execomm_students_v3', setter: setStudents, def: [] },
-            { key: 'ieee_request_forms', setter: setRequestForms, def: [] },
-            { key: 'ieee_documents', setter: setDocuments, def: [] }
-          ];
-          
-          const settings = await settingsService.getAll();
-          // settings is an array of { key, value }
-          const settingsMap = {};
-          if (Array.isArray(settings)) {
-            settings.forEach(s => settingsMap[s.key] = s.value);
-          }
-          
-          keysAndSetters.forEach(({ key, setter, def }) => {
-            if (settingsMap[key]) {
-              try {
-                const parsed = JSON.parse(settingsMap[key]);
-                setter(Array.isArray(parsed) ? parsed : def);
-              } catch(e) {
-                setter(def);
-              }
-            } else {
-              setter(def);
-            }
-          });
-        } catch (e) { console.error("Error loading settings data:", e); }
-      };
-      
-      fetchSettingsData();
+    // Load Events
+    const storedUpcoming = localStorage.getItem('ieee_events_upcoming');
+    if (storedUpcoming) {
+      setUpcomingEvents(JSON.parse(storedUpcoming));
+    } else {
+      localStorage.setItem('ieee_events_upcoming', JSON.stringify(defaultUpcomingEvents));
+      setUpcomingEvents(defaultUpcomingEvents);
+    }
+
+    const storedPast = localStorage.getItem('ieee_events_past');
+    if (storedPast) {
+      setPastEvents(JSON.parse(storedPast));
+    } else {
+      localStorage.setItem('ieee_events_past', JSON.stringify(defaultPastEvents));
+      setPastEvents(defaultPastEvents);
     }
 
     // Load Achievements
-    const storedAchievements = null /* migrated to API */;
+    const storedAchievements = localStorage.getItem('ieee_achievements');
     if (storedAchievements) {
       setAchievements(JSON.parse(storedAchievements));
     } else {
+      localStorage.setItem('ieee_achievements', JSON.stringify(defaultAchievements));
       setAchievements(defaultAchievements);
     }
 
     // Load Execomm Societies
-    const storedSocieties = null /* migrated to API */;
+    const storedSocieties = localStorage.getItem('ieee_execomm_societies_v3');
     if (storedSocieties) {
       setSocieties(JSON.parse(storedSocieties));
     } else {
+      localStorage.setItem('ieee_execomm_societies_v3', JSON.stringify(defaultSocieties));
       setSocieties(defaultSocieties);
     }
 
     // Load Execomm Students
-    const storedStudents = null /* migrated to API */;
+    const storedStudents = localStorage.getItem('ieee_execomm_students_v3');
     if (storedStudents) {
       setStudents(JSON.parse(storedStudents));
     } else {
+      localStorage.setItem('ieee_execomm_students_v3', JSON.stringify(defaultStudents));
       setStudents(defaultStudents);
     }
 
     // Load Committees
-    const storedCommittees = null /* migrated to API */;
+    const storedCommittees = localStorage.getItem('ieee_operational_committees');
     if (storedCommittees) {
       setCommittees(JSON.parse(storedCommittees));
     } else {
+      localStorage.setItem('ieee_operational_committees', JSON.stringify(defaultCommittees));
       setCommittees(defaultCommittees);
     }
 
     // Load Research Papers
-    const storedPapers = null /* migrated to API */;
+    const storedPapers = localStorage.getItem('ieee_research_papers');
     if (storedPapers) {
       setResearchPapers(JSON.parse(storedPapers));
     } else {
+      localStorage.setItem('ieee_research_papers', JSON.stringify(defaultResearchPapers));
       setResearchPapers(defaultResearchPapers);
       // Set initial papers count
+      localStorage.setItem('ieee_papers_count', defaultResearchPapers.length.toString());
       setPapersCount(defaultResearchPapers.length.toString());
     }
 
     // Load News Items
-    const storedNews = null /* migrated to API */;
+    const storedNews = localStorage.getItem('ieee_news_items');
     let parsedNews = storedNews ? JSON.parse(storedNews) : null;
     if (!parsedNews || parsedNews.length === 0 || !parsedNews[0].cat) {
+      localStorage.setItem('ieee_news_items', JSON.stringify(defaultNews));
       parsedNews = defaultNews;
     }
     setNewsItems(parsedNews);
 
     // Load dynamic media content
-    setAboutImage(null /* migrated to API */ || '/assets/kec_itpark.jpg');
-    setKeystonesVideoUrl(null /* migrated to API */ || 'https://youtu.be/_90Hd1qMDGM');
+    setAboutImage(localStorage.getItem('ieee_about_image') || '/assets/kec_itpark.jpg');
+    setKeystonesVideoUrl(localStorage.getItem('ieee_keystones_video_url_v2') || 'https://youtu.be/_90Hd1qMDGM');
 
-    const storedHero = null /* migrated to API */;
+    const storedHero = localStorage.getItem('ieee_hero_images');
     if (storedHero) {
       setHeroImages(JSON.parse(storedHero));
     } else {
       const defaultHeroImages = ['/assets/kec_gate.jpg', '/assets/kec_itpark.jpg', '/assets/kec_admin.jpg'];
+      localStorage.setItem('ieee_hero_images', JSON.stringify(defaultHeroImages));
       setHeroImages(defaultHeroImages);
     }
 
     // Load impact stats
-    const storedImpact = null /* migrated to API */;
+    const storedImpact = localStorage.getItem('ieee_impact_stats');
     if (storedImpact) {
       setImpactStats(JSON.parse(storedImpact));
     } else {
@@ -1060,11 +1026,12 @@ const Admin = () => {
         { id: 5, value: "20+", label: "Workshops Conducted" },
         { id: 6, value: "10+", label: "Industry Collaborations" }
       ];
+      localStorage.setItem('ieee_impact_stats', JSON.stringify(defaultImpactStats));
       setImpactStats(defaultImpactStats);
     }
 
     // Load testimonials
-    const storedTestimonials = null /* migrated to API */;
+    const storedTestimonials = localStorage.getItem('ieee_testimonials');
     if (storedTestimonials) {
       setTestimonials(JSON.parse(storedTestimonials));
     } else {
@@ -1073,31 +1040,34 @@ const Admin = () => {
         { id: 2, text: "The networking opportunities and workshops provided valuable industry exposure and practical knowledge.", author: "IEEE Alumni", role: "KEC IEEE SB" },
         { id: 3, text: "Being part of IEEE motivated me to explore research, innovation, and professional development beyond academics.", author: "IEEE Graduate", role: "KEC IEEE SB" }
       ];
+      localStorage.setItem('ieee_testimonials', JSON.stringify(defaultTestimonials));
       setTestimonials(defaultTestimonials);
     }
 
     // Load Drive folder and Documents settings
-    const storedDriveUrl = null /* migrated to API */;
+    const storedDriveUrl = localStorage.getItem('ieee_drive_folder_url');
     if (storedDriveUrl) {
       setDriveFolderUrl(storedDriveUrl);
     } else {
       const defaultUrl = 'https://drive.google.com/drive/folders/1mdrfLwOWprcKEB5PbK6BhWgv1MrrSE-m';
+      localStorage.setItem('ieee_drive_folder_url', defaultUrl);
       setDriveFolderUrl(defaultUrl);
     }
 
-    const storedDocs = null /* migrated to API */;
+    const storedDocs = localStorage.getItem('ieee_documents');
     let parsedDocs = [];
     if (storedDocs) {
       parsedDocs = JSON.parse(storedDocs);
     }
     if (!storedDocs || parsedDocs.length === 0) {
+      localStorage.setItem('ieee_documents', JSON.stringify(defaultSyncFiles));
       setDocuments(defaultSyncFiles);
     } else {
       setDocuments(parsedDocs);
     }
 
     // Load Request Forms
-    const storedRequestForms = null /* migrated to API */;
+    const storedRequestForms = localStorage.getItem('ieee_request_forms');
     const defaultRequestForms = [
       {
         id: 1,
@@ -1160,6 +1130,7 @@ const Admin = () => {
           return updated;
         });
         if (mutated) {
+          localStorage.setItem('ieee_request_forms', JSON.stringify(parsed));
         }
         setRequestForms(parsed);
       } catch (e) {
@@ -1167,19 +1138,21 @@ const Admin = () => {
         setRequestForms(defaultRequestForms);
       }
     } else {
+      localStorage.setItem('ieee_request_forms', JSON.stringify(defaultRequestForms));
       setRequestForms(defaultRequestForms);
     }
 
     // Load Request Form Submissions
-    const storedSubmissions = null /* migrated to API */;
+    const storedSubmissions = localStorage.getItem('ieee_form_submissions');
     if (storedSubmissions) {
       setSubmissions(JSON.parse(storedSubmissions));
     } else {
+      localStorage.setItem('ieee_form_submissions', JSON.stringify([]));
       setSubmissions([]);
     }
 
     // Load About KEC SB data
-    const storedAboutSb = null /* migrated to API */;
+    const storedAboutSb = localStorage.getItem('ieee_about_kec_sb_v1');
     if (storedAboutSb) {
       setAboutKecSb(JSON.parse(storedAboutSb));
     } else {
@@ -1230,10 +1203,11 @@ const Admin = () => {
         }
       };
       setAboutKecSb(defaultAboutKecSb);
+      localStorage.setItem('ieee_about_kec_sb_v1', JSON.stringify(defaultAboutKecSb));
     }
 
     // Load Contact Page data
-    const storedContactPage = null /* migrated to API */;
+    const storedContactPage = localStorage.getItem('ieee_contact_page_v1');
     if (storedContactPage) {
       setContactPage(JSON.parse(storedContactPage));
     } else {
@@ -1258,10 +1232,11 @@ const Admin = () => {
         }
       };
       setContactPage(defaultContact);
+      localStorage.setItem('ieee_contact_page_v1', JSON.stringify(defaultContact));
     }
 
     // Load Events stats and philosophy
-    const storedEventsStats = null /* migrated to API */;
+    const storedEventsStats = localStorage.getItem('ieee_events_stats_v1');
     if (storedEventsStats) {
       setEventsStats(JSON.parse(storedEventsStats));
     } else {
@@ -1272,9 +1247,10 @@ const Admin = () => {
         { label: "Total Participants", count: "3000+" }
       ];
       setEventsStats(defaultEventsStats);
+      localStorage.setItem('ieee_events_stats_v1', JSON.stringify(defaultEventsStats));
     }
 
-    const storedEventsPhilosophy = null /* migrated to API */;
+    const storedEventsPhilosophy = localStorage.getItem('ieee_events_philosophy_v1');
     if (storedEventsPhilosophy) {
       setEventPhilosophy(JSON.parse(storedEventsPhilosophy));
     } else {
@@ -1283,10 +1259,11 @@ const Admin = () => {
         description: "At IEEE KEC SB, our events are designed around practical engineering experience. We bridge the gap between academic theory and active technology deployment through hands-on hackathons, research publications, and peer-to-peer programming."
       };
       setEventPhilosophy(defaultPhilosophy);
+      localStorage.setItem('ieee_events_philosophy_v1', JSON.stringify(defaultPhilosophy));
     }
 
     // Load Achievements stats and success stories
-    const storedAchievementsStats = null /* migrated to API */;
+    const storedAchievementsStats = localStorage.getItem('ieee_achievements_stats_v1');
     if (storedAchievementsStats) {
       setAchievementsStats(JSON.parse(storedAchievementsStats));
     } else {
@@ -1297,9 +1274,10 @@ const Admin = () => {
         { label: "Indexed Research Papers", count: "25+" }
       ];
       setAchievementsStats(defaultAchievementsStats);
+      localStorage.setItem('ieee_achievements_stats_v1', JSON.stringify(defaultAchievementsStats));
     }
 
-    const storedSuccessStories = null /* migrated to API */;
+    const storedSuccessStories = localStorage.getItem('ieee_success_stories_v1');
     if (storedSuccessStories) {
       setSuccessStories(JSON.parse(storedSuccessStories));
     } else {
@@ -1318,10 +1296,11 @@ const Admin = () => {
         }
       ];
       setSuccessStories(defaultSuccessStories);
+      localStorage.setItem('ieee_success_stories_v1', JSON.stringify(defaultSuccessStories));
     }
 
     // Load Committees philosophy and CTA
-    const storedCommitteesPhilosophy = null /* migrated to API */;
+    const storedCommitteesPhilosophy = localStorage.getItem('ieee_committees_philosophy_v1');
     if (storedCommitteesPhilosophy) {
       setCommitteesPhilosophy(JSON.parse(storedCommitteesPhilosophy));
     } else {
@@ -1330,9 +1309,10 @@ const Admin = () => {
         text: "Volunteering is at the core of IEEE's mission. At KEC, we believe that real engineering skills are forged by organizing, leading, and serving. Our committees offer students an experimental workspace to practice project management, professional communication, and group dynamics while working on real community initiatives."
       };
       setCommitteesPhilosophy(defaultPhilosophy);
+      localStorage.setItem('ieee_committees_philosophy_v1', JSON.stringify(defaultPhilosophy));
     }
 
-    const storedCommitteesCta = null /* migrated to API */;
+    const storedCommitteesCta = localStorage.getItem('ieee_committees_cta_v1');
     if (storedCommitteesCta) {
       setCommitteesCta(JSON.parse(storedCommitteesCta));
     } else {
@@ -1345,13 +1325,14 @@ const Admin = () => {
         btnMailLink: "mailto:ieee@kongu.edu"
       };
       setCommitteesCta(defaultCta);
+      localStorage.setItem('ieee_committees_cta_v1', JSON.stringify(defaultCta));
     }
-  }, [isLoggedIn]);
+  }, []);
 
   // Load current branch details on selected branch key changes
   useEffect(() => {
     const key = selectedBranchKey;
-    const stored = null;
+    const stored = localStorage.getItem(`ieee_society_data_${key}_v5`);
     if (stored) {
       try {
         setBranchData(JSON.parse(stored));
@@ -1370,30 +1351,24 @@ const Admin = () => {
     setBranchSaved(false);
   }, [selectedBranchKey]);
 
-  const handleLogin = async (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
     setLoginError('');
 
-    try {
-      const response = await fetch(`${API}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
+    // Fetch registered admins from localStorage
+    const storedAdmins = JSON.parse(localStorage.getItem('ieee_registered_admins') || '[]');
+    const allAdmins = [...defaultAdmins, ...storedAdmins];
 
-      const data = await response.json();
+    const matchedAdmin = allAdmins.find(
+      (admin) => admin.email.toLowerCase() === email.toLowerCase() && admin.password === password
+    );
 
-      if (response.ok) {
-        setIsLoggedIn(true);
-        sessionStorage.setItem('ieee_admin_session', 'active');
-        localStorage.setItem('ieee_admin_token', data.token);
-        setLoginError('');
-      } else {
-        setLoginError(data.message || 'Invalid Email or Password');
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      setLoginError("Failed to connect to backend server.");
+    if (matchedAdmin) {
+      setIsLoggedIn(true);
+      sessionStorage.setItem('ieee_admin_session', 'active');
+      setLoginError('');
+    } else {
+      setLoginError('Invalid Email or Password');
     }
   };
 
@@ -1413,7 +1388,7 @@ const Admin = () => {
     }
 
     // Fetch existing custom registered admins and check for duplicates
-    const storedAdmins = JSON.parse(null /* migrated to API */ || '[]');
+    const storedAdmins = JSON.parse(localStorage.getItem('ieee_registered_admins') || '[]');
     const allAdmins = [...defaultAdmins, ...storedAdmins];
 
     const exists = allAdmins.some(
@@ -1428,7 +1403,7 @@ const Admin = () => {
     // Save newly registered admin
     const newAdmin = { email: regEmail, password: regPassword };
     const updatedAdmins = [...storedAdmins, newAdmin];
-    settingsService.set('ieee_registered_admins', JSON.stringify(updatedAdmins));
+    localStorage.setItem('ieee_registered_admins', JSON.stringify(updatedAdmins));
 
     setRegSuccess('Registration successful! You can now log in.');
     setEmail(regEmail); // Pre-populate the login field for convenience
@@ -1529,7 +1504,7 @@ const Admin = () => {
     }
 
     setRequestForms(updatedForms);
-    settingsService.set('ieee_request_forms', JSON.stringify(updatedForms));
+    localStorage.setItem('ieee_request_forms', JSON.stringify(updatedForms));
     setEditingFormId(null);
     setPreviewFormUrl('');
   };
@@ -1538,37 +1513,37 @@ const Admin = () => {
     if (!window.confirm("Are you sure you want to permanently delete this request form template?")) return;
     const updated = requestForms.filter(form => form.id !== id);
     setRequestForms(updated);
-    settingsService.set('ieee_request_forms', JSON.stringify(updated));
+    localStorage.setItem('ieee_request_forms', JSON.stringify(updated));
   };
 
   const handleDeleteSubmission = (id) => {
     if (!window.confirm("Are you sure you want to delete this submission?")) return;
     const updated = submissions.filter(s => s.id !== id);
     setSubmissions(updated);
-    settingsService.set('ieee_form_submissions', JSON.stringify(updated));
+    localStorage.setItem('ieee_form_submissions', JSON.stringify(updated));
   };
 
   // Stats & Site Settings Save
   const handleSaveStats = (e) => {
     e.preventDefault();
-    settingsService.set('ieee_member_count', memberCount);
-    settingsService.set('ieee_events_count', eventsCount);
-    settingsService.set('ieee_awards_count', awardsCount);
-    settingsService.set('ieee_papers_count', papersCount);
-    settingsService.set('ieee_mission', mission);
-    settingsService.set('ieee_vision', vision);
-    settingsService.set('ieee_access_pin', accessPin);
-    settingsService.set('ieee_pin_enabled', isPinEnabled);
-    settingsService.set('ieee_about_image', aboutImage);
-    settingsService.set('ieee_keystones_video_url_v2', keystonesVideoUrl);
-    settingsService.set('ieee_hero_images', JSON.stringify(heroImages));
+    localStorage.setItem('ieee_member_count', memberCount);
+    localStorage.setItem('ieee_events_count', eventsCount);
+    localStorage.setItem('ieee_awards_count', awardsCount);
+    localStorage.setItem('ieee_papers_count', papersCount);
+    localStorage.setItem('ieee_mission', mission);
+    localStorage.setItem('ieee_vision', vision);
+    localStorage.setItem('ieee_access_pin', accessPin);
+    localStorage.setItem('ieee_pin_enabled', isPinEnabled);
+    localStorage.setItem('ieee_about_image', aboutImage);
+    localStorage.setItem('ieee_keystones_video_url_v2', keystonesVideoUrl);
+    localStorage.setItem('ieee_hero_images', JSON.stringify(heroImages));
 
     // Convert ticker notices from lines to string array
     const tickerArray = tickerNoticesText
       .split('\n')
       .map(line => line.trim())
       .filter(line => line.length > 0);
-    settingsService.set('ieee_ticker_notices', JSON.stringify(tickerArray));
+    localStorage.setItem('ieee_ticker_notices', JSON.stringify(tickerArray));
 
     setStatsSaved(true);
     setTimeout(() => setStatsSaved(false), 3000);
@@ -1759,177 +1734,141 @@ const Admin = () => {
   };
 
   // Generic Delete Actions
-  const handleDeleteItem = async (type, id) => {
+  const handleDeleteItem = (type, id) => {
     if (!window.confirm(`Are you sure you want to delete this ${type} item?`)) return;
 
     if (type === 'gallery') {
-      const deleteGalleryItem = async () => {
-        try {
-          await galleryService.delete(id);
-          const updated = galleryItems.filter(item => item.id !== id);
-          setGalleryItems(updated);
-        } catch (err) {
-          console.error(err);
-          alert('Error deleting gallery item: ' + err.message);
-        }
-      };
-      deleteGalleryItem();
+      const updated = galleryItems.filter(item => item.id !== id);
+      setGalleryItems(updated);
+      localStorage.setItem('ieee_gallery_items', JSON.stringify(updated));
     } else if (type === 'event') {
-      const deleteEvent = async () => {
-        try {
-          const response = await authFetch(`${API}/events/${id}`, { method: 'DELETE' });
-          if (!response.ok) throw new Error('Failed to delete event');
-          
-          const updatedUpcoming = upcomingEvents.filter(item => item.id !== id);
-          const updatedPast = pastEvents.filter(item => item.id !== id);
-          setUpcomingEvents(updatedUpcoming);
-          setPastEvents(updatedPast);
-        } catch (err) {
-          console.error(err);
-          alert('Error deleting event: ' + err.message);
-        }
-      };
-      deleteEvent();
+      const updatedUpcoming = upcomingEvents.filter(item => item.id !== id);
+      const updatedPast = pastEvents.filter(item => item.id !== id);
+      setUpcomingEvents(updatedUpcoming);
+      setPastEvents(updatedPast);
+      localStorage.setItem('ieee_events_upcoming', JSON.stringify(updatedUpcoming));
+      localStorage.setItem('ieee_events_past', JSON.stringify(updatedPast));
     } else if (type === 'achievement') {
       const updated = achievements.filter(item => item.id !== id);
       setAchievements(updated);
-      settingsService.set('ieee_achievements', JSON.stringify(updated));
+      localStorage.setItem('ieee_achievements', JSON.stringify(updated));
     } else if (type === 'society') {
       const updated = societies.filter(item => item.id !== id);
       setSocieties(updated);
-      settingsService.set('ieee_execomm_societies_v3', JSON.stringify(updated));
+      localStorage.setItem('ieee_execomm_societies_v3', JSON.stringify(updated));
     } else if (type === 'student') {
       const updated = students.filter(item => item.id !== id);
       setStudents(updated);
-      settingsService.set('ieee_execomm_students_v3', JSON.stringify(updated));
+      localStorage.setItem('ieee_execomm_students_v3', JSON.stringify(updated));
     } else if (type === 'committee') {
       const updated = committees.filter(item => item.id !== id);
       setCommittees(updated);
-      settingsService.set('ieee_operational_committees', JSON.stringify(updated));
+      localStorage.setItem('ieee_operational_committees', JSON.stringify(updated));
     } else if (type === 'researchpaper') {
       const updated = researchPapers.filter(item => item.id !== id);
       setResearchPapers(updated);
-      settingsService.set('ieee_research_papers', JSON.stringify(updated));
+      localStorage.setItem('ieee_research_papers', JSON.stringify(updated));
       
       // Decrement papers count when a paper is deleted
       const currentCount = parseInt(papersCount) || 0;
       const newCount = Math.max(currentCount - 1, 0);
       setPapersCount(newCount.toString());
-      settingsService.set('ieee_papers_count', newCount.toString());
+      localStorage.setItem('ieee_papers_count', newCount.toString());
     } else if (type === 'news') {
       const updated = newsItems.filter(item => item.id !== id);
       setNewsItems(updated);
-      settingsService.set('ieee_news_items', JSON.stringify(updated));
+      localStorage.setItem('ieee_news_items', JSON.stringify(updated));
     }
   };
 
   // Generic Save Logic
-  const handleSaveItem = async (e) => {
+  const handleSaveItem = (e) => {
     e.preventDefault();
 
     if (modalType === 'gallery') {
       if (!formTitle.trim() || !formText.trim()) return;
       let updated = [];
       if (modalMode === 'add') {
-        const createGalleryItem = async () => {
-          try {
-            const newItem = await galleryService.create({
-              title: formTitle,
-              category: formCat,
-              description: formText,
-              images: formImages
-            });
-            setGalleryItems([...galleryItems, {
-              id: newItem._id,
-              title: newItem.title,
-              cat: newItem.category || 'General',
-              text: newItem.description,
-              images: newItem.images || []
-            }]);
-          } catch (err) {
-            alert('Error: ' + err.message);
-          }
+        const newItem = {
+          id: galleryItems.length > 0 ? Math.max(...galleryItems.map(i => i.id)) + 1 : 1,
+          title: formTitle,
+          cat: formCat,
+          text: formText,
+          images: formImages
         };
-        createGalleryItem();
+        updated = [...galleryItems, newItem];
       } else {
-        const updateGalleryItem = async () => {
-          try {
-            const updatedItem = await galleryService.update(currentItemId, {
-              title: formTitle,
-              category: formCat,
-              description: formText,
-              images: formImages
-            });
-            setGalleryItems(galleryItems.map(item =>
-              item.id === currentItemId
-                ? { ...item, title: updatedItem.title, cat: updatedItem.category || 'General', text: updatedItem.description, images: updatedItem.images || [] }
-                : item
-            ));
-          } catch (err) {
-            alert('Error: ' + err.message);
-          }
-        };
-        updateGalleryItem();
+        updated = galleryItems.map(item =>
+          item.id === currentItemId
+            ? { ...item, title: formTitle, cat: formCat, text: formText, images: formImages }
+            : item
+        );
       }
+      setGalleryItems(updated);
+      localStorage.setItem('ieee_gallery_items', JSON.stringify(updated));
 
     } else if (modalType === 'event') {
       if (!eventTitle.trim() || !eventDesc.trim() || !eventDate.trim() || !eventVenue.trim()) return;
 
-      const newEventData = {
-        title: eventTitle,
-        desc: eventDesc,
-        date: eventDate,
-        time: eventTime,
-        venue: eventVenue,
-        tag: eventTag,
-        link: eventLink,
-        highlights: eventHighlights,
-        isHighlighted: isEventHighlighted,
-        highlightOrder: isEventHighlighted ? pastEvents.find(e => e.id === currentItemId)?.highlightOrder || (pastEvents.filter(e => e.isHighlighted).length + 1) : 0,
-        highlightDescription: highlightDescription || eventDesc,
-        highlightImage: highlightImage,
-        highlightTheme: highlightTheme,
-        isUpcoming: eventIsUpcoming
-      };
+      const combinedId = currentItemId || Date.now();
+      let updatedUpcoming = [...upcomingEvents];
+      let updatedPast = [...pastEvents];
 
-      const saveEvent = async () => {
-        try {
-          let url = `${API}/events`;
-          let method = 'POST';
+      // Remove existing item from both lists if editing
+      if (modalMode === 'edit') {
+        updatedUpcoming = updatedUpcoming.filter(e => e.id !== currentItemId);
+        updatedPast = updatedPast.filter(e => e.id !== currentItemId);
+      }
 
-          if (modalMode === 'edit') {
-            url = `${API}/events/${currentItemId}`;
-            method = 'PUT';
+      if (eventIsUpcoming) {
+        const newEvent = {
+          id: combinedId,
+          title: eventTitle,
+          desc: eventDesc,
+          date: eventDate,
+          time: eventTime,
+          venue: eventVenue,
+          tag: eventTag,
+          link: eventLink,
+          showNewBadge: eventShowNewBadge
+        };
+        updatedUpcoming.push(newEvent);
+      } else {
+        // Limit check
+        if (isEventHighlighted) {
+          const currentlyHighlighted = updatedPast.filter(e => e.isHighlighted && e.id !== combinedId);
+          if (currentlyHighlighted.length >= 5) {
+            alert("A maximum of 5 highlighted events is allowed. Please remove another event from highlights first.");
+            return;
           }
-
-          const response = await authFetch(url, {
-            method,
-            body: JSON.stringify(newEventData)
-          });
-
-          if (!response.ok) throw new Error('Failed to save event');
-          
-          const savedEvent = await response.json();
-          savedEvent.id = savedEvent._id; 
-
-          if (modalMode === 'edit') {
-            setUpcomingEvents(prev => prev.filter(e => e.id !== currentItemId));
-            setPastEvents(prev => prev.filter(e => e.id !== currentItemId));
-          }
-
-          if (savedEvent.isUpcoming) {
-            setUpcomingEvents(prev => [...prev, savedEvent]);
-          } else {
-            setPastEvents(prev => [...prev, savedEvent]);
-          }
-          setIsModalOpen(false);
-        } catch (err) {
-          console.error(err);
-          alert('Error saving event: ' + err.message);
-          return;
         }
-      };
-      saveEvent();
+
+        const oldEvent = pastEvents.find(e => e.id === combinedId) || {};
+        const nextOrder = oldEvent.highlightOrder !== undefined 
+          ? oldEvent.highlightOrder 
+          : (pastEvents.filter(e => e.isHighlighted).length + 1);
+
+        const newEvent = {
+          id: combinedId,
+          title: eventTitle,
+          desc: eventDesc,
+          date: eventDate,
+          venue: eventVenue,
+          tag: eventTag,
+          highlights: eventHighlights,
+          isHighlighted: isEventHighlighted,
+          highlightOrder: nextOrder,
+          highlightDescription: highlightDescription || eventDesc,
+          highlightImage: highlightImage,
+          highlightTheme: highlightTheme
+        };
+        updatedPast.push(newEvent);
+      }
+
+      setUpcomingEvents(updatedUpcoming);
+      setPastEvents(updatedPast);
+      localStorage.setItem('ieee_events_upcoming', JSON.stringify(updatedUpcoming));
+      localStorage.setItem('ieee_events_past', JSON.stringify(updatedPast));
 
     } else if (modalType === 'achievement') {
       if (!achTitle.trim() || !achCategory.trim() || !achDesc.trim()) return;
@@ -1951,7 +1890,7 @@ const Admin = () => {
         );
       }
       setAchievements(updated);
-      settingsService.set('ieee_achievements', JSON.stringify(updated));
+      localStorage.setItem('ieee_achievements', JSON.stringify(updated));
 
     } else if (modalType === 'society') {
       if (!societyName.trim()) return;
@@ -1977,7 +1916,7 @@ const Admin = () => {
         );
       }
       setSocieties(updated);
-      settingsService.set('ieee_execomm_societies_v3', JSON.stringify(updated));
+      localStorage.setItem('ieee_execomm_societies_v3', JSON.stringify(updated));
 
     } else if (modalType === 'student') {
       if (!studentName.trim() || !studentDept.trim() || !studentYear.trim() || !studentIeeeNumber.trim() || !studentPosition.trim()) return;
@@ -2017,7 +1956,7 @@ const Admin = () => {
         );
       }
       setStudents(updated);
-      settingsService.set('ieee_execomm_students_v3', JSON.stringify(updated));
+      localStorage.setItem('ieee_execomm_students_v3', JSON.stringify(updated));
 
     } else if (modalType === 'committee') {
       if (!commName.trim() || !commDesc.trim() || !commLead.trim() || !commCoLead.trim()) return;
@@ -2040,7 +1979,7 @@ const Admin = () => {
         );
       }
       setCommittees(updated);
-      settingsService.set('ieee_operational_committees', JSON.stringify(updated));
+      localStorage.setItem('ieee_operational_committees', JSON.stringify(updated));
 
     } else if (modalType === 'researchpaper') {
       if (!paperTitle.trim() || !paperAuthors.trim() || !paperDesc.trim()) return;
@@ -2061,7 +2000,7 @@ const Admin = () => {
         const currentCount = parseInt(papersCount) || 0;
         const newCount = currentCount + 1;
         setPapersCount(newCount.toString());
-        settingsService.set('ieee_papers_count', newCount.toString());
+        localStorage.setItem('ieee_papers_count', newCount.toString());
       } else {
         updated = researchPapers.map(item =>
           item.id === currentItemId
@@ -2070,7 +2009,7 @@ const Admin = () => {
         );
       }
       setResearchPapers(updated);
-      settingsService.set('ieee_research_papers', JSON.stringify(updated));
+      localStorage.setItem('ieee_research_papers', JSON.stringify(updated));
     } else if (modalType === 'news') {
       if (!newsTitle.trim() || !newsSource.trim() || !newsDate.trim() || !newsSnippet.trim()) return;
       let updated = [];
@@ -2093,7 +2032,7 @@ const Admin = () => {
         );
       }
       setNewsItems(updated);
-      settingsService.set('ieee_news_items', JSON.stringify(updated));
+      localStorage.setItem('ieee_news_items', JSON.stringify(updated));
     }
 
     setIsModalOpen(false);
@@ -2125,7 +2064,7 @@ const Admin = () => {
         : item
     );
     setSocieties(updated);
-    settingsService.set('ieee_execomm_societies_v3', JSON.stringify(updated));
+    localStorage.setItem('ieee_execomm_societies_v3', JSON.stringify(updated));
     setEditingSocietyId(null);
   };
 
@@ -2159,7 +2098,7 @@ const Admin = () => {
       return item;
     });
     setSocieties(updated);
-    settingsService.set('ieee_execomm_societies_v3', JSON.stringify(updated));
+    localStorage.setItem('ieee_execomm_societies_v3', JSON.stringify(updated));
     setEditingFacultyId(null);
   };
 
@@ -2177,7 +2116,7 @@ const Admin = () => {
       return item;
     });
     setSocieties(updated);
-    settingsService.set('ieee_execomm_societies_v3', JSON.stringify(updated));
+    localStorage.setItem('ieee_execomm_societies_v3', JSON.stringify(updated));
   };
 
   const startInlineEditStudent = (item) => {
@@ -2214,7 +2153,7 @@ const Admin = () => {
         : item
     );
     setStudents(updated);
-    settingsService.set('ieee_execomm_students_v3', JSON.stringify(updated));
+    localStorage.setItem('ieee_execomm_students_v3', JSON.stringify(updated));
     setEditingStudentId(null);
   };
 
@@ -2226,25 +2165,16 @@ const Admin = () => {
     setEditingGalleryId(item.id);
   };
 
-  const saveInlineGallery = async (id) => {
+  const saveInlineGallery = (id) => {
     if (!formTitle.trim() || !formText.trim()) return;
-    try {
-      const updatedItem = await galleryService.update(id, {
-        title: formTitle,
-        category: formCat,
-        description: formText,
-        images: formImages
-      });
-      const updated = galleryItems.map(item =>
-        item.id === id
-          ? { ...item, title: updatedItem.title, cat: updatedItem.category || 'General', text: updatedItem.description, images: updatedItem.images || [] }
-          : item
-      );
-      setGalleryItems(updated);
-      setEditingGalleryId(null);
-    } catch (err) {
-      alert('Error updating gallery inline: ' + err.message);
-    }
+    const updated = galleryItems.map(item =>
+      item.id === id
+        ? { ...item, title: formTitle, cat: formCat, text: formText, images: formImages }
+        : item
+    );
+    setGalleryItems(updated);
+    localStorage.setItem('ieee_gallery_items', JSON.stringify(updated));
+    setEditingGalleryId(null);
   };
 
   const startInlineEditEvent = (item, isUpcoming) => {
@@ -2262,36 +2192,42 @@ const Admin = () => {
 
   const saveInlineEvent = (id) => {
     if (!eventTitle.trim() || !eventDesc.trim() || !eventDate.trim() || !eventVenue.trim()) return;
-    
-    const saveEvent = async () => {
-      try {
-        const updateData = eventIsUpcoming 
-          ? { title: eventTitle, desc: eventDesc, date: eventDate, time: eventTime, venue: eventVenue, tag: eventTag, link: eventLink, isUpcoming: true }
-          : { title: eventTitle, desc: eventDesc, date: eventDate, time: eventTime, venue: eventVenue, tag: eventTag, highlights: eventHighlights, isUpcoming: false };
-          
-        const response = await authFetch(`${API}/events/${id}`, {
-          method: 'PUT',
-          body: JSON.stringify(updateData)
-        });
-        
-        if (!response.ok) throw new Error('Failed to update event inline');
-        const savedEvent = await response.json();
-        savedEvent.id = savedEvent._id;
-        
-        if (eventIsUpcoming) {
-          const updated = upcomingEvents.map(item => item.id === id ? { ...item, ...savedEvent } : item);
-          setUpcomingEvents(updated);
-        } else {
-          const updated = pastEvents.map(item => item.id === id ? { ...item, ...savedEvent } : item);
-          setPastEvents(updated);
-        }
-      } catch (err) {
-        console.error(err);
-        alert('Error updating event: ' + err.message);
-      }
-      setEditingEventId(null);
-    };
-    saveEvent();
+    if (eventIsUpcoming) {
+      const updated = upcomingEvents.map(item =>
+        item.id === id
+          ? {
+              ...item,
+              title: eventTitle,
+              desc: eventDesc,
+              date: eventDate,
+              time: eventTime,
+              venue: eventVenue,
+              tag: eventTag,
+              link: eventLink
+            }
+          : item
+      );
+      setUpcomingEvents(updated);
+      localStorage.setItem('ieee_events_upcoming', JSON.stringify(updated));
+    } else {
+      const updated = pastEvents.map(item =>
+        item.id === id
+          ? {
+              ...item,
+              title: eventTitle,
+              desc: eventDesc,
+              date: eventDate,
+              time: eventTime,
+              venue: eventVenue,
+              tag: eventTag,
+              highlights: eventHighlights
+            }
+          : item
+      );
+      setPastEvents(updated);
+      localStorage.setItem('ieee_events_past', JSON.stringify(updated));
+    }
+    setEditingEventId(null);
   };
 
   const startInlineEditAchievement = (item) => {
@@ -2310,7 +2246,7 @@ const Admin = () => {
         : item
     );
     setAchievements(updated);
-    settingsService.set('ieee_achievements', JSON.stringify(updated));
+    localStorage.setItem('ieee_achievements', JSON.stringify(updated));
     setEditingAchievementId(null);
   };
 
@@ -2331,7 +2267,7 @@ const Admin = () => {
         : item
     );
     setCommittees(updated);
-    settingsService.set('ieee_operational_committees', JSON.stringify(updated));
+    localStorage.setItem('ieee_operational_committees', JSON.stringify(updated));
     setEditingCommitteeId(null);
   };
 
@@ -2364,7 +2300,7 @@ const Admin = () => {
         : item
     );
     setNewsItems(updated);
-    settingsService.set('ieee_news_items', JSON.stringify(updated));
+    localStorage.setItem('ieee_news_items', JSON.stringify(updated));
     setEditingNewsId(null);
   };
 
@@ -2386,7 +2322,7 @@ const Admin = () => {
         : item
     );
     setResearchPapers(updated);
-    settingsService.set('ieee_research_papers', JSON.stringify(updated));
+    localStorage.setItem('ieee_research_papers', JSON.stringify(updated));
     setEditingResearchPaperId(null);
   };
 
@@ -2405,7 +2341,7 @@ const Admin = () => {
         : item
     );
     setImpactStats(updated);
-    settingsService.set('ieee_impact_stats', JSON.stringify(updated));
+    localStorage.setItem('ieee_impact_stats', JSON.stringify(updated));
     setEditingImpactId(null);
   };
 
@@ -2413,7 +2349,7 @@ const Admin = () => {
     if (!window.confirm("Are you sure you want to delete this statistic?")) return;
     const updated = impactStats.filter(item => item.id !== id);
     setImpactStats(updated);
-    settingsService.set('ieee_impact_stats', JSON.stringify(updated));
+    localStorage.setItem('ieee_impact_stats', JSON.stringify(updated));
   };
 
   const handleAddImpact = (e) => {
@@ -2426,7 +2362,7 @@ const Admin = () => {
     };
     const updated = [...impactStats, newItem];
     setImpactStats(updated);
-    settingsService.set('ieee_impact_stats', JSON.stringify(updated));
+    localStorage.setItem('ieee_impact_stats', JSON.stringify(updated));
     setNewImpactValue('');
     setNewImpactLabel('');
   };
@@ -2438,7 +2374,7 @@ const Admin = () => {
     updated[index] = updated[index - 1];
     updated[index - 1] = temp;
     setImpactStats(updated);
-    settingsService.set('ieee_impact_stats', JSON.stringify(updated));
+    localStorage.setItem('ieee_impact_stats', JSON.stringify(updated));
   };
 
   const handleMoveImpactDown = (index) => {
@@ -2448,7 +2384,7 @@ const Admin = () => {
     updated[index] = updated[index + 1];
     updated[index + 1] = temp;
     setImpactStats(updated);
-    settingsService.set('ieee_impact_stats', JSON.stringify(updated));
+    localStorage.setItem('ieee_impact_stats', JSON.stringify(updated));
   };
 
   // Helper functions for Testimonials
@@ -2467,7 +2403,7 @@ const Admin = () => {
         : item
     );
     setTestimonials(updated);
-    settingsService.set('ieee_testimonials', JSON.stringify(updated));
+    localStorage.setItem('ieee_testimonials', JSON.stringify(updated));
     setEditingTestimonialId(null);
   };
 
@@ -2475,7 +2411,7 @@ const Admin = () => {
     if (!window.confirm("Are you sure you want to delete this testimonial?")) return;
     const updated = testimonials.filter(item => item.id !== id);
     setTestimonials(updated);
-    settingsService.set('ieee_testimonials', JSON.stringify(updated));
+    localStorage.setItem('ieee_testimonials', JSON.stringify(updated));
   };
 
   const handleAddTestimonial = (e) => {
@@ -2489,7 +2425,7 @@ const Admin = () => {
     };
     const updated = [...testimonials, newItem];
     setTestimonials(updated);
-    settingsService.set('ieee_testimonials', JSON.stringify(updated));
+    localStorage.setItem('ieee_testimonials', JSON.stringify(updated));
     setNewTestimonialText('');
     setNewTestimonialAuthor('');
     setNewTestimonialRole('');
@@ -2505,7 +2441,7 @@ const Admin = () => {
   const handleSaveDriveUrl = (e) => {
     e.preventDefault();
     if (!driveFolderUrl.trim()) return;
-    settingsService.set('ieee_drive_folder_url', driveFolderUrl.trim());
+    localStorage.setItem('ieee_drive_folder_url', driveFolderUrl.trim());
     setSyncMessage('Drive folder link saved successfully!');
     setTimeout(() => setSyncMessage(''), 3000);
   };
@@ -2590,7 +2526,7 @@ const Admin = () => {
       }
       
       // Load current documents from localStorage
-      const currentDocs = JSON.parse(null /* migrated to API */ || '[]');
+      const currentDocs = JSON.parse(localStorage.getItem('ieee_documents') || '[]');
       
       // Merge logic: preserve category, description, isVisible, isFeatured, featuredOrder if file exists
       const updatedDocs = sourceFiles.map(syncedFile => {
@@ -2611,7 +2547,7 @@ const Admin = () => {
       });
       
       setDocuments(updatedDocs);
-      settingsService.set('ieee_documents', JSON.stringify(updatedDocs));
+      localStorage.setItem('ieee_documents', JSON.stringify(updatedDocs));
       setIsSyncing(false);
       setSyncMessage(`Successfully synchronized ${updatedDocs.length} documents from Google Drive!`);
     }, 1200);
@@ -2625,7 +2561,7 @@ const Admin = () => {
     setEditingDocId(doc.id);
   };
 
-  const saveInlineDoc = async (id) => {
+  const saveInlineDoc = (id) => {
     if (!docTitleInput.trim()) return;
     const updated = documents.map(d => 
       d.id === id 
@@ -2633,19 +2569,19 @@ const Admin = () => {
         : d
     );
     setDocuments(updated);
-    settingsService.set('ieee_documents', JSON.stringify(updated));
+    localStorage.setItem('ieee_documents', JSON.stringify(updated));
     setEditingDocId(null);
   };
 
-  const toggleDocVisibility = async (id) => {
+  const toggleDocVisibility = (id) => {
     const updated = documents.map(d => 
       d.id === id ? { ...d, isVisible: !d.isVisible } : d
     );
     setDocuments(updated);
-    settingsService.set('ieee_documents', JSON.stringify(updated));
+    localStorage.setItem('ieee_documents', JSON.stringify(updated));
   };
 
-  const toggleDocFeatured = async (id) => {
+  const toggleDocFeatured = (id) => {
     const updated = documents.map(d => {
       if (d.id === id) {
         const isFeaturedNow = !d.isFeatured;
@@ -2660,10 +2596,10 @@ const Admin = () => {
       return d;
     });
     setDocuments(updated);
-    settingsService.set('ieee_documents', JSON.stringify(updated));
+    localStorage.setItem('ieee_documents', JSON.stringify(updated));
   };
 
-  const moveDocFeatured = async (id, direction) => {
+  const moveDocFeatured = (id, direction) => {
     const featured = documents.filter(d => d.isFeatured).sort((a, b) => a.featuredOrder - b.featuredOrder);
     const index = featured.findIndex(d => d.id === id);
     const newIndex = direction === 'up' ? index - 1 : index + 1;
@@ -2680,43 +2616,36 @@ const Admin = () => {
     });
     
     setDocuments(updated);
-    settingsService.set('ieee_documents', JSON.stringify(updated));
+    localStorage.setItem('ieee_documents', JSON.stringify(updated));
   };
 
-  const toggleAllConfidentialDocs = async (makeConfidential) => {
+  const toggleAllConfidentialDocs = (makeConfidential) => {
     if (documents.length === 0) {
       alert("No documents in the repository. Connect a Google Drive folder and click 'Sync Documents' to populate first.");
       return;
     }
     const updated = documents.map(d => ({ ...d, is_confidential: makeConfidential }));
     setDocuments(updated);
-    settingsService.set('ieee_documents', JSON.stringify(updated));
+    localStorage.setItem('ieee_documents', JSON.stringify(updated));
     setSyncMessage(`Successfully marked all ${updated.length} documents as ${makeConfidential ? 'confidential' : 'not confidential'}!`);
     setTimeout(() => setSyncMessage(''), 4000);
   };
 
   // Helper functions for Media Videos
-  const handleAddVideo = async (e) => {
+  const handleAddVideo = (e) => {
     e.preventDefault();
     if (!newVideoTitle.trim() || !newVideoUrl.trim() || !newVideoDesc.trim()) return;
-    try {
-      const newItem = await videosService.create({
-        title: newVideoTitle.trim(),
-        url: newVideoUrl.trim(),
-        description: newVideoDesc.trim()
-      });
-      setMediaVideos([...mediaVideos, {
-        id: newItem._id,
-        title: newItem.title,
-        url: newItem.url,
-        desc: newItem.description || newItem.desc || ''
-      }]);
-      setNewVideoTitle('');
-      setNewVideoUrl('');
-      setNewVideoDesc('');
-    } catch (err) {
-      alert('Error adding video: ' + err.message);
-    }
+    const newItem = {
+      title: newVideoTitle.trim(),
+      url: newVideoUrl.trim(),
+      desc: newVideoDesc.trim()
+    };
+    const updated = [...mediaVideos, newItem];
+    setMediaVideos(updated);
+    localStorage.setItem('ieee_media_videos_v2', JSON.stringify(updated));
+    setNewVideoTitle('');
+    setNewVideoUrl('');
+    setNewVideoDesc('');
   };
 
   const startInlineEditVideo = (index, item) => {
@@ -2726,43 +2655,23 @@ const Admin = () => {
     setEditingVideoIndex(index);
   };
 
-  const saveInlineVideo = async (index) => {
+  const saveInlineVideo = (index) => {
     if (!videoTitleInput.trim() || !videoUrlInput.trim() || !videoDescInput.trim()) return;
-    const itemToUpdate = mediaVideos[index];
-    if (!itemToUpdate) return;
-    
-    try {
-      const updatedItem = await videosService.update(itemToUpdate.id, {
-        title: videoTitleInput.trim(),
-        url: videoUrlInput.trim(),
-        description: videoDescInput.trim()
-      });
-      const updated = mediaVideos.map((item, idx) =>
-        idx === index
-          ? { ...item, title: updatedItem.title, url: updatedItem.url, desc: updatedItem.description || updatedItem.desc || '' }
-          : item
-      );
-      setMediaVideos(updated);
-      setEditingVideoIndex(null);
-    } catch (err) {
-      alert('Error saving video inline: ' + err.message);
-    }
+    const updated = mediaVideos.map((item, idx) =>
+      idx === index
+        ? { ...item, title: videoTitleInput.trim(), url: videoUrlInput.trim(), desc: videoDescInput.trim() }
+        : item
+    );
+    setMediaVideos(updated);
+    localStorage.setItem('ieee_media_videos_v2', JSON.stringify(updated));
+    setEditingVideoIndex(null);
   };
 
-  const handleDeleteVideo = async (index) => {
+  const handleDeleteVideo = (index) => {
     if (!window.confirm("Are you sure you want to delete this video highlight?")) return;
-    const itemToDelete = mediaVideos[index];
-    if (!itemToDelete) return;
-    
-    try {
-      if (itemToDelete.id) {
-        await videosService.delete(itemToDelete.id);
-      }
-      const updated = mediaVideos.filter((_, idx) => idx !== index);
-      setMediaVideos(updated);
-    } catch (err) {
-      alert('Error deleting video: ' + err.message);
-    }
+    const updated = mediaVideos.filter((_, idx) => idx !== index);
+    setMediaVideos(updated);
+    localStorage.setItem('ieee_media_videos_v2', JSON.stringify(updated));
   };
 
 
@@ -3121,7 +3030,7 @@ const Admin = () => {
       });
     }
     setPastEvents(updated);
-    settingsService.set('ieee_events_past', JSON.stringify(updated));
+    localStorage.setItem('ieee_events_past', JSON.stringify(updated));
   };
 
   const moveHighlightItemManual = (index, direction) => {
@@ -3144,7 +3053,7 @@ const Admin = () => {
     });
     
     setPastEvents(updated);
-    settingsService.set('ieee_events_past', JSON.stringify(updated));
+    localStorage.setItem('ieee_events_past', JSON.stringify(updated));
   };
 
   const saveHighlightDetails = (id, desc, theme, img) => {
@@ -3160,7 +3069,7 @@ const Admin = () => {
       return evt;
     });
     setPastEvents(updated);
-    settingsService.set('ieee_events_past', JSON.stringify(updated));
+    localStorage.setItem('ieee_events_past', JSON.stringify(updated));
     setEditingHighlightEventId(null);
   };
 
@@ -3198,545 +3107,775 @@ const Admin = () => {
     });
     
     setPastEvents(updated);
-    settingsService.set('ieee_events_past', JSON.stringify(updated));
+    localStorage.setItem('ieee_events_past', JSON.stringify(updated));
   };
 
   const handleDragEndHighlight = () => {
     setDraggedIndex(null);
   };
 
+  // Dynamic category tree and tab definitions
+  const categoriesList = [
+    {
+      id: 'config',
+      label: 'Site & Stats',
+      icon: <BarChart3 size={16} />,
+      items: [
+        { id: 'stats', label: 'Site Overview', icon: <Settings size={14} /> },
+        { id: 'impact_stats', label: 'Impact Numbers', icon: <BarChart3 size={14} /> },
+        { id: 'contact_page', label: 'Contact & FAQ Page', icon: <MessageSquare size={14} /> }
+      ]
+    },
+    {
+      id: 'roster',
+      label: 'Rosters',
+      icon: <Users size={16} />,
+      items: [
+        { id: 'execomm', label: 'Execomm SB Leaders', icon: <Users size={14} /> },
+        { id: 'branches', label: 'ExeComm Branches', icon: <Layers size={14} /> },
+        { id: 'committees', label: 'Committees', icon: <Target size={14} /> }
+      ]
+    },
+    {
+      id: 'events_media',
+      label: 'Events & Media',
+      icon: <Calendar size={16} />,
+      items: [
+        { id: 'events', label: 'Events List', icon: <Calendar size={14} /> },
+        { id: 'highlighted_events', label: 'Highlighted Events', icon: <Flame size={14} /> },
+        { id: 'gallery', label: 'Photo Gallery', icon: <ImageIcon size={14} /> },
+        { id: 'achievements', label: 'Achievements', icon: <Award size={14} /> }
+      ]
+    },
+    {
+      id: 'pages',
+      label: 'Pages Content',
+      icon: <Compass size={16} />,
+      items: [
+        { id: 'about_kec_sb', label: 'About KEC SB Page', icon: <Compass size={14} /> },
+        { id: 'testimonials', label: 'Testimonials', icon: <MessageSquare size={14} /> }
+      ]
+    },
+    {
+      id: 'resources',
+      label: 'Resources & Forms',
+      icon: <Folder size={16} />,
+      items: [
+        { id: 'news', label: 'News Clippings', icon: <FileText size={14} /> },
+        { id: 'researchpapers', label: 'Research Papers & Projects', icon: <FileText size={14} /> },
+        { id: 'documents', label: 'Documents Repository', icon: <FileText size={14} /> },
+        { id: 'request_forms', label: 'Request Forms', icon: <LinkIcon size={14} /> }
+      ]
+    }
+  ];
+
+  const currentCategory = categoriesList.find(c => c.items.some(i => i.id === activeTab)) || categoriesList[0];
+  const currentTabItem = currentCategory.items.find(i => i.id === activeTab) || { label: 'Site Overview' };
+
   return (
-    <div className="admin-dashboard-container" style={{ backgroundColor: 'var(--bg-light)', minHeight: '85vh', paddingBottom: '80px', fontFamily: 'var(--font-sans)' }}>
-      {/* Header Panel */}
-      <div style={{
-        background: 'var(--gradient-primary)',
-        color: '#ffffff',
-        padding: '40px 0',
-        marginBottom: '40px',
-        boxShadow: 'var(--shadow-md)',
-        position: 'relative'
-      }}>
-        {/* Neon cyan bottom border line */}
-        <div style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: '4px',
-          background: 'var(--gradient-cyber)'
-        }} />
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
-          <div>
-            <h1 style={{ fontSize: '32px', color: '#ffffff', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '12px', letterSpacing: '-0.75px' }}>
-              <Database size={32} style={{ color: 'var(--accent-cyan)' }} /> Admin Dashboard
-            </h1>
-            <p style={{ fontSize: '14.5px', color: 'rgba(255, 255, 255, 0.75)', marginTop: '6px' }}>Welcome! You have full authority to modify the student branch website's database.</p>
+    <div className="admin-shell">
+      {/* LEFT SIDEBAR */}
+      <aside className={`admin-sidebar ${sidebarOpen ? 'open' : 'collapsed'}`}>
+        <div className="admin-sidebar-header">
+          <div className="admin-sidebar-logo-box">
+            {/* IEEE Diamond Logo */}
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L2 12L12 22L22 12L12 2Z" fill="#00629B" stroke="#ffffff" strokeWidth="1.2"/>
+              <path d="M12 6L7 12L12 18L17 12L12 6Z" fill="#ffffff"/>
+            </svg>
+            <div>
+              <div className="admin-sidebar-brand-title">IEEE <span style={{ fontWeight: 400, opacity: 0.85 }}>Student Branch - 29741</span></div>
+              <div className="admin-sidebar-brand-sub">Kongu Engineering College</div>
+            </div>
           </div>
-          <button
-            onClick={handleLogout}
-            style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.08)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              color: '#ffffff',
-              padding: '10px 24px',
-              borderRadius: '30px',
-              fontSize: '13.5px',
-              fontWeight: '700',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              transition: 'all 0.2s ease',
-              backdropFilter: 'blur(4px)'
-            }}
-            className="admin-logout-btn"
-          >
-            <LogOut size={16} /> Log Out
-          </button>
         </div>
-      </div>
 
-      <div className="container">
-        {/* Tab Selection */}
-        {(() => {
-          const categories = [
-            {
-              id: 'config',
-              label: 'Site & Stats',
-              icon: <Settings size={16} />,
-              items: [
-                { id: 'stats', label: 'Stats & Site Info', icon: <Settings size={14} /> },
-                { id: 'impact_stats', label: 'Impact Numbers', icon: <BarChart3 size={14} /> },
-                { id: 'contact_page', label: 'Contact & FAQ Page', icon: <MessageSquare size={14} /> }
-              ]
-            },
-            {
-              id: 'roster',
-              label: 'Rosters',
-              icon: <Users size={16} />,
-              items: [
-                { id: 'execomm', label: 'Execomm SB Leaders', icon: <Users size={14} /> },
-                { id: 'branches', label: 'ExeComm Branches', icon: <Layers size={14} /> },
-                { id: 'committees', label: 'Committees', icon: <Target size={14} /> }
-              ]
-            },
-            {
-              id: 'events_media',
-              label: 'Events & Media',
-              icon: <Calendar size={16} />,
-              items: [
-                { id: 'events', label: 'Events List', icon: <Calendar size={14} /> },
-                { id: 'highlighted_events', label: 'Highlighted Events', icon: <Flame size={14} /> },
-                { id: 'gallery', label: 'Photo Gallery', icon: <ImageIcon size={14} /> },
-                { id: 'achievements', label: 'Achievements', icon: <Award size={14} /> }
-              ]
-            },
-            {
-              id: 'pages',
-              label: 'Pages Content',
-              icon: <Compass size={16} />,
-              items: [
-                { id: 'about_kec_sb', label: 'About KEC SB Page', icon: <Compass size={14} /> },
-                { id: 'testimonials', label: 'Testimonials', icon: <MessageSquare size={14} /> }
-              ]
-            },
-            {
-              id: 'resources',
-              label: 'Resources & Forms',
-              icon: <FileText size={16} />,
-              items: [
-                { id: 'news', label: 'News Clippings', icon: <FileText size={14} /> },
-                { id: 'researchpapers', label: 'Research Papers & Projects', icon: <FileText size={14} /> },
-                { id: 'documents', label: 'Documents Repository', icon: <FileText size={14} /> },
-                { id: 'request_forms', label: 'Request Forms', icon: <LinkIcon size={14} /> }
-              ]
-            }
-          ];
+        <div className="admin-sidebar-body">
+          <button 
+            type="button" 
+            className="admin-nav-home-btn"
+            onClick={() => setActiveTab('stats')}
+          >
+            <HomeIcon size={16} style={{ color: '#38bdf8' }} />
+            <span>Admin Dashboard</span>
+          </button>
 
-          return (
-            <div style={{ marginBottom: '32px' }}>
-              <div style={{
-                display: 'flex',
-                backgroundColor: '#0a385b',
-                borderRadius: '12px',
-                padding: '6px 12px',
-                gap: '8px',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                boxShadow: '0 4px 20px rgba(10,56,91,0.15)',
-                position: 'relative',
-                zIndex: 100,
-                marginBottom: '16px'
-              }}>
-                {categories.map((cat) => {
-                  const isCatActive = cat.items.some(item => item.id === activeTab);
-                  const isOpen = activeDropdown === cat.id;
+          <div className="admin-nav-section-label">CONTENT MANAGEMENT</div>
 
-                  return (
-                    <div 
-                      key={cat.id} 
-                      style={{ position: 'relative' }}
-                      onMouseEnter={() => setActiveDropdown(cat.id)}
-                      onMouseLeave={() => setActiveDropdown(null)}
-                    >
-                      <button
-                        onClick={() => setActiveDropdown(isOpen ? null : cat.id)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          padding: '10px 18px',
-                          fontSize: '14px',
-                          fontWeight: '700',
-                          borderRadius: '8px',
-                          border: 'none',
-                          cursor: 'pointer',
-                          backgroundColor: isCatActive ? '#02619a' : 'transparent',
-                          color: '#ffffff',
-                          transition: 'all 0.2s ease',
-                        }}
-                      >
-                        {cat.icon}
-                        {cat.label}
-                        <span style={{ fontSize: '10px', marginLeft: '4px', opacity: 0.7 }}>▼</span>
-                      </button>
+          {categoriesList.map((cat) => {
+            const isCatActive = cat.items.some(item => item.id === activeTab);
+            const isExpanded = expandedGroups[cat.id] ?? isCatActive;
 
-                      {/* Dropdown Menu */}
-                      {isOpen && (
-                        <div style={{
-                          position: 'absolute',
-                          top: '100%',
-                          left: 0,
-                          paddingTop: '8px', // Creates the visual gap without breaking the hover box
-                          minWidth: '240px',
-                          zIndex: 101
-                        }}>
-                          <div style={{
-                            backgroundColor: '#ffffff',
-                            borderRadius: '8px',
-                            border: '1px solid #cbd5e1',
-                            boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            padding: '6px',
-                            gap: '4px'
-                          }}>
-                            {cat.items.map((item) => {
-                              const isActive = activeTab === item.id;
-                              return (
-                                <button
-                                  key={item.id}
-                                  onClick={() => {
-                                    setActiveTab(item.id);
-                                    setActiveDropdown(null);
-                                  }}
-                                  style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '10px',
-                                    padding: '8px 14px',
-                                    fontSize: '13.5px',
-                                    fontWeight: '600',
-                                    textAlign: 'left',
-                                    borderRadius: '6px',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                    backgroundColor: isActive ? '#eff6ff' : 'transparent',
-                                    color: isActive ? '#0a385b' : '#334155',
-                                    transition: 'all 0.15s ease',
-                                    width: '100%'
-                                  }}
-                                >
-                                  <span style={{ color: isActive ? '#02619a' : '#64748b', display: 'flex', alignItems: 'center' }}>{item.icon}</span>
-                                  {item.label}
-                                </button>
-                              );
-                            })}
+            return (
+              <div key={cat.id} className="admin-nav-group-container">
+                <button
+                  type="button"
+                  className={`admin-nav-group-btn ${isCatActive ? 'active' : ''}`}
+                  onClick={() => toggleGroup(cat.id)}
+                >
+                  <div className="admin-nav-group-left">
+                    <span className="admin-nav-group-icon">{cat.icon}</span>
+                    <span>{cat.label}</span>
+                  </div>
+                  <span className="admin-nav-chevron">
+                    {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                  </span>
+                </button>
+
+                {isExpanded && (
+                  <div className="admin-nav-sublist">
+                    {cat.items.map((item) => {
+                      const isActive = activeTab === item.id;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          className={`admin-nav-subitem ${isActive ? 'active' : ''}`}
+                          onClick={() => setActiveTab(item.id)}
+                        >
+                          <span className="admin-nav-dot">•</span>
+                          <span>{item.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Glowing Blue/Violet Decorative Wave Graphic at sidebar bottom (matches reference mockup) */}
+        <div className="admin-sidebar-footer-wave">
+          <svg viewBox="0 0 265 140" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style={{ width: '100%', height: '140px', display: 'block' }}>
+            <defs>
+              <linearGradient id="sidebarWave1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#00629B" stopOpacity="0.9" />
+                <stop offset="50%" stopColor="#0284c7" stopOpacity="0.95" />
+                <stop offset="100%" stopColor="#7c3aed" stopOpacity="0.85" />
+              </linearGradient>
+              <linearGradient id="sidebarWave2" x1="100%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.85" />
+                <stop offset="60%" stopColor="#2563eb" stopOpacity="0.9" />
+                <stop offset="100%" stopColor="#6366f1" stopOpacity="0.5" />
+              </linearGradient>
+              <linearGradient id="sidebarWave3" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#0B192C" stopOpacity="0.98" />
+                <stop offset="50%" stopColor="#0369a1" stopOpacity="0.85" />
+                <stop offset="100%" stopColor="#00d2ff" stopOpacity="0.75" />
+              </linearGradient>
+              <filter id="sidebarWaveGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="6" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+            </defs>
+            <path d="M0,70 C60,110 120,35 185,80 C225,110 245,65 265,75 L265,140 L0,140 Z" fill="url(#sidebarWave1)" />
+            <path d="M0,95 C70,65 135,130 198,90 C238,65 250,105 265,95 L265,140 L0,140 Z" fill="url(#sidebarWave2)" opacity="0.9" filter="url(#sidebarWaveGlow)" />
+            <path d="M0,118 C80,90 145,140 208,110 C242,92 254,115 265,110 L265,140 L0,140 Z" fill="url(#sidebarWave3)" opacity="0.95" />
+          </svg>
+        </div>
+      </aside>
+
+      {/* MAIN WRAPPER */}
+      <div className="admin-main-wrapper">
+        {/* TOP STICKY HEADER */}
+        <header className="admin-top-header">
+          <div className="admin-header-left">
+            <button
+              type="button"
+              className="admin-hamburger-btn"
+              onClick={() => setSidebarOpen(prev => !prev)}
+              title="Toggle Navigation Sidebar"
+            >
+              <Menu size={18} />
+            </button>
+            <div className="admin-header-title-box">
+              <h1>Admin Dashboard</h1>
+              <p>Manage and update the IEEE Student Branch website content, records and information.</p>
+            </div>
+          </div>
+
+          <div className="admin-header-right">
+            <button
+              type="button"
+              className="admin-bell-btn"
+              title="Notifications"
+            >
+              <Bell size={18} />
+              <span className="admin-bell-dot" />
+            </button>
+
+            <div style={{ position: 'relative' }}>
+              <button
+                type="button"
+                className="admin-user-chip"
+                onClick={() => setProfileMenuOpen(prev => !prev)}
+              >
+                <div className="admin-user-avatar">SP</div>
+                <div className="admin-user-info">
+                  <span className="admin-user-name">Sakthi Pranav S</span>
+                  <span className="admin-user-role">
+                    Administrator <ChevronDown size={12} style={{ display: 'inline', verticalAlign: 'middle' }} />
+                  </span>
+                </div>
+              </button>
+
+              {profileMenuOpen && (
+                <div className="admin-user-dropdown animate-fade-in">
+                  <div className="admin-user-dropdown-header">
+                    <div style={{ fontWeight: 600, color: '#0f172a' }}>Sakthi Pranav S</div>
+                    <div style={{ fontSize: '11px', color: '#64748b' }}>sakthipranavs.24cse@kongu.edu</div>
+                  </div>
+                  <button
+                    type="button"
+                    className="admin-user-dropdown-item"
+                    onClick={() => { setActiveTab('stats'); setProfileMenuOpen(false); }}
+                  >
+                    <Settings size={14} /> General Settings
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-user-dropdown-item text-danger"
+                    onClick={handleLogout}
+                  >
+                    <LogOut size={14} /> Log Out
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </header>
+
+        {/* MAIN SCROLLABLE CONTENT */}
+        <main className="admin-content-area">
+          {/* Breadcrumb Navigation */}
+          <div className="admin-breadcrumbs">
+            <span className="crumb-root" onClick={() => setActiveTab('stats')}>Admin Dashboard</span>
+            <ChevronRight size={13} className="crumb-sep" />
+            <span className="crumb-category">{currentCategory?.label || 'Site & Stats'}</span>
+            <ChevronRight size={13} className="crumb-sep" />
+            <span className="crumb-current">{currentTabItem?.label || 'Site Overview'}</span>
+          </div>
+
+          {/* Page Heading */}
+          <div className="admin-page-header-box">
+            <h1 className="admin-page-main-title">
+              {activeTab === 'stats' ? 'Manage Site-wide Overview Details' : currentTabItem?.label || 'Admin Panel'}
+            </h1>
+            <p className="admin-page-sub-title">
+              {activeTab === 'stats' 
+                ? 'Modify the counters, mission/vision statements, and marquee announcements displayed on the home page.' 
+                : `Manage and update ${currentTabItem?.label || 'records'} for the IEEE Student Branch website.`}
+            </p>
+          </div>
+
+          {/* Tab 1: Statistics & Site Info Update Panel */}
+          {activeTab === 'stats' && (
+            <div className="animate-fade-in">
+              {/* Top 4 Stat Cards Row */}
+              <div className="admin-stat-cards-grid">
+                <div className="admin-stat-card">
+                  <div className="admin-stat-icon-badge blue">
+                    <Users size={20} />
+                  </div>
+                  <div className="admin-stat-info">
+                    <span className="admin-stat-label">Active Members</span>
+                    <span className="admin-stat-value">{memberCount || '45'}</span>
+                  </div>
+                </div>
+
+                <div className="admin-stat-card">
+                  <div className="admin-stat-icon-badge purple">
+                    <Calendar size={20} />
+                  </div>
+                  <div className="admin-stat-info">
+                    <span className="admin-stat-label">Events (Yearly)</span>
+                    <span className="admin-stat-value">{eventsCount || '75+'}</span>
+                  </div>
+                </div>
+
+                <div className="admin-stat-card">
+                  <div className="admin-stat-icon-badge amber">
+                    <Award size={20} />
+                  </div>
+                  <div className="admin-stat-info">
+                    <span className="admin-stat-label">National Awards</span>
+                    <span className="admin-stat-value">{awardsCount || '18+'}</span>
+                  </div>
+                </div>
+
+                <div className="admin-stat-card">
+                  <div className="admin-stat-icon-badge green">
+                    <FileText size={20} />
+                  </div>
+                  <div className="admin-stat-info">
+                    <span className="admin-stat-label">Research Papers</span>
+                    <span className="admin-stat-value">{papersCount || '3'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {statsSaved && (
+                <div className="admin-alert-success animate-fade-in" style={{
+                  padding: '12px 18px',
+                  backgroundColor: '#dcfce7',
+                  color: '#15803d',
+                  borderRadius: '10px',
+                  fontSize: '13.5px',
+                  fontWeight: '600',
+                  marginBottom: '20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  border: '1px solid #bbf7d0'
+                }}>
+                  <CheckCircle2 size={18} />
+                  <span>Site settings updated successfully! Changes are live across the website.</span>
+                </div>
+              )}
+
+              <form onSubmit={handleSaveStats}>
+                <div className="admin-two-col-grid">
+                  {/* LEFT COLUMN */}
+                  <div className="admin-col-left">
+                    {/* Card 1: Home Statistics Counter */}
+                    <div className="admin-card">
+                      <div className="admin-card-header">
+                        <div className="admin-card-header-icon blue">
+                          <Settings size={17} />
+                        </div>
+                        <h3 className="admin-card-title">Home Statistics Counter</h3>
+                      </div>
+                      <div className="admin-card-body">
+                        <div className="admin-form-row-2col">
+                          <div className="admin-form-group">
+                            <label className="admin-form-label">
+                              Active Members Count <span className="admin-req-star">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={memberCount}
+                              onChange={(e) => setMemberCount(e.target.value)}
+                              placeholder="e.g. 45"
+                              className="admin-form-input"
+                            />
+                          </div>
+                          <div className="admin-form-group">
+                            <label className="admin-form-label">
+                              Events Yearly <span className="admin-req-star">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={eventsCount}
+                              onChange={(e) => setEventsCount(e.target.value)}
+                              placeholder="e.g. 75+"
+                              className="admin-form-input"
+                            />
                           </div>
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
 
-              {/* Breadcrumb banner */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                fontSize: '13px',
-                color: '#64748b',
-                fontWeight: '600',
-                backgroundColor: '#f8fafc',
-                padding: '10px 16px',
-                borderRadius: '8px',
-                border: '1px solid #e2e8f0'
-              }}>
-                <span>Admin Dashboard</span>
-                <span>/</span>
-                <span style={{ color: '#0a385b' }}>
-                  {categories.find(c => c.items.some(i => i.id === activeTab))?.label || 'General'}
-                </span>
-                <span>/</span>
-                <span style={{ color: '#02619a', fontWeight: '700' }}>
-                  {categories.flatMap(c => c.items).find(i => i.id === activeTab)?.label || activeTab}
-                </span>
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* Tab 1: Statistics & Site Info Update Panel */}
-        {activeTab === 'stats' && (
-          <div className="card animate-fade-in" style={{ padding: '36px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-            <h2 style={{ fontSize: '20px', color: '#0a385b', marginBottom: '8px', fontWeight: '800' }}>Manage Site-wide Overview Details</h2>
-            <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '28px' }}>Modify the counters, mission/vision statements, and marquee announcements displayed on the Home page.</p>
-
-            {statsSaved && (
-              <div style={{
-                padding: '12px 16px',
-                backgroundColor: '#dcfce7',
-                color: '#15803d',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '600',
-                marginBottom: '24px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                border: '1px solid #bbf7d0'
-              }}>
-                <Check size={18} /> Site settings updated successfully!
-              </div>
-            )}
-
-            <form onSubmit={handleSaveStats} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '750', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>Home Statistics Counter</h3>
-                
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Active Members Count</label>
-                  <input
-                    type="text"
-                    required
-                    value={memberCount}
-                    onChange={(e) => setMemberCount(e.target.value)}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Events Yearly</label>
-                  <input
-                    type="text"
-                    required
-                    value={eventsCount}
-                    onChange={(e) => setEventsCount(e.target.value)}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>National Awards</label>
-                  <input
-                    type="text"
-                    required
-                    value={awardsCount}
-                    onChange={(e) => setAwardsCount(e.target.value)}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Research Papers & Projects Count</label>
-                  <input
-                    type="text"
-                    required
-                    value={papersCount}
-                    onChange={(e) => setPapersCount(e.target.value)}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }}
-                  />
-                </div>
-
-                <div style={{ marginTop: '24px', borderTop: '1px solid #e2e8f0', paddingTop: '20px' }}>
-                  <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '750', marginBottom: '16px' }}>About & Keystones Media</h3>
-                  
-                  <div style={{ marginBottom: '16px' }}>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>About Section Illustration Image</label>
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '8px' }}>
-                      {aboutImage ? (
-                        <img src={aboutImage} alt="About preview" style={{ width: '80px', height: '50px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
-                      ) : (
-                        <div style={{ width: '80px', height: '50px', backgroundColor: '#e2e8f0', borderRadius: '4px' }}></div>
-                      )}
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={async (e) => {
-                          const file = e.target.files[0];
-                          if (file) {
-                            try {
-                              const base64 = await compressImage(file);
-                              setAboutImage(base64);
-                            } catch (err) {
-                              console.error(err);
-                            }
-                          }
-                        }}
-                        style={{ fontSize: '11px', width: 'auto' }}
-                      />
-                    </div>
-                    <input
-                      type="text"
-                      value={aboutImage}
-                      onChange={(e) => setAboutImage(e.target.value)}
-                      placeholder="Or enter image URL"
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
-                    />
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Operational Keystones YouTube Video Embed URL</label>
-                    <input
-                      type="text"
-                      required
-                      value={keystonesVideoUrl}
-                      onChange={(e) => setKeystonesVideoUrl(e.target.value)}
-                      placeholder="e.g. https://www.youtube.com/embed/S_T1VwN7Gic"
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
-                    />
-                    <p style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>💡 Embed URLs must be in the format: <code>https://www.youtube.com/embed/VIDEO_ID</code></p>
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '750', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>Statements & Tickers</h3>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Mission Statement</label>
-                  <textarea
-                    required
-                    rows="3"
-                    value={mission}
-                    onChange={(e) => setMission(e.target.value)}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px', resize: 'none', fontFamily: 'inherit' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Vision Statement</label>
-                  <textarea
-                    required
-                    rows="3"
-                    value={vision}
-                    onChange={(e) => setVision(e.target.value)}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px', resize: 'none', fontFamily: 'inherit' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Ticker Notices (One announcement per line)</label>
-                  <textarea
-                    required
-                    rows="4"
-                    value={tickerNoticesText}
-                    onChange={(e) => setTickerNoticesText(e.target.value)}
-                    placeholder="🌿 Membership drive 2026 is live!"
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', resize: 'vertical', fontFamily: 'inherit' }}
-                  />
-                </div>
-
-                <div style={{ marginTop: '24px', borderTop: '1px solid #e2e8f0', paddingTop: '20px' }}>
-                  <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '750', marginBottom: '16px' }}>Hero Carousel Images</h3>
-                  
-                  <div style={{ display: 'flex', flextype: 'column', gap: '8px', marginBottom: '16px', flexDirection: 'column' }}>
-                    {heroImages.map((img, index) => (
-                      <div key={index} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', backgroundColor: '#f8fafc' }}>
-                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                          <img src={img} alt={`Hero ${index}`} style={{ width: '50px', height: '30px', objectFit: 'cover', borderRadius: '4px' }} />
-                          <span style={{ fontSize: '11px', color: '#64748b', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{img.startsWith('data:') ? 'Custom Uploaded Image' : img}</span>
+                        <div className="admin-form-row-2col" style={{ marginTop: '14px' }}>
+                          <div className="admin-form-group">
+                            <label className="admin-form-label">
+                              National Awards <span className="admin-req-star">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={awardsCount}
+                              onChange={(e) => setAwardsCount(e.target.value)}
+                              placeholder="e.g. 18+"
+                              className="admin-form-input"
+                            />
+                          </div>
+                          <div className="admin-form-group">
+                            <label className="admin-form-label">
+                              Research Papers & Projects Count <span className="admin-req-star">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={papersCount}
+                              onChange={(e) => setPapersCount(e.target.value)}
+                              placeholder="e.g. 3"
+                              className="admin-form-input"
+                            />
+                          </div>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => setHeroImages(heroImages.filter((_, idx) => idx !== index))}
-                          style={{ border: 'none', background: 'transparent', color: '#ef4444', cursor: 'pointer', padding: '4px' }}
-                          title="Remove image"
-                        >
-                          <Trash2 size={16} />
-                        </button>
                       </div>
-                    ))}
-                    {heroImages.length === 0 && (
-                      <p style={{ fontSize: '13px', color: '#64748b', fontStyle: 'italic' }}>No hero images configured.</p>
-                    )}
+                    </div>
+
+                    {/* Card 2: Statements & Tickers */}
+                    <div className="admin-card" style={{ marginTop: '20px' }}>
+                      <div className="admin-card-header">
+                        <div className="admin-card-header-icon blue">
+                          <FileText size={17} />
+                        </div>
+                        <h3 className="admin-card-title">Statements & Tickers</h3>
+                      </div>
+                      <div className="admin-card-body">
+                        <div className="admin-form-group">
+                          <label className="admin-form-label">
+                            Mission Statement <span className="admin-req-star">*</span>
+                          </label>
+                          <textarea
+                            required
+                            rows={3}
+                            value={mission}
+                            onChange={(e) => setMission(e.target.value)}
+                            placeholder="To cultivate a culture of innovation, foster teamwork, and enhance student capability in research and design through seminars, hands-on workshops, student-led projects, and professional networking."
+                            className="admin-form-textarea"
+                          />
+                        </div>
+
+                        <div className="admin-form-group" style={{ marginTop: '16px' }}>
+                          <label className="admin-form-label">
+                            Vision Statement <span className="admin-req-star">*</span>
+                          </label>
+                          <textarea
+                            required
+                            rows={3}
+                            value={vision}
+                            onChange={(e) => setVision(e.target.value)}
+                            placeholder="To build a world-class center of technical learning and professional excellence that empowers young minds to create engineering solutions for a sustainable and technologically advanced society."
+                            className="admin-form-textarea"
+                          />
+                        </div>
+
+                        <div className="admin-form-group" style={{ marginTop: '16px' }}>
+                          <label className="admin-form-label">
+                            Ticker Notices (One announcement per line)
+                          </label>
+                          <textarea
+                            required
+                            rows={4}
+                            value={tickerNoticesText}
+                            onChange={(e) => setTickerNoticesText(e.target.value)}
+                            placeholder="# IEEE KEC Student Branch memberships open for 2026..."
+                            className="admin-form-textarea code-look"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Card 3: About & Keystones Media */}
+                    <div className="admin-card" style={{ marginTop: '20px' }}>
+                      <div className="admin-card-header">
+                        <div className="admin-card-header-icon purple">
+                          <Compass size={17} />
+                        </div>
+                        <h3 className="admin-card-title">About & Keystones Media</h3>
+                      </div>
+                      <div className="admin-card-body">
+                        <div className="admin-form-group">
+                          <label className="admin-form-label">About Section Illustration Image</label>
+                          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '8px' }}>
+                            {aboutImage ? (
+                              <img src={aboutImage} alt="About preview" style={{ width: '84px', height: '52px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
+                            ) : (
+                              <div style={{ width: '84px', height: '52px', backgroundColor: '#e2e8f0', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '11px' }}>No Image</div>
+                            )}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={async (e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                  try {
+                                    const base64 = await compressImage(file);
+                                    setAboutImage(base64);
+                                  } catch (err) {
+                                    console.error(err);
+                                  }
+                                }
+                              }}
+                              style={{ fontSize: '12px', width: 'auto' }}
+                            />
+                          </div>
+                          <input
+                            type="text"
+                            value={aboutImage}
+                            onChange={(e) => setAboutImage(e.target.value)}
+                            placeholder="Or enter image URL"
+                            className="admin-form-input"
+                          />
+                        </div>
+
+                        <div className="admin-form-group" style={{ marginTop: '14px' }}>
+                          <label className="admin-form-label">Operational Keystones YouTube Video Embed URL</label>
+                          <input
+                            type="text"
+                            required
+                            value={keystonesVideoUrl}
+                            onChange={(e) => setKeystonesVideoUrl(e.target.value)}
+                            placeholder="e.g. https://www.youtube.com/embed/S_T1VwN7Gic"
+                            className="admin-form-input"
+                          />
+                          <p className="admin-form-helper">💡 Embed URLs must be in the format: <code>https://www.youtube.com/embed/VIDEO_ID</code></p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Card 4: Confidential Settings */}
+                    <div className="admin-card" style={{ marginTop: '20px' }}>
+                      <div className="admin-card-header">
+                        <div className="admin-card-header-icon amber">
+                          <Lock size={17} />
+                        </div>
+                        <h3 className="admin-card-title">Confidential Settings</h3>
+                      </div>
+                      <div className="admin-card-body">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+                          <input
+                            type="checkbox"
+                            id="isPinEnabledInput"
+                            checked={isPinEnabled}
+                            onChange={(e) => setIsPinEnabled(e.target.checked)}
+                            style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#00629B' }}
+                          />
+                          <label htmlFor="isPinEnabledInput" style={{ fontSize: '13.5px', fontWeight: '600', color: '#1e293b', cursor: 'pointer' }}>
+                            Require PIN for confidential items (Global Toggle)
+                          </label>
+                        </div>
+
+                        <div className="admin-form-group">
+                          <label className="admin-form-label">Shared Access PIN (For confidential documents and forms)</label>
+                          <input
+                            type="password"
+                            required
+                            value={accessPin}
+                            onChange={(e) => setAccessPin(e.target.value)}
+                            disabled={!isPinEnabled}
+                            className="admin-form-input"
+                            style={{ maxWidth: '320px', backgroundColor: isPinEnabled ? '#ffffff' : '#f1f5f9' }}
+                          />
+                          <p className="admin-form-helper">Distribute this PIN to authorized members to access protected resources.</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b' }}>Add Hero Carousel Image</label>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <input
-                        type="text"
-                        value={newHeroImageUrl}
-                        onChange={(e) => setNewHeroImageUrl(e.target.value)}
-                        placeholder="Paste image URL here"
-                        style={{ flex: 1, padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (newHeroImageUrl.trim()) {
-                            setHeroImages([...heroImages, newHeroImageUrl.trim()]);
-                            setNewHeroImageUrl('');
-                          }
-                        }}
-                        style={{ padding: '8px 14px', backgroundColor: '#02619a', color: '#ffffff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
-                      >
-                        Add URL
-                      </button>
-                    </div>
-                    
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={async (e) => {
-                          const file = e.target.files[0];
-                          if (file) {
-                            try {
-                              const base64 = await compressImage(file);
-                              setHeroImages([...heroImages, base64]);
-                            } catch (err) {
-                              console.error(err);
-                            }
-                          }
-                        }}
-                        style={{ fontSize: '11px', width: 'auto' }}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (window.confirm("Reset hero images to default values?")) {
-                            setHeroImages(['/assets/kec_gate.jpg', '/assets/kec_itpark.jpg', '/assets/kec_admin.jpg']);
-                          }
-                        }}
-                        style={{ padding: '6px 12px', backgroundColor: '#64748b', color: '#ffffff', border: 'none', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}
-                      >
-                        Reset Defaults
-                      </button>
+                  {/* RIGHT COLUMN */}
+                  <div className="admin-col-right">
+                    <div className="admin-card">
+                      <div className="admin-card-header">
+                        <div className="admin-card-header-icon blue">
+                          <ImageIcon size={17} />
+                        </div>
+                        <h3 className="admin-card-title">Hero Carousel Images</h3>
+                      </div>
+                      <div className="admin-card-body">
+                        {/* Live Preview Display (16:7 aspect ratio) */}
+                        <div className="admin-hero-preview-box">
+                          {heroImages.length > 0 ? (
+                            <img 
+                              src={heroImages[activeHeroIndex] || heroImages[0]} 
+                              alt="Hero Live Preview" 
+                              className="admin-hero-preview-img"
+                            />
+                          ) : (
+                            <div className="admin-hero-preview-placeholder">
+                              <ImageIcon size={36} style={{ opacity: 0.4 }} />
+                              <span>No Hero Images Configured</span>
+                            </div>
+                          )}
+
+                          {/* Navigation arrows */}
+                          {heroImages.length > 1 && (
+                            <>
+                              <button
+                                type="button"
+                                className="admin-hero-nav-arrow left"
+                                onClick={() => setActiveHeroIndex((activeHeroIndex - 1 + heroImages.length) % heroImages.length)}
+                                title="Previous image"
+                              >
+                                ‹
+                              </button>
+                              <button
+                                type="button"
+                                className="admin-hero-nav-arrow right"
+                                onClick={() => setActiveHeroIndex((activeHeroIndex + 1) % heroImages.length)}
+                                title="Next image"
+                              >
+                                ›
+                              </button>
+                            </>
+                          )}
+
+                          {/* Dot indicators */}
+                          {heroImages.length > 1 && (
+                            <div className="admin-hero-dots">
+                              {heroImages.map((_, dotIdx) => (
+                                <span 
+                                  key={dotIdx} 
+                                  className={`admin-hero-dot ${dotIdx === activeHeroIndex ? 'active' : ''}`}
+                                  onClick={() => setActiveHeroIndex(dotIdx)}
+                                />
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Choose File Upload Bar */}
+                        <div className="admin-file-upload-box" style={{ marginTop: '16px' }}>
+                          <label className="admin-choose-file-btn">
+                            <UploadCloud size={14} />
+                            <span>Choose File</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={async (e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                  try {
+                                    const base64 = await compressImage(file);
+                                    setHeroImages([...heroImages, base64]);
+                                    setActiveHeroIndex(heroImages.length);
+                                  } catch (err) {
+                                    console.error(err);
+                                  }
+                                }
+                              }}
+                              style={{ display: 'none' }}
+                            />
+                          </label>
+                          <span className="admin-file-name-label">
+                            {heroImages.length > 0 ? (heroImages[activeHeroIndex]?.startsWith('data:') ? 'custom_hero_upload.jpg' : (heroImages[activeHeroIndex]?.split('/').pop() || 'hero_event.jpg')) : 'Select an image'}
+                          </span>
+                          <CheckCircle2 size={16} className="admin-file-check-icon" />
+                        </div>
+                        <div className="admin-file-size-hint">
+                          Recommended size: 1440 × 600 px (16:7) • Max size: 5 MB ⓘ
+                        </div>
+
+                        {/* Uploaded Images List */}
+                        <div className="admin-uploaded-list-header">
+                          <span>Uploaded Images</span>
+                        </div>
+
+                        <div className="admin-upload-list">
+                          {heroImages.map((img, index) => {
+                            const isCustom = img.startsWith('data:');
+                            const filename = isCustom ? `hero_custom_${index + 1}.jpg` : (img.split('/').pop() || `hero_event_${index + 1}.jpg`);
+                            const isActive = index === activeHeroIndex;
+
+                            return (
+                              <div key={index} className={`admin-upload-item ${isActive ? 'active-preview' : ''}`}>
+                                <div className="admin-upload-item-left">
+                                  <img src={img} alt={`Thumbnail ${index}`} className="admin-upload-thumb" />
+                                  <div className="admin-upload-meta">
+                                    <div className="admin-upload-name">{filename}</div>
+                                    <div className="admin-upload-specs">1440 × 600 px • 1.2 MB</div>
+                                  </div>
+                                </div>
+                                <div className="admin-upload-actions">
+                                  <button
+                                    type="button"
+                                    className="admin-upload-action-btn view"
+                                    onClick={() => setActiveHeroIndex(index)}
+                                    title="Preview this slide"
+                                  >
+                                    <Eye size={15} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="admin-upload-action-btn delete"
+                                    onClick={() => {
+                                      const updated = heroImages.filter((_, idx) => idx !== index);
+                                      setHeroImages(updated);
+                                      if (activeHeroIndex >= updated.length) {
+                                        setActiveHeroIndex(Math.max(0, updated.length - 1));
+                                      }
+                                    }}
+                                    title="Remove image"
+                                  >
+                                    <Trash2 size={15} />
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                          {heroImages.length === 0 && (
+                            <div style={{ padding: '20px', textAlign: 'center', color: '#94a3b8', fontSize: '13px' }}>
+                              No images uploaded yet. Click Choose File to add.
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Add Image by URL & Reset Defaults */}
+                        <div style={{ marginTop: '16px', paddingTop: '14px', borderTop: '1px solid #f1f5f9' }}>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <input
+                              type="text"
+                              value={newHeroImageUrl}
+                              onChange={(e) => setNewHeroImageUrl(e.target.value)}
+                              placeholder="Or paste external image URL..."
+                              className="admin-form-input"
+                              style={{ fontSize: '12.5px' }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (newHeroImageUrl.trim()) {
+                                  setHeroImages([...heroImages, newHeroImageUrl.trim()]);
+                                  setNewHeroImageUrl('');
+                                  setActiveHeroIndex(heroImages.length);
+                                }
+                              }}
+                              className="admin-btn-secondary"
+                              style={{ whiteSpace: 'nowrap', padding: '8px 14px', fontSize: '12px' }}
+                            >
+                              Add URL
+                            </button>
+                          </div>
+
+                          <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end' }}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (window.confirm("Reset hero images to default values?")) {
+                                  setHeroImages(['/assets/kec_gate.jpg', '/assets/kec_itpark.jpg', '/assets/kec_admin.jpg']);
+                                  setActiveHeroIndex(0);
+                                }
+                              }}
+                              style={{ background: 'transparent', border: 'none', color: '#64748b', fontSize: '11.5px', cursor: 'pointer', textDecoration: 'underline' }}
+                            >
+                              Reset to default images
+                            </button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', gridColumn: 'span 2' }}>
-                <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '750', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>Confidential Settings</h3>
-                
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <input
-                    type="checkbox"
-                    id="isPinEnabledInput"
-                    checked={isPinEnabled}
-                    onChange={(e) => setIsPinEnabled(e.target.checked)}
-                    style={{ cursor: 'pointer' }}
-                  />
-                  <label htmlFor="isPinEnabledInput" style={{ fontSize: '14px', fontWeight: '700', color: '#475569', cursor: 'pointer' }}>
-                    Require PIN for confidential items (Global Toggle)
-                  </label>
+                {/* Bottom Actions Row */}
+                <div className="admin-bottom-actions">
+                  <button
+                    type="button"
+                    className="admin-btn-outline"
+                    onClick={() => {
+                      if (window.confirm("Discard unsaved changes and reset this view to saved data?")) {
+                        fetchStats();
+                      }
+                    }}
+                  >
+                    <RotateCcw size={15} />
+                    <span>Reset</span>
+                  </button>
+                  <button
+                    type="submit"
+                    className="admin-btn-primary"
+                  >
+                    <Save size={15} />
+                    <span>Save Changes</span>
+                  </button>
                 </div>
-
-                <div style={{ width: '50%' }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Shared Access PIN (For confidential documents and forms)</label>
-                  <input
-                    type="password"
-                    required
-                    value={accessPin}
-                    onChange={(e) => setAccessPin(e.target.value)}
-                    disabled={!isPinEnabled}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none', backgroundColor: isPinEnabled ? '#ffffff' : '#f1f5f9' }}
-                  />
-                  <p style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>Distribute this PIN to users who are allowed to access confidential items.</p>
-                </div>
-              </div>
-
-              <div style={{ gridColumn: 'span 2', marginTop: '10px' }}>
-                <button
-                  type="submit"
-                  style={{
-                    backgroundColor: '#02619a',
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: '8px',
-                    padding: '12px 30px',
-                    fontSize: '14px',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                  className="admin-save-btn"
-                >
-                  Save Overview Settings
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
+              </form>
+            </div>
+          )}
 
         {/* Tab 2: Gallery CRUD Operations */}
         {activeTab === 'gallery' && (
@@ -4120,8 +4259,8 @@ const Admin = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    settingsService.set('ieee_events_stats_v1', JSON.stringify(eventsStats));
-                    settingsService.set('ieee_events_philosophy_v1', JSON.stringify(eventPhilosophy));
+                    localStorage.setItem('ieee_events_stats_v1', JSON.stringify(eventsStats));
+                    localStorage.setItem('ieee_events_philosophy_v1', JSON.stringify(eventPhilosophy));
                     alert("Events stats & philosophy saved successfully!");
                   }}
                   style={{ padding: '6px 14px', fontSize: '12px', fontWeight: '750', cursor: 'pointer', border: 'none', borderRadius: '4px', backgroundColor: '#e0f2fe', color: '#0369a1' }}
@@ -4837,8 +4976,8 @@ const Admin = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    settingsService.set('ieee_achievements_stats_v1', JSON.stringify(achievementsStats));
-                    settingsService.set('ieee_success_stories_v1', JSON.stringify(successStories));
+                    localStorage.setItem('ieee_achievements_stats_v1', JSON.stringify(achievementsStats));
+                    localStorage.setItem('ieee_success_stories_v1', JSON.stringify(successStories));
                     alert("Achievements stats & success stories saved successfully!");
                   }}
                   style={{ padding: '6px 14px', fontSize: '12px', fontWeight: '750', cursor: 'pointer', border: 'none', borderRadius: '4px', backgroundColor: '#e0f2fe', color: '#0369a1' }}
@@ -5629,7 +5768,7 @@ const Admin = () => {
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button
                   onClick={() => {
-                    settingsService.set(`ieee_society_data_${selectedBranchKey}_v5`, JSON.stringify(branchData));
+                    localStorage.setItem(`ieee_society_data_${selectedBranchKey}_v5`, JSON.stringify(branchData));
                     setBranchSaved(true);
                     setTimeout(() => setBranchSaved(false), 3000);
                   }}
@@ -7511,8 +7650,8 @@ const Admin = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    settingsService.set('ieee_committees_philosophy_v1', JSON.stringify(committeesPhilosophy));
-                    settingsService.set('ieee_committees_cta_v1', JSON.stringify(committeesCta));
+                    localStorage.setItem('ieee_committees_philosophy_v1', JSON.stringify(committeesPhilosophy));
+                    localStorage.setItem('ieee_committees_cta_v1', JSON.stringify(committeesCta));
                     alert("Committees philosophy & CTA saved successfully!");
                   }}
                   style={{ padding: '6px 14px', fontSize: '12px', fontWeight: '750', cursor: 'pointer', border: 'none', borderRadius: '4px', backgroundColor: '#e0f2fe', color: '#0369a1' }}
@@ -8567,7 +8706,7 @@ const Admin = () => {
               </div>
               <button
                 onClick={() => {
-                  settingsService.set('ieee_about_kec_sb_v1', JSON.stringify(aboutKecSb));
+                  localStorage.setItem('ieee_about_kec_sb_v1', JSON.stringify(aboutKecSb));
                   setAboutSaved(true);
                   setTimeout(() => setAboutSaved(false), 3000);
                 }}
@@ -8943,7 +9082,7 @@ const Admin = () => {
               </div>
               <button
                 onClick={() => {
-                  settingsService.set('ieee_contact_page_v1', JSON.stringify(contactPage));
+                  localStorage.setItem('ieee_contact_page_v1', JSON.stringify(contactPage));
                   setContactSaved(true);
                   setTimeout(() => setContactSaved(false), 3000);
                 }}
@@ -9128,7 +9267,7 @@ const Admin = () => {
                 type="button"
                 onClick={() => {
                   setRequestFormsSubTab('submissions');
-                  const stored = null /* migrated to API */;
+                  const stored = localStorage.getItem('ieee_form_submissions');
                   if (stored) setSubmissions(JSON.parse(stored));
                 }}
                 style={{
@@ -9910,6 +10049,7 @@ const Admin = () => {
             )}
           </div>
         )}
+        </main>
       </div>
 
       {/* CRUD Add/Edit Overlay Modal */}
@@ -10853,153 +10993,178 @@ const Admin = () => {
         .spin-anim {
           animation: spin 1.5s linear infinite;
         }
-        /* Dashboard Container & Grid card adjustments */
-        .admin-dashboard-container {
-          color: var(--text-dark) !important;
+        /* Keyframes */
+        @keyframes modal-slide-up {
+          from { opacity: 0; transform: translateY(15px); }
+          to { opacity: 1; transform: translateY(0); }
         }
-        /* Override primary text colors */
-        .admin-dashboard-container h2, 
-        .admin-dashboard-container h3, 
-        .admin-dashboard-container h4, 
-        .admin-dashboard-container label, 
-        .admin-dashboard-container th,
-        .admin-dashboard-container td strong {
-          color: var(--primary) !important;
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
-        /* Style card containers to look premium and glassmorphic */
-        .admin-dashboard-container .card {
-          background-color: var(--bg-card) !important;
-          backdrop-filter: blur(16px) !important;
-          border: 1px solid var(--border-subtle) !important;
-          box-shadow: var(--shadow-md) !important;
-          border-radius: 16px !important;
-          transition: all 0.3s ease !important;
+        .spin-anim {
+          animation: spin 1.5s linear infinite;
         }
-        .admin-dashboard-container .card:hover {
-          box-shadow: var(--shadow-lg) !important;
-          border-color: rgba(var(--secondary-rgb), 0.25) !important;
+
+        /* Unified styling across entire admin shell */
+        .admin-shell {
+          color: #0f172a !important;
         }
-        /* Input, Textarea, Select style overrides */
-        .admin-dashboard-container input,
-        .admin-dashboard-container select,
-        .admin-dashboard-container textarea {
-          border: 1px solid var(--border-subtle) !important;
-          background-color: rgba(255, 255, 255, 0.75) !important;
-          border-radius: 10px !important;
-          color: var(--text-dark) !important;
-          padding: 11px 15px !important;
-          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-          font-family: var(--font-sans) !important;
+
+        /* Clean titles with balanced weights */
+        .admin-shell h2, 
+        .admin-shell h3, 
+        .admin-shell h4 {
+          font-weight: 600 !important;
+          color: #0f172a !important;
         }
-        .admin-dashboard-container input:focus,
-        .admin-dashboard-container select:focus,
-        .admin-dashboard-container textarea:focus {
-          border-color: var(--secondary) !important;
+
+        .admin-shell label {
+          font-weight: 500 !important;
+          color: #334155 !important;
+          font-size: 13px !important;
+        }
+
+        /* Cards across all tabs */
+        .admin-shell .card {
           background-color: #ffffff !important;
-          box-shadow: 0 0 0 4px rgba(var(--secondary-rgb), 0.12) !important;
+          border: 1px solid #e2e8f0 !important;
+          border-radius: 14px !important;
+          box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 4px 16px rgba(15, 23, 42, 0.02) !important;
+          padding: 26px 30px !important;
+          margin-bottom: 24px !important;
+        }
+
+        /* Inputs, selects, textareas */
+        .admin-shell input:not([type="checkbox"]):not([type="radio"]),
+        .admin-shell select,
+        .admin-shell textarea {
+          border: 1px solid #cbd5e1 !important;
+          background-color: #ffffff !important;
+          border-radius: 8px !important;
+          color: #0f172a !important;
+          padding: 10px 14px !important;
+          font-size: 13.5px !important;
+          font-weight: 400 !important;
           outline: none !important;
+          transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
         }
-        /* Buttons layout overrides */
-        .admin-dashboard-container button {
-          font-family: var(--font-sans) !important;
-          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-        }
-        /* Specific action buttons */
-        .admin-save-btn, .admin-add-btn, .admin-login-btn, button[type="submit"] {
-          background: var(--gradient-primary) !important;
-          color: #ffffff !important;
-          border-radius: 30px !important;
-          font-weight: 700 !important;
-          padding: 10px 24px !important;
-          box-shadow: var(--shadow-sm) !important;
-          border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        }
-        .admin-save-btn:hover, .admin-add-btn:hover, .admin-login-btn:hover, button[type="submit"]:hover {
-          background: var(--gradient-cyber) !important;
-          transform: translateY(-1.5px) !important;
-          box-shadow: var(--shadow-glow) !important;
-        }
-        /* Logout hover */
-        .admin-logout-btn:hover {
+
+        .admin-shell input:not([type="checkbox"]):not([type="radio"]):focus,
+        .admin-shell select:focus,
+        .admin-shell textarea:focus {
+          border-color: #0284c7 !important;
           background-color: #ffffff !important;
-          color: var(--primary) !important;
-          border-color: #ffffff !important;
-          box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3) !important;
+          box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12) !important;
         }
-        /* Edit & Delete hover overrides */
-        .action-btn-hover-edit {
-          color: var(--secondary) !important;
-          border: 1px solid var(--border-subtle) !important;
+
+        /* Buttons across all pages */
+        .admin-shell .admin-add-btn,
+        .admin-shell .admin-save-btn,
+        .admin-shell button[type="submit"] {
+          background-color: #0B192C !important;
+          color: #ffffff !important;
           border-radius: 8px !important;
-          padding: 7px !important;
-          transition: all 0.2s ease !important;
+          font-weight: 600 !important;
+          font-size: 13.5px !important;
+          padding: 10px 22px !important;
+          box-shadow: 0 2px 6px rgba(11, 25, 44, 0.25) !important;
+          border: 1px solid transparent !important;
+          cursor: pointer !important;
+          transition: all 0.15s ease !important;
         }
-        .action-btn-hover-edit:hover {
-          background-color: var(--accent-light) !important;
-          border-color: var(--secondary) !important;
-          color: var(--secondary) !important;
-          transform: scale(1.05) !important;
+
+        .admin-shell .admin-add-btn:hover,
+        .admin-shell .admin-save-btn:hover,
+        .admin-shell button[type="submit"]:hover {
+          background-color: #07263e !important;
+          box-shadow: 0 4px 12px rgba(11, 25, 44, 0.35) !important;
+          transform: translateY(-1px) !important;
         }
-        .action-btn-hover-delete {
-          color: #ef4444 !important;
-          border: 1px solid var(--border-subtle) !important;
-          border-radius: 8px !important;
-          padding: 7px !important;
-          transition: all 0.2s ease !important;
-        }
-        .action-btn-hover-delete:hover {
-          background-color: #fef2f2 !important;
-          border-color: #fca5a5 !important;
-          color: #ef4444 !important;
-          transform: scale(1.05) !important;
-        }
-        /* Tables style overrides */
-        .admin-dashboard-container table {
+
+        /* Table headers & rows across all 16 tabs */
+        .admin-shell table {
           border-collapse: collapse !important;
           width: 100% !important;
+          text-align: left !important;
         }
-        .admin-dashboard-container thead tr {
-          background-color: rgba(var(--secondary-rgb), 0.04) !important;
-          border-bottom: 2px solid var(--border-subtle) !important;
+        .admin-shell thead tr {
+          background-color: #f8fafc !important;
+          border-bottom: 1px solid #e2e8f0 !important;
         }
-        .admin-dashboard-container th {
-          padding: 16px 20px !important;
-          font-weight: 700 !important;
-          font-size: 13.5px !important;
+        .admin-shell th {
+          padding: 14px 18px !important;
+          font-weight: 600 !important;
+          font-size: 12px !important;
           letter-spacing: 0.5px !important;
           text-transform: uppercase !important;
-          color: var(--primary) !important;
+          color: #64748b !important;
+          background-color: #f8fafc !important;
         }
-        .admin-dashboard-container tbody tr {
-          border-bottom: 1px solid rgba(var(--secondary-rgb), 0.08) !important;
-          transition: background-color 0.2s ease !important;
+        .admin-shell tbody tr {
+          border-bottom: 1px solid #f1f5f9 !important;
+          transition: background-color 0.15s ease !important;
         }
-        .admin-dashboard-container tbody tr:hover {
-          background-color: rgba(var(--secondary-rgb), 0.015) !important;
+        .admin-shell tbody tr:hover {
+          background-color: #f8fafc !important;
         }
-        .admin-dashboard-container td {
-          padding: 16px 20px !important;
-          color: var(--text-muted) !important;
-          font-size: 14px !important;
+        .admin-shell td {
+          padding: 14px 18px !important;
+          color: #334155 !important;
+          font-size: 13.5px !important;
+          font-weight: 400 !important;
         }
-        /* Tab buttons */
-        .tab-btn:hover:not(.active-tab) {
-          background-color: rgba(var(--secondary-rgb), 0.08) !important;
-          color: var(--secondary) !important;
-          border-color: var(--border-subtle) !important;
+
+        /* Action buttons in tables */
+        .action-btn-hover-edit {
+          color: #0284c7 !important;
+          border: 1px solid #bae6fd !important;
+          background-color: #eff6ff !important;
+          border-radius: 6px !important;
+          padding: 6px 10px !important;
+          font-size: 12.5px !important;
+          font-weight: 500 !important;
+          cursor: pointer !important;
+          transition: all 0.15s ease !important;
         }
+        .action-btn-hover-edit:hover {
+          background-color: #e0f2fe !important;
+          border-color: #7dd3fc !important;
+          color: #0369a1 !important;
+        }
+
+        .action-btn-hover-delete {
+          color: #ef4444 !important;
+          border: 1px solid #fecaca !important;
+          background-color: #fef2f2 !important;
+          border-radius: 6px !important;
+          padding: 6px 10px !important;
+          font-size: 12.5px !important;
+          font-weight: 500 !important;
+          cursor: pointer !important;
+          transition: all 0.15s ease !important;
+        }
+        .action-btn-hover-delete:hover {
+          background-color: #fee2e2 !important;
+          border-color: #fca5a5 !important;
+          color: #dc2626 !important;
+        }
+
         /* Overlay Modals */
         .modal-overlay {
-          backdrop-filter: blur(8px) !important;
-          background-color: rgba(15, 23, 42, 0.6) !important;
+          backdrop-filter: blur(6px) !important;
+          background-color: rgba(15, 23, 42, 0.5) !important;
         }
         .modal-card {
-          border-radius: 20px !important;
-          box-shadow: var(--shadow-premium) !important;
-          border: 1px solid var(--border-subtle) !important;
+          border-radius: 16px !important;
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+          border: 1px solid #e2e8f0 !important;
+          background: #ffffff !important;
         }
         .modal-header {
-          background: var(--gradient-primary) !important;
+          background: #0B192C !important;
+          color: #ffffff !important;
+          padding: 18px 24px !important;
           border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
         }
       `}</style>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, Unlock, LogOut, Check, Trash2, Edit3, Plus, Image as ImageIcon, BarChart3, Database, X, Calendar, Award, Users, Target, Settings, Link as LinkIcon, AlertCircle, FileText, Compass, Layers, Save, RefreshCw, MessageSquare, ArrowUp, ArrowDown, Flame } from 'lucide-react';
+import { Lock, Unlock, LogOut, Check, Trash2, Edit3, Plus, Image as ImageIcon, BarChart3, Database, X, Calendar, Award, Users, Target, Settings, Link as LinkIcon, AlertCircle, FileText, Compass, Layers, Save, RefreshCw, MessageSquare, ArrowUp, ArrowDown, Flame, Bell, ChevronDown, ChevronUp, ChevronRight, Menu, Home as HomeIcon, Folder, Eye, CheckCircle2, RotateCcw, UploadCloud } from 'lucide-react';
+import './Admin.css';
 import { apsData } from '../data/aps';
 import { computerSocietyData } from '../data/computerSociety';
 import { wieData } from '../data/wie';
@@ -7,7 +8,6 @@ import { rasData } from '../data/ras';
 import { pesData } from '../data/pes';
 import { comsocData } from '../data/comsoc';
 import { defaultSyncFiles, WORD_MIME } from '../data/defaultDocuments';
-import API from '../services/api';
 
 
 const compressImage = (file) => {
@@ -51,17 +51,30 @@ const compressImage = (file) => {
 };
 
 const Admin = () => {
-  const [dashboardData, setDashboardData] = useState(null);
-  const [isDashboardLoading, setIsDashboardLoading] = useState(true);
-  const [dashboardError, setDashboardError] = useState(null);
-  const [isEventsLoading, setIsEventsLoading] = useState(true);
-  const [eventsError, setEventsError] = useState(null);
-
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [activeTab, setActiveTab] = useState('stats'); // 'stats' | 'events' | 'achievements' | 'execomm' | 'committees' | 'gallery' | 'researchpapers' | 'news' | 'branches' | 'highlighted_events'
+  
+  // Dashboard Navigation & Layout States
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [expandedGroups, setExpandedGroups] = useState({
+    config: true,
+    roster: false,
+    events_media: false,
+    pages: false,
+    resources: false
+  });
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [activeHeroIndex, setActiveHeroIndex] = useState(0);
+
+  const toggleGroup = (groupId) => {
+    setExpandedGroups(prev => ({
+      ...prev,
+      [groupId]: !prev[groupId]
+    }));
+  };
   
   // Highlighted Events State Hooks
   const [highlightDescription, setHighlightDescription] = useState('');
@@ -860,34 +873,6 @@ const Admin = () => {
   ];
 
   useEffect(() => {
-    if (isLoggedIn) {
-      const fetchDashboardData = async () => {
-        setIsDashboardLoading(true);
-        setDashboardError(null);
-        try {
-          const token = localStorage.getItem('token') || localStorage.getItem('ieee_token') || localStorage.getItem('ieee_admin_token') || '';
-          const response = await fetch(`${API}/dashboard`, {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          });
-          if (!response.ok) {
-            throw new Error(`Failed to fetch dashboard data (${response.status})`);
-          }
-          const data = await response.json();
-          setDashboardData(data);
-        } catch (err) {
-          console.error("Dashboard fetch error:", err);
-          setDashboardError(err.message);
-        } finally {
-          setIsDashboardLoading(false);
-        }
-      };
-      fetchDashboardData();
-    }
-  }, [isLoggedIn]);
-
-  useEffect(() => {
     // Check if session exists
     const adminSession = sessionStorage.getItem('ieee_admin_session');
     if (adminSession === 'active') {
@@ -941,34 +926,22 @@ const Admin = () => {
       setMediaVideos(defaultMediaVideos);
     }
 
-    // Load Events from API
-    const fetchEvents = async () => {
-      setIsEventsLoading(true);
-      setEventsError(null);
-      try {
-        const token = localStorage.getItem('token') || localStorage.getItem('ieee_token') || localStorage.getItem('ieee_admin_token') || '';
-        const response = await fetch(`${API}/events`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (!response.ok) throw new Error(`Failed to load events (${response.status})`);
-        
-        const data = await response.json();
-        // The backend returns an array of documents where `_id` should be mapped to `id` for the UI
-        const formattedData = data.map(evt => ({ ...evt, id: evt._id }));
-        
-        const upcoming = formattedData.filter(evt => evt.isUpcoming);
-        const past = formattedData.filter(evt => !evt.isUpcoming);
-        
-        setUpcomingEvents(upcoming);
-        setPastEvents(past);
-      } catch (err) {
-        console.error("Events fetch error:", err);
-        setEventsError(err.message);
-      } finally {
-        setIsEventsLoading(false);
-      }
-    };
-    if (isLoggedIn) fetchEvents();
+    // Load Events
+    const storedUpcoming = localStorage.getItem('ieee_events_upcoming');
+    if (storedUpcoming) {
+      setUpcomingEvents(JSON.parse(storedUpcoming));
+    } else {
+      localStorage.setItem('ieee_events_upcoming', JSON.stringify(defaultUpcomingEvents));
+      setUpcomingEvents(defaultUpcomingEvents);
+    }
+
+    const storedPast = localStorage.getItem('ieee_events_past');
+    if (storedPast) {
+      setPastEvents(JSON.parse(storedPast));
+    } else {
+      localStorage.setItem('ieee_events_past', JSON.stringify(defaultPastEvents));
+      setPastEvents(defaultPastEvents);
+    }
 
     // Load Achievements
     const storedAchievements = localStorage.getItem('ieee_achievements');
@@ -1761,7 +1734,7 @@ const Admin = () => {
   };
 
   // Generic Delete Actions
-  const handleDeleteItem = async (type, id) => {
+  const handleDeleteItem = (type, id) => {
     if (!window.confirm(`Are you sure you want to delete this ${type} item?`)) return;
 
     if (type === 'gallery') {
@@ -1769,22 +1742,12 @@ const Admin = () => {
       setGalleryItems(updated);
       localStorage.setItem('ieee_gallery_items', JSON.stringify(updated));
     } else if (type === 'event') {
-      try {
-        const token = localStorage.getItem('token') || localStorage.getItem('ieee_token') || localStorage.getItem('ieee_admin_token') || '';
-        const response = await fetch(`${API}/events/${id}`, {
-          method: 'DELETE',
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (!response.ok) throw new Error('Failed to delete event');
-        
-        const updatedUpcoming = upcomingEvents.filter(item => item.id !== id);
-        const updatedPast = pastEvents.filter(item => item.id !== id);
-        setUpcomingEvents(updatedUpcoming);
-        setPastEvents(updatedPast);
-      } catch (err) {
-        console.error(err);
-        alert('Error deleting event: ' + err.message);
-      }
+      const updatedUpcoming = upcomingEvents.filter(item => item.id !== id);
+      const updatedPast = pastEvents.filter(item => item.id !== id);
+      setUpcomingEvents(updatedUpcoming);
+      setPastEvents(updatedPast);
+      localStorage.setItem('ieee_events_upcoming', JSON.stringify(updatedUpcoming));
+      localStorage.setItem('ieee_events_past', JSON.stringify(updatedPast));
     } else if (type === 'achievement') {
       const updated = achievements.filter(item => item.id !== id);
       setAchievements(updated);
@@ -1819,8 +1782,7 @@ const Admin = () => {
   };
 
   // Generic Save Logic
-  const handleSaveItem = async (e) => {
-    console.log("STEP 1 - handleSaveItem started");
+  const handleSaveItem = (e) => {
     e.preventDefault();
 
     if (modalType === 'gallery') {
@@ -1846,90 +1808,67 @@ const Admin = () => {
       localStorage.setItem('ieee_gallery_items', JSON.stringify(updated));
 
     } else if (modalType === 'event') {
-      console.log("STEP 2 - Validation started");
-      const missingFields = [];
-      if (!eventTitle.trim()) missingFields.push('Event Title');
-      if (!eventDesc.trim()) missingFields.push('Description');
-      if (!eventDate.trim()) missingFields.push('Date');
-      if (!eventVenue.trim()) missingFields.push('Venue');
-      
-      if (missingFields.length > 0) {
-        alert(`Please fill out the following required fields:\n- ${missingFields.join('\n- ')}`);
-        return;
-      }
-      
-      console.log("STEP 3 - Validation passed");
+      if (!eventTitle.trim() || !eventDesc.trim() || !eventDate.trim() || !eventVenue.trim()) return;
 
-      if (!eventIsUpcoming && isEventHighlighted) {
-        const currentlyHighlighted = pastEvents.filter(e => e.isHighlighted && e.id !== currentItemId);
-        if (currentlyHighlighted.length >= 5) {
-          alert("A maximum of 5 highlighted events is allowed. Please remove another event from highlights first.");
-          return;
-        }
+      const combinedId = currentItemId || Date.now();
+      let updatedUpcoming = [...upcomingEvents];
+      let updatedPast = [...pastEvents];
+
+      // Remove existing item from both lists if editing
+      if (modalMode === 'edit') {
+        updatedUpcoming = updatedUpcoming.filter(e => e.id !== currentItemId);
+        updatedPast = updatedPast.filter(e => e.id !== currentItemId);
       }
 
-      const newEventData = {
-        title: eventTitle,
-        desc: eventDesc,
-        date: eventDate,
-        time: eventTime,
-        venue: eventVenue,
-        tag: eventTag,
-        link: eventLink,
-        highlights: eventHighlights,
-        isHighlighted: isEventHighlighted,
-        highlightOrder: pastEvents.find(e => e.id === currentItemId)?.highlightOrder || (pastEvents.filter(e => e.isHighlighted).length + 1),
-        highlightDescription: highlightDescription || eventDesc,
-        highlightImage: highlightImage,
-        highlightTheme: highlightTheme,
-        isUpcoming: eventIsUpcoming
-      };
-
-      try {
-        const token = localStorage.getItem('token') || localStorage.getItem('ieee_token') || localStorage.getItem('ieee_admin_token') || '';
-        let url = `${API}/events`;
-        let method = 'POST';
-
-        if (modalMode === 'edit') {
-          url = `${API}/events/${currentItemId}`;
-          method = 'PUT';
+      if (eventIsUpcoming) {
+        const newEvent = {
+          id: combinedId,
+          title: eventTitle,
+          desc: eventDesc,
+          date: eventDate,
+          time: eventTime,
+          venue: eventVenue,
+          tag: eventTag,
+          link: eventLink,
+          showNewBadge: eventShowNewBadge
+        };
+        updatedUpcoming.push(newEvent);
+      } else {
+        // Limit check
+        if (isEventHighlighted) {
+          const currentlyHighlighted = updatedPast.filter(e => e.isHighlighted && e.id !== combinedId);
+          if (currentlyHighlighted.length >= 5) {
+            alert("A maximum of 5 highlighted events is allowed. Please remove another event from highlights first.");
+            return;
+          }
         }
 
-        console.log("STEP 4 - Before fetch");
+        const oldEvent = pastEvents.find(e => e.id === combinedId) || {};
+        const nextOrder = oldEvent.highlightOrder !== undefined 
+          ? oldEvent.highlightOrder 
+          : (pastEvents.filter(e => e.isHighlighted).length + 1);
 
-        const response = await fetch(url, {
-          method,
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify(newEventData)
-        });
-
-        console.log("STEP 5 - After fetch");
-
-        if (!response.ok) {
-          throw new Error('Failed to save event');
-        }
-        const savedEvent = await response.json();
-        savedEvent.id = savedEvent._id; 
-
-        if (modalMode === 'edit') {
-          setUpcomingEvents(prev => prev.filter(e => e.id !== currentItemId));
-          setPastEvents(prev => prev.filter(e => e.id !== currentItemId));
-        }
-
-        if (savedEvent.isUpcoming) {
-          setUpcomingEvents(prev => [...prev, savedEvent]);
-        } else {
-          setPastEvents(prev => [...prev, savedEvent]);
-        }
-        console.log("STEP 6 - End");
-      } catch (err) {
-        console.error(err);
-        alert('Error saving event: ' + err.message);
-        return;
+        const newEvent = {
+          id: combinedId,
+          title: eventTitle,
+          desc: eventDesc,
+          date: eventDate,
+          venue: eventVenue,
+          tag: eventTag,
+          highlights: eventHighlights,
+          isHighlighted: isEventHighlighted,
+          highlightOrder: nextOrder,
+          highlightDescription: highlightDescription || eventDesc,
+          highlightImage: highlightImage,
+          highlightTheme: highlightTheme
+        };
+        updatedPast.push(newEvent);
       }
+
+      setUpcomingEvents(updatedUpcoming);
+      setPastEvents(updatedPast);
+      localStorage.setItem('ieee_events_upcoming', JSON.stringify(updatedUpcoming));
+      localStorage.setItem('ieee_events_past', JSON.stringify(updatedPast));
 
     } else if (modalType === 'achievement') {
       if (!achTitle.trim() || !achCategory.trim() || !achDesc.trim()) return;
@@ -2251,48 +2190,42 @@ const Admin = () => {
     setEditingEventId(item.id);
   };
 
-  const saveInlineEvent = async (id) => {
-    const missingFields = [];
-    if (!eventTitle.trim()) missingFields.push('Event Title');
-    if (!eventDesc.trim()) missingFields.push('Description');
-    if (!eventDate.trim()) missingFields.push('Date');
-    if (!eventVenue.trim()) missingFields.push('Venue');
-    
-    if (missingFields.length > 0) {
-      alert(`Please fill out the following required fields:\n- ${missingFields.join('\n- ')}`);
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem('token') || localStorage.getItem('ieee_token') || localStorage.getItem('ieee_admin_token') || '';
-      
-      const updateData = eventIsUpcoming 
-        ? { title: eventTitle, desc: eventDesc, date: eventDate, time: eventTime, venue: eventVenue, tag: eventTag, link: eventLink, isUpcoming: true }
-        : { title: eventTitle, desc: eventDesc, date: eventDate, time: eventTime, venue: eventVenue, tag: eventTag, highlights: eventHighlights, isUpcoming: false };
-        
-      const response = await fetch(`${API}/events/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(updateData)
-      });
-      
-      if (!response.ok) throw new Error('Failed to update event inline');
-      const savedEvent = await response.json();
-      savedEvent.id = savedEvent._id;
-      
-      if (eventIsUpcoming) {
-        const updated = upcomingEvents.map(item => item.id === id ? { ...item, ...savedEvent } : item);
-        setUpcomingEvents(updated);
-      } else {
-        const updated = pastEvents.map(item => item.id === id ? { ...item, ...savedEvent } : item);
-        setPastEvents(updated);
-      }
-    } catch (err) {
-      console.error(err);
-      alert('Error updating event: ' + err.message);
+  const saveInlineEvent = (id) => {
+    if (!eventTitle.trim() || !eventDesc.trim() || !eventDate.trim() || !eventVenue.trim()) return;
+    if (eventIsUpcoming) {
+      const updated = upcomingEvents.map(item =>
+        item.id === id
+          ? {
+              ...item,
+              title: eventTitle,
+              desc: eventDesc,
+              date: eventDate,
+              time: eventTime,
+              venue: eventVenue,
+              tag: eventTag,
+              link: eventLink
+            }
+          : item
+      );
+      setUpcomingEvents(updated);
+      localStorage.setItem('ieee_events_upcoming', JSON.stringify(updated));
+    } else {
+      const updated = pastEvents.map(item =>
+        item.id === id
+          ? {
+              ...item,
+              title: eventTitle,
+              desc: eventDesc,
+              date: eventDate,
+              time: eventTime,
+              venue: eventVenue,
+              tag: eventTag,
+              highlights: eventHighlights
+            }
+          : item
+      );
+      setPastEvents(updated);
+      localStorage.setItem('ieee_events_past', JSON.stringify(updated));
     }
     setEditingEventId(null);
   };
@@ -3060,42 +2993,23 @@ const Admin = () => {
     );
   }
 
-  const syncEventUpdates = async (eventsToUpdate) => {
-    try {
-      const token = localStorage.getItem('token') || localStorage.getItem('ieee_token') || localStorage.getItem('ieee_admin_token') || '';
-      await Promise.all(eventsToUpdate.map(evt => 
-        fetch(`${API}/events/${evt.id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify(evt)
-        })
-      ));
-    } catch (err) {
-      console.error("Failed to sync event updates:", err);
-    }
-  };
-
-  const toggleHighlightStatus = async (item) => {
+  const toggleHighlightStatus = (item) => {
     let updated = [];
-    let changedEvents = [];
     if (item.isHighlighted) {
+      // Remove from highlights
       updated = pastEvents.map(evt => {
         if (evt.id === item.id) {
-          const updatedEvt = { ...evt, isHighlighted: false, highlightOrder: undefined };
-          changedEvents.push(updatedEvt);
-          return updatedEvt;
+          return { ...evt, isHighlighted: false, highlightOrder: undefined };
         }
         return evt;
       });
+      // Recalculate orders for remaining highlighted events
       const highlighted = updated.filter(e => e.isHighlighted).sort((a, b) => a.highlightOrder - b.highlightOrder);
       highlighted.forEach((e, idx) => {
         e.highlightOrder = idx + 1;
-        changedEvents.push(e);
       });
     } else {
+      // Add to highlights
       const currentCount = pastEvents.filter(e => e.isHighlighted).length;
       if (currentCount >= 5) {
         alert("A maximum of 5 highlighted events is allowed. Please remove another event from highlights first.");
@@ -3103,7 +3017,7 @@ const Admin = () => {
       }
       updated = pastEvents.map(evt => {
         if (evt.id === item.id) {
-          const updatedEvt = {
+          return {
             ...evt,
             isHighlighted: true,
             highlightOrder: currentCount + 1,
@@ -3111,25 +3025,25 @@ const Admin = () => {
             highlightTheme: evt.highlightTheme || 'Purple',
             highlightImage: evt.highlightImage || null
           };
-          changedEvents.push(updatedEvt);
-          return updatedEvt;
         }
         return evt;
       });
     }
     setPastEvents(updated);
-    await syncEventUpdates(changedEvents);
+    localStorage.setItem('ieee_events_past', JSON.stringify(updated));
   };
 
-  const moveHighlightItemManual = async (index, direction) => {
+  const moveHighlightItemManual = (index, direction) => {
     const highlighted = pastEvents.filter(e => e.isHighlighted).sort((a, b) => a.highlightOrder - b.highlightOrder);
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= highlighted.length) return;
     
+    // Swap orders
     const temp = highlighted[index].highlightOrder;
     highlighted[index].highlightOrder = highlighted[newIndex].highlightOrder;
     highlighted[newIndex].highlightOrder = temp;
     
+    // Update pastEvents list
     const updated = pastEvents.map(evt => {
       const hlMatch = highlighted.find(h => h.id === evt.id);
       if (hlMatch) {
@@ -3139,25 +3053,23 @@ const Admin = () => {
     });
     
     setPastEvents(updated);
-    await syncEventUpdates([highlighted[index], highlighted[newIndex]]);
+    localStorage.setItem('ieee_events_past', JSON.stringify(updated));
   };
 
-  const saveHighlightDetails = async (id, desc, theme, img) => {
-    let changedEvent = null;
+  const saveHighlightDetails = (id, desc, theme, img) => {
     const updated = pastEvents.map(evt => {
       if (evt.id === id) {
-        changedEvent = {
+        return {
           ...evt,
           highlightDescription: desc,
           highlightTheme: theme,
           highlightImage: img
         };
-        return changedEvent;
       }
       return evt;
     });
     setPastEvents(updated);
-    if (changedEvent) await syncEventUpdates([changedEvent]);
+    localStorage.setItem('ieee_events_past', JSON.stringify(updated));
     setEditingHighlightEventId(null);
   };
 
@@ -3173,16 +3085,19 @@ const Admin = () => {
     const highlighted = pastEvents.filter(evt => evt.isHighlighted).sort((a, b) => a.highlightOrder - b.highlightOrder);
     const draggedItem = highlighted[draggedIndex];
     
+    // Reorder
     const temp = [...highlighted];
     temp.splice(draggedIndex, 1);
     temp.splice(index, 0, draggedItem);
     
+    // Update indices
     temp.forEach((item, idx) => {
       item.highlightOrder = idx + 1;
     });
     
     setDraggedIndex(index);
     
+    // Merge back
     const updated = pastEvents.map(evt => {
       const hlMatch = temp.find(h => h.id === evt.id);
       if (hlMatch) {
@@ -3192,594 +3107,775 @@ const Admin = () => {
     });
     
     setPastEvents(updated);
+    localStorage.setItem('ieee_events_past', JSON.stringify(updated));
   };
 
-  const handleDragEndHighlight = async () => {
+  const handleDragEndHighlight = () => {
     setDraggedIndex(null);
-    const highlighted = pastEvents.filter(evt => evt.isHighlighted);
-    await syncEventUpdates(highlighted);
   };
+
+  // Dynamic category tree and tab definitions
+  const categoriesList = [
+    {
+      id: 'config',
+      label: 'Site & Stats',
+      icon: <BarChart3 size={16} />,
+      items: [
+        { id: 'stats', label: 'Site Overview', icon: <Settings size={14} /> },
+        { id: 'impact_stats', label: 'Impact Numbers', icon: <BarChart3 size={14} /> },
+        { id: 'contact_page', label: 'Contact & FAQ Page', icon: <MessageSquare size={14} /> }
+      ]
+    },
+    {
+      id: 'roster',
+      label: 'Rosters',
+      icon: <Users size={16} />,
+      items: [
+        { id: 'execomm', label: 'Execomm SB Leaders', icon: <Users size={14} /> },
+        { id: 'branches', label: 'ExeComm Branches', icon: <Layers size={14} /> },
+        { id: 'committees', label: 'Committees', icon: <Target size={14} /> }
+      ]
+    },
+    {
+      id: 'events_media',
+      label: 'Events & Media',
+      icon: <Calendar size={16} />,
+      items: [
+        { id: 'events', label: 'Events List', icon: <Calendar size={14} /> },
+        { id: 'highlighted_events', label: 'Highlighted Events', icon: <Flame size={14} /> },
+        { id: 'gallery', label: 'Photo Gallery', icon: <ImageIcon size={14} /> },
+        { id: 'achievements', label: 'Achievements', icon: <Award size={14} /> }
+      ]
+    },
+    {
+      id: 'pages',
+      label: 'Pages Content',
+      icon: <Compass size={16} />,
+      items: [
+        { id: 'about_kec_sb', label: 'About KEC SB Page', icon: <Compass size={14} /> },
+        { id: 'testimonials', label: 'Testimonials', icon: <MessageSquare size={14} /> }
+      ]
+    },
+    {
+      id: 'resources',
+      label: 'Resources & Forms',
+      icon: <Folder size={16} />,
+      items: [
+        { id: 'news', label: 'News Clippings', icon: <FileText size={14} /> },
+        { id: 'researchpapers', label: 'Research Papers & Projects', icon: <FileText size={14} /> },
+        { id: 'documents', label: 'Documents Repository', icon: <FileText size={14} /> },
+        { id: 'request_forms', label: 'Request Forms', icon: <LinkIcon size={14} /> }
+      ]
+    }
+  ];
+
+  const currentCategory = categoriesList.find(c => c.items.some(i => i.id === activeTab)) || categoriesList[0];
+  const currentTabItem = currentCategory.items.find(i => i.id === activeTab) || { label: 'Site Overview' };
 
   return (
-    <div className="admin-dashboard-container" style={{ backgroundColor: 'var(--bg-light)', minHeight: '85vh', paddingBottom: '80px', fontFamily: 'var(--font-sans)' }}>
-      {/* Header Panel */}
-      <div style={{
-        background: 'var(--gradient-primary)',
-        color: '#ffffff',
-        padding: '40px 0',
-        marginBottom: '40px',
-        boxShadow: 'var(--shadow-md)',
-        position: 'relative'
-      }}>
-        {/* Neon cyan bottom border line */}
-        <div style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: '4px',
-          background: 'var(--gradient-cyber)'
-        }} />
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
-          <div>
-            <h1 style={{ fontSize: '32px', color: '#ffffff', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '12px', letterSpacing: '-0.75px' }}>
-              <Database size={32} style={{ color: 'var(--accent-cyan)' }} /> Admin Dashboard
-            </h1>
-            <p style={{ fontSize: '14.5px', color: 'rgba(255, 255, 255, 0.75)', marginTop: '6px' }}>Welcome! You have full authority to modify the student branch website's database.</p>
+    <div className="admin-shell">
+      {/* LEFT SIDEBAR */}
+      <aside className={`admin-sidebar ${sidebarOpen ? 'open' : 'collapsed'}`}>
+        <div className="admin-sidebar-header">
+          <div className="admin-sidebar-logo-box">
+            {/* IEEE Diamond Logo */}
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L2 12L12 22L22 12L12 2Z" fill="#00629B" stroke="#ffffff" strokeWidth="1.2"/>
+              <path d="M12 6L7 12L12 18L17 12L12 6Z" fill="#ffffff"/>
+            </svg>
+            <div>
+              <div className="admin-sidebar-brand-title">IEEE <span style={{ fontWeight: 400, opacity: 0.85 }}>Student Branch - 29741</span></div>
+              <div className="admin-sidebar-brand-sub">Kongu Engineering College</div>
+            </div>
           </div>
-          <button
-            onClick={handleLogout}
-            style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.08)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              color: '#ffffff',
-              padding: '10px 24px',
-              borderRadius: '30px',
-              fontSize: '13.5px',
-              fontWeight: '700',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              transition: 'all 0.2s ease',
-              backdropFilter: 'blur(4px)'
-            }}
-            className="admin-logout-btn"
+        </div>
+
+        <div className="admin-sidebar-body">
+          <button 
+            type="button" 
+            className="admin-nav-home-btn"
+            onClick={() => setActiveTab('stats')}
           >
-            <LogOut size={16} /> Log Out
+            <HomeIcon size={16} style={{ color: '#38bdf8' }} />
+            <span>Admin Dashboard</span>
           </button>
-        </div>
-      </div>
 
-      <div className="container">
-        {/* Live Database Overview */}
-        <div style={{ marginBottom: '32px' }}>
-          <h2 style={{ fontSize: '20px', color: '#0a385b', fontWeight: '800', marginBottom: '16px' }}>Live Database Overview</h2>
-          {isDashboardLoading ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
-              {[...Array(7)].map((_, i) => (
-                <div key={i} className="card" style={{ height: '95px', backgroundColor: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}></div>
-              ))}
-            </div>
-          ) : dashboardError ? (
-            <div style={{ padding: '16px', backgroundColor: '#fef2f2', color: '#ef4444', borderRadius: '8px', border: '1px solid #fecaca' }}>
-              <AlertCircle size={18} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} />
-              Failed to load live statistics: {dashboardError}
-            </div>
-          ) : dashboardData ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '16px' }}>
-              <div className="card" style={{ padding: '16px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Events</span>
-                <span style={{ fontSize: '28px', color: '#0a385b', fontWeight: '800', lineHeight: 1 }}>{dashboardData.totalEvents || 0}</span>
+          <div className="admin-nav-section-label">CONTENT MANAGEMENT</div>
+
+          {categoriesList.map((cat) => {
+            const isCatActive = cat.items.some(item => item.id === activeTab);
+            const isExpanded = expandedGroups[cat.id] ?? isCatActive;
+
+            return (
+              <div key={cat.id} className="admin-nav-group-container">
+                <button
+                  type="button"
+                  className={`admin-nav-group-btn ${isCatActive ? 'active' : ''}`}
+                  onClick={() => toggleGroup(cat.id)}
+                >
+                  <div className="admin-nav-group-left">
+                    <span className="admin-nav-group-icon">{cat.icon}</span>
+                    <span>{cat.label}</span>
+                  </div>
+                  <span className="admin-nav-chevron">
+                    {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                  </span>
+                </button>
+
+                {isExpanded && (
+                  <div className="admin-nav-sublist">
+                    {cat.items.map((item) => {
+                      const isActive = activeTab === item.id;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          className={`admin-nav-subitem ${isActive ? 'active' : ''}`}
+                          onClick={() => setActiveTab(item.id)}
+                        >
+                          <span className="admin-nav-dot">•</span>
+                          <span>{item.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-              <div className="card" style={{ padding: '16px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Team Members</span>
-                <span style={{ fontSize: '28px', color: '#0a385b', fontWeight: '800', lineHeight: 1 }}>{dashboardData.totalTeamMembers || 0}</span>
-              </div>
-              <div className="card" style={{ padding: '16px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Gallery Images</span>
-                <span style={{ fontSize: '28px', color: '#0a385b', fontWeight: '800', lineHeight: 1 }}>{dashboardData.totalGalleryImages || 0}</span>
-              </div>
-              <div className="card" style={{ padding: '16px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Contacts</span>
-                <span style={{ fontSize: '28px', color: '#0a385b', fontWeight: '800', lineHeight: 1 }}>{dashboardData.totalContacts || 0}</span>
-              </div>
-              <div className="card" style={{ padding: '16px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Join Requests</span>
-                <span style={{ fontSize: '28px', color: '#0a385b', fontWeight: '800', lineHeight: 1 }}>{dashboardData.totalJoinRequests || 0}</span>
-              </div>
-              <div className="card" style={{ padding: '16px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Subscribers</span>
-                <span style={{ fontSize: '28px', color: '#0a385b', fontWeight: '800', lineHeight: 1 }}>{dashboardData.totalSubscribers || 0}</span>
-              </div>
-              <div className="card" style={{ padding: '16px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Feedbacks</span>
-                <span style={{ fontSize: '28px', color: '#0a385b', fontWeight: '800', lineHeight: 1 }}>{dashboardData.totalFeedbacks || 0}</span>
-              </div>
-            </div>
-          ) : null}
+            );
+          })}
         </div>
 
-        {/* Tab Selection */}
-        {(() => {
-          const categories = [
-            {
-              id: 'config',
-              label: 'Site & Stats',
-              icon: <Settings size={16} />,
-              items: [
-                { id: 'stats', label: 'Stats & Site Info', icon: <Settings size={14} /> },
-                { id: 'impact_stats', label: 'Impact Numbers', icon: <BarChart3 size={14} /> },
-                { id: 'contact_page', label: 'Contact & FAQ Page', icon: <MessageSquare size={14} /> }
-              ]
-            },
-            {
-              id: 'roster',
-              label: 'Rosters',
-              icon: <Users size={16} />,
-              items: [
-                { id: 'execomm', label: 'Execomm SB Leaders', icon: <Users size={14} /> },
-                { id: 'branches', label: 'ExeComm Branches', icon: <Layers size={14} /> },
-                { id: 'committees', label: 'Committees', icon: <Target size={14} /> }
-              ]
-            },
-            {
-              id: 'events_media',
-              label: 'Events & Media',
-              icon: <Calendar size={16} />,
-              items: [
-                { id: 'events', label: 'Events List', icon: <Calendar size={14} /> },
-                { id: 'highlighted_events', label: 'Highlighted Events', icon: <Flame size={14} /> },
-                { id: 'gallery', label: 'Photo Gallery', icon: <ImageIcon size={14} /> },
-                { id: 'achievements', label: 'Achievements', icon: <Award size={14} /> }
-              ]
-            },
-            {
-              id: 'pages',
-              label: 'Pages Content',
-              icon: <Compass size={16} />,
-              items: [
-                { id: 'about_kec_sb', label: 'About KEC SB Page', icon: <Compass size={14} /> },
-                { id: 'testimonials', label: 'Testimonials', icon: <MessageSquare size={14} /> }
-              ]
-            },
-            {
-              id: 'resources',
-              label: 'Resources & Forms',
-              icon: <FileText size={16} />,
-              items: [
-                { id: 'news', label: 'News Clippings', icon: <FileText size={14} /> },
-                { id: 'researchpapers', label: 'Research Papers & Projects', icon: <FileText size={14} /> },
-                { id: 'documents', label: 'Documents Repository', icon: <FileText size={14} /> },
-                { id: 'request_forms', label: 'Request Forms', icon: <LinkIcon size={14} /> }
-              ]
-            }
-          ];
+        {/* Glowing Blue/Violet Decorative Wave Graphic at sidebar bottom (matches reference mockup) */}
+        <div className="admin-sidebar-footer-wave">
+          <svg viewBox="0 0 265 140" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style={{ width: '100%', height: '140px', display: 'block' }}>
+            <defs>
+              <linearGradient id="sidebarWave1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#00629B" stopOpacity="0.9" />
+                <stop offset="50%" stopColor="#0284c7" stopOpacity="0.95" />
+                <stop offset="100%" stopColor="#7c3aed" stopOpacity="0.85" />
+              </linearGradient>
+              <linearGradient id="sidebarWave2" x1="100%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.85" />
+                <stop offset="60%" stopColor="#2563eb" stopOpacity="0.9" />
+                <stop offset="100%" stopColor="#6366f1" stopOpacity="0.5" />
+              </linearGradient>
+              <linearGradient id="sidebarWave3" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#0B192C" stopOpacity="0.98" />
+                <stop offset="50%" stopColor="#0369a1" stopOpacity="0.85" />
+                <stop offset="100%" stopColor="#00d2ff" stopOpacity="0.75" />
+              </linearGradient>
+              <filter id="sidebarWaveGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="6" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+            </defs>
+            <path d="M0,70 C60,110 120,35 185,80 C225,110 245,65 265,75 L265,140 L0,140 Z" fill="url(#sidebarWave1)" />
+            <path d="M0,95 C70,65 135,130 198,90 C238,65 250,105 265,95 L265,140 L0,140 Z" fill="url(#sidebarWave2)" opacity="0.9" filter="url(#sidebarWaveGlow)" />
+            <path d="M0,118 C80,90 145,140 208,110 C242,92 254,115 265,110 L265,140 L0,140 Z" fill="url(#sidebarWave3)" opacity="0.95" />
+          </svg>
+        </div>
+      </aside>
 
-          return (
-            <div style={{ marginBottom: '32px' }}>
-              <div style={{
-                display: 'flex',
-                backgroundColor: '#0a385b',
-                borderRadius: '12px',
-                padding: '6px 12px',
-                gap: '8px',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                boxShadow: '0 4px 20px rgba(10,56,91,0.15)',
-                position: 'relative',
-                zIndex: 100,
-                marginBottom: '16px'
-              }}>
-                {categories.map((cat) => {
-                  const isCatActive = cat.items.some(item => item.id === activeTab);
-                  const isOpen = activeDropdown === cat.id;
+      {/* MAIN WRAPPER */}
+      <div className="admin-main-wrapper">
+        {/* TOP STICKY HEADER */}
+        <header className="admin-top-header">
+          <div className="admin-header-left">
+            <button
+              type="button"
+              className="admin-hamburger-btn"
+              onClick={() => setSidebarOpen(prev => !prev)}
+              title="Toggle Navigation Sidebar"
+            >
+              <Menu size={18} />
+            </button>
+            <div className="admin-header-title-box">
+              <h1>Admin Dashboard</h1>
+              <p>Manage and update the IEEE Student Branch website content, records and information.</p>
+            </div>
+          </div>
 
-                  return (
-                    <div 
-                      key={cat.id} 
-                      style={{ position: 'relative' }}
-                      onMouseEnter={() => setActiveDropdown(cat.id)}
-                      onMouseLeave={() => setActiveDropdown(null)}
-                    >
-                      <button
-                        onClick={() => setActiveDropdown(isOpen ? null : cat.id)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          padding: '10px 18px',
-                          fontSize: '14px',
-                          fontWeight: '700',
-                          borderRadius: '8px',
-                          border: 'none',
-                          cursor: 'pointer',
-                          backgroundColor: isCatActive ? '#02619a' : 'transparent',
-                          color: '#ffffff',
-                          transition: 'all 0.2s ease',
-                        }}
-                      >
-                        {cat.icon}
-                        {cat.label}
-                        <span style={{ fontSize: '10px', marginLeft: '4px', opacity: 0.7 }}>▼</span>
-                      </button>
+          <div className="admin-header-right">
+            <button
+              type="button"
+              className="admin-bell-btn"
+              title="Notifications"
+            >
+              <Bell size={18} />
+              <span className="admin-bell-dot" />
+            </button>
 
-                      {/* Dropdown Menu */}
-                      {isOpen && (
-                        <div style={{
-                          position: 'absolute',
-                          top: '100%',
-                          left: 0,
-                          paddingTop: '8px', // Creates the visual gap without breaking the hover box
-                          minWidth: '240px',
-                          zIndex: 101
-                        }}>
-                          <div style={{
-                            backgroundColor: '#ffffff',
-                            borderRadius: '8px',
-                            border: '1px solid #cbd5e1',
-                            boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            padding: '6px',
-                            gap: '4px'
-                          }}>
-                            {cat.items.map((item) => {
-                              const isActive = activeTab === item.id;
-                              return (
-                                <button
-                                  key={item.id}
-                                  onClick={() => {
-                                    setActiveTab(item.id);
-                                    setActiveDropdown(null);
-                                  }}
-                                  style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '10px',
-                                    padding: '8px 14px',
-                                    fontSize: '13.5px',
-                                    fontWeight: '600',
-                                    textAlign: 'left',
-                                    borderRadius: '6px',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                    backgroundColor: isActive ? '#eff6ff' : 'transparent',
-                                    color: isActive ? '#0a385b' : '#334155',
-                                    transition: 'all 0.15s ease',
-                                    width: '100%'
-                                  }}
-                                >
-                                  <span style={{ color: isActive ? '#02619a' : '#64748b', display: 'flex', alignItems: 'center' }}>{item.icon}</span>
-                                  {item.label}
-                                </button>
-                              );
-                            })}
+            <div style={{ position: 'relative' }}>
+              <button
+                type="button"
+                className="admin-user-chip"
+                onClick={() => setProfileMenuOpen(prev => !prev)}
+              >
+                <div className="admin-user-avatar">SP</div>
+                <div className="admin-user-info">
+                  <span className="admin-user-name">Sakthi Pranav S</span>
+                  <span className="admin-user-role">
+                    Administrator <ChevronDown size={12} style={{ display: 'inline', verticalAlign: 'middle' }} />
+                  </span>
+                </div>
+              </button>
+
+              {profileMenuOpen && (
+                <div className="admin-user-dropdown animate-fade-in">
+                  <div className="admin-user-dropdown-header">
+                    <div style={{ fontWeight: 600, color: '#0f172a' }}>Sakthi Pranav S</div>
+                    <div style={{ fontSize: '11px', color: '#64748b' }}>sakthipranavs.24cse@kongu.edu</div>
+                  </div>
+                  <button
+                    type="button"
+                    className="admin-user-dropdown-item"
+                    onClick={() => { setActiveTab('stats'); setProfileMenuOpen(false); }}
+                  >
+                    <Settings size={14} /> General Settings
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-user-dropdown-item text-danger"
+                    onClick={handleLogout}
+                  >
+                    <LogOut size={14} /> Log Out
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </header>
+
+        {/* MAIN SCROLLABLE CONTENT */}
+        <main className="admin-content-area">
+          {/* Breadcrumb Navigation */}
+          <div className="admin-breadcrumbs">
+            <span className="crumb-root" onClick={() => setActiveTab('stats')}>Admin Dashboard</span>
+            <ChevronRight size={13} className="crumb-sep" />
+            <span className="crumb-category">{currentCategory?.label || 'Site & Stats'}</span>
+            <ChevronRight size={13} className="crumb-sep" />
+            <span className="crumb-current">{currentTabItem?.label || 'Site Overview'}</span>
+          </div>
+
+          {/* Page Heading */}
+          <div className="admin-page-header-box">
+            <h1 className="admin-page-main-title">
+              {activeTab === 'stats' ? 'Manage Site-wide Overview Details' : currentTabItem?.label || 'Admin Panel'}
+            </h1>
+            <p className="admin-page-sub-title">
+              {activeTab === 'stats' 
+                ? 'Modify the counters, mission/vision statements, and marquee announcements displayed on the home page.' 
+                : `Manage and update ${currentTabItem?.label || 'records'} for the IEEE Student Branch website.`}
+            </p>
+          </div>
+
+          {/* Tab 1: Statistics & Site Info Update Panel */}
+          {activeTab === 'stats' && (
+            <div className="animate-fade-in">
+              {/* Top 4 Stat Cards Row */}
+              <div className="admin-stat-cards-grid">
+                <div className="admin-stat-card">
+                  <div className="admin-stat-icon-badge blue">
+                    <Users size={20} />
+                  </div>
+                  <div className="admin-stat-info">
+                    <span className="admin-stat-label">Active Members</span>
+                    <span className="admin-stat-value">{memberCount || '45'}</span>
+                  </div>
+                </div>
+
+                <div className="admin-stat-card">
+                  <div className="admin-stat-icon-badge purple">
+                    <Calendar size={20} />
+                  </div>
+                  <div className="admin-stat-info">
+                    <span className="admin-stat-label">Events (Yearly)</span>
+                    <span className="admin-stat-value">{eventsCount || '75+'}</span>
+                  </div>
+                </div>
+
+                <div className="admin-stat-card">
+                  <div className="admin-stat-icon-badge amber">
+                    <Award size={20} />
+                  </div>
+                  <div className="admin-stat-info">
+                    <span className="admin-stat-label">National Awards</span>
+                    <span className="admin-stat-value">{awardsCount || '18+'}</span>
+                  </div>
+                </div>
+
+                <div className="admin-stat-card">
+                  <div className="admin-stat-icon-badge green">
+                    <FileText size={20} />
+                  </div>
+                  <div className="admin-stat-info">
+                    <span className="admin-stat-label">Research Papers</span>
+                    <span className="admin-stat-value">{papersCount || '3'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {statsSaved && (
+                <div className="admin-alert-success animate-fade-in" style={{
+                  padding: '12px 18px',
+                  backgroundColor: '#dcfce7',
+                  color: '#15803d',
+                  borderRadius: '10px',
+                  fontSize: '13.5px',
+                  fontWeight: '600',
+                  marginBottom: '20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  border: '1px solid #bbf7d0'
+                }}>
+                  <CheckCircle2 size={18} />
+                  <span>Site settings updated successfully! Changes are live across the website.</span>
+                </div>
+              )}
+
+              <form onSubmit={handleSaveStats}>
+                <div className="admin-two-col-grid">
+                  {/* LEFT COLUMN */}
+                  <div className="admin-col-left">
+                    {/* Card 1: Home Statistics Counter */}
+                    <div className="admin-card">
+                      <div className="admin-card-header">
+                        <div className="admin-card-header-icon blue">
+                          <Settings size={17} />
+                        </div>
+                        <h3 className="admin-card-title">Home Statistics Counter</h3>
+                      </div>
+                      <div className="admin-card-body">
+                        <div className="admin-form-row-2col">
+                          <div className="admin-form-group">
+                            <label className="admin-form-label">
+                              Active Members Count <span className="admin-req-star">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={memberCount}
+                              onChange={(e) => setMemberCount(e.target.value)}
+                              placeholder="e.g. 45"
+                              className="admin-form-input"
+                            />
+                          </div>
+                          <div className="admin-form-group">
+                            <label className="admin-form-label">
+                              Events Yearly <span className="admin-req-star">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={eventsCount}
+                              onChange={(e) => setEventsCount(e.target.value)}
+                              placeholder="e.g. 75+"
+                              className="admin-form-input"
+                            />
                           </div>
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
 
-              {/* Breadcrumb banner */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                fontSize: '13px',
-                color: '#64748b',
-                fontWeight: '600',
-                backgroundColor: '#f8fafc',
-                padding: '10px 16px',
-                borderRadius: '8px',
-                border: '1px solid #e2e8f0'
-              }}>
-                <span>Admin Dashboard</span>
-                <span>/</span>
-                <span style={{ color: '#0a385b' }}>
-                  {categories.find(c => c.items.some(i => i.id === activeTab))?.label || 'General'}
-                </span>
-                <span>/</span>
-                <span style={{ color: '#02619a', fontWeight: '700' }}>
-                  {categories.flatMap(c => c.items).find(i => i.id === activeTab)?.label || activeTab}
-                </span>
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* Tab 1: Statistics & Site Info Update Panel */}
-        {activeTab === 'stats' && (
-          <div className="card animate-fade-in" style={{ padding: '36px', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-            <h2 style={{ fontSize: '20px', color: '#0a385b', marginBottom: '8px', fontWeight: '800' }}>Manage Site-wide Overview Details</h2>
-            <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '28px' }}>Modify the counters, mission/vision statements, and marquee announcements displayed on the Home page.</p>
-
-            {statsSaved && (
-              <div style={{
-                padding: '12px 16px',
-                backgroundColor: '#dcfce7',
-                color: '#15803d',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '600',
-                marginBottom: '24px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                border: '1px solid #bbf7d0'
-              }}>
-                <Check size={18} /> Site settings updated successfully!
-              </div>
-            )}
-
-            <form onSubmit={handleSaveStats} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '750', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>Home Statistics Counter</h3>
-                
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Active Members Count</label>
-                  <input
-                    type="text"
-                    required
-                    value={memberCount}
-                    onChange={(e) => setMemberCount(e.target.value)}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Events Yearly</label>
-                  <input
-                    type="text"
-                    required
-                    value={eventsCount}
-                    onChange={(e) => setEventsCount(e.target.value)}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>National Awards</label>
-                  <input
-                    type="text"
-                    required
-                    value={awardsCount}
-                    onChange={(e) => setAwardsCount(e.target.value)}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Research Papers & Projects Count</label>
-                  <input
-                    type="text"
-                    required
-                    value={papersCount}
-                    onChange={(e) => setPapersCount(e.target.value)}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none' }}
-                  />
-                </div>
-
-                <div style={{ marginTop: '24px', borderTop: '1px solid #e2e8f0', paddingTop: '20px' }}>
-                  <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '750', marginBottom: '16px' }}>About & Keystones Media</h3>
-                  
-                  <div style={{ marginBottom: '16px' }}>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>About Section Illustration Image</label>
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '8px' }}>
-                      {aboutImage ? (
-                        <img src={aboutImage} alt="About preview" style={{ width: '80px', height: '50px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
-                      ) : (
-                        <div style={{ width: '80px', height: '50px', backgroundColor: '#e2e8f0', borderRadius: '4px' }}></div>
-                      )}
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={async (e) => {
-                          const file = e.target.files[0];
-                          if (file) {
-                            try {
-                              const base64 = await compressImage(file);
-                              setAboutImage(base64);
-                            } catch (err) {
-                              console.error(err);
-                            }
-                          }
-                        }}
-                        style={{ fontSize: '11px', width: 'auto' }}
-                      />
-                    </div>
-                    <input
-                      type="text"
-                      value={aboutImage}
-                      onChange={(e) => setAboutImage(e.target.value)}
-                      placeholder="Or enter image URL"
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
-                    />
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Operational Keystones YouTube Video Embed URL</label>
-                    <input
-                      type="text"
-                      required
-                      value={keystonesVideoUrl}
-                      onChange={(e) => setKeystonesVideoUrl(e.target.value)}
-                      placeholder="e.g. https://www.youtube.com/embed/S_T1VwN7Gic"
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
-                    />
-                    <p style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>💡 Embed URLs must be in the format: <code>https://www.youtube.com/embed/VIDEO_ID</code></p>
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '750', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>Statements & Tickers</h3>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Mission Statement</label>
-                  <textarea
-                    required
-                    rows="3"
-                    value={mission}
-                    onChange={(e) => setMission(e.target.value)}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px', resize: 'none', fontFamily: 'inherit' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Vision Statement</label>
-                  <textarea
-                    required
-                    rows="3"
-                    value={vision}
-                    onChange={(e) => setVision(e.target.value)}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px', resize: 'none', fontFamily: 'inherit' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Ticker Notices (One announcement per line)</label>
-                  <textarea
-                    required
-                    rows="4"
-                    value={tickerNoticesText}
-                    onChange={(e) => setTickerNoticesText(e.target.value)}
-                    placeholder="🌿 Membership drive 2026 is live!"
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', resize: 'vertical', fontFamily: 'inherit' }}
-                  />
-                </div>
-
-                <div style={{ marginTop: '24px', borderTop: '1px solid #e2e8f0', paddingTop: '20px' }}>
-                  <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '750', marginBottom: '16px' }}>Hero Carousel Images</h3>
-                  
-                  <div style={{ display: 'flex', flextype: 'column', gap: '8px', marginBottom: '16px', flexDirection: 'column' }}>
-                    {heroImages.map((img, index) => (
-                      <div key={index} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px', border: '1px solid #e2e8f0', borderRadius: '6px', backgroundColor: '#f8fafc' }}>
-                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                          <img src={img} alt={`Hero ${index}`} style={{ width: '50px', height: '30px', objectFit: 'cover', borderRadius: '4px' }} />
-                          <span style={{ fontSize: '11px', color: '#64748b', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{img.startsWith('data:') ? 'Custom Uploaded Image' : img}</span>
+                        <div className="admin-form-row-2col" style={{ marginTop: '14px' }}>
+                          <div className="admin-form-group">
+                            <label className="admin-form-label">
+                              National Awards <span className="admin-req-star">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={awardsCount}
+                              onChange={(e) => setAwardsCount(e.target.value)}
+                              placeholder="e.g. 18+"
+                              className="admin-form-input"
+                            />
+                          </div>
+                          <div className="admin-form-group">
+                            <label className="admin-form-label">
+                              Research Papers & Projects Count <span className="admin-req-star">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={papersCount}
+                              onChange={(e) => setPapersCount(e.target.value)}
+                              placeholder="e.g. 3"
+                              className="admin-form-input"
+                            />
+                          </div>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => setHeroImages(heroImages.filter((_, idx) => idx !== index))}
-                          style={{ border: 'none', background: 'transparent', color: '#ef4444', cursor: 'pointer', padding: '4px' }}
-                          title="Remove image"
-                        >
-                          <Trash2 size={16} />
-                        </button>
                       </div>
-                    ))}
-                    {heroImages.length === 0 && (
-                      <p style={{ fontSize: '13px', color: '#64748b', fontStyle: 'italic' }}>No hero images configured.</p>
-                    )}
+                    </div>
+
+                    {/* Card 2: Statements & Tickers */}
+                    <div className="admin-card" style={{ marginTop: '20px' }}>
+                      <div className="admin-card-header">
+                        <div className="admin-card-header-icon blue">
+                          <FileText size={17} />
+                        </div>
+                        <h3 className="admin-card-title">Statements & Tickers</h3>
+                      </div>
+                      <div className="admin-card-body">
+                        <div className="admin-form-group">
+                          <label className="admin-form-label">
+                            Mission Statement <span className="admin-req-star">*</span>
+                          </label>
+                          <textarea
+                            required
+                            rows={3}
+                            value={mission}
+                            onChange={(e) => setMission(e.target.value)}
+                            placeholder="To cultivate a culture of innovation, foster teamwork, and enhance student capability in research and design through seminars, hands-on workshops, student-led projects, and professional networking."
+                            className="admin-form-textarea"
+                          />
+                        </div>
+
+                        <div className="admin-form-group" style={{ marginTop: '16px' }}>
+                          <label className="admin-form-label">
+                            Vision Statement <span className="admin-req-star">*</span>
+                          </label>
+                          <textarea
+                            required
+                            rows={3}
+                            value={vision}
+                            onChange={(e) => setVision(e.target.value)}
+                            placeholder="To build a world-class center of technical learning and professional excellence that empowers young minds to create engineering solutions for a sustainable and technologically advanced society."
+                            className="admin-form-textarea"
+                          />
+                        </div>
+
+                        <div className="admin-form-group" style={{ marginTop: '16px' }}>
+                          <label className="admin-form-label">
+                            Ticker Notices (One announcement per line)
+                          </label>
+                          <textarea
+                            required
+                            rows={4}
+                            value={tickerNoticesText}
+                            onChange={(e) => setTickerNoticesText(e.target.value)}
+                            placeholder="# IEEE KEC Student Branch memberships open for 2026..."
+                            className="admin-form-textarea code-look"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Card 3: About & Keystones Media */}
+                    <div className="admin-card" style={{ marginTop: '20px' }}>
+                      <div className="admin-card-header">
+                        <div className="admin-card-header-icon purple">
+                          <Compass size={17} />
+                        </div>
+                        <h3 className="admin-card-title">About & Keystones Media</h3>
+                      </div>
+                      <div className="admin-card-body">
+                        <div className="admin-form-group">
+                          <label className="admin-form-label">About Section Illustration Image</label>
+                          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '8px' }}>
+                            {aboutImage ? (
+                              <img src={aboutImage} alt="About preview" style={{ width: '84px', height: '52px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
+                            ) : (
+                              <div style={{ width: '84px', height: '52px', backgroundColor: '#e2e8f0', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '11px' }}>No Image</div>
+                            )}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={async (e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                  try {
+                                    const base64 = await compressImage(file);
+                                    setAboutImage(base64);
+                                  } catch (err) {
+                                    console.error(err);
+                                  }
+                                }
+                              }}
+                              style={{ fontSize: '12px', width: 'auto' }}
+                            />
+                          </div>
+                          <input
+                            type="text"
+                            value={aboutImage}
+                            onChange={(e) => setAboutImage(e.target.value)}
+                            placeholder="Or enter image URL"
+                            className="admin-form-input"
+                          />
+                        </div>
+
+                        <div className="admin-form-group" style={{ marginTop: '14px' }}>
+                          <label className="admin-form-label">Operational Keystones YouTube Video Embed URL</label>
+                          <input
+                            type="text"
+                            required
+                            value={keystonesVideoUrl}
+                            onChange={(e) => setKeystonesVideoUrl(e.target.value)}
+                            placeholder="e.g. https://www.youtube.com/embed/S_T1VwN7Gic"
+                            className="admin-form-input"
+                          />
+                          <p className="admin-form-helper">💡 Embed URLs must be in the format: <code>https://www.youtube.com/embed/VIDEO_ID</code></p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Card 4: Confidential Settings */}
+                    <div className="admin-card" style={{ marginTop: '20px' }}>
+                      <div className="admin-card-header">
+                        <div className="admin-card-header-icon amber">
+                          <Lock size={17} />
+                        </div>
+                        <h3 className="admin-card-title">Confidential Settings</h3>
+                      </div>
+                      <div className="admin-card-body">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+                          <input
+                            type="checkbox"
+                            id="isPinEnabledInput"
+                            checked={isPinEnabled}
+                            onChange={(e) => setIsPinEnabled(e.target.checked)}
+                            style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#00629B' }}
+                          />
+                          <label htmlFor="isPinEnabledInput" style={{ fontSize: '13.5px', fontWeight: '600', color: '#1e293b', cursor: 'pointer' }}>
+                            Require PIN for confidential items (Global Toggle)
+                          </label>
+                        </div>
+
+                        <div className="admin-form-group">
+                          <label className="admin-form-label">Shared Access PIN (For confidential documents and forms)</label>
+                          <input
+                            type="password"
+                            required
+                            value={accessPin}
+                            onChange={(e) => setAccessPin(e.target.value)}
+                            disabled={!isPinEnabled}
+                            className="admin-form-input"
+                            style={{ maxWidth: '320px', backgroundColor: isPinEnabled ? '#ffffff' : '#f1f5f9' }}
+                          />
+                          <p className="admin-form-helper">Distribute this PIN to authorized members to access protected resources.</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#0a385b' }}>Add Hero Carousel Image</label>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <input
-                        type="text"
-                        value={newHeroImageUrl}
-                        onChange={(e) => setNewHeroImageUrl(e.target.value)}
-                        placeholder="Paste image URL here"
-                        style={{ flex: 1, padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', outline: 'none' }}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (newHeroImageUrl.trim()) {
-                            setHeroImages([...heroImages, newHeroImageUrl.trim()]);
-                            setNewHeroImageUrl('');
-                          }
-                        }}
-                        style={{ padding: '8px 14px', backgroundColor: '#02619a', color: '#ffffff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
-                      >
-                        Add URL
-                      </button>
-                    </div>
-                    
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={async (e) => {
-                          const file = e.target.files[0];
-                          if (file) {
-                            try {
-                              const base64 = await compressImage(file);
-                              setHeroImages([...heroImages, base64]);
-                            } catch (err) {
-                              console.error(err);
-                            }
-                          }
-                        }}
-                        style={{ fontSize: '11px', width: 'auto' }}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (window.confirm("Reset hero images to default values?")) {
-                            setHeroImages(['/assets/kec_gate.jpg', '/assets/kec_itpark.jpg', '/assets/kec_admin.jpg']);
-                          }
-                        }}
-                        style={{ padding: '6px 12px', backgroundColor: '#64748b', color: '#ffffff', border: 'none', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}
-                      >
-                        Reset Defaults
-                      </button>
+                  {/* RIGHT COLUMN */}
+                  <div className="admin-col-right">
+                    <div className="admin-card">
+                      <div className="admin-card-header">
+                        <div className="admin-card-header-icon blue">
+                          <ImageIcon size={17} />
+                        </div>
+                        <h3 className="admin-card-title">Hero Carousel Images</h3>
+                      </div>
+                      <div className="admin-card-body">
+                        {/* Live Preview Display (16:7 aspect ratio) */}
+                        <div className="admin-hero-preview-box">
+                          {heroImages.length > 0 ? (
+                            <img 
+                              src={heroImages[activeHeroIndex] || heroImages[0]} 
+                              alt="Hero Live Preview" 
+                              className="admin-hero-preview-img"
+                            />
+                          ) : (
+                            <div className="admin-hero-preview-placeholder">
+                              <ImageIcon size={36} style={{ opacity: 0.4 }} />
+                              <span>No Hero Images Configured</span>
+                            </div>
+                          )}
+
+                          {/* Navigation arrows */}
+                          {heroImages.length > 1 && (
+                            <>
+                              <button
+                                type="button"
+                                className="admin-hero-nav-arrow left"
+                                onClick={() => setActiveHeroIndex((activeHeroIndex - 1 + heroImages.length) % heroImages.length)}
+                                title="Previous image"
+                              >
+                                ‹
+                              </button>
+                              <button
+                                type="button"
+                                className="admin-hero-nav-arrow right"
+                                onClick={() => setActiveHeroIndex((activeHeroIndex + 1) % heroImages.length)}
+                                title="Next image"
+                              >
+                                ›
+                              </button>
+                            </>
+                          )}
+
+                          {/* Dot indicators */}
+                          {heroImages.length > 1 && (
+                            <div className="admin-hero-dots">
+                              {heroImages.map((_, dotIdx) => (
+                                <span 
+                                  key={dotIdx} 
+                                  className={`admin-hero-dot ${dotIdx === activeHeroIndex ? 'active' : ''}`}
+                                  onClick={() => setActiveHeroIndex(dotIdx)}
+                                />
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Choose File Upload Bar */}
+                        <div className="admin-file-upload-box" style={{ marginTop: '16px' }}>
+                          <label className="admin-choose-file-btn">
+                            <UploadCloud size={14} />
+                            <span>Choose File</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={async (e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                  try {
+                                    const base64 = await compressImage(file);
+                                    setHeroImages([...heroImages, base64]);
+                                    setActiveHeroIndex(heroImages.length);
+                                  } catch (err) {
+                                    console.error(err);
+                                  }
+                                }
+                              }}
+                              style={{ display: 'none' }}
+                            />
+                          </label>
+                          <span className="admin-file-name-label">
+                            {heroImages.length > 0 ? (heroImages[activeHeroIndex]?.startsWith('data:') ? 'custom_hero_upload.jpg' : (heroImages[activeHeroIndex]?.split('/').pop() || 'hero_event.jpg')) : 'Select an image'}
+                          </span>
+                          <CheckCircle2 size={16} className="admin-file-check-icon" />
+                        </div>
+                        <div className="admin-file-size-hint">
+                          Recommended size: 1440 × 600 px (16:7) • Max size: 5 MB ⓘ
+                        </div>
+
+                        {/* Uploaded Images List */}
+                        <div className="admin-uploaded-list-header">
+                          <span>Uploaded Images</span>
+                        </div>
+
+                        <div className="admin-upload-list">
+                          {heroImages.map((img, index) => {
+                            const isCustom = img.startsWith('data:');
+                            const filename = isCustom ? `hero_custom_${index + 1}.jpg` : (img.split('/').pop() || `hero_event_${index + 1}.jpg`);
+                            const isActive = index === activeHeroIndex;
+
+                            return (
+                              <div key={index} className={`admin-upload-item ${isActive ? 'active-preview' : ''}`}>
+                                <div className="admin-upload-item-left">
+                                  <img src={img} alt={`Thumbnail ${index}`} className="admin-upload-thumb" />
+                                  <div className="admin-upload-meta">
+                                    <div className="admin-upload-name">{filename}</div>
+                                    <div className="admin-upload-specs">1440 × 600 px • 1.2 MB</div>
+                                  </div>
+                                </div>
+                                <div className="admin-upload-actions">
+                                  <button
+                                    type="button"
+                                    className="admin-upload-action-btn view"
+                                    onClick={() => setActiveHeroIndex(index)}
+                                    title="Preview this slide"
+                                  >
+                                    <Eye size={15} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="admin-upload-action-btn delete"
+                                    onClick={() => {
+                                      const updated = heroImages.filter((_, idx) => idx !== index);
+                                      setHeroImages(updated);
+                                      if (activeHeroIndex >= updated.length) {
+                                        setActiveHeroIndex(Math.max(0, updated.length - 1));
+                                      }
+                                    }}
+                                    title="Remove image"
+                                  >
+                                    <Trash2 size={15} />
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                          {heroImages.length === 0 && (
+                            <div style={{ padding: '20px', textAlign: 'center', color: '#94a3b8', fontSize: '13px' }}>
+                              No images uploaded yet. Click Choose File to add.
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Add Image by URL & Reset Defaults */}
+                        <div style={{ marginTop: '16px', paddingTop: '14px', borderTop: '1px solid #f1f5f9' }}>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <input
+                              type="text"
+                              value={newHeroImageUrl}
+                              onChange={(e) => setNewHeroImageUrl(e.target.value)}
+                              placeholder="Or paste external image URL..."
+                              className="admin-form-input"
+                              style={{ fontSize: '12.5px' }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (newHeroImageUrl.trim()) {
+                                  setHeroImages([...heroImages, newHeroImageUrl.trim()]);
+                                  setNewHeroImageUrl('');
+                                  setActiveHeroIndex(heroImages.length);
+                                }
+                              }}
+                              className="admin-btn-secondary"
+                              style={{ whiteSpace: 'nowrap', padding: '8px 14px', fontSize: '12px' }}
+                            >
+                              Add URL
+                            </button>
+                          </div>
+
+                          <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end' }}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (window.confirm("Reset hero images to default values?")) {
+                                  setHeroImages(['/assets/kec_gate.jpg', '/assets/kec_itpark.jpg', '/assets/kec_admin.jpg']);
+                                  setActiveHeroIndex(0);
+                                }
+                              }}
+                              style={{ background: 'transparent', border: 'none', color: '#64748b', fontSize: '11.5px', cursor: 'pointer', textDecoration: 'underline' }}
+                            >
+                              Reset to default images
+                            </button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', gridColumn: 'span 2' }}>
-                <h3 style={{ fontSize: '16px', color: '#0a385b', fontWeight: '750', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>Confidential Settings</h3>
-                
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <input
-                    type="checkbox"
-                    id="isPinEnabledInput"
-                    checked={isPinEnabled}
-                    onChange={(e) => setIsPinEnabled(e.target.checked)}
-                    style={{ cursor: 'pointer' }}
-                  />
-                  <label htmlFor="isPinEnabledInput" style={{ fontSize: '14px', fontWeight: '700', color: '#475569', cursor: 'pointer' }}>
-                    Require PIN for confidential items (Global Toggle)
-                  </label>
+                {/* Bottom Actions Row */}
+                <div className="admin-bottom-actions">
+                  <button
+                    type="button"
+                    className="admin-btn-outline"
+                    onClick={() => {
+                      if (window.confirm("Discard unsaved changes and reset this view to saved data?")) {
+                        fetchStats();
+                      }
+                    }}
+                  >
+                    <RotateCcw size={15} />
+                    <span>Reset</span>
+                  </button>
+                  <button
+                    type="submit"
+                    className="admin-btn-primary"
+                  >
+                    <Save size={15} />
+                    <span>Save Changes</span>
+                  </button>
                 </div>
-
-                <div style={{ width: '50%' }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0a385b', marginBottom: '6px' }}>Shared Access PIN (For confidential documents and forms)</label>
-                  <input
-                    type="password"
-                    required
-                    value={accessPin}
-                    onChange={(e) => setAccessPin(e.target.value)}
-                    disabled={!isPinEnabled}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none', backgroundColor: isPinEnabled ? '#ffffff' : '#f1f5f9' }}
-                  />
-                  <p style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>Distribute this PIN to users who are allowed to access confidential items.</p>
-                </div>
-              </div>
-
-              <div style={{ gridColumn: 'span 2', marginTop: '10px' }}>
-                <button
-                  type="submit"
-                  style={{
-                    backgroundColor: '#02619a',
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: '8px',
-                    padding: '12px 30px',
-                    fontSize: '14px',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                  className="admin-save-btn"
-                >
-                  Save Overview Settings
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
+              </form>
+            </div>
+          )}
 
         {/* Tab 2: Gallery CRUD Operations */}
         {activeTab === 'gallery' && (
@@ -9953,6 +10049,7 @@ const Admin = () => {
             )}
           </div>
         )}
+        </main>
       </div>
 
       {/* CRUD Add/Edit Overlay Modal */}
@@ -10874,7 +10971,6 @@ const Admin = () => {
                 </button>
                 <button
                   type="submit"
-                  onClick={() => console.log("Save button clicked")}
                   style={{ padding: '10px 22px', fontSize: '13.5px', fontWeight: '700', color: '#ffffff', backgroundColor: 'var(--secondary)', border: 'none', borderRadius: '30px', cursor: 'pointer' }}
                 >
                   Save Record
@@ -10897,153 +10993,178 @@ const Admin = () => {
         .spin-anim {
           animation: spin 1.5s linear infinite;
         }
-        /* Dashboard Container & Grid card adjustments */
-        .admin-dashboard-container {
-          color: var(--text-dark) !important;
+        /* Keyframes */
+        @keyframes modal-slide-up {
+          from { opacity: 0; transform: translateY(15px); }
+          to { opacity: 1; transform: translateY(0); }
         }
-        /* Override primary text colors */
-        .admin-dashboard-container h2, 
-        .admin-dashboard-container h3, 
-        .admin-dashboard-container h4, 
-        .admin-dashboard-container label, 
-        .admin-dashboard-container th,
-        .admin-dashboard-container td strong {
-          color: var(--primary) !important;
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
-        /* Style card containers to look premium and glassmorphic */
-        .admin-dashboard-container .card {
-          background-color: var(--bg-card) !important;
-          backdrop-filter: blur(16px) !important;
-          border: 1px solid var(--border-subtle) !important;
-          box-shadow: var(--shadow-md) !important;
-          border-radius: 16px !important;
-          transition: all 0.3s ease !important;
+        .spin-anim {
+          animation: spin 1.5s linear infinite;
         }
-        .admin-dashboard-container .card:hover {
-          box-shadow: var(--shadow-lg) !important;
-          border-color: rgba(var(--secondary-rgb), 0.25) !important;
+
+        /* Unified styling across entire admin shell */
+        .admin-shell {
+          color: #0f172a !important;
         }
-        /* Input, Textarea, Select style overrides */
-        .admin-dashboard-container input,
-        .admin-dashboard-container select,
-        .admin-dashboard-container textarea {
-          border: 1px solid var(--border-subtle) !important;
-          background-color: rgba(255, 255, 255, 0.75) !important;
-          border-radius: 10px !important;
-          color: var(--text-dark) !important;
-          padding: 11px 15px !important;
-          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-          font-family: var(--font-sans) !important;
+
+        /* Clean titles with balanced weights */
+        .admin-shell h2, 
+        .admin-shell h3, 
+        .admin-shell h4 {
+          font-weight: 600 !important;
+          color: #0f172a !important;
         }
-        .admin-dashboard-container input:focus,
-        .admin-dashboard-container select:focus,
-        .admin-dashboard-container textarea:focus {
-          border-color: var(--secondary) !important;
+
+        .admin-shell label {
+          font-weight: 500 !important;
+          color: #334155 !important;
+          font-size: 13px !important;
+        }
+
+        /* Cards across all tabs */
+        .admin-shell .card {
           background-color: #ffffff !important;
-          box-shadow: 0 0 0 4px rgba(var(--secondary-rgb), 0.12) !important;
+          border: 1px solid #e2e8f0 !important;
+          border-radius: 14px !important;
+          box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 4px 16px rgba(15, 23, 42, 0.02) !important;
+          padding: 26px 30px !important;
+          margin-bottom: 24px !important;
+        }
+
+        /* Inputs, selects, textareas */
+        .admin-shell input:not([type="checkbox"]):not([type="radio"]),
+        .admin-shell select,
+        .admin-shell textarea {
+          border: 1px solid #cbd5e1 !important;
+          background-color: #ffffff !important;
+          border-radius: 8px !important;
+          color: #0f172a !important;
+          padding: 10px 14px !important;
+          font-size: 13.5px !important;
+          font-weight: 400 !important;
           outline: none !important;
+          transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
         }
-        /* Buttons layout overrides */
-        .admin-dashboard-container button {
-          font-family: var(--font-sans) !important;
-          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-        }
-        /* Specific action buttons */
-        .admin-save-btn, .admin-add-btn, .admin-login-btn, button[type="submit"] {
-          background: var(--gradient-primary) !important;
-          color: #ffffff !important;
-          border-radius: 30px !important;
-          font-weight: 700 !important;
-          padding: 10px 24px !important;
-          box-shadow: var(--shadow-sm) !important;
-          border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        }
-        .admin-save-btn:hover, .admin-add-btn:hover, .admin-login-btn:hover, button[type="submit"]:hover {
-          background: var(--gradient-cyber) !important;
-          transform: translateY(-1.5px) !important;
-          box-shadow: var(--shadow-glow) !important;
-        }
-        /* Logout hover */
-        .admin-logout-btn:hover {
+
+        .admin-shell input:not([type="checkbox"]):not([type="radio"]):focus,
+        .admin-shell select:focus,
+        .admin-shell textarea:focus {
+          border-color: #0284c7 !important;
           background-color: #ffffff !important;
-          color: var(--primary) !important;
-          border-color: #ffffff !important;
-          box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3) !important;
+          box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12) !important;
         }
-        /* Edit & Delete hover overrides */
-        .action-btn-hover-edit {
-          color: var(--secondary) !important;
-          border: 1px solid var(--border-subtle) !important;
+
+        /* Buttons across all pages */
+        .admin-shell .admin-add-btn,
+        .admin-shell .admin-save-btn,
+        .admin-shell button[type="submit"] {
+          background-color: #0B192C !important;
+          color: #ffffff !important;
           border-radius: 8px !important;
-          padding: 7px !important;
-          transition: all 0.2s ease !important;
+          font-weight: 600 !important;
+          font-size: 13.5px !important;
+          padding: 10px 22px !important;
+          box-shadow: 0 2px 6px rgba(11, 25, 44, 0.25) !important;
+          border: 1px solid transparent !important;
+          cursor: pointer !important;
+          transition: all 0.15s ease !important;
         }
-        .action-btn-hover-edit:hover {
-          background-color: var(--accent-light) !important;
-          border-color: var(--secondary) !important;
-          color: var(--secondary) !important;
-          transform: scale(1.05) !important;
+
+        .admin-shell .admin-add-btn:hover,
+        .admin-shell .admin-save-btn:hover,
+        .admin-shell button[type="submit"]:hover {
+          background-color: #07263e !important;
+          box-shadow: 0 4px 12px rgba(11, 25, 44, 0.35) !important;
+          transform: translateY(-1px) !important;
         }
-        .action-btn-hover-delete {
-          color: #ef4444 !important;
-          border: 1px solid var(--border-subtle) !important;
-          border-radius: 8px !important;
-          padding: 7px !important;
-          transition: all 0.2s ease !important;
-        }
-        .action-btn-hover-delete:hover {
-          background-color: #fef2f2 !important;
-          border-color: #fca5a5 !important;
-          color: #ef4444 !important;
-          transform: scale(1.05) !important;
-        }
-        /* Tables style overrides */
-        .admin-dashboard-container table {
+
+        /* Table headers & rows across all 16 tabs */
+        .admin-shell table {
           border-collapse: collapse !important;
           width: 100% !important;
+          text-align: left !important;
         }
-        .admin-dashboard-container thead tr {
-          background-color: rgba(var(--secondary-rgb), 0.04) !important;
-          border-bottom: 2px solid var(--border-subtle) !important;
+        .admin-shell thead tr {
+          background-color: #f8fafc !important;
+          border-bottom: 1px solid #e2e8f0 !important;
         }
-        .admin-dashboard-container th {
-          padding: 16px 20px !important;
-          font-weight: 700 !important;
-          font-size: 13.5px !important;
+        .admin-shell th {
+          padding: 14px 18px !important;
+          font-weight: 600 !important;
+          font-size: 12px !important;
           letter-spacing: 0.5px !important;
           text-transform: uppercase !important;
-          color: var(--primary) !important;
+          color: #64748b !important;
+          background-color: #f8fafc !important;
         }
-        .admin-dashboard-container tbody tr {
-          border-bottom: 1px solid rgba(var(--secondary-rgb), 0.08) !important;
-          transition: background-color 0.2s ease !important;
+        .admin-shell tbody tr {
+          border-bottom: 1px solid #f1f5f9 !important;
+          transition: background-color 0.15s ease !important;
         }
-        .admin-dashboard-container tbody tr:hover {
-          background-color: rgba(var(--secondary-rgb), 0.015) !important;
+        .admin-shell tbody tr:hover {
+          background-color: #f8fafc !important;
         }
-        .admin-dashboard-container td {
-          padding: 16px 20px !important;
-          color: var(--text-muted) !important;
-          font-size: 14px !important;
+        .admin-shell td {
+          padding: 14px 18px !important;
+          color: #334155 !important;
+          font-size: 13.5px !important;
+          font-weight: 400 !important;
         }
-        /* Tab buttons */
-        .tab-btn:hover:not(.active-tab) {
-          background-color: rgba(var(--secondary-rgb), 0.08) !important;
-          color: var(--secondary) !important;
-          border-color: var(--border-subtle) !important;
+
+        /* Action buttons in tables */
+        .action-btn-hover-edit {
+          color: #0284c7 !important;
+          border: 1px solid #bae6fd !important;
+          background-color: #eff6ff !important;
+          border-radius: 6px !important;
+          padding: 6px 10px !important;
+          font-size: 12.5px !important;
+          font-weight: 500 !important;
+          cursor: pointer !important;
+          transition: all 0.15s ease !important;
         }
+        .action-btn-hover-edit:hover {
+          background-color: #e0f2fe !important;
+          border-color: #7dd3fc !important;
+          color: #0369a1 !important;
+        }
+
+        .action-btn-hover-delete {
+          color: #ef4444 !important;
+          border: 1px solid #fecaca !important;
+          background-color: #fef2f2 !important;
+          border-radius: 6px !important;
+          padding: 6px 10px !important;
+          font-size: 12.5px !important;
+          font-weight: 500 !important;
+          cursor: pointer !important;
+          transition: all 0.15s ease !important;
+        }
+        .action-btn-hover-delete:hover {
+          background-color: #fee2e2 !important;
+          border-color: #fca5a5 !important;
+          color: #dc2626 !important;
+        }
+
         /* Overlay Modals */
         .modal-overlay {
-          backdrop-filter: blur(8px) !important;
-          background-color: rgba(15, 23, 42, 0.6) !important;
+          backdrop-filter: blur(6px) !important;
+          background-color: rgba(15, 23, 42, 0.5) !important;
         }
         .modal-card {
-          border-radius: 20px !important;
-          box-shadow: var(--shadow-premium) !important;
-          border: 1px solid var(--border-subtle) !important;
+          border-radius: 16px !important;
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+          border: 1px solid #e2e8f0 !important;
+          background: #ffffff !important;
         }
         .modal-header {
-          background: var(--gradient-primary) !important;
+          background: #0B192C !important;
+          color: #ffffff !important;
+          padding: 18px 24px !important;
           border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
         }
       `}</style>
